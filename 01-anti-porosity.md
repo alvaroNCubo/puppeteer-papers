@@ -14,8 +14,20 @@ keywords:
   - DSL design
   - puppeteer framework
 abstract: >
-  [PENDIENTE — 3 líneas: qué es la anti-porosidad,
-  por qué importa, qué demuestra el paper.]
+  Systems combining CQRS, the Actor Model, and Event Sourcing are typically
+  described as three independent design choices. This paper argues that the
+  combination, when applied consistently, enables a unified design principle —
+  *anti-porosity* — that rejects, in domain, endpoint, and persistence layers
+  simultaneously, representations whose shape is dictated by the storage
+  substrate rather than by the operations being described. Porosity is the
+  structural defect that emerges when rich, possibly recursive object graphs
+  are forced into impoverished persistence formats — relational tables, flat
+  documents, or naïve event payloads — and propagates upward into endpoint
+  contracts and the domain model itself. Anti-porosity inverts the assumption:
+  domain models are shaped for the verbs that operate on them, and persistence
+  captures those verbs rather than the resulting state. We describe the
+  principle and how it is sustained in the Puppeteer framework, drawing on
+  practical experience at Ncubo.
 canonical_url: https://[pending]/papers/anti-porosity-v1
 ---
 
@@ -23,24 +35,30 @@ canonical_url: https://[pending]/papers/anti-porosity-v1
 
 ## TL;DR
 
-[PENDIENTE — 3–4 líneas. Ejemplo de tono:]
-
-> Los sistemas DBMS-céntricos producen diseños porosos por presión estructural:
-> tablas que mezclan conceptos, DTOs con campos opcionales, journals con campos
-> vacíos. Este paper presenta la **anti-porosidad** como principio de diseño
-> transversal — aplicable simultáneamente a dominio, endpoint y persistencia —
-> implementado en el framework Puppeteer.
+> Architectures that shape their domain models to fit a storage substrate produce *porous* designs under structural pressure: rich object graphs — recursive, heterogeneous, with different node and edge types — do not survive a relational schema, so domain classes either fragment across joined tables that return empty cells or collapse into wide tables of redundant primitives; endpoint DTOs accumulate optional fields to serve heterogeneous use groups behind a single contract; and persistence layers record *what state exists* without recording *how it came to be*.
+>
+> This paper introduces **anti-porosity** as a unified design principle that addresses all three layers simultaneously by inverting the underlying assumption: domain models are shaped for the verbs that operate on them, and persistence captures those verbs rather than the state they produce. We show that a CQRS + Actor Model + Event Sourcing implementation — exemplified by the Puppeteer framework — sustains this inversion. The contribution is the *transversality* of the principle; each individual layer has prior art.
 
 ---
 
 ## Claims this paper makes
 
-[PENDIENTE — bullets verificables. Borrador inicial:]
+1. **Porosity has three distinct surface manifestations.**
+   - *Domain*: a class hierarchy whose shape is dictated by what fits in the storage substrate rather than by the operations the domain supports — losing references, recursion, and heterogeneous typing along the way. Two visible patterns: over-normalized schemas, where classes fragment across many tables joined by type and queries return rows of mostly-empty cells; and under-normalized schemas, where classes collapse into wide tables with naming ambiguity and primitive-level redundancy because complex objects must be flattened to fit a row.
+   - *Endpoint*: a single API contract serving heterogeneous use groups via optional fields, with no contractual indication of which fields belong to which group.
+   - *Persistence*: representations that capture *what state exists* without capturing *how it came to be* — a row of weights, but not the operations that produced them. Rich object graphs (recursive, heterogeneous, with different node and edge types) either fragment or flatten as above; document stores partially relieve this for tree-shaped data but degrade once recursion or cross-references appear; and naïve event sourcing recreates the defect at a different scale by serializing every input parameter regardless of which the execution consumed.
 
-1. La porosidad es un anti-patrón observable en tres capas distintas que normalmente se tratan como problemas separados: dominio (tablas con NULLs), endpoint (DTOs con grupos de uso heterogéneos), persistencia (journals con campos no usados).
-2. Los tres son síntomas de la misma presión estructural: la asunción tácita de que el modelo se diseña *para* la persistencia.
-3. Un modelo basado en CQRS + Actor Model + Event Sourcing permite **rechazar la porosidad simultáneamente en las tres capas**, usando los mismos primitivos: clase por papel, DTO con parámetros opcionales filtrables, journal denso por construcción.
-4. La implementación de referencia (Puppeteer) demuestra que el principio se puede sostener en producción a través de [N] dominios distintos durante [X] años.
+2. **The three are not independent problems.** Each is a downstream effect of the same upstream decision — modeling the domain *for* the storage substrate (primarily relational, but the same pattern partially recurs with document stores when recursion or cross-references are present). Once that decision is in place, every local fix recreates the pressure in a different layer.
+
+3. **A combined CQRS + Actor Model + Event Sourcing implementation can reject all three porosities using a small, shared set of primitives.**
+   - *Domain*: one class per role, with arbitrary references — including recursion and heterogeneous typing — permitted in the in-memory model. The persistence substrate no longer constrains the domain shape.
+   - *Endpoint*: DTOs with filterable optional parameters; the same contract serves heterogeneous use groups without polluting the journal.
+   - *Persistence*: dense journals of *verbs* rather than state. Each entry records a high-level operation designed by the programmer and exactly the inputs that operation consumed — not the edges of the object graph, not the input parameter set as received. The state, however rich, is reconstructed deterministically by replay.
+   - The three mechanisms operationalize the same notion (*"what this operation actually used"*) at three layers.
+
+4. **The principle is not theoretical.** The Puppeteer framework, the reference implementation described in this paper, has been used in production to build structurally distinct subsystems within the core of eCommerce and payments platforms — payment hubs, account-balance ledgers, KYC pipelines, customer-facing storefronts and experiences, and payment-processor integrations. Code references throughout this paper (Appendix A) point to the public repositories; quantitative empirical results are deferred to a forthcoming case-study white paper.
+
+5. **The contribution is the unification, not the constituent patterns.** CQRS, the Actor Model, and Event Sourcing are well-documented individually, and each manifestation of porosity has prior treatment in DDD, API-design, and Event Sourcing literature. This paper claims neither novel patterns nor novel detection of any single porosity. The contribution is the recognition that the three layers express a single architectural decision and admit a single architectural response.
 
 ## When NOT to use this approach
 
