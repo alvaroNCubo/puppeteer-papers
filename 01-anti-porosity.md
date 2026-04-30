@@ -14,20 +14,23 @@ keywords:
   - DSL design
   - puppeteer framework
 abstract: >
-  Systems combining CQRS, the Actor Model, and Event Sourcing are typically
-  described as three independent design choices. This paper argues that the
-  combination, when applied consistently, enables a unified design principle —
-  *anti-porosity* — that rejects, in domain, endpoint, and persistence layers
-  simultaneously, representations whose shape is dictated by the storage
-  substrate rather than by the operations being described. Porosity is the
-  structural defect that emerges when rich, possibly recursive object graphs
-  are forced into impoverished persistence formats — relational tables, flat
-  documents, or naïve event payloads — and propagates upward into endpoint
-  contracts and the domain model itself. Anti-porosity inverts the assumption:
-  domain models are shaped for the verbs that operate on them, and persistence
-  captures those verbs rather than the resulting state. We describe the
-  principle and how it is sustained in the Puppeteer framework, drawing on
-  practical experience at Ncubo.
+  Four bodies of literature — relational database theory, domain-driven design,
+  REST API contract design, and Event Sourcing — independently document a
+  recurring representational defect: schemas that mix unrelated concepts,
+  fields populated for some rows but not others, contracts overloading
+  heterogeneous use cases behind optional parameters, event payloads recording
+  what was sent rather than what was used. Each tradition names the defect
+  locally and prescribes a local remedy. This paper argues that the four are
+  surface manifestations of a single structural defect, which we call
+  *porosity*: the shape of a representation is dictated by what fits in the
+  storage substrate rather than by the operations the representation describes.
+  We further argue that *anti-porosity* — the principled rejection of porosity
+  simultaneously across the three layers in which it manifests (domain,
+  endpoint, persistence) — inverts the underlying assumption (domain models
+  shaped for verbs rather than for storage) and is achievable when CQRS, the
+  Actor Model, and Event Sourcing are combined under a single discipline. The
+  Puppeteer framework, drawing on practical experience at Ncubo, serves as
+  proof-of-existence.
 canonical_url: https://[pending]/papers/anti-porosity-v1
 ---
 
@@ -37,7 +40,7 @@ canonical_url: https://[pending]/papers/anti-porosity-v1
 
 > Architectures that shape their domain models to fit a storage substrate produce *porous* designs under structural pressure: rich object graphs — recursive, heterogeneous, with different node and edge types — do not survive a relational schema, so domain classes either fragment across joined tables that return empty cells or collapse into wide tables of redundant primitives; endpoint DTOs accumulate optional fields to serve heterogeneous use groups behind a single contract; and persistence layers record *what state exists* without recording *how it came to be*.
 >
-> This paper introduces **anti-porosity** as a unified design principle that addresses all three layers simultaneously by inverting the underlying assumption: domain models are shaped for the verbs that operate on them, and persistence captures those verbs rather than the state they produce. We show that a CQRS + Actor Model + Event Sourcing implementation — exemplified by the Puppeteer framework — sustains this inversion. The contribution is the *transversality* of the principle; each individual layer has prior art.
+> This paper argues that these are surface manifestations of a single structural defect — *porosity* — that four bodies of literature (database theory, domain-driven design, REST API design, Event Sourcing) have each diagnosed locally without recognizing as one. We name the unified rejection *anti-porosity* and show that a CQRS + Actor Model + Event Sourcing combination, exemplified by the Puppeteer framework, makes anti-porosity achievable across all three manifestations. **Porosity is not a database problem, nor an API problem, nor an event-sourcing problem; it is a representational sparsity problem described independently in graph theory, information theory, database normalization, and storage engine theory.**
 
 ---
 
@@ -58,7 +61,7 @@ canonical_url: https://[pending]/papers/anti-porosity-v1
 
 4. **The principle is not theoretical.** The Puppeteer framework, the reference implementation described in this paper, has been used in production to build structurally distinct subsystems within the core of eCommerce and payments platforms — payment hubs, account-balance ledgers, KYC pipelines, customer-facing storefronts and experiences, and payment-processor integrations. Code references throughout this paper (Appendix A) point to the public repositories; quantitative empirical results are deferred to a forthcoming case-study white paper.
 
-5. **The contribution is the unification, not the constituent patterns.** CQRS, the Actor Model, and Event Sourcing are well-documented individually, and each manifestation of porosity has prior treatment in DDD, API-design, and Event Sourcing literature. This paper claims neither novel patterns nor novel detection of any single porosity. The contribution is the recognition that the three layers express a single architectural decision and admit a single architectural response.
+5. **The contribution is the cross-literature identification, not the implementation.** Four bodies of work — relational database theory, domain-driven design, REST API contract design, and Event Sourcing — have each documented surface manifestations of porosity in their own vocabularies, without recognizing the underlying unity. CQRS, the Actor Model, and Event Sourcing are individually well-known constituent patterns; what we claim as novel is neither the patterns nor the detection of any single porosity, but the observation that the four traditions converge on a single defect, that *anti-porosity* names its unified rejection, and that the rejection is implementable rather than merely conceivable. The Puppeteer framework is presented as proof-of-existence; the conceptual claim does not depend on it.
 
 ## When NOT to use this approach
 
@@ -110,9 +113,33 @@ The discovery was at first taken as a clever optimization — a way to add persi
 
 What the journal lacked, the relational schema produced systematically. The journal was *dense*; the schema was *porous*. We call this defect *porosity*: the shape of a representation is dictated by what fits in the storage substrate rather than by the operations the representation describes. Its visible symptom is widespread structural emptiness — fields without values, columns whose meaning depends on the row, queries returning rows with cells that the application never reads. The defect emerges most visibly when complex or polymorphic abstractions are forced into relational tables, and intensifies as the abstractions become richer.
 
-Porosity has been largely invisible to the literature, but not because it is rare. It is, in fact, ubiquitous — the experienced developer encounters it every day and accepts it as the cost of working with the dominant tools. The vocabulary for naming it has not existed: developers do not say *this design is porous*; they say *this design is fine; the empty fields are normal.* Decades of relational-first modeling have made the trade-offs that produce porosity (over-normalization versus under-normalization, joins versus wide rows, NULLs versus duplicate tables) feel like inherent properties of software construction. They are not. They are the consequence of one architectural decision — that the domain model must be shaped for the database — repeated millions of times. Naming the phenomenon is the first step toward seeing it.
+Porosity has been largely invisible to the literature, but not because it is rare. It has, in fact, been documented repeatedly — under different names, in different traditions, by authors who did not recognize they were describing the same phenomenon. Database theory describes its surface effects as normalization-induced anomalies; domain-driven design describes them as persistence-driven anemic models; REST API design describes them as overloaded contracts and proliferating optional fields; Event Sourcing describes them as bloated event payloads coupled to commands. Each tradition names a local defect and prescribes a local remedy. None observes the underlying common cause. The vocabulary for that cause has not existed: developers do not say *this design is porous*; they say *this design is fine; the empty fields are normal.* Decades of relational-first modeling have made the trade-offs that produce porosity (over-normalization versus under-normalization, joins versus wide rows, NULLs versus duplicate tables) feel like inherent properties of software construction. They are not. They are the consequence of one architectural decision — that the domain model must be shaped for the database — repeated millions of times. Naming the phenomenon is the first step toward seeing it.
 
-This paper argues that porosity is not inevitable, and that its three commonly observed manifestations — in the domain, in the API contract, and in the persistence layer — are projections of the same single decision rather than independent problems. We name the unified rejection of porosity *anti-porosity*, and we describe how a CQRS + Actor Model + Event Sourcing combination, exemplified by the Puppeteer framework, sustains anti-porosity simultaneously across the three layers. The paper is organized as follows. §2 enumerates three layers of porosity and argues that each is a face of the same defect. §3 introduces anti-porosity as a unified design principle. §4 describes the mechanisms by which Puppeteer realizes the principle. §5 reports operational experience drawn from production deployments. §6 addresses anticipated counter-arguments. §7 places this work in the context of related literature, and §8 concludes.
+This paper argues that porosity is not inevitable, that the four traditions cited above describe surface manifestations of a single structural defect, and that their independent local remedies are partial solutions to a problem that admits a unified one. We name the unified rejection of porosity *anti-porosity*, and we describe how a CQRS + Actor Model + Event Sourcing combination, exemplified by the Puppeteer framework, sustains anti-porosity simultaneously across the three manifestations in which the defect appears (domain, endpoint, persistence). The paper is organized as follows. §2 enumerates three layers of porosity and argues that each is a face of the same defect. §3 introduces anti-porosity as a unified design principle. §4 describes the mechanisms by which Puppeteer realizes the principle. §5 reports operational experience drawn from production deployments. §6 addresses anticipated counter-arguments. §7 places this work in the context of related literature, and §8 concludes.
+
+### 1.1 A formal characterization
+
+*Porosity is not a database problem, nor an API problem, nor an event-sourcing problem. It is a representational sparsity problem described independently in graph theory, information theory, database normalization, and storage engine theory.*
+
+The four formalisms that establish this characterization are summarized below; their intersection makes the term derivable rather than invented.
+
+**Graph theory.** Domain models can be formalized as *semantic graphs*: nodes typed by entity class, edges typed by relation, with both nodes and edges potentially heterogeneous in type (Diestel, 2017). Polymorphism corresponds to heterogeneous node typing; recursion corresponds to self-referencing edge structure. The graph-database and Semantic Web literatures (Berners-Lee et al., 2001; Robinson et al., 2015) acknowledge this directly; the relational literature does not.
+
+**Information theory.** Following Shannon (1948), a representation can be characterized by its *structural capacity* — the bits available to encode states — and its *informational content* — the bits actually used. When structural capacity exceeds informational content, the representation is *sparse*: most of its bits carry no information for any given instance. Empty fields, NULLs, and unused parameters are concrete realizations of representational sparsity in software systems.
+
+**Storage engines.** Each storage substrate exposes a *structural alphabet*: the set of shapes it can natively express (Hellerstein et al., 2007). Relational stores express rows × columns × types; document stores express nested trees of typed values; event stores express ordered logs of typed records; graph stores express labeled directed graphs. The alphabet of a substrate determines what can be written densely; whatever exceeds the alphabet must either be projected, with loss of structure, or padded, with empty cells.
+
+**Database normalization theory.** Codd's relational model (Codd, 1970), refined through successive normal forms (Codd, 1971; Fagin, 1977), is the canonical historical formalism for representing data in the relational alphabet. Normalization is prescribed to eliminate update, insert, and delete anomalies. The procedures that resolve these anomalies — splitting wide tables, introducing join columns, accepting NULLs in optional attributes — themselves produce the representational sparsity that, decades later, would be accepted in practice as the cost of doing software.
+
+**Synthesis.** The four formalisms converge on a single definition:
+
+> *Porosity is the architectural manifestation of representational sparsity that arises when a semantic graph is projected onto substrates whose structural alphabet exceeds the information actually required by operations.*
+
+The dual:
+
+> *Density preservation occurs when representations encode only the information actually consumed by operations, keeping structural capacity proportional to semantic content.*
+
+Each phrase in these definitions is borrowed from one of the four formalisms; the contribution is the act of synthesis — observing that the formalisms converge on a defect that none of them names with the generality needed to see across substrates.
 
 ## 2. Tres caras de la porosidad
 
