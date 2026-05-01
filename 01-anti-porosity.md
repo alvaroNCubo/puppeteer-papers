@@ -155,13 +155,15 @@ The choice is not driven by ignorance of the alternative. Developers familiar wi
 
 The downstream effects extend beyond schema shape. State transitions on the porous table become updates against a row that other transactions may also read or modify; lock contention emerges as a structural cost of the design choice, not as an accident of high traffic. The broader observation — that a domain whose lifecycle was never logically concurrent now pays for transactional concurrency it did not request — is treated separately, as a distinct symptom of persistence-as-source-of-truth, in Paper 4.
 
-### 2.2 Porosidad en el endpoint: DTOs heterogéneos
+### 2.2 Porosity in the endpoint layer
 
-[PENDIENTE]
+The endpoint layer's primary contractual artifact is the DTO — a fixed-shape tuple of fields defining what flows between client and server. When an endpoint serves a single, homogeneous use case, the DTO is well-defined. When it serves heterogeneous use groups behind a single endpoint, the DTO accumulates optional fields, parallel to the wide table with `status`-conditioned columns of §2.1. The structural defect is the same; only the layer differs.
 
-- Mismo endpoint sirve grupos de uso distintos (admin vs cliente, distintos features).
-- Solución habitual: un DTO con todos los campos, validación condicional.
-- Resultado: el contrato del endpoint no documenta qué grupo usa qué campos.
+Consider an endpoint `POST /orders` that serves both a customer self-checkout flow and an administrative batch-insertion flow. The customer flow specifies items, a delivery address, and a payment token; the administrative flow specifies override pricing, source attribution, and an internal correlation ID. A unified DTO carries the union of all fields, validates conditionally based on caller identity or feature flags, and provides no contract-level indication of which fields belong to which use group. Documentation shoulders the burden the schema cannot.
+
+The defect manifests symmetrically on the response side. The same DTO that returns an order's full detail to a desktop client returns more than a mobile client requires; clients either over-fetch or fragment the operation into chatty round-trips, neither of which the original schema admits. The DTO, as a fixed-shape projection of the underlying entity, repeats the porosity of a homogeneous vector space at the level of the wire contract.
+
+Costs accumulate at multiple levels. Validation logic becomes conditional. DTO families proliferate as variants are introduced to handle slightly different use groups. Client code absorbs out-of-band knowledge about which fields apply when. The contract — meant to be the disciplined surface between systems — becomes a porous one whose meaning depends on context the contract itself does not capture.
 
 ### 2.3 Porosidad en la persistencia: journals con huecos
 
