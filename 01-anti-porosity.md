@@ -228,13 +228,17 @@ Anti-porosity at the parameter level emerges from two complementary disciplines:
 
 **`?` and `Eval` are dual mechanisms that operationalize anti-porosity at parameter granularity.** Integration into the broader journal — and the homoiconic property that allows replay against an evolved domain — is treated in §4.3.
 
-### 4.3 Journal denso por construcción
+### 4.3 Operations, not state: the homoiconic journal
 
-[PENDIENTE]
+**Event Sourcing is not about time. It is about density preservation. ES preserves semantic density that other persistence models discard.** The primary property of event sourcing in this model is not temporal traceability but representational density preservation across persistence.
 
-- Cada entrada del journal es exactamente lo que la ejecución usó.
-- Ventaja para replay determinista.
-- Ventaja para auditoría: un evento en el journal es self-describing.
+By storing operations rather than state projections, the journal maintains an isomorphic representation of the semantic graph that tabular or document projections render sparse. The mechanism that achieves this is *homoiconic persistence*: each entry in the journal is simultaneously data — storable, indexable bytes — and a program — a parsable, executable script. The principle of homoiconicity originates in Lisp (McCarthy, 1960; Mooers, 1965) and was extended in the Smalltalk tradition (Kay); Puppeteer extends it from the language layer to the persistence layer. The journal does not store a serialization of the actor's state; it stores the script that produced it. **Conventional event sourcing persists the command DTO; Puppeteer persists the execution script. These are not the same representational object. The former reproduces the representational sparsity diagnosed in §2.3; the latter cannot.**
+
+This homoiconic, isomorphic representation enables a capability that state-storing substrates structurally cannot offer: re-execution against new semantics. When the domain library evolves — a logic fix, a richer derivation, a new computation depending on past inputs — the journal replays against the updated library, producing corrected projections without altering the historical record. Storage engines that persist state, by contrast, can only restore the state that was written; the operations that produced it have been discarded with the noise.
+
+The density preservation property is structural, not accidental. **A script cannot contain parameters the execution did not use, because the script is generated after parameter direction and evaluation rules have been applied** (§4.2). The journal therefore inherits density from the modifier discipline: caller inputs recorded as values, puppet outputs as `?` reservations, non-deterministic values as literal-capturing scripts. Two operational properties verify this in code. First, density is preserved through an asymmetry between inputs received and inputs consumed: only the latter are serialized (`Parameters.cs:688-690`, `:713-716`; `Lexer.cs:584-587`). Second, the journal admits exactly two primitive operations — append and read-forward (`JournalWriter.cs:60`; `JournalReader.cs:35`) — exposed through a unifying interface (`Dairy.cs`); the vocabulary of relational stores — SELECT, UPDATE, DELETE, INSERT, and the transactional locking that surrounds them — is absent by construction, not by convention.
+
+**A DSL-based journal is a homoiconic, graph-preserving, density-preserving representation of domain evolution.**
 
 ## 5. Resultados empíricos
 
