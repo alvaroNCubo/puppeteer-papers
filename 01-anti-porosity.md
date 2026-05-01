@@ -185,16 +185,15 @@ Event sourcing, in its mainstream conception, improves on both by recording oper
 
 The persistence layer thus exhibits porosity in three forms, each shaped by its substrate's structural alphabet: state without operations in relational stores, fabricated edges where graph shape exceeds tree shape in document stores, and signal-mixed-with-noise in conventionally serialized event sourcing. The defect is the same — a representational alphabet that fails to match the structure being recorded. Three manifestations across three layers, one defect: §3 establishes the principle that addresses them as one.
 
-## 3. El principio unificado: anti-porosidad
+## 3. The unified principle: anti-porosity
 
-[PENDIENTE]
+A system is anti-porous when its representations, at every layer, encode exactly the information consumed by the operations they describe — neither padding (which is sparsity) nor omission (which is loss). Anti-porosity is, in the precise vocabulary established in §1.1, the principled rejection of representational sparsity across all surfaces a system exposes — domain, endpoint, persistence — rather than at any one of them in isolation. In the language of type theory, this means representing heterogeneity as sum types rather than product types; in the language of information theory, it means a representation whose structural capacity matches its informational content.
 
-- Definición: una arquitectura es **anti-porosa** cuando su representación, en cada capa, contiene exactamente la información usada por la operación correspondiente — ni más, ni menos.
-- Tres condiciones que un diseño debe satisfacer simultáneamente:
-  1. Una clase por papel (dominio).
-  2. DTOs filtrables por grupo de uso (endpoint).
-  3. Journal denso (persistencia).
-- Por qué no se logra parche por parche: las tres son la misma decisión vista desde tres ángulos.
+The principle manifests as three simultaneous conditions, each inverting the manifestation observed in §2. First, the domain layer admits sum-type structure natively: a state hierarchy is encoded as variants, not as a product type with a `status` discriminator and conditionally populated columns. Second, the endpoint layer admits per-call selectivity at the wire: contracts express sum-type discrimination across heterogeneous use groups, not a fixed-shape DTO that unions all of them. Third, the persistence layer records operations and only the inputs the operations actually consumed: the journal carries signal, not the structural noise of every received-but-unused field.
+
+The three conditions are not independent fixes; they are the consequence of a single decision applied at three surfaces. As §2 made structurally evident, each manifestation of porosity arises from the same architectural choice — to encode heterogeneous semantic content as product types, fixed-shape tuples whose excess capacity is paid in sparsity. Anti-porosity is the inverse choice — to encode heterogeneity as sum-type variants — applied as a single discipline across the three layers. A patch applied only at the domain (aggressive denormalization, hand-rolled inheritance) leaves the API and journal demanding fixed shapes; a patch applied only at persistence (compact event encoding) leaves the journal's density at the mercy of upstream layers' choices. Anti-porosity is not the sum of three local choices; it is a single architectural decision projected to three surfaces.
+
+Operationally, anti-porosity is *density preservation*: the representation's structural capacity matches its informational content — signal retained, structural noise discarded. The combination of CQRS, the Actor Model, and Event Sourcing — conventionally presented as three separations of concern — admits a different reading once anti-porosity is named as the principle they jointly satisfy: they constitute, when applied as a single discipline, a mechanism for density preservation across representations. The next section describes how the Puppeteer framework realizes this mechanism. The realization rests on a single architectural choice: that operations themselves — verbs invoked by callers — be recorded as the durable representation. This extends the principle of *code-as-data* (familiar from Lisp at the language layer) to the persistence layer, a property §4.3 develops formally as *homoiconic persistence*.
 
 ## 4. Mecanismos en Puppeteer
 
