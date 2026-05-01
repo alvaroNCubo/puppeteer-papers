@@ -207,18 +207,26 @@ Polymorphism is a first-class concept of the DSL itself, distinct from how it is
 
 Anti-porosity in the domain layer follows from the alignment of three properties: role-oriented partitioning (sum-type variants in the type hierarchy), reflection-based discovery (the framework imposes no schema on the library), and DSL-level polymorphism (sum-type discrimination is honored end-to-end in the operation contract). The remaining two layers — endpoint and persistence — are realized by separate but compatible mechanisms, treated in §4.2 and §4.3.
 
-### 4.2 El parámetro opcional `?` en el DSL
+### 4.2 Parameter modifiers: `?` and `Eval`
 
-[PENDIENTE]
+Puppeteer makes the direction of every value flow explicit through four parameter modifiers: `In`, `Out`, `InOut`, and `Eval`. The first three mirror the in/out/ref convention familiar from systems languages, ensuring caller-puppet isolation: the puppet cannot modify the caller's environment outside the declared direction. The fourth, `Eval`, is unique to Puppeteer. The modifier system serves two complementary purposes: explicit isolation at the call contract, and honesty in the operation's journal record. **Direction made explicit, journal made honest.**
 
-- Sintaxis: parámetros marcados como opcionales/`Out`.
-- Comportamiento: el script recibe todos los valores entrantes pero el journal solo retiene los consumidos.
-- Resultado: mismo endpoint, mismo DTO, persistencia diferenciada por ejecución.
+For `Out` parameters, the journal writes the literal character `?` as a placeholder (`Parameters.cs:688-690`). The reason is structural: an `Out` parameter's value is computed by the puppet, not supplied by the caller — there is no input value to record. At replay, the deserializer reads `?` and produces a default value of the parameter's type (`Parameters.cs:713-716`); the puppet's logic re-executes and fills the slot. The journal thus records exactly what the call carried at the input boundary — output slots appear as honest reservations, not fictitious inputs. **`?` is honest reservation, not filtering.**
 
-Referencias de código:
-- `Parameters.cs:688-691` — serialización: `?` en lugar de valor para parámetros `Out`.
-- `Parameters.cs:713-722` — deserialización: `?` produce default value del tipo.
-- `Lexer.cs:584` — `?` como token de primera clase.
+`Eval` parameters address a different problem: values the puppet uses that are not supplied by the caller and are not deterministic across replays. Generated identifiers and game-session state — a random number or a gameboard captured for a game's session — are typical cases: values that pertain to the operation's semantics but cannot be re-derived at replay. The `Eval` modifier directs the puppet to capture the value, on first execution, as a literal-assigning script (`name = (type)(value);`), persisted as part of the operation's journal record (`Parameter.cs:33-36, 163-224, 228-247`). On replay, the script re-executes and assigns the same literal — determinism restored. V1's interpreted DSL had an `eval` command for the same purpose; V2 replaced it with the parameter modifier because the command form could not always be compiled (`ComandoEval.cs:54`).
+
+The modifier system ensures the journal carries exactly what the call was:
+
+- Caller inputs recorded as values.
+- Puppet outputs recorded as `?` reservations.
+- Non-deterministic values recorded as literal-capturing scripts.
+
+Anti-porosity at the parameter level emerges from two complementary disciplines:
+
+- Explicit direction at the call boundary.
+- Explicit capture of non-determinism.
+
+**`?` and `Eval` are dual mechanisms that operationalize anti-porosity at parameter granularity.** Integration into the broader journal — and the homoiconic property that allows replay against an evolved domain — is treated in §4.3.
 
 ### 4.3 Journal denso por construcción
 
