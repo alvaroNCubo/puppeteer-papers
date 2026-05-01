@@ -240,15 +240,31 @@ The density preservation property is structural, not accidental. **A script cann
 
 **A DSL-based journal is a homoiconic, graph-preserving, density-preserving representation of domain evolution.**
 
-## 5. Resultados empíricos
+## 5. Empirical results
 
-[PENDIENTE — depende del white paper de caso de estudio Ncubo]
+The empirical claims in this paper are minimal by design. The contribution argued in §§1–4 is conceptual; quantitative measurements are deferred to a separate case-study paper. Here we present a worked example that demonstrates the central structural claim of density preservation, followed by a brief inventory of the deployed reference implementation.
 
-Borrador:
-- N dominios verticalmente distintos en producción (crypto, gaming, loyalty, KYC, cashier, lotto).
-- ~83 clases Actor.
-- Tiempos de respuesta sub-100ms como norma operativa.
-- [Pendientes: métricas concretas a obtener del caso de estudio.]
+**A worked example.** Consider a generic domain in which buyers issue purchase orders against future scheduled events; an event is *confirmed* once it has occurred; and an event is *settled* with one of several outcomes (award, refund, restatement). The pattern recurs across ticketing, parimutuel wagering, conditional pre-orders, and milestone escrow. Three primitive verbs realize the lifecycle:
+
+```
+order = Company.Purchase(buyer, items, events, amount, currency);
+event.Confirm(date, operator);
+event.Settle(outcome, date, operator);
+```
+
+Each statement is quantified over its aggregate: `order` ranges over items × events, and `event` ranges over the order-items bound to it. The receiver determines scope; no row enumeration is required.
+
+**The structural gap.** A `Confirm` for a single event is one DSL statement of perhaps a hundred bytes. The same operation expressed as relational mutations must enumerate every order-item bound to the event, copying parent dimensions onto every child row, because SQL's `JOIN` cannot quantify — it materializes Cartesian projections of existing rows, it does not abbreviate them. For an event with many bound items, the relational expansion exceeds the script representation by several orders of magnitude. The constant depends on aggregate cardinality; the existence of the gap does not.
+
+**Why the gap is structural.** The compactness of the script representation rests on three model properties:
+
+- **Quantification.** The receiver implicitly ranges over the affected aggregate; the verb applies to all members at once.
+- **Polymorphism.** A single `Settle(outcome, ...)` accepts heterogeneous outcomes as a sum type, sharing representation across branches.
+- **Parameters as metadata.** Operator, date, and outcome travel as arguments of one statement; in the relational form they are copied into every affected row, because the row is the unit of identity.
+
+The relational form has none of these. A `JOIN` cannot quantify universally; an `UPDATE … WHERE …` issues the directive, but its result is enumerated rows. The porosity of the relational layer denotes here, in concrete terms, the structural consequence of substituting *"∀ item ∈ event"* with *"N copies of the antecedent."*
+
+**Reference implementation.** Puppeteer has been used in production at Ncubo to build structurally distinct subsystems within the core of eCommerce and payments platforms: payment hubs, account-balance ledgers, KYC pipelines, customer-facing storefronts and experiences, and payment-processor integrations. Code references throughout this paper (Appendix A) point to verifiable mechanism implementations. A separate case-study paper presents quantitative observations from these deployments — endpoint latency distributions, journal growth rates, replay performance, and developer-velocity comparisons — alongside the operational details (deployment, workload, infrastructure) that fall outside the scope of a conceptual paper. Those measurements support the conceptual claim without constituting its core.
 
 ## 6. Counter-arguments
 
