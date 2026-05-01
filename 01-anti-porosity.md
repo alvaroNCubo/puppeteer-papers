@@ -143,15 +143,17 @@ The dual:
 
 Each phrase in these definitions is borrowed from one of the four formalisms; the contribution is the act of synthesis — observing that the formalisms converge on a defect that none of them names with the generality needed to see across substrates.
 
-## 2. Tres caras de la porosidad
+## 2. Three faces of porosity
 
-### 2.1 Porosidad en el dominio: tablas porosas
+### 2.1 Porosity in the domain layer
 
-[PENDIENTE — desarrollar el argumento de "ahorrar tablas"]
+In object-oriented modeling, the canonical pattern for representing entities that pass through distinct lifecycle states is inheritance: each state is a subtype, with its own fields, invariants, and methods. A purchase order, for example, naturally decomposes into `Draft`, `Requested`, `Paid`, `Dispatched` — each subtype carrying only the attributes and operations that its state admits. The transition from one state to another is the construction of a new subtype instance, not the mutation of fields on a single class.
 
-- DBMS empuja a consolidar conceptos relacionados en una sola tabla.
-- Resultado: columnas opcionales con NULLs, nombres ambiguos, joins repetidos.
-- Ejemplo concreto: [pendiente — tomar un caso real de Ncubo, anonimizado].
+The relational model does not support this pattern cleanly. A type hierarchy can be projected onto a relational schema via one of three known idioms — single-table, class-table, or concrete-table inheritance (Fowler, 2002) — each of which produces porosity in a different form. In practice, single-table inheritance dominates: the schema collapses the four subtypes into one wide table with a `status` column and optional fields populated only for some rows. Attributes that belong logically to `Paid` are nullable for rows still in `Draft`; attributes that belong to `Dispatched` are nullable for everything else. The hierarchy is recovered at read time by inspecting the `status` field and conditionally interpreting the rest. The semantic graph — a clean polymorphic structure — has been projected onto a homogeneous vector space, and the gap between them surfaces as NULLs.
+
+The choice is not driven by ignorance of the alternative. Developers familiar with object-oriented design recognize that inheritance is the structurally cleaner pattern; they adopt the property-field approach because the substrate makes it the path of least resistance. The other two idioms impose joins by type, schema duplication, and migration overhead severe enough to outweigh the modeling benefit. Porosity here is the signature of a forced compromise — not an absence of OOP wisdom, but a substrate that does not admit it.
+
+The downstream effects extend beyond schema shape. State transitions on the porous table become updates against a row that other transactions may also read or modify; lock contention emerges as a structural cost of the design choice, not as an accident of high traffic. The broader observation — that a domain whose lifecycle was never logically concurrent now pays for transactional concurrency it did not request — is treated separately, as a distinct symptom of persistence-as-source-of-truth, in Paper 4.
 
 ### 2.2 Porosidad en el endpoint: DTOs heterogéneos
 
