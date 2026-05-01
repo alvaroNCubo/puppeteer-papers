@@ -195,20 +195,17 @@ The three conditions are not independent fixes; they are the consequence of a si
 
 Operationally, anti-porosity is *density preservation*: the representation's structural capacity matches its informational content — signal retained, structural noise discarded. The combination of CQRS, the Actor Model, and Event Sourcing — conventionally presented as three separations of concern — admits a different reading once anti-porosity is named as the principle they jointly satisfy: they constitute, when applied as a single discipline, a mechanism for density preservation across representations. The next section describes how the Puppeteer framework realizes this mechanism. The realization rests on a single architectural choice: that operations themselves — verbs invoked by callers — be recorded as the durable representation. This extends the principle of *code-as-data* (familiar from Lisp at the language layer) to the persistence layer, a property §4.3 develops formally as *homoiconic persistence*.
 
-## 4. Mecanismos en Puppeteer
+## 4. Mechanisms in Puppeteer
 
-### 4.1 Roles, no conceptos: la biblioteca como puppet
+### 4.1 Roles, no concepts: the library
 
-[PENDIENTE]
+Anti-porosity in the domain layer admits a single thesis: **a sum type, not a table**. Puppeteer partitions the domain by *roles* — operations that act — rather than by *entities* — nouns that exist. Each role is a subtype: a class with its own fields, invariants, and verbs. The purchase order example of §2.1 is encoded directly as a sum type, with `Draft`, `Requested`, `Paid`, and `Dispatched` realized as distinct subtypes of a common base, each carrying only the attributes its role admits. The system's domain is the union of these roles, not a flattened table indexed by a `status` column.
 
-- El dominio se parte por papeles que actúan, no por sustantivos del negocio.
-- Las clases del dominio (la "biblioteca" / puppet) son conceptos puros sin saber en qué obra van a aparecer.
-- Herencia y polimorfismo permiten "una camisa a la medida" por papel.
+The classes that realize these roles form what the framework calls the *library* — pure conceptual artifacts that do not know which "play" they participate in. A `Packer` is a *class puppet*: it knows how to pack; it does not know whether the packer instance is being persisted, replayed, or audited. The framework discovers domain types reflectively at runtime, via subtype checks rooted in a marker base class (`Actor.cs:56,83`). The domain need not register itself; the framework inspects what is there. **This is a lineage, not an anecdote.** The 2005 wrapper (§1) intercepted parameters without inspecting the DLL it wrapped; reflection-based discovery preserves that property as a structural feature of the current design.
 
-Referencias de código:
-- `Actor.cs:56,83` — descubrimiento de puppets vía `IsSubclassOf(typeof(Objeto))`.
-- `Expresion.cs:246` — compatibilidad polimórfica argumento↔parámetro.
-- `TablaDeSimbolos.cs:61` — sustitución de subtipos en runtime.
+Polymorphism is a first-class concept of the DSL itself, distinct from how it is realized in the host language. Argument-parameter compatibility is computed at parse time via subtype checks (`Expresion.cs:246`); runtime substitution of subtypes is handled by the symbol table (`TablaDeSimbolos.cs:61`). Where the host language (C#) optimizes for verbose precision, the DSL optimizes for script readability and for boundary decoupling. Type promotion at the call site is permissive: polymorphic arrays promote to whatever collection type the library declares (`List`, `IEnumerable`, array, and so on); parameters accept any enumeration and promote at parse time to the specific enum the library expects. The DSL writes `Credit`, the DTO carries `Credit` as text, and the library's `PaymentMethod` enum receives the matching constant — no lexical change at any boundary. The contract is structurally decoupled from the domain class: each side may evolve its enum vocabulary independently, with the DSL mediating. **This is not syntactic sugar but a design decision: the DSL is shaped to read as domain narrative, not as a transcription of a programming language.**
+
+Anti-porosity in the domain layer follows from the alignment of three properties: role-oriented partitioning (sum-type variants in the type hierarchy), reflection-based discovery (the framework imposes no schema on the library), and DSL-level polymorphism (sum-type discrimination is honored end-to-end in the operation contract). The remaining two layers — endpoint and persistence — are realized by separate but compatible mechanisms, treated in §4.2 and §4.3.
 
 ### 4.2 El parámetro opcional `?` en el DSL
 
