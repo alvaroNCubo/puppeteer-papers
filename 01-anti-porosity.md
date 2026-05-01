@@ -173,13 +173,17 @@ The defect manifests symmetrically on the response side. The same DTO that retur
 
 Costs accumulate at multiple levels. Validation logic becomes conditional. DTO families proliferate as variants are introduced to handle slightly different use groups. Client code absorbs out-of-band knowledge about which fields apply when. The contract — intended to be the disciplined surface between systems — becomes porous: its meaning depends on contextual knowledge that the contract itself does not encode.
 
-### 2.3 Porosidad en la persistencia: journals con huecos
+### 2.3 Porosity in the persistence layer
 
-[PENDIENTE]
+The persistence layer's job is to durably capture what the system has done. The shape of that capture is determined by the substrate. Three regimes recur in practice — relational stores, document stores, and conventionally implemented event sourcing — and each manifests porosity differently while sharing a common structural cause: the alphabet of the substrate fails to align with the structure of the domain it is asked to record.
 
-- Event sourcing naïve serializa todos los parámetros recibidos.
-- Eventos en el journal cargan campos que esa ejecución particular no usó.
-- Replay y auditoría se vuelven más difíciles.
+Relational persistence captures state, not the operations that produced it. A row records that an order is in `paid` state and stores the amount and payment method, but cannot answer how the order arrived there or what triggered the transition. The state-conditioned fields of §2.1 propagate to persistence: when invariants depend on state — for instance, `amount` is required only when `status = paid` — the schema cannot enforce them. The available alphabet (foreign keys, nullability, primitive `CHECK`) admits only primitive referential integrity, never the conditional, cross-field, cross-object invariants that emerge naturally from a sum-type domain. Invariant enforcement migrates to code by structural necessity, not by stylistic choice.
+
+Document stores partially relieve the schema rigidity by allowing nested heterogeneous shapes. A purchase order can be a document with embedded items, addresses, and payment details, sparing the joins that relational schemas require. But the alphabet admits only a particular kind of structure: the labeled rooted tree. Domain semantic graphs are not constrained to trees — they admit cycles, references shared across documents, and edges of arbitrary type. When the same item is referenced from multiple orders, or when payments link to other documents, the missing edges must be fabricated at the application layer. The substrate handles trees natively and degrades the moment graph shape is required, in the strict graph-theoretic sense of §1.1.
+
+Event sourcing, in its mainstream conception, improves on both by recording operations rather than state: replay reconstructs state by re-applying events. But in its conventional form — where events are serialized data structures mirroring the input commands — the entire input payload is captured regardless of which inputs the operation actually consumed. Consider an operation `RecordPayment` whose interface accepts twenty parameters; internally, the state-changing logic consumes four. The conventional implementation persists all twenty in the resulting event. The event payload is a fixed-shape tuple; the unconsumed fields constitute, in the information-theoretic sense of §1.1, structural noise alongside the consumed signal. Event sourcing inherits the porosity it was intended to escape: the journal records what the operation *received*, not what it *consumed*.
+
+The persistence layer thus exhibits porosity in three forms, each shaped by its substrate's structural alphabet: state without operations in relational stores, fabricated edges where graph shape exceeds tree shape in document stores, and signal-mixed-with-noise in conventionally serialized event sourcing. The defect is the same — a representational alphabet that fails to match the structure being recorded. Three manifestations across three layers, one defect: §3 establishes the principle that addresses them as one.
 
 ## 3. El principio unificado: anti-porosidad
 
