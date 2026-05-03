@@ -197,7 +197,7 @@ Operationally, anti-porosity is *density preservation*: the representation's str
 
 ## 4. Mechanisms in Puppeteer
 
-### 4.1 Roles, no concepts: the library
+### 4.1 Roles, not concepts: the library
 
 Anti-porosity in the domain layer admits a single thesis: **a sum type, not a table**. Puppeteer partitions the domain by *roles* — operations that act — rather than by *entities* — nouns that exist. Each role is a subtype: a class with its own fields, invariants, and verbs. The purchase order example of §2.1 is encoded directly as a sum type, with `Draft`, `Requested`, `Paid`, and `Dispatched` realized as distinct subtypes of a common base, each carrying only the attributes its role admits. The system's domain is the union of these roles, not a flattened table indexed by a `status` column.
 
