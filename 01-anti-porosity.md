@@ -29,7 +29,7 @@ abstract: >
   endpoint, persistence) — inverts the underlying assumption (domain models
   shaped for verbs rather than for storage) and is achievable when CQRS, the
   Actor Model, and Event Sourcing are combined under a single discipline. The
-  Puppeteer framework, drawing on practical experience at Ncubo, serves as
+  Puppeteer framework, drawing on practical experience, serves as
   proof-of-existence.
 canonical_url: https://[pending]/papers/anti-porosity-v1
 ---
@@ -268,7 +268,7 @@ The relational form has none of these. A `JOIN` cannot quantify universally; an 
 
 **Forensic observation.** The structural gap is not specific to this example. Any mature relational schema can be read for porosity directly: counting a verb's parameters against the columns of the rows its invocation affects, identifying NULL-allowed fields whose values the originating operation never had to supply, and noting cross-product tables that materialize what the verb expressed as quantification. The procedure is reproducible across public corpora — open-source schemas in any domain — and its result is robustly the same: representations exceeding their minimal generators by several orders of magnitude. The worked example demonstrates the property; it does not constitute its only evidence.
 
-**Reference implementation.** Puppeteer has been used in production at Ncubo to build structurally distinct subsystems within the core of eCommerce and payments platforms: payment hubs, account-balance ledgers, KYC pipelines, customer-facing storefronts and experiences, and payment-processor integrations. Code references throughout this paper (Appendix A) point to verifiable mechanism implementations. A separate case-study paper presents quantitative observations from these deployments — endpoint latency distributions, journal growth rates, replay performance, and developer-velocity comparisons — alongside the operational details (deployment, workload, infrastructure) that fall outside the scope of a conceptual paper. Those measurements support the conceptual claim without constituting its core.
+**Reference implementation.** Puppeteer has been used in production to build structurally distinct subsystems within the core of eCommerce and payments platforms: payment hubs, account-balance ledgers, KYC pipelines, customer-facing storefronts and experiences, and payment-processor integrations. Code references throughout this paper (Appendix A) point to verifiable mechanism implementations. A separate case-study paper presents quantitative observations from these deployments — endpoint latency distributions, journal growth rates, replay performance, and developer-velocity comparisons — alongside the operational details (deployment, workload, infrastructure) that fall outside the scope of a conceptual paper. Those measurements support the conceptual claim without constituting its core.
 
 ## 6. Counter-arguments
 
