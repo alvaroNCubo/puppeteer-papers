@@ -300,13 +300,15 @@ This paper sits at the intersection of multiple bodies of work that, until now, 
 
 **What this paper adds.** The paper does not propose a new pattern; it identifies that four applied traditions converge on a single defect, names the defect (porosity) and its rejection (anti-porosity), and demonstrates that the rejection is implementable as a unified discipline. The Puppeteer framework serves as proof-of-existence; the conceptual claim is independent of any specific framework. **Its novelty lies in the act of synthesis and in showing that the synthesis is operationally realizable.**
 
-## 8. Conclusión
+## 8. Conclusion
 
-[PENDIENTE]
+This paper has identified a structural defect — *porosity* — that four bodies of work have documented locally without naming as a single phenomenon. The defect arises whenever a representation's structural alphabet exceeds the operations the representation must record, and its principled rejection — *anti-porosity* — requires three simultaneous conditions: a domain whose hierarchy admits sum-type structure natively, an endpoint whose contract permits per-call selectivity, and a persistence layer that records operations rather than state. The Puppeteer framework realizes all three from a single architectural decision — the homoiconic journal — and serves as proof-of-existence; the conceptual claim is independent of any specific framework.
 
-- Recapitulación: una sola decisión arquitectural rechaza la porosidad en tres capas.
-- Implicación: simplifica el stack (cap. siguiente paper sobre Redis-as-symptom).
-- Trabajo futuro: medición empírica del impacto en productividad de equipos mixtos (paper sobre dev experience).
+The implications extend beyond the paper. When porosity is removed at the substrate, the infrastructure that compensated for it becomes unnecessary: caches that hid slow joins, ORMs that translated between domain and table, message queues that moved flat tuples between systems. The question of how systems built on porous substrates may adopt the new discipline progressively follows from the autopersistence property the framework inherits from its 2005 origin: a system whose initial state and event sequence are observable can be reconstructed independently of how it persists internally; the reverse is not symmetric.
+
+Several lines of work follow. A separate case-study paper will report quantitative measurements from the framework's production use. Three companion papers extend the present argument: one on dual compilation as the strategy that makes the homoiconic journal both interpretable and compilable; one on zero-downtime deployment as a corollary of journal-based state handoff; and one on the broader DBMS-centric ecosystem, treating its compensating infrastructure as symptoms whose necessity dissolves once the substrate is changed. Independently, the forensic procedure introduced in §5 invites verification against public corpora — an exercise any reader can carry out on schemas in their own domain.
+
+The contribution of this paper is naming. The work that follows is to show that the name corresponds to a discipline that can be sustained, measured, and extended across the substrate decisions that have shaped software for half a century.
 
 ## Cross-references
 
