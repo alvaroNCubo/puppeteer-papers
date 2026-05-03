@@ -244,17 +244,19 @@ The density preservation property is structural, not accidental. **A script cann
 
 The empirical claims in this paper are minimal by design. The contribution argued in §§1–4 is conceptual; quantitative measurements are deferred to a separate case-study paper. Here we present a worked example that demonstrates the central structural claim of density preservation, followed by a brief inventory of the deployed reference implementation.
 
-**A worked example.** Consider a generic domain in which buyers issue purchase orders against future scheduled events; an event is *confirmed* once it has occurred; and an event is *settled* with one of several outcomes (award, refund, restatement). The pattern recurs across ticketing, parimutuel wagering, conditional pre-orders, and milestone escrow. Three primitive verbs realize the lifecycle:
+**A worked example.** Consider a generic domain in which buyers issue purchase orders against future scheduled events; an event is *confirmed* once it has occurred; and an event is *settled* with one of several outcomes (award, refund, restatement). The pattern recurs across ticketing, conditional pre-orders, and milestone escrow. Three primitive verbs realize the lifecycle:
 
-```
-order = Company.Purchase(buyer, items, events, amount, currency);
-event.Confirm(date, operator);
-event.Settle(outcome, date, operator);
-```
+| Phase | Statement | Scope |
+|---|---|---|
+| Pre-event (× n) | `order = Company.Purchase(buyer, items, events, amount, currency)` | one order per call; ranges over items × events |
+| Event occurs | `event.Confirm(date, operator)` | one event; implicitly all order-items bound to it |
+| Resolution | `event.Settle(outcome, date, operator)` | one event; implicitly all order-items bound to it |
 
-Each statement is quantified over its aggregate: `order` ranges over items × events, and `event` ranges over the order-items bound to it. The receiver determines scope; no row enumeration is required.
+The receiver determines scope; no row enumeration is required.
 
-**The structural gap.** A `Confirm` for a single event is one DSL statement of perhaps a hundred bytes. The same operation expressed as relational mutations must enumerate every order-item bound to the event, copying parent dimensions onto every child row, because SQL's `JOIN` cannot quantify — it materializes Cartesian projections of existing rows, it does not abbreviate them. For an event with many bound items, the relational expansion exceeds the script representation by several orders of magnitude. The constant depends on aggregate cardinality; the existence of the gap does not.
+**The journal model.** Puppeteer's V2 pattern stores each action's verb body once in an action library; the journal records per invocation only the action identifier, the parameter values, and minimal administrative metadata (timestamp, operator, entry ID). The journal grows with parameters, not with action bodies. (V1's raw-script representation, in which the verbatim script appears in each entry, is preserved for backward compatibility.) This split mirrors the separation between definition and invocation in any compiled or interpreted language; in Puppeteer, that separation extends to persistence.
+
+**The structural gap.** A `Confirm` invocation in the journal carries the parameters of one verb plus its administrative metadata — typically tens of bytes. The same operation expressed as relational mutations must enumerate every order-item bound to the event, copying parent dimensions onto every child row, because SQL's `JOIN` cannot quantify — it materializes Cartesian projections of existing rows, it does not abbreviate them. For an event with many bound items, the relational expansion exceeds the script representation by several orders of magnitude. The constant depends on aggregate cardinality; the existence of the gap does not.
 
 **Why the gap is structural.** The compactness of the script representation rests on three model properties:
 
@@ -263,6 +265,8 @@ Each statement is quantified over its aggregate: `order` ranges over items × ev
 - **Parameters as metadata.** Operator, date, and outcome travel as arguments of one statement; in the relational form they are copied into every affected row, because the row is the unit of identity.
 
 The relational form has none of these. A `JOIN` cannot quantify universally; an `UPDATE … WHERE …` issues the directive, but its result is enumerated rows. The porosity of the relational layer denotes here, in concrete terms, the structural consequence of substituting *"∀ item ∈ event"* with *"N copies of the antecedent."*
+
+**Forensic observation.** The structural gap is not specific to this example. Any mature relational schema can be read for porosity directly: counting a verb's parameters against the columns of the rows its invocation affects, identifying NULL-allowed fields whose values the originating operation never had to supply, and noting cross-product tables that materialize what the verb expressed as quantification. The procedure is reproducible across public corpora — open-source schemas in any domain — and its result is robustly the same: representations exceeding their minimal generators by several orders of magnitude. The worked example demonstrates the property; it does not constitute its only evidence.
 
 **Reference implementation.** Puppeteer has been used in production at Ncubo to build structurally distinct subsystems within the core of eCommerce and payments platforms: payment hubs, account-balance ledgers, KYC pipelines, customer-facing storefronts and experiences, and payment-processor integrations. Code references throughout this paper (Appendix A) point to verifiable mechanism implementations. A separate case-study paper presents quantitative observations from these deployments — endpoint latency distributions, journal growth rates, replay performance, and developer-velocity comparisons — alongside the operational details (deployment, workload, infrastructure) that fall outside the scope of a conceptual paper. Those measurements support the conceptual claim without constituting its core.
 
