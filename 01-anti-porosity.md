@@ -368,15 +368,40 @@ Young, G. (2010). *CQRS documents*. https://cqrs.files.wordpress.com/2010/11/cqr
 
 ---
 
-## Appendix A: Verificación en código
+## Appendix A: Source-code verification
 
-| Claim | Archivo | Líneas |
+This appendix consolidates the source-code references cited throughout the paper. All paths are relative to the public Puppeteer repository (`Puppeteer Pacifico/`); line numbers reflect the version of the code at the time of writing.
+
+### A.1 Reflection-based discovery (§4.1)
+
+| Claim | File | Lines |
 |---|---|---|
-| `?` para parámetros `Out` en serialización | `Puppeteer Pacifico/Puppeteer/Parameters.cs` | 688–691 |
-| `?` triggering default value en deserialización | `Puppeteer Pacifico/Puppeteer/Parameters.cs` | 713–722 |
-| `?` como token del lexer | `Puppeteer Pacifico/Puppeteer/EventSourcing/Interprete/Lexer.cs` | 584 |
-| Polimorfismo en compatibilidad arg↔param | `***REDACTED***/Puppeteer/EventSourcing/Interprete/Libraries/Expresion.cs` | 246 |
-| Polimorfismo en tabla de símbolos | `***REDACTED***/Puppeteer/EventSourcing/DB/TablaDeSimbolos.cs` | 61 |
-| Descubrimiento de puppets por subtipo | `***REDACTED***/Puppeteer/EventSourcing/Actor.cs` | 56, 83 |
+| Reflection-based discovery of domain types via marker base class | `Puppeteer/EventSourcing/Actor.cs` | 56, 83 |
+| Polymorphic argument-parameter compatibility at parse time | `Puppeteer/EventSourcing/Interprete/Libraries/Expresion.cs` | 246 |
+| Runtime substitution of subtypes via symbol table | `Puppeteer/EventSourcing/Interprete/TablaDeSimbolos.cs` | 61 |
 
-[PENDIENTE — completar con referencias adicionales según se desarrolle el paper.]
+### A.2 Parameter modifiers (§4.2)
+
+| Claim | File | Lines |
+|---|---|---|
+| Four parameter modifiers defined (`In`, `Out`, `InOut`, `Eval`) | `Puppeteer/Parameter.cs` | 33–36 |
+| `Eval` value setter generates literal-assigning script on first invocation | `Puppeteer/Parameter.cs` | 163–224 |
+| `EvalScript` property (valid only for `Eval` parameters) | `Puppeteer/Parameter.cs` | 228–247 |
+| Parser recognizes `Eval` modifier in parameter declarations | `Puppeteer/Parameters.cs` | 65, 110–111 |
+| `Eval` parameters' EvalScript serialized to journal | `Puppeteer/Parameters.cs` | 272–296 |
+| `Out` parameters serialize as `?` placeholder | `Puppeteer/Parameters.cs` | 688–690 |
+| `?` for `Out` parameters deserializes to default value | `Puppeteer/Parameters.cs` | 713–716 |
+| `?` as `TokenType.interrogacion` in the lexer | `Puppeteer/EventSourcing/Interprete/Lexer.cs` | 584–587 |
+| V1 `eval` command preserved; V2 redirects to parameter modifier | `Puppeteer/EventSourcing/Interprete/Libraries/ComandoEval.cs` | 54 |
+
+### A.3 Homoiconic journal (§4.3)
+
+| Claim | File | Lines |
+|---|---|---|
+| Journal high-level interface (append-style writes, read-forward only) | `Puppeteer/EventSourcing/DB/Dairy.cs` | 191–250 |
+| Append primitive (`AppendRecord`) | `Puppeteer/EventSourcing/DB/FileSystem/JournalWriter.cs` | 60 |
+| Read-forward primitive (`ReadAll`) | `Puppeteer/EventSourcing/DB/FileSystem/JournalReader.cs` | 35 |
+| Script entries persisted as UTF8 bytes | `Puppeteer/EventSourcing/DB/FileSystem/BinaryEventCodec.cs` | 36–96 |
+| `ReplayEvent` re-executes scripts | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 1240–1243 |
+| On-demand type resolution via parser at replay | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 869–871 |
+| Domain library loaded via reflection | `Puppeteer/EventSourcing/ActorHandler.cs` | 46 |
