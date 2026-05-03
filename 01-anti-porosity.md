@@ -312,16 +312,59 @@ The contribution of this paper is naming. The work that follows is to show that 
 
 ## Cross-references
 
-Este paper establece vocabulario que los siguientes papers de la serie reutilizan:
-- *Paper 2 — Dual compilation:* el principio anti-poroso en el momento del compile vs. interpret.
-- *Paper 3 — Zero-downtime deployment:* la densidad del journal es prerrequisito para skips y rojo-negro.
-- *Paper 4 — Why Redis is a symptom:* extiende el argumento de anti-porosidad al ecosistema de infraestructura.
+This paper establishes vocabulary that subsequent papers in the series reuse:
+
+- *Paper 2 — Dual compilation:* the anti-porosity principle as it manifests at the language layer (interpreted versus compiled execution paths).
+- *Paper 3 — Zero-downtime deployment via journal-based state handoff:* the journal's density is prerequisite for the skip mechanism and red-black deployment patterns.
+- *Paper 4 — Why Redis is a symptom:* extends the anti-porosity argument to the broader infrastructure ecosystem.
 
 ---
 
-## Bibliografía
+## References
 
-[PENDIENTE — formato a definir: APA, ACM, o markdown plano con DOIs/URLs]
+Berners-Lee, T., Hendler, J., & Lassila, O. (2001). The Semantic Web. *Scientific American*, 284(5), 34–43.
+
+Bernstein, P., Bykov, S., Geller, A., Kliot, G., & Thelin, J. (2014). *Orleans: Distributed virtual actors for programmability and scalability* (Microsoft Research Technical Report MSR-TR-2014-41). Microsoft Research.
+
+Codd, E. F. (1970). A relational model of data for large shared data banks. *Communications of the ACM*, 13(6), 377–387.
+
+Codd, E. F. (1971). *Further normalization of the data base relational model* (IBM Research Report RJ909). IBM.
+
+Diestel, R. (2017). *Graph theory* (5th ed.). Springer.
+
+Evans, E. (2003). *Domain-driven design: Tackling complexity in the heart of software*. Addison-Wesley.
+
+Fagin, R. (1977). Multivalued dependencies and a new normal form for relational databases. *ACM Transactions on Database Systems*, 2(3), 262–278.
+
+Fielding, R. T. (2000). *Architectural styles and the design of network-based software architectures* (Doctoral dissertation, University of California, Irvine).
+
+Fowler, M. (2002). *Patterns of enterprise application architecture*. Addison-Wesley.
+
+Fowler, M. (2005). *Event sourcing*. martinfowler.com. https://martinfowler.com/eaaDev/EventSourcing.html
+
+GraphQL Foundation. (2015). *GraphQL specification*. https://spec.graphql.org
+
+Hellerstein, J. M., Stonebraker, M., & Hamilton, J. (2007). Architecture of a database system. *Foundations and Trends in Databases*, 1(2), 141–259.
+
+Kay, A. C. (1993). The early history of Smalltalk. *ACM SIGPLAN Notices*, 28(3), 69–95.
+
+Kent, W. (1983). A simple guide to five normal forms in relational database theory. *Communications of the ACM*, 26(2), 120–125.
+
+Kiczales, G., Lamping, J., Mendhekar, A., Maeda, C., Lopes, C., Loingtier, J.-M., & Irwin, J. (1997). Aspect-oriented programming. In M. Akşit & S. Matsuoka (Eds.), *ECOOP'97 — Object-oriented programming* (pp. 220–242). Springer.
+
+McCarthy, J. (1960). Recursive functions of symbolic expressions and their computation by machine, Part I. *Communications of the ACM*, 3(4), 184–195.
+
+Mooers, C. N. (1965). TRAC, a procedure-describing language for the reactive typewriter. In *Proceedings of the 20th National Conference of the ACM* (pp. 229–246).
+
+Richardson, L., & Ruby, S. (2008). *RESTful web services*. O'Reilly Media.
+
+Robinson, I., Webber, J., & Eifrem, E. (2015). *Graph databases* (2nd ed.). O'Reilly Media.
+
+Shannon, C. E. (1948). A mathematical theory of communication. *Bell System Technical Journal*, 27(3), 379–423; 27(4), 623–656.
+
+Vernon, V. (2013). *Implementing domain-driven design*. Addison-Wesley.
+
+Young, G. (2010). *CQRS documents*. https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
 
 ---
 
