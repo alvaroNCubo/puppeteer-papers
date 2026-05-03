@@ -272,12 +272,17 @@ The relational form has none of these. A `JOIN` cannot quantify universally; an 
 
 ## 6. Counter-arguments
 
-[PENDIENTE — incluir y refutar honestamente]
+This section addresses the strongest objections to the argument advanced in §§1–5. Each objection is presented in its strongest form before its rebuttal; rebuttals draw on the paper's own machinery rather than on external claims.
 
-Posibles objeciones y respuestas:
-- *"Esto es solo CQRS bien hecho."* — Respuesta: la novedad es el principio transversal, no cada capa por separado.
-- *"En sistemas pequeños la porosidad no duele."* — Respuesta: cierto; el costo se vuelve visible a partir de cierta escala/longevidad.
-- *"Los joins en el modelo poroso son a veces necesarios."* — Respuesta: el modelo anti-poroso no prohíbe joins; los traslada al lado de lectura (CQRS).
+**"This is just CQRS done well."** CQRS already separates read and write; what does anti-porosity add? Two things, addressed in Claim 5 and §3. First, CQRS is one of four traditions that document a face of porosity locally; anti-porosity is the unified rejection of porosity across all four. CQRS implementations vary widely in their porosity properties — some recreate porous DTOs and porous event payloads despite separating reads from writes. Second, the contribution of this paper is not any pattern (CQRS or otherwise) but the recognition that the four traditions converge on a single defect, which prior work has not named with sufficient generality to see. **CQRS addresses separation of concerns; anti-porosity addresses representational form. The two operate at different conceptual layers.**
+
+**"In small systems, porosity doesn't hurt."** True. The operational costs of porosity scale with system size, longevity, and rate of change. The conceptual claim, however, does not depend on these. Porosity is a structural property visible at any scale; whether one chooses to address it depends on the regime in which the system operates. This paper does not advocate adopting Puppeteer for small or short-lived systems; *When NOT to use this approach* explicitly enumerates regimes where the implementation pattern is not the right fit. **The claim of this paper is therefore diagnostic rather than prescriptive: it names a defect whose relevance depends on scale, not one whose correction is universally mandatory.**
+
+**"Joins are sometimes necessary."** Anti-porosity does not prohibit joins. **As illustrated in §5, joins migrate to the read side, where enumeration serves analytical needs rather than polluting the representation of operations.** The unified principle (§3) and its mechanisms (§4) constrain only how state is *recorded* — not how it is queried for derivative purposes. Read projections may be denormalized, joined, indexed, and aggregated however a downstream consumer requires; the journal remains dense, but analytical and reporting use cases retain the full vocabulary of relational queries against derived views.
+
+**"Business intelligence and analytics require SQL."** Conventional BI assumes that the relational store *is* the source of truth. In an anti-porous architecture, the journal is the source of truth, and analytical projections are downstream consumers. SQL access remains available — to the projection, not to the source of truth. **Because the journal stores operations rather than state (§4.3), projections for BI can be recomputed with evolving semantics — a capability unavailable when the relational store is itself the historical record.**
+
+**"Our data lake is the source of truth."** This is an organizational decision, not a structural property of the system. The data lake's role can be reframed: it remains a shared projection consumed by downstream teams, while the journal is the source of truth for the producer system. Anti-porosity is preserved internally even when external contracts demand denormalized projections at the system boundary. **The distinction is between organizational source of truth and architectural source of truth. Anti-porosity concerns the latter.**
 
 ## 7. Related work
 
