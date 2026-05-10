@@ -2,8 +2,8 @@
 title: "Reactions and the partition: opt-in eventual consistency in actor-native systems"
 author: Alvaro Rivera
 affiliation: Ncubo
-date: 2026-05-06
-version: 0.2-draft
+date: 2026-05-09
+version: 0.3-draft
 status: draft
 keywords:
   - reactions
@@ -49,9 +49,10 @@ abstract: >
   developer names each deferred effect by hand, inverting the CQRS-classical
   assumption). The argument is conceptual; code references throughout point
   to the public Puppeteer codebase, in which the Reaction primitive — its
-  two modes (`Cue` and `Job`), its three actions (`MarkAsSkip`, `Emit`,
-  `EmitWithCheck`), its activation scopes, and its multi-event pattern
-  matching — instantiates the primitive concretely.
+  two modes (`Cue` and `Job`), its three action planes
+  (`Program.Emit`, `Causation.Continue`, `Metadata.Elide`), its activation
+  scopes, and its multi-event pattern matching — instantiates the
+  primitive concretely.
 canonical_url: https://[pending]/papers/reactions-and-partition-v1
 ---
 
@@ -77,15 +78,15 @@ canonical_url: https://[pending]/papers/reactions-and-partition-v1
 
 4. **The artifact realizing the partition serves a double purpose.** In the instantiation developed here, this artifact is the Reaction.
    - **(a) Pragmatic partition** — work that the verb cannot afford to consume within its latency budget, or that is more naturally executed in parallel, is deferred.
-   - **(b) Categorical segregation** — extrinsic operational concerns (email, BI, third-party messaging, telemetry, webhooks) demanded by requirements but not part of the rich library land in the deferral artifact, not in domain methods. The segregation is of *propagation*, not of presence: the artifact may itself invoke email or telemetry technology, and that is appropriate — the technology is encapsulated where it can be exercised without leaking into other domain verbs. *The artifact is not technology-free; it is the encapsulation that keeps technology from propagating into the domain.* This extends the anti-porosity principle of [Paper 1](01-anti-porosity.md) to a fourth layer — the operational edge of the domain — and is compatible with the rich library being built under the legitimate programming paradigm (currently object orientation) that sustains the domain language. That paradigm and the conceptual primitives it permits (classes, inheritance, polymorphism, invariants, domain methods) are the legitimate tool *inside* the library (§3.1). *The encapsulation is structurally enforced, not conventional: in Puppeteer's instantiation, a Reaction's emit path runs as a query (`PerformEmit` with `isQuery:true`, blocking `expose` and journal writes) — the language refuses to let the operational concern leak back into the actor's state. (Verification: `ActorHandler.cs:1434-1505`.)*
+   - **(b) Categorical segregation** — extrinsic operational concerns (email, BI, third-party messaging, telemetry, webhooks) demanded by requirements but not part of the rich library land in the deferral artifact, not in domain methods. The segregation is of *propagation*, not of presence: the artifact may itself invoke email or telemetry technology, and that is appropriate — the technology is encapsulated where it can be exercised without leaking into other domain verbs. *The artifact is not technology-free; it is the encapsulation that keeps technology from propagating into the domain.* This extends the anti-porosity principle of [Paper 1](01-anti-porosity.md) to a fourth layer — the operational edge of the domain — and is compatible with the rich library being built under the legitimate programming paradigm (currently object orientation) that sustains the domain language. That paradigm and the conceptual primitives it permits (classes, inheritance, polymorphism, invariants, domain methods) are the legitimate tool *inside* the library (§3.1). *The encapsulation is structurally enforced, not conventional: in Puppeteer's instantiation, a Reaction's emit path runs as a query (`PerformEmit` with `isQuery:true`, blocking `expose` and journal writes) — the language refuses to let the operational concern leak back into the actor's state. (Verification: `ActorHandler.cs:1446-1505`.)*
 
 5. **Deferred work carries a placement decision.** The developer, at the moment of deferral, also decides where the deferred work runs along a *proximity / urgency* axis: close-to-action (same thread, near-continuation, parent actor's memory available) ↔ remote-and-deferred (another thread, another node, cluster-distributed). Placement is part of the primitive, not an implementation detail; it is orthogonal to whether the deferral is pragmatic (4a) or categorical (4b).
 
 6. **Friction is the structural guardian of the partition.** The artifact realizing the partition must minimize the cost of declaring deferred work, or both purposes collapse simultaneously: if deferring costs the developer more lines or more cognitive load than inline code, the partition is not exercised, verbs degrade *and* the domain library is contaminated by precipitation. The contamination is the worse of the two failures because it is hard to revert and propagates couplings. Friction is an architectural responsibility of any complete instantiation, not a question of developer discipline. *(Verbatim author statement anchored as blockquote in §4.)*
 
-7. **Three consequences of (3) + (4) + (6), ranked.** The primary consequence is **a domain library that closes** — declarable as *task done* by being free of present and future operational tools (§5.1, §10). Secondary consequences are **fast verbs by construction** (§5.2) and **opt-in eventual consistency**, in which the developer names each deferred effect by hand — the inverse of the CQRS-classical opt-out assumption (§5.3, honors the forward-reference of [Paper 1 §6](01-anti-porosity.md)). The three are not features and not design choices; they fall out of the primitive when it is low-friction. *Fast verbs in particular are structural: a Reaction executes outside the write semaphore of `PerformCommand`; the verb returns to the caller without waiting for any deferred work to begin. (Verification: `Reaction.cs:635-769`, `ActorHandler.cs:1434-1505`.)*
+7. **Three consequences of (3) + (4) + (6), ranked.** The primary consequence is **a domain library that closes** — declarable as *task done* by being free of present and future operational tools (§5.1, §10). Secondary consequences are **fast verbs by construction** (§5.2) and **opt-in eventual consistency**, in which the developer names each deferred effect by hand — the inverse of the CQRS-classical opt-out assumption (§5.3, honors the forward-reference of [Paper 1 §6](01-anti-porosity.md)). The three are not features and not design choices; they fall out of the primitive when it is low-friction. *Fast verbs in particular are structural: a Reaction executes outside the write semaphore of `PerformCommand`; the verb returns to the caller without waiting for any deferred work to begin. (Verification: `Reaction.cs:684-770`, `ActorHandler.cs:1446-1505`.)*
 
-8. **The continuation contract survives the deployment switch.** Deferred work in flight when a node hands off to its successor is not lost; red-black is orchestrated by the runtime — developers do not normally see the mechanism. The only common exception is coordinated cut-over of a Kafka producer/consumer pair when a message format changes, where both sides must release together. In Puppeteer's instantiation, this property is realized by `Theater.aliveGate`; the mechanism itself is treated in detail in the companion paper on zero-downtime deployment ([Paper 4](04-zero-downtime.md), forthcoming).
+8. **The continuation contract survives the deployment switch.** Deferred work in flight when a node hands off to its successor is not lost; red-black is orchestrated by the runtime — developers do not normally see the mechanism. The only common exception is coordinated cut-over of a Kafka producer/consumer pair when a message format changes, where both sides must release together. In Puppeteer's instantiation, this property is realized by `Theater.aliveGate`; the mechanism itself is treated in detail in [Paper 5](05-zero-downtime.md) (zero-downtime deployment, forthcoming). The cross-actor continuity primitive that complements the in-actor continuity argued here is the subject of [Paper 4](04-cross-actor-continuity.md), already published in the present series.
 
 9. **Domain libraries become real artifacts.** In most enterprises today, "the domain" does not exist as a library — it lives as classes scattered across each csproj, copied between services, drifting independently over time until "the customer model" or "the order model" has become a dozen incompatible structures across the codebase. The pattern of pure domain methods, preserved by Reactions encapsulating operational concerns (claim 4b), is the structural condition under which a single domain library, maintained as one artifact over years, becomes economically possible at all. *Reusability across endpoints is the operational form of closability* (claim 7).
 
@@ -93,7 +94,7 @@ canonical_url: https://[pending]/papers/reactions-and-partition-v1
 
 11. **The proximity/urgency axis has two canonical points, not a continuous spectrum.** In Puppeteer's instantiation, these are `Cue()` (push loop on a separate thread, operating against the actor's live in-memory state, `ReadForward()` mandatory, sub-second latency) and `Job()` (on-demand against the replicated journal, no co-location with the live actor, freely placeable on a follower in another pod or another machine in the cluster). The two modes are structurally distinct, not points on a slider — they differ in source of state (memory vs journal), in trigger (push callback vs explicit invocation), and in what they presuppose about the host. The placement decision of claim 5 is not abstract: it is the choice of one mode versus the other, possibly further narrowed by activation scope (in Puppeteer: `DirectorOnly`, `CastOnly`, `Company`). *(Verification: §6.1 and §6.6; primary code anchor `Reaction.cs:19-23` and `Reaction.cs:67-80`.)*
 
-12. **The artifact's elision action integrates declarative trajectory correlation with journal density.** When the pattern correlates a multi-event trajectory (an order's `Initiate → Confirm → Pay` sequence, for instance), the runtime can mark the constituent events as elided in the journal. Subsequent rehydrations skip past them: the trajectory is closed, its component events have no further bearing on any decision. This closes a conceptual loop with [Paper 1](01-anti-porosity.md) — the *skips* introduced there as a journal-density mechanism become, in the present construct, the natural outcome of a declarative correlation rather than a post-hoc optimization. In Puppeteer this is realized as `MarkAsSkip()` (§6.5; primary code anchor `Reaction.cs:635-769` and `DiaryStorage.EventElisionStorage.MarkEventsAsElided`).
+12. **The artifact's elision action integrates declarative trajectory correlation with journal density.** When the pattern correlates a multi-event trajectory (an order's `Initiate → Confirm → Pay` sequence, for instance), the runtime can mark the constituent events as elided in the journal. Subsequent rehydrations skip past them: the trajectory is closed, its component events have no further bearing on any decision. This closes a conceptual loop with [Paper 1](01-anti-porosity.md) — the *skips* introduced there as a journal-density mechanism become, in the present construct, the natural outcome of a declarative correlation rather than a post-hoc optimization. In Puppeteer this is realized as `Metadata.Elide()` on the Reaction's metadata plane (§6.5; primary code anchor `Reaction.cs:684-770` and `DiaryStorage.EventElisionStorage.MarkEventsAsElided`).
 
 ## When NOT to use this approach
 
@@ -173,7 +174,7 @@ Operational concerns demanded by requirements but extrinsic to the domain — em
 
 The function is structurally analogous to an anti-corruption layer in DDD, but architectural rather than stylistic: any complete instantiation treats the deferral artifact as a first-class citizen of the language, and the developer's defaults route operational concerns there. In Puppeteer this artifact is the Reaction. The legitimate paradigmatic tool inside the library (§3.1) is preserved precisely because the encapsulation is non-leaky.
 
-The non-leak is structural, not stylistic. The Reaction's emit path runs as a query: `PerformEmit` is invoked with `isQuery:true`, which blocks the script from using `expose` or declaring globals, takes a read lock that runs in parallel with queries and other emits, and leaves the journal untouched (§6.5; verification at `ActorHandler.cs:1434-1505`). The technology of the Reaction (a Kafka producer, an HTTP webhook, a BI sink) executes; the journal does not record it as a domain event; the actor's state does not absorb the call. The language refuses to let the operational concern leak back into the actor in the parse phase, before the developer ever has the chance to make a mistake about it.
+The non-leak is structural, not stylistic. The Reaction's emit path runs as a query: `PerformEmit` is invoked with `isQuery:true`, which blocks the script from using `expose` or declaring globals, takes a read lock that runs in parallel with queries and other emits, and leaves the journal untouched (§6.5; verification at `ActorHandler.cs:1446-1505`). The technology of the Reaction (a Kafka producer, an HTTP webhook, a BI sink) executes; the journal does not record it as a domain event; the actor's state does not absorb the call. The language refuses to let the operational concern leak back into the actor in the parse phase, before the developer ever has the chance to make a mistake about it.
 
 Section 3.3 connects directly to [Paper 1](01-anti-porosity.md): the anti-porosity transversal, treated there as domain + endpoint + persistence, extends here to a fourth layer — the operational edge of the domain. *Reactions are the anti-porous boundary at the operational edge.*
 
@@ -225,7 +226,7 @@ Verbs in single-digit milliseconds are not a postulate of this framework, but th
 
 The structural mechanism is, in any instantiation that exercises the partition, that the deferral artifact runs outside the verb's write semaphore. In Puppeteer, a Reaction does not run inside the write semaphore of `PerformCommand`; it runs after the command has persisted, on a separate thread (in the case of `Cue`) or on demand against the journal (in the case of `Job`). The verb returns to the caller without waiting for any deferred step to begin. The actor's serial-mailbox invariant — which would otherwise impose a throughput cap whenever a verb does anything slow — becomes a throughput floor: peak throughput is what verbs are *able* to achieve once the slow work has been hoisted out by I/O hoisting at the caller, by saga-phasing between events, or by Reactions on the deferred branch.
 
-What §5.2 names, then, is the third layer of the explanation. The first two — in-memory state, rich local methods — are already present in any actor framework that respects them. What this paper adds is the condition under which they survive contact with operational requirements: a Reaction primitive cheap enough to absorb every effect that would otherwise be tempted to live inside the verb. Section 6 develops the mechanism in code references; the structural commitment is summarised in `Reaction.cs:635-769` and `ActorHandler.cs:1434-1505`.
+What §5.2 names, then, is the third layer of the explanation. The first two — in-memory state, rich local methods — are already present in any actor framework that respects them. What this paper adds is the condition under which they survive contact with operational requirements: a Reaction primitive cheap enough to absorb every effect that would otherwise be tempted to live inside the verb. Section 6 develops the mechanism in code references; the structural commitment is summarised in `Reaction.cs:684-770` and `ActorHandler.cs:1446-1505`.
 
 ### 5.3 Opt-in eventual consistency
 
@@ -290,8 +291,7 @@ actor.Reactions
         .OnMatch("order.Confirm(number)")
     .ThenFinalSeek("Pay")
         .OnMatch("order.Pay(number, [_:PaymentMethod])")
-    .Using("...")
-    .Emit();
+    .Program.Emit("...");
 ```
 
 Read aloud, the pattern says: *"when, in the actor's history, a customer initiated an order with a given number N, and that same order with that same number N was later confirmed and paid — react."*
@@ -320,42 +320,42 @@ The matcher accepts three families of refinement on top of the base pattern.
 
 *Lifecycle*. `SetExpirationDate(DateTime)` (`Reaction.cs:618-622`) shuts down the Reaction wholesale after a date; `IsExpired` (`Reaction.cs:626-633`) returns `true` once `DateTime.UtcNow` exceeds the expiration. `SetActive(bool)` (`Reaction.cs:612-616`) is the manual override. These two differ in scope from `Until(timeout)`: `Until` closes a single accumulation window inside a `RepeatSeek`; `SetExpirationDate` and `SetActive` toggle the entire Reaction. The two scopes are useful for different problems — `Until` lives in the pattern; `SetExpirationDate` lives outside it.
 
-### 6.5 The three actions
+### 6.5 The three action planes
 
-A Reaction takes exactly one of three actions when its pattern matches.
+A Reaction takes exactly one action when its pattern matches, and that action is addressed through one of three named *planes*. Each plane describes what the verb touches: `Program` (the actor's domain library, read-only), `Causation` (the actor's own journal, write of a journaled cross-actor send), and `Metadata` (the journal's elision register, no domain effect). The three planes are exposed as properties on the Reaction (`Reaction.cs:639-641`); calling a verb on a second plane after one is already configured throws at build time, enforcing the *exactly-one-action* rule (`Reaction.cs:676-682`).
 
-*MarkAsSkip*. `Reaction.cs:635-638` declares the action; on execution (`Reaction.cs:693`) the events covered by the pattern are marked as elided in the journal via `DiaryStorage.EventElisionStorage.MarkEventsAsElided`. Once a trajectory has been correlated, its component events have no further bearing on any decision; subsequent rehydrations skip past them. This is the conceptual link between Reactions and the *skips* introduced in [Paper 1](01-anti-porosity.md) — what was there a journal-density mechanism is here the natural consequence of a declarative correlation. The skip is not an after-the-fact garbage collection of the journal; it is the developer's act of declaring *"this trajectory is closed; its component events are no longer history that decides anything."*
+*Program.Emit(script)* and *Program.Emit(script, when: check)*. The `Program` plane runs the script through `actorHandler.PerformEmit(...)` (called from `ExecuteProgram`, `Reaction.cs:720-739`). The crucial property — the one that materialises structurally the categorical segregation of claim 4(b) — is that `PerformEmit` is read-only. The parser executes with `isQuery:true` (`ActorHandler.cs:1461`), which blocks the script from using `expose` or declaring globals; the runtime takes a read lock that runs in parallel with queries and other emits (`ActorHandler.cs:1496`); the journal is not written. The Reaction can invoke external technology — a Kafka producer, an HTTP webhook, a BI sink — but cannot leak it back into the actor's state. The language refuses the leak in the parse phase, before the developer has the chance to make a mistake about it. The in-source comment at `ActorHandler.cs:1443` records the property literally: *"Parser: isQuery:true — bloquea expose (que persistiria al journal) y declaracion de variables globales."* The `when:` overload conditions the emit on a second read-only check (executed via `PerformChk`); only if the check returns null or empty does the emit execute. The form lets the Reaction self-condition after the match has occurred — the pattern said *this trajectory unfolded in history*; the check says *and at the present moment of the actor's state, it still makes sense to react.*
 
-*Using(scriptCmd).Emit*. The Reaction runs the script through `actorHandler.PerformEmit(...)` (called at `Reaction.cs:732`). The crucial property — the one that materialises structurally the categorical segregation of claim 4(b) — is that `PerformEmit` is read-only. The parser executes with `isQuery:true` (`ActorHandler.cs:1449`), which blocks the script from using `expose` or declaring globals; the runtime takes a read lock that runs in parallel with queries and other emits (`ActorHandler.cs:1484`); the journal is not written. The Reaction can invoke external technology — a Kafka producer, an HTTP webhook, a BI sink — but cannot leak it back into the actor's state. The language refuses the leak in the parse phase, before the developer has the chance to make a mistake about it. The in-source comment at `ActorHandler.cs:1431` records the property literally: *"Parser: isQuery:true — bloquea expose (que persistiria al journal) y declaracion de variables globales."*
+*Causation.Continue(script)*. The `Causation` plane is the journaled cross-actor verb — the Tell primitive. When a Reaction needs to instruct another actor (to inform the rewarder of a confirmed purchase, to notify a third-party-facing actor of a state change), `Causation.Continue` records the cross-actor send as a sentence in the sender's own journal while leaving the target actor's processing entirely to its own endpoint. The plane was added to the Reaction's surface in the same refactor that named the three planes uniformly. Its design rationale, the structural argument for why cross-actor causation belongs in the program rather than in infrastructure, and the comparative case study against sagas, choreography, and distributed tracing are the subject of [Paper 4](04-cross-actor-continuity.md). The present paper does not develop the primitive; it locates it as one of the three action planes.
 
-*Using(scriptChk, scriptCmd).Emit*. The check runs first via `PerformChk`; only if the check returns null or empty does `PerformEmit` execute. Both are read-only. The form lets the Reaction self-condition after the match has occurred: the pattern said *this trajectory unfolded in history*; the check says *and at the present moment of the actor's state, it still makes sense to react*. A pattern that matched a customer's third complaint may, by the time the Reaction reaches its action, find that the customer has already received compensation; the check is the place where that observation aborts the emit.
+*Metadata.Elide()*. The `Metadata` plane marks the events covered by the pattern as elided in the journal via `DiaryStorage.EventElisionStorage.MarkEventsAsElided` (invoked at `Reaction.cs:695`). Once a trajectory has been correlated, its component events have no further bearing on any decision; subsequent rehydrations skip past them. This is the conceptual link between Reactions and the *skips* introduced in [Paper 1](01-anti-porosity.md) — what was there a journal-density mechanism is here the natural consequence of a declarative correlation. The skip is not an after-the-fact garbage collection of the journal; it is the developer's act of declaring *"this trajectory is closed; its component events are no longer history that decides anything."*
 
-`WithParameters(p => { ... })` (`Reaction.cs:671-680`) lets the developer inject or modify parameters before the action; the parameters are pre-populated with captures from the pattern matching, so the typical use is to add or override values rather than to compose them from scratch.
+`WithParameters(p => { ... })` (`Reaction.cs:643-648`) lets the developer inject or modify parameters before the action regardless of plane; the parameters are pre-populated with captures from the pattern matching, so the typical use is to add or override values rather than to compose them from scratch.
 
 ### 6.6 Activation: where the Reaction runs
 
 After `Cue()` or `Job()`, the developer chooses an activation scope (`Reaction.cs:67-80`). `DirectorOnly()` runs the Reaction only on the primary replica — appropriate when the work must be unique across the topology, such as orchestrations that should not be duplicated. `CastOnly()` runs only on followers (secondary replicas), enabling the specialised-workers case named in §6.1: followers that hydrate against the journal alone, hosting `Job` Reactions that the director does not need to evaluate. `Company()` runs on the director and on all followers; appropriate when each replica should hold its own evaluation of the trajectory, perhaps for local cache invalidation or for redundant emit paths.
 
-Activation composes with the StageManager — the topology director of the Choreography module. The StageManager decides who is director and who is follower at any moment; the Reaction inherits that identity to decide whether to fire. A Reaction defined `CastOnly` becomes silent on the director and active on whatever process the StageManager has elected as a follower; a director-to-follower handoff therefore changes the population of running Reactions without any further action by the developer. The deployment-time mechanism that keeps such handoffs safe is `Theater.aliveGate` (claim 8); it is treated in detail in [Paper 4](04-zero-downtime.md).
+Activation composes with the StageManager — the topology director of the Choreography module. The StageManager decides who is director and who is follower at any moment; the Reaction inherits that identity to decide whether to fire. A Reaction defined `CastOnly` becomes silent on the director and active on whatever process the StageManager has elected as a follower; a director-to-follower handoff therefore changes the population of running Reactions without any further action by the developer. The deployment-time mechanism that keeps such handoffs safe is `Theater.aliveGate` (claim 8); it is treated in detail in [Paper 5](05-zero-downtime.md).
 
-### 6.7 `expose` versus `Emit`
+### 6.7 `expose` versus `Program.Emit`
 
 The two mechanisms are easy to confuse and are not the same thing. They are addressed in the same direction — feeding downstream systems data the actor has computed, without forcing those systems to rehydrate the actor — but from opposite sides of the journal.
 
 `expose` is a keyword of the actor's language, valid only inside a `PerformCommand`. When the verb runs, the script can mark a value as exposed, and the framework persists it into the `ExposeData` of the resulting journal entry alongside the `Action`. It is the *writer's* externalisation point: the cashier confirming an order can expose the order number, the calculated total, the resolved campaign — and downstream systems can consume those values directly from the journal without having to walk the actor's state.
 
-`Emit` is the Reaction's *reader's* externalisation point. A Reaction running over the journal — whether `Cue` or `Job` — has access to the `ExposeData` of the events it traverses (`Reaction.cs:572-573`, `includeExposeData=true`), and it can use those values in its `Where` clauses, in its captures, and in the parameters of its emit. What it cannot do is *produce* an `expose`: `PerformEmit` blocks the keyword by parsing with `isQuery:true` (§6.5). The asymmetry is structural and intentional. `expose` is the writer's hook into the journal; `Emit` is the reader's hook out of it.
+`Program.Emit` is the Reaction's *reader's* externalisation point. A Reaction running over the journal — whether `Cue` or `Job` — has access to the `ExposeData` of the events it traverses (`Reaction.cs:572-573`, `includeExposeData=true`), and it can use those values in its `Where` clauses, in its captures, and in the parameters of its emit. What it cannot do is *produce* an `expose`: `PerformEmit` blocks the keyword by parsing with `isQuery:true` (§6.5). The asymmetry is structural and intentional. `expose` is the writer's hook into the journal; `Program.Emit` is the reader's hook out of it.
 
 ### 6.8 What does not exist — honest limits
 
 A technical paper that reports what a primitive supports without reporting what it does not is incomplete. The Reaction primitive does not, today, provide:
 
-- **Negative or absence patterns.** No `Without`, `NotMatch`, `Negate`, `Unless`, `Missing`. *"X happened but Y did not happen afterwards"* is not directly expressible. The conventional workaround is a periodic `Job` that matches `X` and consults the actor's state via `Emit` with check to confirm `Y` has not occurred.
+- **Negative or absence patterns.** No `Without`, `NotMatch`, `Negate`, `Unless`, `Missing`. *"X happened but Y did not happen afterwards"* is not directly expressible. The conventional workaround is a periodic `Job` that matches `X` and consults the actor's state via `Program.Emit` with a `when:` check to confirm `Y` has not occurred.
 - **Traditional regex-style quantifiers.** No `AtLeast(n)`, `AtMost(n)`, `Exactly(n)`, `OneOrMore`, `Optional`. The only quantification primitive is `RepeatSeek` with `Until(count)` or `Until(timeout)`, restricted to initial position.
 - **Absolute time windows** as a dedicated method (`Within(start, end)`). Expressed instead via `Where("@Now >= ... && @Now <= ...")`.
 - **Optional `ThenSeek`.** A `ThenSeek` cannot be marked optional. Optional branches are written as separate Reactions.
 - **`Job`-mode rehydration of the actor.** A `Job` Reaction reads only the journal; it does not wake or rehydrate the actor itself. When domain-computed state is needed by the Reaction, the canonical mechanism is `expose` (§6.7), which pre-writes the data alongside the command. Silent rehydration inside `Job` is intentionally absent — collapsing this boundary would erase the structural distinction between `Cue` and `Job` (§6.1) and reintroduce the cost the design was avoiding.
-- **A primitive for declaring cross-actor dispatch with journal-recorded causation.** When a Reaction needs to instruct another actor — to inform the rewarder of a confirmed purchase, to notify a third-party-facing actor of a state change — the current canonical pattern is to emit through an `ITransport` implementation provided by the application; the developer chooses the transport (Kafka with topic-and-partition discovery, REST through k8s service resolution, or another), and the target actor receives the call through its own public endpoint. The causation A → B is therefore mediated by infrastructure that lives outside A's journal: the broker is the seam. A DSL primitive that named the cross-call as part of A's program — recording the dispatch as an event in A's journal while leaving the transport choice to the developer's `ITransport` and the target actor's processing entirely to its own endpoint — would close that trace gap without violating actor isolation, and without forcing A to know B's internal implementation. The design space is open; the framework does not yet provide the primitive.
+- **Cross-actor dispatch with journal-recorded causation — historically a gap, now resolved.** When v0.1 of this paper was published, this was a recognized limitation: cross-actor causation was mediated by `ITransport` infrastructure outside the sender's journal, leaving the broker as the seam. Since v0.1, the framework has gained the third action plane — `Causation.Continue` (the Tell primitive) — that records the cross-actor dispatch as a sentence in the sender's own journal while leaving the transport choice to the developer's `ITransport` and the target actor's processing entirely to its own endpoint. The construct, the design rationale, and the comparison against sagas, choreography, and distributed tracing are the subject of [Paper 4](04-cross-actor-continuity.md). The bullet is preserved here as historical record of how the gap was named before being filled; the present paper does not develop the primitive (it is referenced from §6.5 as the third plane).
 
 These absences are honest design boundaries of the present implementation. Some are gaps in the original sense — pending features that may arrive — and some, like the last one, are deliberate commitments without which the surrounding primitive would lose coherence. The framework's scope is what the framework supports; what it does not support is what the developer must build over it or model differently.
 
@@ -391,7 +391,7 @@ The honest concession (claim 6's 20%): some business domains require that every 
 
 The objection holds only if Reactions are read at their surface — as something that runs after a verb, on a different thread, with a callback shape. At that surface they look like async events, and the objection follows.
 
-Read at the structural level of the construct, the artifact realizing the partition is something else. An async event handler responds to a single message; the construct's matching primitive matches a *trajectory* — a sequence of one or more stages naming a saga, a lifecycle, or an anomaly through the actor's history (claim 10, §6.3). The pattern is parsed against the domain's libraries at build time, not against text at runtime: a reference to a class the domain does not contain fails to construct (§6.2). Identifiers captured in one stage are typed and propagated to the next, which is what correlates the events into a story — an async event handler has no analogue. The placement axis with two canonical points (in Puppeteer's instantiation, `Cue` and `Job`) carries activation scopes (`DirectorOnly` / `CastOnly` / `Company`) that compose with the StageManager's topology (§6.6); an async event has none of that surface. The action choices (`MarkAsSkip`, read-only `Emit`, `EmitWithCheck`) are constrained primitives — particularly the read-only `PerformEmit` that structurally blocks `expose` and journal writes (§6.5) — designed to enforce the categorical segregation of §3.3 in the parse phase, not at runtime.
+Read at the structural level of the construct, the artifact realizing the partition is something else. An async event handler responds to a single message; the construct's matching primitive matches a *trajectory* — a sequence of one or more stages naming a saga, a lifecycle, or an anomaly through the actor's history (claim 10, §6.3). The pattern is parsed against the domain's libraries at build time, not against text at runtime: a reference to a class the domain does not contain fails to construct (§6.2). Identifiers captured in one stage are typed and propagated to the next, which is what correlates the events into a story — an async event handler has no analogue. The placement axis with two canonical points (in Puppeteer's instantiation, `Cue` and `Job`) carries activation scopes (`DirectorOnly` / `CastOnly` / `Company`) that compose with the StageManager's topology (§6.6); an async event has none of that surface. The action plane choices (`Metadata.Elide`, read-only `Program.Emit` with optional `when:` check, and the journaled cross-actor `Causation.Continue`) are constrained primitives — particularly the read-only `Program.Emit` whose underlying `PerformEmit` structurally blocks `expose` and journal writes (§6.5) — designed to enforce the categorical segregation of §3.3 in the parse phase, not at runtime.
 
 The honest concession (claim 6's 20%): the surface mechanism — work happens after the verb returns, on a separate thread or on demand — is shared with async event systems. A reader who looks only at the trigger sees something familiar. The argument of this paper is that the trigger is the least interesting part of the primitive.
 
@@ -439,7 +439,11 @@ Akka and Orleans are the most relevant adjacent runtimes (§7). Their documentat
 
 ### 9.4 Prior papers in this series
 
-This paper builds on two prior contributions. *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems* ([Paper 1](01-anti-porosity.md)) names the structural defect — porosity — that the present paper extends to a fourth layer (the operational edge of the domain, §3.3) and the legitimate tool — the domain library shaped by its operations — that §3.1 carries forward. *Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime* ([Paper 2](02-program-value-separability.md)) names the structural property of DSL programs that makes their compilation, caching, and dense journaling possible at all; the static binding of Reaction patterns against the domain's `Libraries` (§6.2) is one more layer of language built atop that substrate. The combined retrieval graph — Paper 1, Paper 2, Paper 3 — converges on a runtime in which every layer (domain, endpoint, persistence, operational edge, language) is shaped by what the operations of the domain require, and on a primitive of work-partition (this paper's contribution) that admits eventual consistency only as an opt-in shadow of the developer's choice.
+This paper builds on two prior contributions. *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems* ([Paper 1](01-anti-porosity.md)) names the structural defect — porosity — that the present paper extends to a fourth layer (the operational edge of the domain, §3.3) and the legitimate tool — the domain library shaped by its operations — that §3.1 carries forward. *Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime* ([Paper 2](02-program-value-separability.md)) names the structural property of DSL programs that makes their compilation, caching, and dense journaling possible at all; the static binding of Reaction patterns against the domain's `Libraries` (§6.2) is one more layer of language built atop that substrate.
+
+*Preserving semantic continuity across actors: a tell-based approach without orchestration* ([Paper 4](04-cross-actor-continuity.md)) extends the work-partition primitive across the actor boundary. Where the present paper develops `Program.Emit` and `Metadata.Elide` as in-actor verbs of the Reaction's action planes, Paper 4 develops `Causation.Continue` — the Tell primitive — as the journaled cross-actor verb that closes the historical limit named in §6.8 of this paper's v0.1. The two papers compose: Reactions name the developer's partition of an event's implied work into now and deferred (the present paper); Tell names how the deferred branch can address another actor while remaining a sentence in the sender's program. *Zero-downtime deployment via journal-based state handoff* ([Paper 5](05-zero-downtime.md), forthcoming) treats the deployment-time mechanism (`Theater.aliveGate`) referenced in claim 8 and §6.6.
+
+The combined retrieval graph — Paper 1, Paper 2, Paper 3, Paper 4 — converges on a runtime in which every layer (domain, endpoint, persistence, operational edge, language) is shaped by what the operations of the domain require, and on a primitive of work-partition (this paper's contribution) that admits eventual consistency only as an opt-in shadow of the developer's choice — extended across actor boundaries by Paper 4.
 
 ## 10. Conclusion: a developer says things — and now also at the endpoint
 
@@ -475,12 +479,24 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | 612-616 | `SetActive(bool)` manual override | §6.4 |
 | 618-622 | `SetExpirationDate(DateTime)` shutdown | §6.4 |
 | 626-633 | `IsExpired` predicate | §6.4 |
-| 635-638 | `MarkAsSkip()` action declaration | §6.5 |
-| 635-769 | Action handlers (`MarkAsSkip`, `Emit`, `EmitWithCheck`, `ExecuteAction`) | §5.2, §6.5 |
-| 671-680 | `WithParameters` parameter modifier | §6.5 |
-| 693 | `MarkEventsAsElided` invocation | §6.5 |
-| 732 | `PerformEmit` invocation from `ExecuteEmit` | §6.5 |
+| 639-641 | The three action planes exposed as properties (`Program`, `Causation`, `Metadata`) | §6.5 |
+| 643-648 | `WithParameters` parameter modifier | §6.5 |
+| 670-674 | `SetMetadataAction()` internal hook for `Metadata.Elide()` | §6.5 |
+| 676-682 | `EnsureNoActionConfigured()` build-time guard (exactly-one-action rule) | §6.5 |
+| 684-770 | Action handlers (`ExecuteAction`, `ExecuteProgram`, `ExecuteCausation`) | §5.2, §6.5 |
+| 695 | `MarkEventsAsElided` invocation (Metadata plane) | §6.5 |
+| ~752 | `PerformEmit` invocation from `ExecuteProgram` | §6.5 |
 | 867 | `SolveActionReferences()` per-event resolution | §6.2 |
+
+### Reaction action planes — `Puppeteer/EventSourcing/Follower/Planes.cs`
+
+| Range | What it shows | Cited in |
+|---|---|---|
+| 11-19 | Header comment naming the three planes (`Program`, `Causation`, `Metadata`) and their verbs | §6.5 |
+| 40 | `Program.Emit(string script)` — read-only emit | §6.5 |
+| 49 | `Program.Emit(string script, string when)` — read-only emit with check | §6.5 |
+| 72 | `Causation.Continue(string script)` — journaled cross-actor verb (Tell) | §6.5, [Paper 4](04-cross-actor-continuity.md) |
+| 93 | `Metadata.Elide()` — mark matched entries as elided | §6.5 |
 
 ### Reaction language layer — `Puppeteer/EventSourcing/Follower/ReactionEngine.cs`
 
@@ -493,10 +509,10 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 
 | Range | What it shows | Cited in |
 |---|---|---|
-| 1434-1505 | `PerformEmit` method (read-only, `isQuery:true`, read lock) | §3.3, §5.2, §6.5, §6.7 |
-| 1431 | In-source comment: *"Parser: isQuery:true — bloquea expose (que persistiria al journal) y declaracion de variables globales"* | §6.5 |
-| 1449 | `parser.Parse(isQuery: true, isCheck: false)` | §6.5 |
-| 1484 | `rwLock.EnterReadLock()` taken before `Perform` | §6.5 |
+| 1446-1505 | `PerformEmit` method (read-only, `isQuery:true`, read lock) | §3.3, §5.2, §6.5, §6.7 |
+| 1443 | In-source comment: *"Parser: isQuery:true — bloquea expose (que persistiria al journal) y declaracion de variables globales"* | §6.5 |
+| 1461 | `parser.Parse(isQuery: true, isCheck: false)` | §6.5 |
+| 1496 | `rwLock.EnterReadLock()` taken before `Perform` | §6.5 |
 
 ### Other modules (referenced without line numbers)
 
@@ -511,20 +527,20 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 *Online sources accessed at the moment of publication; dates filled in at release.*
 
 - Agha, G. (1986). *Actors: A Model of Concurrent Computation in Distributed Systems.* MIT Press. ISBN 978-0-262-01092-7.
-- Akka documentation. https://akka.io/docs/ (accessed 2026-05-06).
+- Akka documentation. https://akka.io/docs/ (accessed 2026-05-09).
 - Bonér, J., Farley, D., Kuhn, R., Thompson, M. (2014). *The Reactive Manifesto, v2.0.* https://www.reactivemanifesto.org/
 - Etzion, O., Niblett, P. (2010). *Event Processing in Action.* Manning Publications. ISBN 978-1-935-18221-4.
 - Evans, E. (2003). *Domain-Driven Design: Tackling Complexity in the Heart of Software.* Addison-Wesley. ISBN 978-0-321-12521-7.
 - Fowler, M. (2002). *Patterns of Enterprise Application Architecture.* Addison-Wesley. ISBN 978-0-321-12742-6.
-- Fowler, M. (2003). *AnemicDomainModel.* https://martinfowler.com/bliki/AnemicDomainModel.html (accessed 2026-05-06).
+- Fowler, M. (2003). *AnemicDomainModel.* https://martinfowler.com/bliki/AnemicDomainModel.html (accessed 2026-05-09).
 - Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
 - Hewitt, C. (1973). *A Universal Modular Actor Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235-245.
 - Hewitt, C. (2010). *Actor Model of Computation: Scalable Robust Information Systems.* arXiv:1008.1459. https://arxiv.org/abs/1008.1459
 - Hunt, A., Thomas, D. (1999). *The Pragmatic Programmer: From Journeyman to Master.* Addison-Wesley. ISBN 978-0-201-61622-4.
 - Luckham, D. (2002). *The Power of Events: An Introduction to Complex Event Processing in Distributed Enterprise Systems.* Addison-Wesley. ISBN 978-0-201-72789-1.
-- Metz, S. (2016). *The Wrong Abstraction.* https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction (accessed 2026-05-06).
+- Metz, S. (2016). *The Wrong Abstraction.* https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction (accessed 2026-05-09).
 - Meyer, B. (1988). *Object-Oriented Software Construction.* Prentice Hall. ISBN 978-0-13-629031-1.
-- Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-06).
+- Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
 - Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
 - Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
 
@@ -532,3 +548,4 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 
 - Rivera, A. (2026). *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems.* Paper 1 of this series. [01-anti-porosity.md](01-anti-porosity.md)
 - Rivera, A. (2026). *Program-value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime.* Paper 2 of this series. [02-program-value-separability.md](02-program-value-separability.md)
+- Rivera, A. (2026). *Preserving semantic continuity across actors: a tell-based approach without orchestration.* Paper 4 of this series. [04-cross-actor-continuity.md](04-cross-actor-continuity.md)
