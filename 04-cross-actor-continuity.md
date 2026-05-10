@@ -2,8 +2,8 @@
 title: "Preserving semantic continuity across actors: a tell-based approach without orchestration"
 author: Alvaro Rivera
 affiliation: Ncubo
-date: 2026-05-09
-version: 0.1-draft
+date: 2026-05-10
+version: 0.2-draft
 status: draft
 keywords:
   - actor model
@@ -79,6 +79,8 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 This paper makes a design theory contribution. It identifies and names a structural assumption that the canonical literature on actor-based systems has repeatedly documented in different forms without recognizing as a single construct; derives the design principles required to reject it; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation serves as an existence proof, not as the substance of the claim. The genre is that described by Alan Hevner, Stuart March, Jinsoo Park, and Sudha Ram (2004) as design science research: empirical evidence is provided in the form of a working artifact rather than a controlled experiment.
 
+This is not a systems paper. It does not present performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks. The genre — design theory — measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Section 8 exhibits the instantiation and tests whether the mechanism satisfies its stated structural properties. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
+
 Consider an ordinary observation about actor-based systems. An actor performs an operation and, as a result, sends a message to another actor. The first actor's operation, state mutation, and emitted events appear in its journal or trace. The second actor receives the message and its own operation is likewise recorded. Yet the act of sending the message — the causal step that connects the two — does not appear in either actor's program. It is mediated by the runtime, the dispatcher, or the message broker. The sender's journal does not record that it spoke; the receiver's journal does not record, in program terms, who spoke to it.
 
 This observation is so familiar that it rarely appears noteworthy. But it should. If actors are programs, and a sentence in one actor's program causes an effect in another, then that causal sentence has every reason to appear as part of the first actor's program. That it does not is not a logical consequence of the actor model; it is a structural feature of how actor systems have historically been constructed.
@@ -150,6 +152,36 @@ The two terms in the formulation are the working categories of the rest of this 
 
 *Programmatic* designates effects that an actor's program contains as a statement — a line of code, a journal entry, a recorded behavior — in such a way that the effect is observable from within the program's own narrative. A method invocation that an actor performs on itself is programmatic in this sense; so is a state mutation written by that actor; so is a journal entry recorded by that actor. The actor's program records what happened; replay of that program reconstructs what happened.
 
+The contrast can be visualized:
+
+```
+Under the assumption (§3): causation operational, not programmatic
+
+    A's program                                     B's program
+        │                                                 ▲
+        │      runtime / broker / dispatcher              │
+        │  ─────────────────────────────────────────────► │
+        │      (cross-actor causation not                 │
+        │       recorded as program)                      │
+        ▼                                                 ▼
+    A's journal                                     B's journal
+    (local effects only)                            (local effects only)
+
+
+Under the alternative (§7): causation as program statement
+
+    A's program                                     B's program
+        │                                                 ▲
+        │  ─────────────────  tell  ────────────────────► │
+        │                                                 │
+        ▼                                                 ▼
+    A's journal                                     B's journal
+    [tell entry]                                    [receipt entry]
+    [ack entry]
+```
+
+Both views describe the same flow; they differ in what is recorded as program. Under the assumption, the cross-actor send lives in infrastructure between actors and is invisible from any actor's program. Under the alternative, the cross-actor send is itself a journal entry on the sender's side, with a corresponding receipt entry on the receiver's side.
+
 The naturalized assumption is the claim that, in the ontology of an actor system, the act of one actor causing an effect in another belongs to the *operational* category and not the *programmatic* one. The 1973 framing of message-sending as a hardware-instruction analogue is this claim. The 2014–present framing of `tell` as a fire-and-forget dispatch with no acknowledgment record is this claim. Across formulations, the assumption holds.
 
 §4 demonstrates that the assumption, while continuous in the literature, is contingent rather than necessary: no theorem of the actor model entails it. §5 examines the consequences of the assumption — what is structurally lost when cross-actor causation lives outside any program. §6 shows why the existing repertoire of patterns built atop the actor model — sagas, choreography, distributed tracing, workflow engines — cannot dissolve the assumption, because they reconstruct cross-actor flow *after* the fact rather than preserving it as program. §7 reformulates: the assumption is contingent, the alternative is constructible, and the cross-actor flow can be a sentence of the program.
@@ -174,7 +206,7 @@ These three commitments are what distinguish actor systems from shared-memory co
 
 The three commitments above do not entail that the *act of sending* be invisible to the sender's own program. They do not entail that cross-actor dispatch be mediated by a runtime layer that owns the send. They do not entail that a record of "actor A spoke to actor B at time T" must reside outside actor A's narrative.
 
-In Hewitt 1973, the act of sending is an action the actor performs. The framing of message-sending as a machine-level instruction analogous to a hardware instruction is an interpretive choice that supports the architecture proposed in that paper; it is not a formal consequence of what an actor is. In Agha 1986, the actor's behavior is modelled as a function from (state, message) to (next state, outgoing messages). The outgoing messages are output of the function. There is no formal requirement that the function be unable to also produce, as output, a record of the send observable in the actor's own program. The formalization can be extended, without modifying any of the three commitments above, to include as output not only the outgoing messages but also a record of the send observable within the actor's own program.
+In Hewitt 1973, the act of sending is an action the actor performs. The framing of message-sending as a machine-level instruction analogous to a hardware instruction [Hewitt et al. 1973, p. 236] is an interpretive choice that supports the architecture proposed in that paper; it is not a formal consequence of what an actor is. In Agha 1986, the actor's behavior is modelled as a function from (state, message) to (next state, outgoing messages) [Agha 1986, ch. 4]. The outgoing messages are output of the function. The formalization neither requires nor prohibits the function from producing, in addition, a record of the send observable in the actor's own program — the question is not raised. The formalization can be extended, without modifying any of the three commitments above, to include as output not only the outgoing messages but also a record of the send observable within the actor's own program.
 
 What the canonical formulations establish is the *boundary* between actors — autonomy, isolation, message passing as the exclusive cross-actor mechanism. They do not establish that the boundary be invisible from within. The opacity of the cross-actor send to the sender's program is a separate decision that the canonical sources adopted but did not derive.
 
@@ -318,7 +350,7 @@ A primitive that satisfies the three conditions by construction can be defined.
 
 The three components correspond to the three conditions. Component (a) satisfies C1 — the journal entry is written only to the sender's journal — and C2 — the entry is the program statement that names the cross-actor causation. Component (b) inherits the existing message-passing semantics of the actor model; nothing about the dispatch mechanism is new. Component (c) satisfies C3 — the act involves only the sender's local write and the dispatch; no orchestrator participates.
 
-The primitive is conceptual. Its naming follows actor-systems convention: in Akka and elsewhere, *tell* designates a fire-and-forget cross-actor send (§2.3). The primitive defined here keeps the verb and changes what the verb does — specifically, what the verb records. Where Akka's *tell* leaves no trace in either actor's program (§2.3), this primitive's effect is to make the trace the program. The difference is not in the dispatch semantics but in what the program is allowed to say about the dispatch.
+The primitive is conceptual. Its naming follows actor-systems convention: in Akka and elsewhere, *tell* designates a fire-and-forget cross-actor send (§2.3). The collision with Akka's verb is not accidental but argumentative: the verb has been part of actor-systems vocabulary for over a decade alongside the assumption that the verb's effect was extra-programmatic. The primitive defined here keeps the verb and changes what the verb records. Where Akka's *tell* leaves no trace in either actor's program (§2.3), this primitive's effect is to make the trace the program. The difference is not in the dispatch semantics but in what the program is allowed to say about the dispatch.
 
 The canonical effect can be stated in one sentence: *tell* turns the journal into the boundary of causation. The boundary between actors does not disappear; it remains the locus of message passing. What changes is that the boundary becomes inscribed in each participating actor's program.
 
@@ -534,7 +566,7 @@ The three labs in §8.3 exercise the same logical flow but record it differently
 
 **Tell**: the Seller's journal contains the purchase, the tell, and the ack — three entries that constitute the joint history as a sequence of DSL sentences. The RewardEngine's journal records its local reward, as in the other styles. Under tell, the sender's journal alone reconstructs the cross-actor causal chain.
 
-The three styles produce equivalent business outcomes. They differ structurally in where the cross-actor causal chain is recorded. The difference is not cosmetic. The saga coordinator, the event bus log, the distributed trace, and the workflow engine all exist to compensate for the absence identified in §3. In the tell style, none of these compensations is required. The sender's journal already contains the cross-actor narrative that those patterns attempt to reconstruct elsewhere.
+The three styles produce equivalent business outcomes. They differ structurally in where the cross-actor causal chain is recorded. The difference is not cosmetic. The saga coordinator, the event bus log, the distributed trace, and the workflow engine all exist to compensate for the absence identified in §3. In the tell style, the compensations have nothing to compensate for: the program-level absence they were designed to address is itself absent. The sender's journal already contains the cross-actor narrative that those patterns attempt to reconstruct elsewhere.
 
 | Style | Joint history location | Audit path |
 |---|---|---|
@@ -544,9 +576,9 @@ The three styles produce equivalent business outcomes. They differ structurally 
 
 In the first two styles, an additional architectural element is required to make the cross-actor flow observable as a narrative: a coordinator, a bus log, a trace backend, or a workflow program. In the tell style, no additional element is introduced. The narrative exists where the actor model already records program: the journal.
 
-### 8.5 Defensive demonstrations
+### 8.5 Property validation
 
-Three additional tests demonstrate that consequences claimed in §5 — auditability through external reconstruction, replay limited to single actors, cross-DC fragility — are reversed under tell, exhibiting properties that would be inaccessible if the assumption named in §3 were in force. These demonstrations are intentionally chosen to mirror the compensating patterns of §6: each test exhibits a property that, under the assumption of §3, requires an external architectural pattern to achieve.
+Three additional tests demonstrate that consequences claimed in §5 — auditability through external reconstruction, replay limited to single actors, cross-DC fragility — are reversed under tell, exhibiting properties that would be inaccessible if the assumption named in §3 were in force. These tests are intentionally chosen to mirror the compensating patterns of §6: each test exhibits a property that, under the assumption of §3, requires an external architectural pattern to achieve.
 
 **G1 — Replay coherence (closes §5.2).** The first test stages an in-flight tell: the envelope leaves the Seller but the bridge does not deliver it before the test asserts. A fresh actor instance with the same name, no shared transport, no live receiver, and no in-memory state replays the journal alone. The replayed actor reconstructs the dedup state for the in-flight envelope from journal entries. The joint history exists as a program artifact and replay reaches it.
 
@@ -554,7 +586,7 @@ Three additional tests demonstrate that consequences claimed in §5 — auditabi
 
 **G3 — Audit query (closes §5.1).** The third test asks the audit question — *why did this happen?* — by reading the Seller's journal directly. The cross-actor sentence is in entry [1]; the acknowledgment is in entry [2]. The cause-effect chain is reconstructed without distributed tracing, correlation IDs, or log aggregation.
 
-Under saga, choreography, tracing, or workflow approaches, each of these tests would require consulting an artifact outside the participating actors. Under tell, the actor's own program is sufficient.
+Each of these properties is a consequence of cross-actor causation being recorded as program. Under saga, choreography, tracing, or workflow approaches — where it is not — the same properties are reachable only by consulting artifacts outside the participating actors.
 
 ### 8.6 Closing
 
@@ -584,7 +616,7 @@ The first sentence is the joint contribution of Papers 1 through 3: the structur
 
 The actor model has, for fifty years, treated cross-actor causation as an operational concern of the runtime rather than as a construct of the program. The treatment was productive: actor systems became fault-tolerant, scalable, and reliable precisely because the separation between an actor's program and the message-passing layer was operationally effective. Out of that productivity grew the ecosystem of patterns analyzed in §6 and exhibited in §8.3 — saga orchestrators, choreography buses, distributed tracing, workflow engines. Each compensates, in its own way, for the program-level absence the reader saw in the journals.
 
-The present paper observes that the absence is not entailed by the actor model. It is a contingent design decision adopted by the canonical sources, propagated through the lineage, and never seriously challenged because it was never seriously challenged. The conditions under which the absence can be removed — locality of writes, causation as program statement, no external coordinator — preserve every structural commitment of the actor model. A primitive that satisfies the three conditions, whether named *tell* or otherwise, makes the cross-actor send a sentence in the sender's program and reduces the apparatus that compensates for the absence to redundancy.
+The present paper observes that the absence is not entailed by the actor model. It is a contingent design decision adopted by the canonical sources, propagated through the lineage, and never seriously challenged because it was never seriously challenged. The conditions under which the absence can be removed — locality of writes, causation as program statement, no external coordinator — preserve every structural commitment of the actor model. A primitive that satisfies the three conditions, whether named *tell* or otherwise, makes the cross-actor send a sentence in the sender's program; the apparatus that exists to compensate for the absence has nothing left to compensate for.
 
 The contribution of this paper is conceptual. The instantiation in production is the existence proof; the existence proof is the journal the reader saw in §8.3.
 
