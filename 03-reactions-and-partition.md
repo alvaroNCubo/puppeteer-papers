@@ -2,8 +2,8 @@
 title: "Reactions and the partition: opt-in eventual consistency in actor-native systems"
 author: Alvaro Rivera
 affiliation: Ncubo
-date: 2026-05-09
-version: 0.3-draft
+date: 2026-05-12
+version: 0.4-draft
 status: draft
 keywords:
   - reactions
@@ -192,6 +192,18 @@ Three properties are jointly characteristic. *Multi-event*: the smallest match i
 
 This is the property that licenses everything else. Without trajectorial matching, *"the cashier's verb is fast and a Reaction handles the rewarder afterwards"* reduces to a callback. With it, what the developer has written is *"when, in the cashier's history, an order was initiated, then confirmed, then paid, react"* — a declaration about how the actor's lifecycle unfolds, not about what to do when a single event arrives. The matching machinery is examined in §6.2; a worked example with the order lifecycle is in §6.3.
 
+### 3.6 Reactions are journal-indexed, not event-driven
+
+A Reaction is not an event handler. It is a journal-indexed program cursor.
+
+The structural property is this: **a Reaction traverses the journal monotonically and exactly once.** No journal entry is ever processed twice by the same Reaction — not after a crash, not after a restart, not after a replica handoff. Reprocessing is not something the Reaction body avoids; it is something the construct forbids by shape.
+
+The property does not rest on deduplication logic, idempotency wrappers, or guards written inside the Reaction. It is upstream of all of those. A Reaction's position over the journal — one position per `Seek` of the pattern — is itself part of the actor's persistent state, advances only forward, and is validated on load such that any non-monotonic checkpoint is refused. The cursor is the Reaction's identity over time; loss of the cursor is loss of the Reaction.
+
+The runtime's commit discipline exists to sustain this property, not to add it. The cursor's advance is durable before the Reaction's action takes effect, and a process failure between those two moments leaves the cursor ahead, never behind. The entry has already been past the cursor by definition; on restart the Reaction's scan begins from a position that excludes it. The asymmetry is deliberate: re-executing on the same entry is the failure mode the construct is designed to forbid, while failing to execute is the failure mode it is designed to expose — surfaced as a recoverability event rather than as silent re-execution.
+
+The reader who is about to encounter cross-actor causation in [Paper 4](04-cross-actor-continuity.md) should hold this property fixed. A `Causation.Continue` invocation that records a cross-actor send in the sender's journal cannot fire twice against the same journal entry — not as a runtime accident, but as a consequence of what a Reaction is. Tell turns the journal into the boundary of causation precisely because the journal is a once-traversed program, not a replayable log of handlers. The property is established here and depended on there.
+
 ## 4. Friction as the architectural guardian
 
 The two purposes of §3 share a guardian. If Reactions cost the developer more lines or more cognitive load than inline code, the partition is not exercised. Both purposes collapse simultaneously: verbs degrade *and* the domain library is contaminated by precipitation.
@@ -263,7 +275,7 @@ The two modes correspond to two structurally distinct points on the proximity/ur
 | Distributable | No | Yes |
 | Direction | `ReadForward` only | Forward or backward |
 
-The choice between them is an architectural decision, not a tuning knob. A Reaction modeled as `Cue` cannot transparently become a `Job`: the two assume different things about what is in memory, who hosts the work, and whether the actor must be live for the Reaction to make progress. This is the §2.3 axis materialised — partition and placement are one act because, at the moment of partitioning, the developer is also choosing which of these two modes will carry the deferred work.
+The choice between them is an architectural decision, not a tuning knob. A Reaction modeled as `Cue` cannot transparently become a `Job`: the two assume different things about what is in memory, who hosts the work, and whether the actor must be live for the Reaction to make progress. This is the §2.3 axis materialised — partition and placement are one act because, at the moment of partitioning, the developer is also choosing which of these two modes will carry the deferred work. Both modes operate as journal-indexed cursors per §3.6: the choice between them governs *who walks the journal and when*, not whether the cursor exists.
 
 ### 6.2 Static pattern matching against the domain libraries
 
@@ -322,15 +334,72 @@ The matcher accepts three families of refinement on top of the base pattern.
 
 ### 6.5 The three action planes
 
-A Reaction takes exactly one action when its pattern matches, and that action is addressed through one of three named *planes*. Each plane describes what the verb touches: `Program` (the actor's domain library, read-only), `Causation` (the actor's own journal, write of a journaled cross-actor send), and `Metadata` (the journal's elision register, no domain effect). The three planes are exposed as properties on the Reaction (`Reaction.cs:639-641`); calling a verb on a second plane after one is already configured throws at build time, enforcing the *exactly-one-action* rule (`Reaction.cs:676-682`).
+A Reaction takes exactly one action when its pattern matches. That action is expressed through one of three named *planes*, each describing a different surface of the system the matched trajectory is permitted to affect.
 
-*Program.Emit(script)* and *Program.Emit(script, when: check)*. The `Program` plane runs the script through `actorHandler.PerformEmit(...)` (called from `ExecuteProgram`, `Reaction.cs:720-739`). The crucial property — the one that materialises structurally the categorical segregation of claim 4(b) — is that `PerformEmit` is read-only. The parser executes with `isQuery:true` (`ActorHandler.cs:1461`), which blocks the script from using `expose` or declaring globals; the runtime takes a read lock that runs in parallel with queries and other emits (`ActorHandler.cs:1496`); the journal is not written. The Reaction can invoke external technology — a Kafka producer, an HTTP webhook, a BI sink — but cannot leak it back into the actor's state. The language refuses the leak in the parse phase, before the developer has the chance to make a mistake about it. The in-source comment at `ActorHandler.cs:1443` records the property literally: *"Parser: isQuery:true — bloquea expose (que persistiria al journal) y declaracion de variables globales."* The `when:` overload conditions the emit on a second read-only check (executed via `PerformChk`); only if the check returns null or empty does the emit execute. The form lets the Reaction self-condition after the match has occurred — the pattern said *this trajectory unfolded in history*; the check says *and at the present moment of the actor's state, it still makes sense to react.*
+| Plane | What the verb touches | What it cannot touch |
+|---|---|---|
+| `Program` | the actor's domain libraries, read-only | the journal, the actor's state, any global |
+| `Causation` | the actor's own journal (a journaled cross-actor send) | the domain libraries or the metadata plane |
+| `Metadata` | the journal's elision register | the domain state or any external effect |
 
-*Causation.Continue(script)*. The `Causation` plane is the journaled cross-actor verb — the Tell primitive. When a Reaction needs to instruct another actor (to inform the rewarder of a confirmed purchase, to notify a third-party-facing actor of a state change), `Causation.Continue` records the cross-actor send as a sentence in the sender's own journal while leaving the target actor's processing entirely to its own endpoint. The plane was added to the Reaction's surface in the same refactor that named the three planes uniformly. Its design rationale, the structural argument for why cross-actor causation belongs in the program rather than in infrastructure, and the comparative case study against sagas, choreography, and distributed tracing are the subject of [Paper 4](04-cross-actor-continuity.md). The present paper does not develop the primitive; it locates it as one of the three action planes.
+A Reaction is therefore not an unbounded scripting surface attached to a pattern. It is a constrained declaration of which surface of the system the matched trajectory is permitted to affect. The builder enforces that only one plane can be configured per Reaction; configuring a second plane after one has already been set is a construction error. The *exactly-one-action* rule is structural, not conventional — the developer cannot accidentally route a single match into two different planes because the surface refuses the second configuration call at build time.
 
-*Metadata.Elide()*. The `Metadata` plane marks the events covered by the pattern as elided in the journal via `DiaryStorage.EventElisionStorage.MarkEventsAsElided` (invoked at `Reaction.cs:695`). Once a trajectory has been correlated, its component events have no further bearing on any decision; subsequent rehydrations skip past them. This is the conceptual link between Reactions and the *skips* introduced in [Paper 1](01-anti-porosity.md) — what was there a journal-density mechanism is here the natural consequence of a declarative correlation. The skip is not an after-the-fact garbage collection of the journal; it is the developer's act of declaring *"this trajectory is closed; its component events are no longer history that decides anything."*
+#### Program — read-only execution against the domain libraries
 
-`WithParameters(p => { ... })` (`Reaction.cs:643-648`) lets the developer inject or modify parameters before the action regardless of plane; the parameters are pre-populated with captures from the pattern matching, so the typical use is to add or override values rather than to compose them from scratch.
+The `Program` plane executes a script under the same regime as a query. The parser runs in query mode, the script is forbidden from declaring globals, the `expose` keyword is rejected, the journal is not written, and the runtime takes a read lock that runs in parallel with other queries and emits.
+
+The script may invoke arbitrary external technology — an HTTP client, a Kafka producer, a SignalR hub, a BI sink. What the language denies is any path by which those calls could feed back into the actor's state. This is not a discipline rule kept by convention; it is rejected at parse time, before the developer has the chance to write the leak. A Reaction may observe the actor and affect the outside world, but it cannot feed that effect back into the actor.
+
+The optional `when:` guard performs a second read-only check at firing time:
+
+- the pattern asserts that *this trajectory occurred in history*,
+- the guard asserts that *it still makes sense to react now*.
+
+The distinction matters under replay, catch-up after downtime, and replica rehydration — the three situations in which the temporal distance between history and the present can be arbitrary. The pattern is bound to the trajectory; the guard is bound to the clock.
+
+A worked example. Consider a Reaction that, after a confirmed purchase, pushes a real-time toast notification to the customer's UI:
+
+```text
+seller.Reactions.DefineReaction("NotifyPurchaseToast")
+    .Cue().Company().ReadForward()
+    .Seek("Purchase")
+        .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
+    .Program.Emit(
+        "notifier.Push(@customer, @orderId);",
+        when: "check (notifier.IsFresh(@date)) WARNING 'toast stale, drop';"
+    );
+```
+
+The domain verb `Seller.purchase(...)` carries no reference to the notification hub, to UI presence, to toast timing, or to any operational concern of the notification layer. All of that lives inside the Reaction: the call to `notifier.Push(...)` invokes the extrinsic technology, and the guard decides at firing time whether the toast still has an audience. Under the steady path the push fires within seconds of the journal entry; under catch-up or replay, the same match arrives at the matcher hours or days later, the guard returns false, and the emit is suppressed. The freshness policy is plain code in a library class — `ToastNotifier` — that the actor sees through its `Libraries` but that the domain verb never references. The segregation is guaranteed because there is no syntactic route by which this Reaction could import the notifier back into `Seller.purchase`.
+
+#### Causation — journaled cross-actor continuation
+
+The `Causation` plane is the journaled cross-actor send. A Reaction on this plane writes exactly one sentence into the sender's own journal instructing another actor; the sender records the causation, the receiver processes the message independently through its own endpoint. Cross-actor coordination therefore appears in the program as a domain fact rather than as infrastructure — neither a saga step nor a tracing span nor a choreography event, but a sentence in the actor's history.
+
+This plane is developed in detail in [Paper 4](04-cross-actor-continuity.md), which introduces the primitive, names the structural conditions under which it preserves cross-actor program continuity, and presents the comparative case study against sagas, choreography, and distributed tracing. Here it is named only as the second of the three surfaces a Reaction may touch.
+
+#### Metadata — declaring a trajectory closed
+
+The `Metadata` plane marks the events covered by the pattern as elided. After a trajectory has been correlated, its component events no longer participate in any future decision; subsequent rehydrations walk past them.
+
+This is the conceptual bridge to the *skips* introduced in [Paper 1](01-anti-porosity.md). What appeared there as a journal-density optimisation is here the natural outcome of declarative correlation. The developer is not cleaning the journal after the fact. The developer is declaring *"this trajectory is closed; its component events no longer decide anything."* The skip is the consequence of that declaration, not its cause.
+
+#### Parameter injection
+
+`WithParameters(...)` allows captures from the pattern matching to be modified or augmented before the action runs, regardless of which plane is configured. The parameters are pre-populated with the pattern's captures, so the idiomatic use is to enrich them rather than to construct them from scratch.
+
+#### Why the planes matter
+
+Without named planes, a Reaction would be an unbounded script runner attached to history — a feature whose semantics would depend on which calls the developer happened to write. With named planes, a Reaction becomes a one-sentence statement about which layer of the system is allowed to change when a historical pattern is recognised. The same primitive that detects the trajectory also declares the surface of effect, and the surface of effect is selected from a closed set of three rather than from the open set of all calls a script could make.
+
+That restriction is what makes the segregation between
+
+- domain verbs,
+- cross-actor causation,
+- operational side-effects, and
+- journal maintenance
+
+reliable across teams and across time. The reliability is not a property of the developer's discipline. It is a property of the surface the language permits the developer to address.
 
 ### 6.6 Activation: where the Reaction runs
 
@@ -485,7 +554,7 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | 676-682 | `EnsureNoActionConfigured()` build-time guard (exactly-one-action rule) | §6.5 |
 | 684-770 | Action handlers (`ExecuteAction`, `ExecuteProgram`, `ExecuteCausation`) | §5.2, §6.5 |
 | 695 | `MarkEventsAsElided` invocation (Metadata plane) | §6.5 |
-| ~752 | `PerformEmit` invocation from `ExecuteProgram` | §6.5 |
+| 747 | `PerformEmit` invocation from `ExecuteProgram` | §6.5 |
 | 867 | `SolveActionReferences()` per-event resolution | §6.2 |
 
 ### Reaction action planes — `Puppeteer/EventSourcing/Follower/Planes.cs`
