@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Lab02BytesPerEvent</RootNamespace>
+    <AssemblyName>Lab02BytesPerEvent</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\..\..\Puppeteer-Pacifico-lab-p05l2\UnitTestPuppeteer\UnitTestPuppeteerKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Puppeteer-Pacifico-lab-p05l2\Puppeteer\Puppeteer.csproj" />
+  </ItemGroup>
+
+</Project>
