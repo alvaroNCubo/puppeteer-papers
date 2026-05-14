@@ -1,0 +1,5 @@
+run_id,git_sha,host,N_events,compile_mode,deploy_total_ms_p50,deploy_total_ms_p95,deploy_total_ms_mean,bulk_replay_ms_p50,bulk_replay_ms_p95,replay_events_per_sec_p50,replay_events_per_sec_p95,repetitions
+run-20260513-200732-ef3a002,ef3a002,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,1000,AlwaysCompiled,5.6400,6.0532,5.6198,5.6326,6.0346,177537.90,193792.91,3
+run-20260513-200732-ef3a002,ef3a002,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,10000,AlwaysCompiled,36.4318,46.9348,40.0896,36.4107,46.9094,274644.54,279446.71,3
+run-20260513-200732-ef3a002,ef3a002,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,100000,AlwaysCompiled,221.5601,237.4141,227.2434,221.5485,237.3989,451368.44,452408.36,3
+run-20260513-200732-ef3a002,ef3a002,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,1000000,AlwaysCompiled,2405.1086,2405.1086,2405.1086,2405.0839,2405.0839,415785.91,415785.91,1
