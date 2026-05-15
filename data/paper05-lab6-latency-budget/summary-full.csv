@@ -1,0 +1,4 @@
+run_id,backend,samples,mean_micros,p50_micros,p95_micros,p99_micros,max_micros,fsync_mode
+20260514-152147,FileSystem,500000,407.24,347.10,581.80,1919.00,10750.90,Flush(flushToDisk:true)
+20260514-152147,SQLServer,500000,1264.88,1125.60,1891.40,2579.90,150379.00,default(full durability)
+20260514-152147,MySQL,500000,1064.27,981.50,1497.80,2021.00,7604.80,innodb_flush_log_at_trx_commit=1,sync_binlog=1

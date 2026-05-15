@@ -1,0 +1,5 @@
+run_id,cell,backend,backlog_events,drain_sec,drain_events_per_sec
+20260514-231715,MySQL_buffered,MySQL,12333,45.725,270
+20260514-231715,MySQL_buffered,MySQL,10000,34.301,292
+20260514-231715,SQLServer_buffered,SQLServer,10000,23.483,426
+20260514-231715,SQLServer_buffered,SQLServer,10000,23.976,417

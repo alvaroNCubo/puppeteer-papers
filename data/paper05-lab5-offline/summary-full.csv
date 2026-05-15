@@ -1,0 +1,7 @@
+run_id,cell,backend,buffer_mode,phase,samples,mean_micros,p50_micros,p95_micros,p99_micros,max_micros,events_per_sec
+20260514-231715,MySQL_direct,MySQL,NoBuffer,Online,20000,3923.73,3769.70,5567.80,7329.00,28598.30,255
+20260514-231715,MySQL_buffered,MySQL,WithBuffer,Online,20000,532.08,517.30,706.40,2125.20,9738.30,1879
+20260514-231715,MySQL_buffered,MySQL,WithBuffer,Partition,20000,393.07,337.70,559.80,1747.00,9177.90,2544
+20260514-231715,SQLServer_direct,SQLServer,NoBuffer,Online,20000,1592.58,1329.50,2794.50,4163.30,189533.10,628
+20260514-231715,SQLServer_buffered,SQLServer,WithBuffer,Online,20000,534.44,455.40,747.20,2613.10,9786.80,1871
+20260514-231715,SQLServer_buffered,SQLServer,WithBuffer,Partition,20000,439.52,381.40,660.90,2094.00,9234.90,2275
