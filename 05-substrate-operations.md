@@ -1,5 +1,5 @@
 ---
-title: "Operations from the substrate: deployment, replication, backup, and offline operation as replay variants of a journaled program"
+title: "The Journal as Substrate: Unifying Deployment, Replication, Backup, and Offline Operation in Distributed Systems"
 author: Alvaro Rivera
 affiliation: Ncubo
 date: 2026-05-14
@@ -64,7 +64,7 @@ canonical_url: https://[pending]/papers/operations-from-substrate-v1
 >
 > This paper shows that the separation is contingent. Under the journal-as-substrate condition established in prior papers of this series — where the journal records operations rather than states, is written in the same language as the program, and consists of compact named entries — the four disciplines reduce to a single primitive.
 >
-> Deployment is replay to the present head. Replication is the same replay at another site. Backup is the corpus held without replay. Offline operation is replay after a delay. The canonical apparatuses become structurally redundant because each reconstructs, from outside the program, work the substrate already performs by construction.
+> Deployment is replay to the present head. Replication is the same replay at another site. Backup is the corpus held without replay. Offline operation is replay after a delay. The canonical apparatuses become structurally subsumed: each reconstructs, from outside the program, work the substrate already performs by construction.
 >
 > Six laboratories measure the substrate under conditions where these equivalences hold. A version handover reaches the present head at 451k entries/s; cross-site transfer carries 36–99.7 bytes per event against payloads 3–9× larger; passive consumers converge across heterogeneous backends (FileSystem, MySQL, SQL Server) to identical in-memory state in 18/18 cells; local append latency runs ≈3× below co-located RDBMS engines under matched durability. §7 shows how four runtime primitives — each present for independent structural reasons — compose into the operations the canonical literature implements as separate subsystems.
 >
@@ -74,17 +74,17 @@ canonical_url: https://[pending]/papers/operations-from-substrate-v1
 
 ## 1. Introduction
 
-This paper makes a design theory contribution. It identifies and names a structural property that the canonical distributed-systems literature has repeatedly relied on the absence of without recognising as a single construct; derives the equivalences that follow from the property's presence; and presents an instantiation — a runtime in which the property has been realised in production — as confirmation that the construct is realisable. The contribution is conceptual; the instantiation serves as an existence proof rather than as the substance of the claim. The genre is that described by Alan Hevner, Stuart March, Jinsoo Park, and Sudha Ram (2004) as design science research: an artefact satisfying the construct's conditions, augmented by measurements that exhibit the régime under which the construct holds.
+This paper makes a design theory contribution. It identifies a structural property whose absence has been implicitly assumed by canonical distributed-systems literature, but never named as a single construct; derives the equivalences that follow when the property is present; and presents an instantiation showing it is realisable in production. The contribution is conceptual; the instantiation serves as an existence proof rather than as the substance of the claim. The genre is that described by Alan Hevner, Stuart March, Jinsoo Park, and Sudha Ram (2004) as design science research: an artefact satisfying the construct's conditions, augmented by measurements that exhibit the régime under which the construct holds.
 
 This is neither a systems paper proposing a new mechanism nor a survey of existing apparatuses. It does not introduce a deployment tool, a replication protocol, a backup format, or an offline-operation pattern. It examines a structural property that prior literature has implicitly assumed absent and shows that, under its presence, four operational disciplines of distributed systems reduce to a single primitive. In this genre, contribution is measured by the precision of the construct, the validity of the equivalences derived from it, and the realisability of the instantiation. Sections 5 and 7 exhibit the instantiation and report measurements establishing the régime in which the equivalences are observable.
 
-Consider a familiar observation about operating distributed systems. A production system must address four operational concerns: releasing a new version without downtime, replicating state across datacenters, recovering after data loss, and absorbing periods of disconnection. The canonical literature treats each as a separate discipline with its own apparatus: blue-green and rolling updates; change-data-capture and log shipping; snapshots and point-in-time recovery; message-queue buffers and convergence protocols. These bodies of practice are mature and widely adopted, yet they evolved largely independently. Systems that require all four must implement and operate four distinct stacks, each with its own engineering and cost.
+Distributed systems must address four operational dimensions: release without downtime, cross-datacenter replication, recovery after data loss, and periods of disconnectivity (offline operation). The canonical approach treats these as separate disciplines, each with distinct apparatus and cost semantics: blue-green and rolling updates; change-data-capture and log shipping; snapshots and point-in-time recovery; message-queue buffers and convergence protocols. These bodies of practice are mature and widely adopted, yet they evolved largely independently. Systems that require all four must implement and operate four distinct stacks, each with its own engineering and cost.
 
 The fragmentation is rarely questioned because it is familiar. But the four disciplines can be restated more simply: they vary when and where a program is read — at the present head and in place (deployment), at the present head at another site (replication), held at another site without reading (backup), and read after a delay (offline catch-up). They differ along two axes — temporal position and spatial position — over a single artefact. If that artefact were the program itself, recorded as operations rather than states, the four disciplines would be four readings of the same primitive: reading the program in order.
 
 This paper names that artefact and the equivalences it admits. The construct introduced is the journal as the substrate of the program. Under the anti-porosity condition of [Paper 1](01-anti-porosity.md) and the separability condition of [Paper 2](02-program-value-separability.md), the journal records operations rather than states, is written in the same language as the program, and reduces each entry to a compact reference to a parametric verb and its arguments. The journal, so constituted, is not a record kept by the program; it is the program written out over time.
 
-Four equivalences follow. Deployment is replay to the present head. Replication is the same replay at another site. Backup is the corpus held without replay. Offline operation is replay after a delay. The canonical apparatuses above are responses to the absence of the substrate condition; under its presence they become structurally redundant.
+Four equivalences follow. Deployment is replay to the present head. Replication is the same replay at another site. Backup is the corpus held without replay. Offline operation is replay after a delay. The canonical apparatuses above are responses to the absence of the substrate condition; under its presence they become structurally subsumed by the substrate.
 
 §2 traces the genealogy of the four disciplines as parallel bodies of literature. §3 names the assumption that produced the fragmentation. §4 states the substrate theorem and the four equivalences. §5 develops each equivalence and reports measurements exhibiting the régime under which it holds. §6 examines four canonical apparatuses — blue-green deployment, change-data-capture, snapshot backup, and message-queue buffer — and shows that each reconstructs, from outside the program, work the substrate already performs. §7 presents an instantiation in production. §8 relates the construct to prior papers in this series. §9 addresses counter-arguments. §10 concludes.
 
@@ -165,7 +165,7 @@ The assumption embedded in these practices is that operational concerns require 
 
 The alternative this assumption leaves unexplored is that the program might address these concerns by varying how it is read — by changing when or where the program is replayed, without leaving the program's own representation. Under this alternative, the four disciplines become four readings of a single primitive. The question becomes structural: under what condition would the program admit such readings?
 
-§4 names that condition and the four readings it permits. The apparatuses surveyed in §2 do not become incorrect under this view; they appear instead as responses to the absence of a property that a program may supply by recording itself.
+§4 names that condition and the four readings it permits. The apparatuses surveyed in §2 remain appropriate responses in their original context; what this paper shows is that they arise from the absence of the substrate condition, which, if present, subsumes the need for each apparatus.
 
 ---
 
@@ -209,6 +209,8 @@ The vertical pair (E1, E4) varies the temporal position of the replay — at the
 ---
 
 ## 5. Consequences: four equivalences as variants of replay
+
+Each of the four sub-sections that follow develops one equivalence of §4.2. The sub-section opens with the operational realisation of the equivalence — the structural intervals through which the program is read under that variant — and follows with a measurement that exhibits the régime in which the equivalence holds. Each lab is designed to isolate the structural content of its equivalence, not to optimise throughput; performance figures are reported as evidence of the régime, not as benchmark claims.
 
 ### 5.1 E1 — Deployment is replay
 
@@ -479,7 +481,7 @@ Change-data-capture [Debezium project; Maxwell project] reads the binary log of 
 
 The translation is informationally lossy in one direction and inferential in the other. State changes do not carry the operation that produced them; CDC infers, from a sequence of column-level deltas, what the application program intended. The inference is necessarily heuristic — two distinct programmatic operations can produce identical column-level deltas, and the CDC consumer cannot recover the distinction. The apparatus is therefore not only a transport; it is a reconstruction layer that approximates events from state, with the loss inherent in that approximation.
 
-Under the substrate condition the reconstruction has no work to do. The originating system emits events — they are the entries of the journal, written in the language of the program (Paper 1, anti-porosity) and reduced to compact named operations (Paper 2, separability). The wire across which replication travels carries those entries directly (§5.2); no inference from state, no column-level delta extraction, no schema mapping enters the act. The CDC apparatus is structurally redundant because the substrate emits exactly the artifact CDC reconstructs — minus the reconstruction loss, and minus the apparatus that produces it.
+Under the substrate condition the reconstruction has no work to do. The originating system emits events — they are the entries of the journal, written in the language of the program (Paper 1, anti-porosity) and reduced to compact named operations (Paper 2, separability). The wire across which replication travels carries those entries directly (§5.2); no inference from state, no column-level delta extraction, no schema mapping enters the act. The CDC apparatus is structurally duplicative: the substrate emits exactly the artifact CDC reconstructs — minus the reconstruction loss, and minus the apparatus that produces it.
 
 ### 6.3 Snapshot backup vs passive consumer
 
@@ -503,7 +505,7 @@ The redundancy here is the most structural of the four. Where the queue, the bro
 
 ### 6.5 The substrate match table
 
-The four examinations of §6.1–§6.4 share a structure. Each canonical pattern relies on a property the substrate condition makes redundant; each apparatus performs work that the journal, written as the program, already does. The pattern is summarised in the table below, in the form of Paper 4 §6.4 [Paper 4 §6.4]: a single question — *does the apparatus address a property the substrate already provides?* — answered for each pattern.
+The four examinations of §6.1–§6.4 share a structure. Each canonical pattern relies on a property the substrate condition supplies by construction; each apparatus performs work that the journal, written as the program, already does. The pattern is summarised in the table below, in the form of Paper 4 §6.4 [Paper 4 §6.4]: a single question — *does the apparatus address a property the substrate already provides?* — answered for each pattern.
 
 | Pattern | Property the apparatus relies on | Does the substrate condition already provide it? |
 |---|---|---|
@@ -512,7 +514,7 @@ The four examinations of §6.1–§6.4 share a structure. Each canonical pattern
 | Snapshot backup | The program is characterised by its state at a moment; recovery instantiates that state | Yes — the program is constituted by the sequence of operations in the journal (§4.1, §5.3); the corpus held by a passive consumer is the program, not a state capture of it |
 | Message queue buffer | A durable apparatus is required between the producer's store and the consumer's store | Yes — the substrate is the durable artifact both parties share (§5.4); a consumer reading later than the producer wrote reduces to cursor advancement over the same corpus |
 
-The four "Yes"s share a structure. In every case, an apparatus that the canon developed to bridge an absence of the substrate condition becomes structurally redundant once the condition holds. The pattern remains usable — none of the four is wrong as engineering — but the work it performs duplicates work the substrate already does. The maturity, sophistication, and widespread adoption of the four patterns are not evidence that the substrate condition is unnecessary. They are evidence that the absence of the substrate condition is costly enough to justify four separate apparatuses to compensate for it, each developed independently by a different tradition.
+The four "Yes"s share a structure. In every case, an apparatus that the canon developed to bridge an absence of the substrate condition becomes structurally subsumed once the condition holds. The pattern remains usable — none of the four is wrong as engineering — but the work it performs duplicates work the substrate already does. The maturity, sophistication, and widespread adoption of the four patterns are not evidence that the substrate condition is unnecessary. They are evidence that the absence of the substrate condition is costly enough to justify four separate apparatuses to compensate for it, each developed independently by a different tradition.
 
 The diagnosis of §2–§6 is now complete. §7 turns from the construct to the instantiation: a system in production whose runtime already satisfies the substrate condition, whose four operational disciplines fall out of the substrate without dedicated apparatus, and whose existence is the evidence that the construct names a realisable property and not only a conceptual one.
 
@@ -630,6 +632,8 @@ The substrate condition and its four equivalences invert vocabulary the canonica
 
 ### 9.1 "Loading a large journal takes time"
 
+**Canonical assumption.** Bringing a system to a serving state requires reconstructing its persisted history end-to-end, and the cost of that reconstruction grows without bound with the system's operational age.
+
 The objection. A journal that accumulates entries over the operational life of a program grows without bound. Bringing a new instance to a serving state by replaying the journal therefore takes longer the older the program becomes. A canonical anecdote names a relational system whose initial load — from a binary log accumulated over a year — required roughly an hour before the system could accept traffic. If deployment is replay (§5.1), then deployment is bounded below by that load time, and the substrate's account of deployment makes the deploy window worse, not better.
 
 What is valid. Replay is linear in the entries it reads. A journal twice as long takes twice as long to replay. The objection correctly observes that the absolute deploy time grows with the program's history under any substrate-based account of deployment.
@@ -641,6 +645,8 @@ What does not follow. The hour-long load named in the anecdote is not replay ove
 One canonical case lies outside this argument and is preserved as an honest limit. Where the cost-dominant operation at a single entry is itself expensive — a network round-trip to an external service, a complex domain calculation — replay carries that cost per entry just as live operation did. The substrate does not make any one operation cheaper; it makes the bookkeeping around the operation negligible.
 
 ### 9.2 "Change-data-capture already solves replication"
+
+**Canonical assumption.** Cross-datacenter replication is properly addressed by reconstructing events from the originating store's state-change deltas, mediated by a CDC pipeline between primary and replica.
 
 The objection. Cross-datacenter replication is a mature engineering concern. Change-data-capture pipelines, log shipping between database engines, and managed replication services route writes from primary to replica with bounded lag and well-understood failure modes. The substrate's account of replication (§5.2) appears to re-derive a problem that the canon has solved repeatedly. What additional structural claim does the substrate condition support that the existing apparatus does not?
 
@@ -654,6 +660,8 @@ The objection is therefore precise in scope. CDC solves replication as state pro
 
 ### 9.3 "Snapshot backup is simpler"
 
+**Canonical assumption.** Backup is a captured image of state at a chosen moment, archived by an external apparatus and re-instantiated at recovery time.
+
 The objection. Backup as a periodic state snapshot is a forty-year-old discipline with well-understood operational properties: recovery time objective (RTO), recovery point objective (RPO), storage tiering, lifecycle policies. The substrate's account of backup (§5.3) requires a continuously consuming destination — a process that holds the corpus as it grows — which appears operationally more complex than periodic state capture. Why prefer continuous to periodic?
 
 What is valid. Periodic snapshots have an operational vocabulary the field knows. The discipline is mature, vendor-supported, and integrates with object-store lifecycle infrastructure. As an engineering choice for systems whose program is reducible to state, the snapshot apparatus is a sound default.
@@ -665,6 +673,8 @@ Under the substrate condition, the artifact that characterises the program is th
 The cost is honest. A continuously consuming destination, even one whose role is to hold the corpus and never replay it, must be reachable, must persist what arrives, and must catch up when it falls behind. §5.3's measurement (L4) reports steady-state convergence of **≈ 2 419 events/sec on FileSystem, ≈ 1 004 events/sec on MySQL, and ≈ 764 events/sec on SQL Server**, with per-instance verification reaching equal in-memory state in **18 of 18 cells across three backends and three journal sizes**. The numbers establish that the operational obligation is bounded — a destination that ingests at the rates above is not a degenerate case — and that the corpus arrives identically across heterogeneous backends. The objection's premise that simplicity favours snapshot is honest engineering; the construct's reply is that the simpler artifact carries less information, and the choice between holding state and holding program is the choice the substrate condition makes available.
 
 ### 9.4 "Append does not scale beyond N writes/sec"
+
+**Canonical assumption.** A journaled append is bounded by the per-store write throughput of the underlying medium, and that ceiling constrains any substrate-based account to per-actor write rates the medium can absorb.
 
 The objection. Every persistent store has a write-throughput ceiling. A substrate that records every operation as a journal append inherits whatever ceiling the underlying store imposes; production systems that exceed that ceiling are constrained either to batched-write modes or to relaxed-durability commits. The substrate condition therefore does not generalise to high-throughput workloads, and the four equivalences hold only for systems that fit within the per-actor write rate the journal can absorb.
 
@@ -688,7 +698,7 @@ Viewed from this condition, the apparatuses surveyed in §6 appear as mechanisms
 
 The contribution of this paper is conceptual. The instantiation in production serves as an existence proof; the measurements in §5 exhibit the régime in which the four equivalences are observable. One artefact — the substrate — supports four operational readings without requiring separate mechanisms.
 
-For a journaled program, deployment is replay, replication is sharing history, backup is copying the program, and offline operation is delayed replay. The four operational disciplines named in §2 remain meaningful; what changes is their interpretation. Operational concerns may be addressed outside the program by apparatus, or inside the program by reading the substrate the program has already written.
+For a journaled program, deployment is replay, replication is sharing history, backup is copying the program, and offline operation is delayed replay. The four operational disciplines named in §2 remain meaningful; what changes is the structural locus of operational concerns: from externally-added apparatus to internal readings of the program's substrate.
 
 ---
 
