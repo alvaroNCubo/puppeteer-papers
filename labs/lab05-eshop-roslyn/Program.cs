@@ -1,7 +1,7 @@
 // Lab 5 β — Roslyn forward call-graph closure over eShop Ordering.Domain.
 //
-// Adapts the ***REDACTED***-targeted walker at labs/lab05-roslyn-callgraph/ to the eShop
-// Order aggregate. Methodology identical: purely syntactic CSharpSyntaxTree
+// Adapts the prior-codebase-targeted walker (private, archived locally) to the
+// eShop Order aggregate. Methodology identical: purely syntactic CSharpSyntaxTree
 // walk, no MSBuildWorkspace, no SemanticModel. Forward closure from the DSL
 // entry points (the 6 unique methods our measurement script invokes on the
 // Order aggregate) over all source files under eShop/src/Ordering.Domain.
@@ -9,7 +9,7 @@
 // Filtering: skip auto-properties, expression-bodied trivial accessors,
 // single-return-of-identifier methods, empty/throw-only bodies.
 //
-// Limitations (carried verbatim from the ***REDACTED***-targeted walker):
+// Limitations (carried verbatim from the prior-codebase-targeted walker):
 //   - Overload disambiguation not done.
 //   - Virtual dispatch not resolved.
 //   - Branches both included.

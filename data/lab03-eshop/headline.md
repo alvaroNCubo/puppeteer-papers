@@ -67,9 +67,9 @@ mutating cost (~257 µs at p50) is dominated by the isolated eval-compile cost (
 at p50); the remaining ~68 µs is the outer execute path (cast, addition, parameter
 lookup, dispatch through the print statement).
 
-## Comparison with ***REDACTED*** (original)
+## Comparison with the prior production e-commerce system (Tier C original)
 
-| Metric | ***REDACTED*** Movements.Storage (original) | eShop OrderingFacade (this) |
+| Metric | Prior production system (original) | eShop OrderingFacade (this) |
 |---|---:|---:|
 | Stable end p50 | 2.3 µs | **2.1 µs** |
 | Mutating end p50 | 305.4 µs | **257 µs** |
@@ -79,8 +79,8 @@ lookup, dispatch through the print statement).
 Same structural signature: ~2 orders of magnitude separation between cache hit and
 cache miss, with the miss cost dominated by `programExpression.Compile()` of the
 inner sub-program. eShop's numbers are marginally lower because the eval expression
-itself is shallower than the ***REDACTED*** authorization-number lookup; the structural claim
-holds independently.
+itself is shallower than the prior production verb's instance-method lookup; the
+structural claim holds independently.
 
 ## What this confirms
 
@@ -90,8 +90,8 @@ holds independently.
   the same ballpark as the outer Lab 2 cold-compile. Recursive separability
   observed.
 - **Domain-independence**: the cache-hit/miss ratio (~120×) holds across two
-  unrelated business domains (lottery purchase, e-commerce ordering). The mechanism
-  is structural, not domain-specific.
+  unrelated host codebases (a prior production e-commerce system, and the
+  open-source eShop reference). The mechanism is structural, not domain-specific.
 
 ## What this does NOT (yet) confirm
 

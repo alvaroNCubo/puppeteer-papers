@@ -72,17 +72,18 @@ both modes incur identically — domain work does not benefit from DSL specializ
 - **Direction of the §2.1 amortization claim**: compiled path is faster than
   interpreted on a representative production verb against a rich external aggregate.
 - **Domain-bound regime**: the eShop CompleteOrder verb sits in the domain-bound end
-  of Paper 2's compression curve. With the original ***REDACTED*** ***REDACTED*** verb at
-  1.80× speedup and a depth-100 arithmetic script at 4.10×, the 1.49× measured here
-  for eShop's CompleteOrder fits the predicted curve — speedup compresses as the
-  verb shifts from DSL-bound to domain-bound. eShop's CompleteOrder has somewhat
-  fewer cascaded calls than ***REDACTED*** ***REDACTED***, so a marginally lower speedup is
-  expected.
-- **Domain-independence**: the structural speedup property holds across a business
-  domain (e-commerce ordering) distinct from the original ***REDACTED*** lottery purchase
-  domain. The argument that compiled execution is a structural consequence (Paper 2
-  unified principle, 2026-05-04) rather than a property of any particular domain
-  gains an independent data point.
+  of Paper 2's compression curve. With the original production verb from a prior
+  e-commerce system at 1.80× speedup and a depth-100 arithmetic script at 4.10×,
+  the 1.49× measured here for eShop's CompleteOrder fits the predicted curve —
+  speedup compresses as the verb shifts from DSL-bound to domain-bound. eShop's
+  CompleteOrder has somewhat fewer cascaded calls than the prior production verb,
+  so a marginally lower speedup is expected.
+- **Domain-independence**: the structural speedup property holds across a host
+  codebase (the open-source eShop reference) distinct from the prior production
+  e-commerce system on which Paper 2's methodology was originally developed. The
+  argument that compiled execution is a structural consequence (Paper 2 unified
+  principle, 2026-05-04) rather than a property of any particular domain gains an
+  independent data point.
 
 ## What this does NOT (yet) confirm
 

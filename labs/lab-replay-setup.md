@@ -4,9 +4,9 @@
 
 **Lo que requirió ajuste vs el plan original:**
 - Mods 2, 3, 5 del lab plan original NO eran necesarias para smoke base; se difieren a labs específicos. Solo se aplicó mod 6 (DomainLibraries try/catch). Mods 1, 4, 7 ya absorbidas upstream en master.
-- DSL syntax descubierto durante smoke: construcción es `f = OrderingFacade()` (sin `new`, sin prefijo `p`). El `p` en `pCompany` del ***REDACTED*** codebase era LITERAL parte del nombre de clase. `for` usa `for (i : list)`, no range syntax.
+- DSL syntax descubierto durante smoke: construcción es `f = OrderingFacade()` (sin `new`, sin prefijo `p`). El `p` en `pCompany` que aparecía en el codebase interno era LITERAL parte del nombre de clase. `for` usa `for (i : list)`, no range syntax.
 
-Setup base para el replay de los labs domain-dependent de Paper 2 sobre dos codebases públicos. Reemplaza la evidencia interna ***REDACTED*** (***REDACTED***.dll / ***REDACTED***, código comercial no publicable).
+Setup base para el replay de los labs domain-dependent de Paper 2 sobre dos codebases públicos. Reemplaza la evidencia interna de una prior e-commerce system (production domain assembly, código comercial no publicable).
 
 Memoria firmada: `project_puppeteer_paper02_dual_codebase_replay.md`.
 
@@ -82,10 +82,10 @@ Probe console en `labs/lab-replay-probe/`. `dotnet run` 2026-05-16:
 ## Pendiente para próximo chat (Fase 0 step 4-6 + Fase 1 arranque)
 
 1. **Decidir harness pattern.** Ambos aggregates exigen value objects en sus factories (`Address` para Order; `PayerId`/`SubscriptionPeriod`/`MoneyValue`/`PriceList` para SubscriptionPayment). Para invocarlos desde DSL, dos caminos:
-   - (a) **Harness wrapper** en Pacifico que tome primitivos y arme los VOs internamente. Equivalente al patrón usado para `***REDACTED***`. **Probable elección.**
+   - (a) **Harness wrapper** en Pacifico que tome primitivos y arme los VOs internamente. Equivalente al patrón usado para la production purchase verb en el codebase interno previo. **Probable elección.**
    - (b) Exponer los VOs como tipos DSL-construibles (más invasivo, más superficie).
 2. **Branchear `lab-replay/00-harness-setup`** en `C:\Users\alvar\source\repos\Puppeteer Pacifico\`. Heredar mods 1–15 del lab plan original (sirven para todos los labs).
-3. **Crear `OrderingDomainHarness.cs` + `SubscriptionPaymentDomainHarness.cs`** en Pacifico, equivalentes a los harness existentes para ***REDACTED***.
+3. **Crear `OrderingDomainHarness.cs` + `SubscriptionPaymentDomainHarness.cs`** en Pacifico, equivalentes a los harness existentes para el production domain assembly del codebase interno previo.
 4. **Test DSL smoke**: `for i = 1 to 10 { o = NewOrder(...); o.AddOrderItem(...); o.SetPaidStatus() }` corre sin error contra `Ordering.Domain.dll`. Mismo smoke para SubscriptionPayment.
 5. **Commit** del harness + estas notas, en branch `lab-replay/00-harness-setup` (no push — workflow firmado).
 
@@ -125,7 +125,7 @@ También promover field `CompiledModePolicy` (Actor.cs:19) de `internal` a `publ
 
 ### Proyecto nuevo `UnitTestEShopOnPuppeteer/`
 
-Mimetizar `UnitTest***REDACTED***OnPuppeteer/` (referencia en lab plan mod #8 — proyecto ya existe en lab/01 branch para inspirarse).
+Mimetizar el proyecto de test de la prior production system (referencia en lab plan mod #8 — proyecto ya existe en la lab/01 branch interna para inspirarse).
 
 `UnitTestEShopOnPuppeteer/UnitTestEShopOnPuppeteer.csproj`:
 - TFM: `net9.0`
@@ -134,9 +134,9 @@ Mimetizar `UnitTest***REDACTED***OnPuppeteer/` (referencia en lab plan mod #8 �
 - File reference (transitive) a MediatR si Pacifico no la trae
 - `<IsPackable>false</IsPackable>`, MSTest framework
 
-### Harness pattern firmado — *Facade* (replica del patrón `***REDACTED***`)
+### Harness pattern firmado — *Facade* (replica del patrón de production purchase verb del codebase interno previo)
 
-Una clase C# en el proyecto de test, **NO** en Puppeteer core. La clase orquesta la secuencia de verbos del domain real. Equivalente exacto a lo que hace `***REDACTED***` con ***REDACTED***.
+Una clase C# en el proyecto de test, **NO** en Puppeteer core. La clase orquesta la secuencia de verbos del domain real. Equivalente exacto a lo que hace la production purchase verb con el production domain assembly interno previo.
 
 `UnitTestEShopOnPuppeteer/OrderingFacade.cs`:
 ```csharp
