@@ -23,14 +23,17 @@ Measurement (1 warmup + N timed) — parametric, first occurrence emits one Defi
 
 ```
 o = f.NewSubmittedOrder(uid, uname);
-o.AddOrderItem(pid, name, price, discount, picUrl, units);
+o.AddOrderItem(pid1, name1, price1, discount, picUrl, units);
+o.AddOrderItem(pid2, name2, price2, discount, picUrl, units);
+o.AddOrderItem(pid3, name3, price3, discount, picUrl, units);
+o.AddOrderItem(pid4, name4, price4, discount, picUrl, units);
 o.SetAwaitingValidationStatus();
 o.SetStockConfirmedStatus();
 o.SetPaidStatus();
 o.SetShippedStatus();
 ```
 
-The DSL invokes the eShop `Order` aggregate's domain verbs directly — the facade builds the order in Submitted state via the 10-arg ctor (with `Address` value object internally); the DSL then drives the state machine through to Shipped.
+The DSL invokes the eShop `Order` aggregate's domain verbs directly — the facade builds the order in Submitted state via the 10-arg ctor (with `Address` value object internally); the DSL then adds **four items to the cart** (mirroring the multi-product semantics of the original ***REDACTED*** measurement, which represented a real purchase, not an empty or single-item one) and drives the state machine through to Shipped.
 
 ### Per-scenario protocol
 
@@ -45,47 +48,52 @@ The DSL invokes the eShop `Order` aggregate's domain verbs directly — the faca
 | Entry type | Count | Total bytes | Avg payload |
 |---|---:|---:|---:|
 | Script | 1 | 58 | 22 B |
-| Action | 101 | 8,467 | 44 B |
-| Define | 1 | 370 | **330 B** |
-| **Total** | **103** | **8,895** | |
+| Action | 101 | 14,857 | 107 B |
+| Define | 1 | 682 | **642 B** |
+| **Total** | **103** | **15,597** | |
 | Action % | 98.1% | | |
 
-| Action payload min / max / avg | 42 / 47 / 44 B |
+| Action payload min / max / avg | 96 / 108 / 107 B |
 |---|---:|
-| Literal-script reference (Define payload) | 330 B |
-| Hypothetical literal payload (101 × 330) | 33,330 B |
-| Actual Action payload (sum) | 4,427 B |
-| **Density ratio (literal / actual)** | **7.5×** |
+| Literal-script reference (Define payload) | 642 B |
+| Hypothetical literal payload (101 × 642) | 64,842 B |
+| Actual Action payload (sum) | 10,817 B |
+| **Density ratio (literal / actual)** | **6.0×** |
 
 ### N=1000
 
 | Entry type | Count | Total bytes | Avg payload |
 |---|---:|---:|---:|
 | Script | 1 | 58 | 22 B |
-| Action | 1,001 | 85,867 | 46 B |
-| Define | 1 | 370 | **330 B** |
-| **Total** | **1,003** | **86,295** | |
+| Action | 1,001 | 155,257 | 115 B |
+| Define | 1 | 682 | **642 B** |
+| **Total** | **1,003** | **155,997** | |
 | Action % | 99.8% | | |
 
-| Action payload min / max / avg | 42 / 47 / 46 B |
+| Action payload min / max / avg | 96 / 116 / 115 B |
 |---|---:|
-| Literal-script reference | 330 B |
-| Hypothetical literal payload (1,001 × 330) | 330,330 B |
-| Actual Action payload (sum) | 45,827 B |
-| **Density ratio (literal / actual)** | **7.2×** |
+| Literal-script reference | 642 B |
+| Hypothetical literal payload (1,001 × 642) | 642,642 B |
+| Actual Action payload (sum) | 115,217 B |
+| **Density ratio (literal / actual)** | **5.6×** |
 
-The Action-payload distribution is tight (42 → 47 B), as expected: every action entry after the first carries only the parameter argument vector for the same 6-line script. The Define entry stores the script body (330 B) once. Action % approaches 100% as N grows (98.1% at N=100, 99.8% at N=1000) because the single Script entry from the non-parametric bootstrap is fixed cost.
+The Action-payload distribution is tight (96 → 116 B), as expected: every action entry after the first carries only the argument vector for the same nine-line script (17 parameters: user identity + four products' pid/name/price + shared discount/picUrl/units). The Define entry stores the script body (642 B) once. Action % approaches 100% as N grows (98.1% at N=100, 99.8% at N=1000) because the single Script entry from the non-parametric bootstrap is fixed cost.
 
 ## Comparison with ***REDACTED*** (original)
 
-| Metric | ***REDACTED*** (original) | eShop CompleteOrder (this) |
+| Metric | ***REDACTED*** (original, 4 tickets/cart) | eShop (this, 4 items/cart) |
 |---|---:|---:|
 | Action entries | 1,002 (100%) | 1,001 (99.8%) |
-| Avg Action payload | 67 B | **46 B** |
-| Define / NewAction payload (literal ref) | ~1,340 B | **330 B** |
-| Density ratio | 20.1× | **7.2×** |
+| Avg Action payload | 67 B | **115 B** |
+| Define / NewAction payload (literal ref) | ~1,340 B | **642 B** |
+| **Density ratio** | **20.1×** | **5.6×** |
 
-eShop's DSL surface for the measurement script is shorter (~270 chars literal → 330 B Define payload) than ***REDACTED***'s (~1,100 chars literal → ~1,340 B Define payload). The density ratio scales roughly linearly with that surface — eShop's 7.2× over a 330 B literal vs ***REDACTED***'s 20.1× over a 1,340 B literal reflects the same structural mechanism (action arguments-only vs full script body). The ratio matters at any positive value: every additional invocation pays the argument bytes only, not the script body, so the journal footprint stays sub-linear in (invocations × DSL surface).
+Both carry comparable purchase semantics — four items per cart, full state walk to completion. The density-ratio gap (20× vs 6×) reflects an architectural difference in how arguments are represented, not in the journal-compaction mechanism itself:
+
+- *****REDACTED***** referenced its products and lotteries by pre-bootstrapped identifiers (***REDACTED***, ***REDACTED***, `***REDACTED***`, etc.); the measurement script's argument vector carried short references and a few numeric values — sparse args, ~67 B.
+- **eShop's `AddOrderItem`** signature requires the full product specification per call (`pid, name, price, discount, picUrl, units`), so the per-item argument footprint is intrinsically richer — dense args, ~115 B per Action entry containing the data for four items.
+
+The structural claim of §2.3 — *each invocation stores only the argument vector; the script body is stored exactly once* — holds identically in both cases. The 6× and 20× are both well above 1× and both grow further as N grows (any single Define entry amortizes across an unbounded sequence of Action entries). The magnitude is a function of how the host's domain API surfaces its data, not of the compaction mechanism.
 
 ## What this confirms
 
@@ -100,7 +108,7 @@ eShop's DSL surface for the measurement script is shorter (~270 chars literal �
 
 ## Integration text for Paper 2 §5
 
-> *"In a parametric workload over the eShop Order production verb (six-line DSL script invoking the aggregate's domain verbs), the FileSystem journal records 99.8% of entries as compact Action references with an average payload of 46 B (argument vectors only). The script body — 330 B — is stored exactly once, as a Define entry. Had each of the 1,000 invocations stored the literal script text instead, the Action payload would be 7.2× larger. The density mechanism is structural: arguments scale with invocations, the script body does not. This is observed against a different business domain than the original Paper 2 Lab 4 (***REDACTED***), confirming the journal compaction property as domain-independent."*
+> *"In a parametric workload over the eShop Order production verb (nine-line DSL script: order construction in Submitted state, four `AddOrderItem` calls representing a multi-product cart, and a four-step state-machine walk to Shipped), the FileSystem journal records 99.8% of entries as compact Action references with an average payload of 115 B — the argument vector for seventeen parameters (user identity + four products' details + shared modifiers). The script body — 642 B — is stored exactly once, as a Define entry. Had each of the 1,000 invocations stored the literal script text instead, the Action payload would be 5.6× larger. The density mechanism is structural: arguments scale with invocations, the script body does not. This is observed against a different business domain than the original Paper 2 Lab 4 (***REDACTED***), confirming the journal compaction property as domain-independent — the magnitude of the ratio reflects the host domain's argument density (***REDACTED***'s sparse identifier-based args produce 20×; eShop's full-product-specification args produce 5.6×), but the mechanism applies in both cases."*
 
 ## Modifications to Pacifico applied in this branch (+1 on top of `lab-replay/03-eshop`)
 

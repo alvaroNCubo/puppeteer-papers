@@ -5,11 +5,11 @@ action_count,101,entries
 define_count,1,entries
 action_percent,98.06,percent
 script_payload_bytes,22,bytes
-action_payload_bytes,4427,bytes
-define_payload_bytes,330,bytes
+action_payload_bytes,10817,bytes
+define_payload_bytes,642,bytes
 script_total_bytes,58,bytes
-action_total_bytes,8467,bytes
-define_total_bytes,370,bytes
-avg_action_payload_bytes,43.8,bytes
+action_total_bytes,14857,bytes
+define_total_bytes,682,bytes
+avg_action_payload_bytes,107.1,bytes
 avg_script_payload_bytes,22.0,bytes
-density_ratio_literal_vs_compact,7.53,ratio
+density_ratio_literal_vs_compact,5.99,ratio
