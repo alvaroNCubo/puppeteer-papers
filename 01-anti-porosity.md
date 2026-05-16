@@ -335,6 +335,12 @@ This paper establishes vocabulary that subsequent papers in the series reuse:
 
 ---
 
+## Acknowledgments
+
+The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
+
+---
+
 ## References
 
 Berners-Lee, T., Hendler, J., & Lassila, O. (2001). The Semantic Web. *Scientific American*, 284(5), 34–43.

@@ -292,6 +292,12 @@ Two extensions of the principle remain to be developed in subsequent work. The f
 
 ---
 
+## Acknowledgments
+
+The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
+
+---
+
 ## References
 
 Appel, A. W. (1992). *Compiling with continuations*. Cambridge University Press.

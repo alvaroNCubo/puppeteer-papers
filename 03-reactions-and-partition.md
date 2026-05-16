@@ -591,6 +591,12 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | `Puppeteer/EventSourcing/Follower/MatchTree.cs` | `TryMatchAtLevel`, BFS/DFS hydration walk | §6.2 |
 | `Puppeteer/EventSourcing/DB/DiaryStorage.EventElisionStorage` | `MarkEventsAsElided` storage interface | §6.5 |
 
+## Acknowledgments
+
+The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
+
+---
+
 ## Appendix B. Bibliography
 
 *Online sources accessed at the moment of publication; dates filled in at release.*

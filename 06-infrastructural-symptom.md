@@ -286,6 +286,12 @@ Section 5's closing observation extends here: the visibility that the construct 
 
 The construct works best where the persistence model is explicit and characterizable, where use-cases are decomposable, and where a counterfactual model is conceivable. Where one of these conditions fails, the construct still applies but its discriminations grow coarser. Where it applies cleanly, what the construct surfaces is not a smaller stack but a domain that the model permits to be modeled, libraried, and evolved without being interleaved with compensating concerns. The utility of the construct is proportional to the decomposability of the system under examination.
 
+## Acknowledgments
+
+The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
+
+---
+
 ## References
 
 Fowler, M. (2005). Event sourcing. Retrieved from https://martinfowler.com/eaaDev/EventSourcing.html

@@ -743,6 +743,12 @@ The constructs named in §7 are publicly available in the Puppeteer codebase. Th
 
 ---
 
+## Acknowledgments
+
+The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
+
+---
+
 ## Appendix B. Bibliography
 
 *Online sources accessed at the moment of drafting; dates updated at release.*
