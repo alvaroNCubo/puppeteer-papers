@@ -95,8 +95,21 @@ Breakdown by kind:
 | β / α | ~872× | **2.7×** |
 | Source files (in domain assembly) | hundreds (***REDACTED*** commercial) | 23 (Ordering.Domain DDD) |
 | Total declarations indexed | tens of thousands | 95 |
+| Persistence anchor | journaled actor-native (no RDBMS) | EF Core / RDBMS |
 
-The eShop number is **dramatically smaller**, and that is the honest measurement: eShop's `Ordering.Domain` is a structurally compact DDD aggregate (the canonical Microsoft reference for a clean order-management bounded context), not a sprawling commercial engine. The fact that the forward closure from the DSL entry points reaches only ~24 methods is *informative about the domain's size, not about Puppeteer's verb-richness mechanism*. ***REDACTED***'s 6,977 reflected the depth of a multi-decade commercial codebase; eShop's 24 reflects the deliberate scope of an open-source DDD demo.
+The eShop number is dramatically smaller, but the right reading of *why* is not "eShop is better-designed and ***REDACTED*** is bloated." The compactness of eShop's `Ordering.Domain` is **a consequence of its persistence anchor, not a property of its authors' diligence**. Marks visible directly in the source:
+
+- A comment in `Order.cs` declares `Address` *"a Value Object pattern example persisted as EF Core 2.0 owned entity"* — the ORM is in the designer's mind at the moment the value object is shaped.
+- Every property is `private set` (a shape required for EF hydration, not for domain reasons).
+- References are RDBMS-style `int? BuyerId` / `int? PaymentId` foreign keys, not object references; the choice anticipates a row-and-column store.
+- `_orderItems` is a single-level collection; deeper graphs would multiply the serialization surface and are avoided.
+- No polymorphism on `Order` itself; the RDBMS would handle it poorly, so the design preempts the cost.
+
+***REDACTED***/***REDACTED*** was developed under journaled actor-native persistence — the journal of invocations is the persistent thing; the aggregate's runtime state is intermediate. With no serialization boundary pressing on it, the domain grew the polymorphism, the depth, and the cross-class behavior the problem actually has (`Coinage`, `Movements`, `***REDACTED***`, multi-tiered authorizations, etc.).
+
+**The β/α magnitude is therefore not a measurement of either framework's verb-richness mechanism; it is a measurement of how much the host's persistence anchor compresses the domain it represents.** Same DDD style in both cases; different shape because different anchor.
+
+This reframing is parked as a paper-wide methodological observation in `project_puppeteer_persistence_anchor_shapes_ddd.md` (firmed 2026-05-16). It connects to Paper 1's porosity formalism (eShop's `Ordering.Domain` is a paradigmatic high-Π case) and to Paper 2's unified principle (the magnitudes we measure in labs are consequences of upstream structural choices, not of the runtime we are characterizing).
 
 ## What this confirms
 
@@ -105,13 +118,13 @@ The eShop number is **dramatically smaller**, and that is the honest measurement
 
 ## What this does NOT confirm
 
-- **"Orders of magnitude" framing of §4 Beat 3 (***REDACTED***'s 700× / 87× depending on overload-discount)**: not reachable on eShop's `Ordering.Domain` alone, because the domain itself is compact. A reviewer pointing at this number would be observing a fact about the eShop reference codebase, not about Puppeteer.
+- **"Orders of magnitude" framing of §4 Beat 3 (***REDACTED***'s 700× / 87× depending on overload-discount)**: not reachable on eShop's `Ordering.Domain` alone, because the domain has been pre-compressed by its persistence anchor. A reviewer pointing at this number would be observing a fact about RDBMS-anchored DDD, not about Puppeteer.
 
-  **Interpretation for the paper**: this is the *floor* the mechanism delivers on a deliberately compact domain. The ***REDACTED*** numbers represent the same mechanism operating on a deep domain. The §4 claim about magnitudes should be stated as a function of domain depth, not as an absolute.
+  **Interpretation for the paper**: the §4 claim about magnitudes must be stated as a function of how much the host's persistence model has compressed the domain, not as an absolute. eShop demonstrates the floor of the mechanism on a domain that has been flattened for the ORM; ***REDACTED*** demonstrates the ceiling on a domain that has not. The mechanism is identical; the observable magnitude is a downstream signal of an upstream architectural commitment.
 
 ## Integration text for Paper 2 §4 / §5
 
-> *"For the eShop Order production verb, the runtime's interpreter dispatches 9 host-language entry points per invocation (exactly reproducible across 1,000 measurements). Static forward closure of the call graph from those 9 entry points reaches 24 methods within `dotnet-eShop/src/Ordering.Domain` — a β/α asymmetry of approximately 2.7×, smaller than the original ***REDACTED*** verb's 700×–870× because the eShop `Ordering.Domain` is a deliberately compact DDD reference codebase (23 source files, 95 total declarations) rather than a deep commercial engine. The structural property — DSL surface < reachable host graph — holds in both directions; the magnitude is a function of domain depth, not of the mechanism."*
+> *"For the eShop Order production verb, the runtime's interpreter dispatches 9 host-language entry points per invocation (exactly reproducible across 1,000 measurements). Static forward closure of the call graph from those 9 entry points reaches 24 methods within `dotnet-eShop/src/Ordering.Domain`. The β/α asymmetry of 2.7× is smaller than the original ***REDACTED*** verb's 700×–870× — but not because the eShop reference codebase is "better designed" than the ***REDACTED*** domain. Visible marks in `Order.cs` (`private set` everywhere, an explicit `EF Core 2.0 owned entity` annotation on `Address`, FK-style `int?` references on `BuyerId` and `PaymentId`, no polymorphism on Order) show that the eShop domain was shaped from the start by the anticipation of RDBMS persistence; that anticipation flattens polymorphism, caps graph depth, and externalizes references as foreign keys. ***REDACTED***'s ***REDACTED***, developed under journaled actor-native persistence with no such pressure on the domain, grew to the depth the problem actually has. The β/α magnitude is therefore a function of how much the host's persistence anchor has compressed its domain, not of the mechanism the runtime applies once a verb is invoked."*
 
 ## Modifications to Pacifico applied in this branch (+2 on top of `lab-replay/04-eshop`)
 
