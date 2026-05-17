@@ -1,70 +1,113 @@
-# Paper 2 Lab 4 — Journal density on Grzybek SubscriptionPayment (replica) — anomaly parked
+# Paper 2 Lab 4 — Journal density on Grzybek SubscriptionPayment (replica)
 
-**Date:** 2026-05-16
+**Date:** 2026-05-17
 **Branch:** `lab-replay/grzybek-replica` in the Puppeteer runtime repository (private; to be released alongside the runtime).
-**Status:** ⚠️ Anomaly detected; the bench tests pass at the framework level but the journal does not accumulate Action entries for the parametric Grzybek measurement. Lab 4 on Grzybek is therefore **incomplete** as a replica; the comparable Lab 5 α + β data on Grzybek (see `data/lab05-grzybek/`) carries the structural test forward in the meantime.
+**Runtime config:** .NET 9.0.312 SDK, Debug build, FileSystem journal (BinaryEventCodec), Windows 11 host.
+**Datasets:** `run-N100-20260517T012257Z-d7c1053.csv`, `run-N1000-20260517T012257Z-d7c1053.csv`.
 
-> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSVs in this directory document the anomaly state for posterity.*
+> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSVs in this directory are sufficient to reproduce the entry-type counts, payload sizes, and density ratio from `kgrzybek/modular-monolith-with-ddd` public source plus an instrumented build of the runtime.*
 
-## What runs
+## Note on an earlier anomaly (resolved 2026-05-17)
 
-The Phase 2 setup itself is operational:
+An earlier version of this bench produced zero Action and Define entries despite the test framework reporting success. The cause was identified as a silent failure path in Pacifico's action-recording pipeline: `Parameters.CanonicalTypeName` (`Parameters.cs:315`) accepts a fixed set of primitive types — `int, string, bool, double, DateTime, decimal`, plus arrays and single-generic collections — and throws `LanguageException` for any unrecognised type, including `Guid`. The earlier facade passed `Guid` directly as a DSL parameter, and the resulting `LanguageException` surfaced *after* the script's effects had already been executed by `Perform()`. The surrounding `catch` block in `ActorHandler.ExecuteCommandWithWriteLock` (lines 1237-1250 of the canonical Pacifico master) treats post-execution exceptions as recoverable and silently records the error without writing the journal entry, so the test caller sees a successful return and no `ExecutionFailed` event fires.
 
-- `UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.NewWaitingPayment(...)` instantiates the value objects (PayerId, SubscriptionPeriod, MoneyValue, PriceList with matching PriceListItemData + DirectValueFromPriceListPricingStrategy) and invokes `SubscriptionPayment.Buy`.
-- The combined-script smoke (`Smoke_DslInvokesGrzybekSubscriptionPaymentFacade`) — bootstrap + measurement in a single PerformCommand against the default in-memory store — passes cleanly. So DSL → C# facade → Grzybek `Payments.Domain` dispatch is operational end-to-end.
+**Workaround applied in this lab**: the facade accepts the payer id as a `string` and parses it to `Guid` internally. Every DSL parameter is now within `CanonicalTypeName`'s supported set. The action-recording path completes normally.
 
-## What does not work
+**Recommended runtime fix (out of scope for this lab, parked for a Pacifico maintainer to address)**: extend `CanonicalTypeName` to include `Guid` (and the catch block to surface unrecognised-type errors rather than swallow them) so that `Guid` parameters are first-class in the DSL action surface.
 
-Split bootstrap-then-measurement (the canonical pattern firmed in `project_puppeteer_paper02_lab_methodology.md` Lineamiento 3 and used by every Lab 4/Lab 5 in this series) against the Grzybek facade:
+## Methodology
 
-- Bootstrap PerformCommand produces a Script entry (33 B payload, the literal `f = SubscriptionPaymentFacade();`).
-- Subsequent measurement PerformCommands return successfully — no exception, no `ExecutionFailed` event, no parser error — yet **zero Action entries and zero Define entries** are written to the FileSystem journal at N=100 or N=1000.
+Runs N parametric invocations of the same measurement script against a fresh FileSystem actor and parses the resulting `journal_*.bin` files. Counts Action / Script / Define entries by type byte, sums payload bytes per type, and computes the density ratio between the actual Action payload and the hypothetical literal-script payload (Action count × Define payload). The intrinsic density claim (Paper 2 §2.3 / §4 Beat 3 / TL;DR) follows from those counts alone.
 
-The same pattern on `dotnet/eShop`'s `OrderingFacade` (`UnitTestEShopOnPuppeteer/Lab04JournalDensityEShopBench.cs`) produced 1001 Action entries + 1 Define entry under identical bench scaffolding. So the issue is not in the methodology, the storage configuration, or the symbol-table-persistence path.
+### DSL scripts
 
-## Observed (N=100 and N=1000)
+Bootstrap (1×, untimed) — non-parametric, lands as a Script entry:
 
-| Entry type | Count | Total bytes |
+```
+f = SubscriptionPaymentFacade();
+```
+
+Measurement (1 warmup + N timed) — parametric, first occurrence emits one Define entry plus an Action entry; subsequent invocations emit only Action entries (cache hit on the action ID):
+
+```
+p = f.NewWaitingPayment(payerGuidStr, country, periodCode, amount, currency);
+p.MarkAsPaid();
+```
+
+The facade assembles the `PriceList` internally so the `PriceOfferMustMatchPriceInPriceListRule` is satisfied; the DSL surface is reduced to five primitive parameters (the payer GUID as a string per the workaround above, three further strings, and a decimal amount).
+
+### Per-scenario protocol
+
+- Fresh actor with `actor.ConfigureStorage(DatabaseType.FileSystem, $"path={tempDir}")` — Guid-keyed temp dir per N so prior runs don't contaminate.
+- Bootstrap → Warmup → N measurement calls, each with `WithParameters` injecting per-iteration values.
+- `actor.GracefulExit()` before parsing to flush the journal writer.
+- After the loop, parse all `journal_*.bin` files, categorise entries by type byte, and compute the density ratio.
+
+## Headline numbers
+
+### N=100
+
+| Entry type | Count | Total bytes | Avg payload |
+|---|---:|---:|---:|
+| Script | 1 | 69 | 33 B |
+| Action | 101 | 10,100 | 60 B |
+| Define | 1 | 247 | **207 B** |
+| **Total** | **103** | **10,416** | |
+| Action % | 98.1% | | |
+
+| Action payload min / max / avg | 60 / 60 / 60 B |
+|---|---:|
+| Literal-script reference (Define payload) | 207 B |
+| Hypothetical literal payload (101 × 207) | 20,907 B |
+| Actual Action payload (sum) | 6,060 B |
+| **Density ratio (literal / actual)** | **3.5×** |
+
+### N=1000
+
+| Entry type | Count | Total bytes | Avg payload |
+|---|---:|---:|---:|
+| Script | 1 | 69 | 33 B |
+| Action | 1,001 | 100,100 | 60 B |
+| Define | 1 | 247 | **207 B** |
+| **Total** | **1,003** | **100,416** | |
+| Action % | 99.8% | | |
+
+| Action payload min / max / avg | 60 / 60 / 60 B |
+|---|---:|
+| Literal-script reference | 207 B |
+| Hypothetical literal payload (1,001 × 207) | 207,207 B |
+| Actual Action payload (sum) | 60,060 B |
+| **Density ratio (literal / actual)** | **3.5×** |
+
+The Action-payload distribution is exact — every action entry after the first carries the same 60 B argument vector for the same two-line script (five parameters: payer GUID string, country, period code, amount, currency). The Define entry stores the script body (207 B) once. Action % approaches 100% as N grows (98.1% at N=100, 99.8% at N=1000) because the single Script entry from the non-parametric bootstrap is fixed cost.
+
+## Comparison with the eShop replica
+
+| Metric | eShop (Order, 4 items/cart) | Grzybek (SubscriptionPayment, single) |
 |---|---:|---:|
-| Script | 1 (bootstrap) | 58 |
-| Action | **0** (expected ~N+1) | 0 |
-| Define | **0** (expected 1) | 0 |
-| Total | 1 | 58 |
+| Action % | 99.8% | 99.8% |
+| Avg Action payload | 115 B | 60 B |
+| Define / Action body payload | 642 B | 207 B |
+| **Density ratio** | **5.6×** | **3.5×** |
+| Statements in measurement script | 9 | 2 |
+| Parameters bound per iteration | 17 | 5 |
 
-The single journal file `journal_000001.bin` is 101 bytes total (32-byte file header + 69-byte bootstrap record). No measurement-derived entries appear.
+Two independent open-source DDD aggregates with disjoint business domains and different operational shapes — a multi-item e-commerce cart with a four-step state walk on one side, a single subscription-payment transition on the other — both confirm the structural property of §2.3: parametric workloads stay 99.8% Action, with the script body stored exactly once and per-invocation cost reduced to an argument vector. The density-ratio magnitudes (5.6× and 3.5×) differ because both DSL surfaces are short (Grzybek's especially — its production verb is intrinsically a two-statement operation); hosts whose verbs combine longer statement sequences with sparser argument vectors compound the ratio further. The mechanism applies regardless.
 
-## Hypotheses worth investigating in a focused chat
+## What this confirms
 
-1. **Reference-typed parameters interact differently with action-recording.** The Grzybek measurement passes `Guid` directly (Pacifico value type), but the facade internally builds reference types (`PriceList`, `DirectValueFromPriceListPricingStrategy`) that an `Action` entry would need to bind by name. eShop's facade returns an `Order` (reference) too, but its measurement parameters are all primitives (string/int/decimal). The Grzybek-vs-eShop diff at the parameter-vector level is worth probing.
+- **§2.3 dense journaling**, **§4 Beat 3 "compactness in semantic information per byte"**, **TL;DR "compact action entries"** — confirmed independently on two open-source DDD aggregates.
+- **Domain-independence**: the same three-tier journal structure (Script / Action / Define) and the same compaction mechanism apply against structurally distinct external aggregates. The mechanism is structural, not domain-specific.
+- **Operational floor for an extremely narrow verb**: even at the lower bound of measurement-script length (a single facade method call plus a single state transition, on a domain whose business representation is one payment per subscription period), the density ratio remains strictly greater than 1× and approaches the asymptote as N grows.
 
-2. **Some part of Grzybek's domain triggers an `AggregateRoot` recognition path in Pacifico that silently treats the call as recovery / replication rather than as a new command write.** Grzybek's `BuildingBlocks.Domain.AggregateRoot` is structurally similar enough to Puppeteer's internal AggregateRoot vocabulary that name-collision is plausible.
+## Integration text for Paper 2 §5.4
 
-3. **MediatR-based domain events emitted by `SubscriptionPayment.Buy` are intercepted by some Pacifico subsystem and short-circuit the journal write.** `Buy` calls `subscriptionPayment.AddDomainEvent(...)` internally; the test assembly references `MediatR.Contracts` to satisfy that path.
+> *"The same journal-compaction structure appears on a second open-source DDD aggregate. Against `kgrzybek/modular-monolith-with-ddd`'s `SubscriptionPayment` (a payment-lifecycle verb whose DSL surface is two statements: `NewWaitingPayment` plus `MarkAsPaid`), a parametric workload of N=1,000 invocations produces 1,001 Action entries (99.8% of the journal), 1 Define entry of 207 B carrying the script body, and an average Action payload of 60 B carrying the five parameter values. The literal-script storage would be 3.5× larger. The script body is shorter and the argument vector smaller than the eShop case, so the ratio is more modest, but the structural mechanism — arguments scaling with invocations while the body is stored once — is identical."*
 
-## What is NOT broken
+## Files produced
 
-- The DSL parser (the bootstrap script journals normally).
-- The actor's symbol-table persistence across PerformCommands (the eShop equivalent works, and the combined smoke works).
-- `SubscriptionPayment.Buy` itself (no exception, `Smoke_DslInvokesGrzybekSubscriptionPaymentFacade` passes).
-- The binary-journal parser (it correctly reads the 1 bootstrap Script entry).
-
-## Where this leaves the domain-independence test
-
-Lab 4 Grzybek does not yet contribute to Paper 2's domain-independence claim for journal density. Lab 5 on Grzybek (`data/lab05-grzybek/headline.md`) provides the complementary structural measurement (α = 2, β = 73, β/α ≈ 36×) that does carry forward — the journal-compaction property is theorized to depend on the same upstream mechanism Lab 5 measures, so a Lab 5 result that converges with eShop's even when the per-iteration journal-density numbers are not collectible is partial but informative evidence.
-
-## Datasets and code
-
-- `puppeteer-papers/data/lab04-grzybek/run-N100-*.csv` — Action/Define rows are 0 (documentary, not headline).
-- `puppeteer-papers/data/lab04-grzybek/run-N1000-*.csv` — same.
-- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/Lab04JournalDensityGrzybekBench.cs` — bench, `TestCategory("Bench")`.
-- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.cs` — facade.
-
-## Cross-references
-
-- `project_puppeteer_paper02_dual_codebase_replay.md` — Fase 2 status updated to "Lab 4 Grzybek anomaly parked; Lab 5 Grzybek done".
-- `project_puppeteer_persistence_anchor_shapes_ddd.md` — the reframing that applies regardless of the Lab 4 outcome.
-- `data/lab04-eshop/headline.md` — the working comparable measurement on the open-source eShop side.
-
-## Recommendation
-
-Park as a known issue. A focused chat with the Pacifico maintainers (or another debugging session reading Pacifico's action-emission code) should be able to identify which of the three hypotheses above is correct in a few hours. Until then, the domain-independence test of journal density rests on the eShop result alone, and the broader claim of domain-independence is carried by Lab 5 Grzybek (α + β) and by the consistent results across Labs 1–3 on eShop.
+- `puppeteer-papers/data/lab04-grzybek/run-N100-20260517T012257Z-d7c1053.csv` — N=100 metrics.
+- `puppeteer-papers/data/lab04-grzybek/run-N1000-20260517T012257Z-d7c1053.csv` — N=1000 metrics.
+- `puppeteer-papers/data/lab04-grzybek/headline.md` — this file.
+- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/Lab04JournalDensityGrzybekBench.cs` — bench class.
+- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.cs` — facade (payer GUID accepted as string and parsed internally; documents the workaround).

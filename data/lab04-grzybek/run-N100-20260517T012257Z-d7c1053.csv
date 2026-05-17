@@ -1,0 +1,15 @@
+metric,value,unit
+N_measurement,100,iterations
+script_count,1,entries
+action_count,101,entries
+define_count,1,entries
+action_percent,98.06,percent
+script_payload_bytes,33,bytes
+action_payload_bytes,6060,bytes
+define_payload_bytes,207,bytes
+script_total_bytes,69,bytes
+action_total_bytes,10100,bytes
+define_total_bytes,247,bytes
+avg_action_payload_bytes,60.0,bytes
+avg_script_payload_bytes,33.0,bytes
+density_ratio_literal_vs_compact,3.45,ratio
