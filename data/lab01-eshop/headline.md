@@ -1,9 +1,11 @@
 # Paper 2 Lab 1 Run 3 — eShop Order production verb (replay)
 
 **Date:** 2026-05-16
-**Branch:** `lab-replay/01-eshop` @ commit `2b47ffb` in `Puppeteer Pacifico` (post-bench-refactor commit forthcoming on same branch).
+**Branch:** `lab-replay/01-eshop` in the Puppeteer runtime repository (private; to be released alongside the runtime).
 **Runtime config:** .NET 9.0.312 SDK, Debug build, in-memory Diary (default), single-thread bench, Windows 11 / PowerShell 5.1 host.
 **Dataset:** `run3-bootstrap-20260516T171855Z-2b47ffb.csv` (2,000 rows: 1,000 compiled + 1,000 interpreted).
+
+> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSV in this directory is sufficient to reproduce the headline percentiles from `dotnet/eShop` public source plus an instrumented build of the runtime.*
 
 ## Methodology
 
@@ -72,17 +74,15 @@ both modes incur identically — domain work does not benefit from DSL specializ
 - **Direction of the §2.1 amortization claim**: compiled path is faster than
   interpreted on a representative production verb against a rich external aggregate.
 - **Domain-bound regime**: the eShop CompleteOrder verb sits in the domain-bound end
-  of Paper 2's compression curve. With the original production verb from a prior
-  e-commerce system at 1.80× speedup and a depth-100 arithmetic script at 4.10×,
-  the 1.49× measured here for eShop's CompleteOrder fits the predicted curve —
-  speedup compresses as the verb shifts from DSL-bound to domain-bound. eShop's
-  CompleteOrder has somewhat fewer cascaded calls than the prior production verb,
-  so a marginally lower speedup is expected.
-- **Domain-independence**: the structural speedup property holds across a host
-  codebase (the open-source eShop reference) distinct from the prior production
-  e-commerce system on which Paper 2's methodology was originally developed. The
+  of Paper 2's compression curve. With a depth-100 arithmetic script at 4.10×
+  speedup as the DSL-bound end, the 1.49× measured here on a verb that cascades
+  through Address VO construction, Order ctor, four AddOrderItem calls, and a
+  four-step state-machine walk fits the predicted curve: speedup compresses as
+  the verb shifts from DSL-bound to domain-bound work.
+- **Domain-independence**: the structural speedup property holds against an
+  open-source DDD aggregate independent of the original development context. The
   argument that compiled execution is a structural consequence (Paper 2 unified
-  principle, 2026-05-04) rather than a property of any particular domain gains an
+  principle) rather than a property of any particular domain gains an
   independent data point.
 
 ## What this does NOT (yet) confirm

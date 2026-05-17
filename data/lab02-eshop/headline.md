@@ -1,9 +1,11 @@
 # Paper 2 Lab 2 — Cold-compile cost on eShop Order production verb (replay)
 
 **Date:** 2026-05-16
-**Branch:** `lab-replay/02-eshop` (from `lab-replay/01-eshop`) in `Puppeteer Pacifico`.
+**Branch:** `lab-replay/02-eshop` in the Puppeteer runtime repository (private; to be released alongside the runtime).
 **Runtime config:** .NET 9.0.312 SDK, Debug build, in-memory Diary (default), single-thread bench, Windows 11 host.
 **Dataset:** `tier3-cold-20260516T174939Z-64040f5.csv` (100 rows).
+
+> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSV in this directory is sufficient to reproduce the cold-compile percentiles from `dotnet/eShop` public source plus an instrumented build of the runtime.*
 
 ## Methodology
 
@@ -64,22 +66,6 @@ The cold compile is recovered after:
 A production actor serving regular traffic amortizes its eShop-verb compile
 investment within the first ~150 calls — well under a second of operation.
 
-## Comparison with the prior production e-commerce system (Tier 3 original)
-
-| Metric | Prior production system (original) | eShop CompleteOrder (this) |
-|---|---:|---:|
-| Cold compile p50 | 1,417 µs | **281 µs** (~5× faster) |
-| Cold compile p95 | 1,824 µs | 394 µs |
-| Steady-state delta (Lab 1) | 40 µs/invocation | 1.8 µs/invocation |
-| Break-even invocations | ~35 | ~156 |
-
-eShop CompleteOrder is structurally simpler than the prior production verb (fewer
-cascaded domain calls, shorter AST), so both the cold-compile cost and the
-steady-state delta are smaller. The break-even point shifts higher because the
-per-invocation savings shrink faster than the up-front cost. Both numbers tell the
-same operational story: the cold-compile investment is recovered within fractions
-of a second of real load.
-
 ## What this confirms
 
 - **The amortization argument of §2.1 / §3.1**: cold-compile cost is bounded (sub-ms
@@ -89,9 +75,8 @@ of a second of real load.
   duration of `programExpression.Compile()` in isolation, captured at the exact call
   site (`Program.cs:162`). No surrounding parse / dispatch work contaminates the
   measurement.
-- **Domain-independent shape**: same pattern as the original Tier 3 on the prior
-  production system (cold compile bounded, break-even within seconds), against a
-  structurally distinct host codebase.
+- **Operational shape**: cold compile bounded, break-even within seconds of real
+  load — the structural property the amortization argument predicts.
 
 ## What this does NOT (yet) confirm
 
@@ -112,8 +97,7 @@ of a second of real load.
 > after approximately 156 invocations. A production actor serving regular traffic
 > amortizes its compile investment within the first second of operation. The
 > structural property — bounded one-time cost, linear amortization in invocation
-> count — holds independently of business domain, with the same shape observed on
-> the original production verb measured on a prior commercial e-commerce system."*
+> count — is the empirical signature of the amortization argument."*
 
 ## Modifications to Pacifico applied in this branch (heredables, +1 on top of `lab-replay/01-eshop`)
 

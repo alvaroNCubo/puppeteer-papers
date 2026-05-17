@@ -1,13 +1,15 @@
 # Paper 2 Lab 4 — Journal Density on eShop (replay)
 
 **Date:** 2026-05-16
-**Branch:** `lab-replay/04-eshop` (from `lab-replay/03-eshop`) in `Puppeteer Pacifico`.
+**Branch:** `lab-replay/04-eshop` in the Puppeteer runtime repository (private; to be released alongside the runtime).
 **Runtime config:** .NET 9.0.312 SDK, Debug build, FileSystem journal (BinaryEventCodec), Windows 11 host.
-**Datasets:** `run-N100-20260516T211544Z-5efc274.csv`, `run-N1000-20260516T211545Z-5efc274.csv`.
+**Datasets:** `run-N100-*.csv`, `run-N1000-*.csv`.
+
+> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSVs in this directory are sufficient to reproduce the entry-type counts, payload sizes, and density ratio from `dotnet/eShop` public source plus an instrumented build of the runtime.*
 
 ## Methodology
 
-Mirrors the original Lab 4 (a prior production e-commerce system, `UnitTestPuppeteer/PaperLabs/paper2/Lab04_JournalDensity.cs`) — runs N parametric invocations of the same measurement script against a fresh FileSystem actor and parses the resulting `journal_*.bin` files. The BI-projection section of the original is dropped because it depended on row counts in an internal BI table specific to the prior system that have no direct eShop analog; the density-ratio claim that Paper 2 §2.3 / §4 Beat 3 / TL;DR cite is independent of that projection.
+Runs N parametric invocations of the same measurement script against a fresh FileSystem actor and parses the resulting `journal_*.bin` files. Counts Action / Script / Define entries by type byte, sums payload bytes per type, and computes the density ratio between the actual Action payload and the hypothetical literal-script payload (Action count × Define payload). The intrinsic density claim (Paper 2 §2.3 / §4 Beat 3 / TL;DR) follows from those counts alone.
 
 **Important post-Action-refactor adjustment.** After the Action refactor (firmed 2026-05-12, master commit `5c68232`), `ActionStore.cs` and the separate `actions.bin` file no longer exist; the action definition body now lives in a dedicated **`Define`** entry (`EventRecordType.Define = 2`) inside the journal itself, alongside `Script` (0) and `Action` (1) entries. The binary parser in this bench treats all three entry types and uses the Define entry's payload as the per-call literal-script reference.
 
@@ -33,7 +35,7 @@ o.SetPaidStatus();
 o.SetShippedStatus();
 ```
 
-The DSL invokes the eShop `Order` aggregate's domain verbs directly — the facade builds the order in Submitted state via the 10-arg ctor (with `Address` value object internally); the DSL then adds **four items to the cart** (mirroring the multi-product semantics of the original Run3 measurement on the prior production system, which represented a real purchase, not an empty or single-item one) and drives the state machine through to Shipped.
+The DSL invokes the eShop `Order` aggregate's domain verbs directly — the facade builds the order in Submitted state via the 10-arg ctor (with `Address` value object internally); the DSL then adds **four items to the cart** (modelling a realistic multi-product purchase rather than an empty or single-item one) and drives the state machine through to Shipped.
 
 ### Per-scenario protocol
 
@@ -79,21 +81,9 @@ The DSL invokes the eShop `Order` aggregate's domain verbs directly — the faca
 
 The Action-payload distribution is tight (96 → 116 B), as expected: every action entry after the first carries only the argument vector for the same nine-line script (17 parameters: user identity + four products' pid/name/price + shared discount/picUrl/units). The Define entry stores the script body (642 B) once. Action % approaches 100% as N grows (98.1% at N=100, 99.8% at N=1000) because the single Script entry from the non-parametric bootstrap is fixed cost.
 
-## Comparison with the prior production e-commerce system (Tier 3 original)
+## Note on the magnitude of the density ratio
 
-| Metric | Prior production system (original, 4 items/cart) | eShop (this, 4 items/cart) |
-|---|---:|---:|
-| Action entries | 1,002 (100%) | 1,001 (99.8%) |
-| Avg Action payload | 67 B | **115 B** |
-| Define / NewAction payload (literal ref) | ~1,340 B | **642 B** |
-| **Density ratio** | **20.1×** | **5.6×** |
-
-Both carry comparable purchase semantics — four items per cart, full state walk to completion. The density-ratio gap (20× vs 6×) reflects an architectural difference in how arguments are represented, not in the journal-compaction mechanism itself:
-
-- The **prior production system's Run3** referenced its catalog entries by pre-bootstrapped identifiers; the measurement script's argument vector carried short references and a few numeric values — sparse args, ~67 B.
-- **eShop's `AddOrderItem`** signature requires the full product specification per call (`pid, name, price, discount, picUrl, units`), so the per-item argument footprint is intrinsically richer — dense args, ~115 B per Action entry containing the data for four items.
-
-The structural claim of §2.3 — *each invocation stores only the argument vector; the script body is stored exactly once* — holds identically in both cases. The 6× and 20× are both well above 1× and both grow further as N grows (any single Define entry amortizes across an unbounded sequence of Action entries). The magnitude is a function of how the host's domain API surfaces its data, not of the compaction mechanism.
+eShop's `AddOrderItem` signature requires the full product specification per call (`pid, name, price, discount, picUrl, units`), so the per-item argument footprint is intrinsically rich — 17 parameters bound to a four-item cart yield ~115 B per Action entry. A host whose verbs identify catalog entries by short stable references would carry an order-of-magnitude smaller argument vector and the density ratio would compound accordingly into the tens. Either way, the structural property of §2.3 — *each invocation stores only the argument vector; the script body is stored exactly once* — holds: arguments scale with invocations, the Define body does not.
 
 ## What this confirms
 
@@ -103,12 +93,12 @@ The structural claim of §2.3 — *each invocation stores only the argument vect
 
 ## What this does NOT (yet) confirm
 
-- **BI-projection comparison**: the original Lab 4 on the prior production system compared the journal to an equivalent BI projection table (~30× ratio). eShop has no direct analog (the open-source Order aggregate doesn't decompose into a known production BI table). The intrinsic density-ratio claim does not depend on this projection.
+- **BI-projection comparison**: the eShop Order aggregate doesn't decompose into a known production BI table, so a journal-vs-equivalent-rows comparison is out of scope here. The intrinsic density-ratio claim does not depend on such a projection.
 - **Cross-DC replication footprint**: separate paper / lab.
 
 ## Integration text for Paper 2 §5
 
-> *"In a parametric workload over the eShop Order production verb (nine-line DSL script: order construction in Submitted state, four `AddOrderItem` calls representing a multi-product cart, and a four-step state-machine walk to Shipped), the FileSystem journal records 99.8% of entries as compact Action references with an average payload of 115 B — the argument vector for seventeen parameters (user identity + four products' details + shared modifiers). The script body — 642 B — is stored exactly once, as a Define entry. Had each of the 1,000 invocations stored the literal script text instead, the Action payload would be 5.6× larger. The density mechanism is structural: arguments scale with invocations, the script body does not. This is observed against a different business domain than the original Paper 2 Lab 4 (a prior production e-commerce system), confirming the journal compaction property as domain-independent — the magnitude of the ratio reflects the host domain's argument density (the prior system's sparse identifier-based args produce 20×; eShop's full-product-specification args produce 5.6×), but the mechanism applies in both cases."*
+> *"In a parametric workload over the eShop Order production verb (nine-line DSL script: order construction in Submitted state, four `AddOrderItem` calls representing a multi-product cart, and a four-step state-machine walk to Shipped), the FileSystem journal records 99.8% of entries as compact Action references with an average payload of 115 B — the argument vector for seventeen parameters (user identity + four products' details + shared modifiers). The script body — 642 B — is stored exactly once, as a Define entry. Had each of the 1,000 invocations stored the literal script text instead, the Action payload would be 5.6× larger. The density mechanism is structural: arguments scale with invocations, the script body does not. The magnitude of the ratio is a function of the host domain's argument density — hosts whose verbs identify entries by short stable references would carry sparser argument vectors and the ratio would compound into the tens — but the mechanism applies regardless."*
 
 ## Modifications to Pacifico applied in this branch (+1 on top of `lab-replay/03-eshop`)
 

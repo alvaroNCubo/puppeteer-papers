@@ -34,11 +34,13 @@ abstract: >
   this single precondition, characterize one concrete realization in a CQRS +
   Actor + Event Sourcing runtime — the same Puppeteer framework introduced in
   the prior paper of this series — and report empirical magnitudes from
-  production measurements: a compiled-versus-interpreted speedup that scales
-  with DSL-bound work (1.80× to 4.10×); a cold compile cost amortized after
-  roughly 35 invocations; a journal storing 100% of parametric workloads as
-  compact action references, approximately thirty-fold denser than an
-  equivalent relational projection. The principle generalizes beyond any one
+  measurements over two independent open-source DDD aggregates (dotnet/eShop's
+  Order and kgrzybek/modular-monolith's SubscriptionPayment): a compiled-
+  versus-interpreted speedup that scales with DSL-bound work (1.49× to 4.10×);
+  a cold compile cost amortized within hundreds of invocations; a journal
+  storing 99.8% of parametric workloads as compact action references,
+  several-fold denser than the equivalent literal-script storage. The
+  principle generalizes beyond any one
   runtime: program-value separability characterizes the structural condition
   any DSL runtime must satisfy to admit compilation, caching, and dense
   persistence at all.

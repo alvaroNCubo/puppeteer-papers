@@ -1,9 +1,11 @@
 # Paper 2 Lab 3 Tier C — Eval recompile latency on eShop (replay)
 
 **Date:** 2026-05-16
-**Branch:** `lab-replay/03-eshop` (from `lab-replay/02-eshop`) in `Puppeteer Pacifico`.
+**Branch:** `lab-replay/03-eshop` in the Puppeteer runtime repository (private; to be released alongside the runtime).
 **Runtime config:** .NET 9.0.312 SDK, Debug build, in-memory Diary (default), Windows 11 host.
 **Dataset:** `tierC-eval-20260516T175455Z-c915da7.csv` (2,200 rows: 100+1000 × stable + 100+1000 × mutating).
+
+> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSV in this directory is sufficient to reproduce the eval-cache headline ratios from `dotnet/eShop` public source plus an instrumented build of the runtime.*
 
 ## Methodology
 
@@ -36,9 +38,9 @@ end-to-end wall-clock.
 | mutating | `@facade.NextOrderSequence() + <i>` (distinct text per iteration) |
 
 `@facade` is a `OrderingFacade` instance passed as an In parameter; `NextOrderSequence()`
-is a small instance method that returns an `int` from an interlocked counter.
-Equivalent to `Movements.Storage.NextAuthorizationNumber()` of the original Tier C —
-an instance-bound method that returns an int.
+is a small instance method that returns an `int` from an interlocked counter — an
+instance-bound method short enough to make the eval-compile cost the dominant term
+in the mutating regime.
 
 ### Bench loop
 
@@ -67,21 +69,6 @@ mutating cost (~257 µs at p50) is dominated by the isolated eval-compile cost (
 at p50); the remaining ~68 µs is the outer execute path (cast, addition, parameter
 lookup, dispatch through the print statement).
 
-## Comparison with the prior production e-commerce system (Tier C original)
-
-| Metric | Prior production system (original) | eShop OrderingFacade (this) |
-|---|---:|---:|
-| Stable end p50 | 2.3 µs | **2.1 µs** |
-| Mutating end p50 | 305.4 µs | **257 µs** |
-| Cache-miss ratio | 133× | **120×** |
-| Eval-compile isolated p50 | 224 µs | **189 µs** |
-
-Same structural signature: ~2 orders of magnitude separation between cache hit and
-cache miss, with the miss cost dominated by `programExpression.Compile()` of the
-inner sub-program. eShop's numbers are marginally lower because the eval expression
-itself is shallower than the prior production verb's instance-method lookup; the
-structural claim holds independently.
-
 ## What this confirms
 
 - **§3.1 Beat 3**: *"any region of the program with a stable textual identity admits
@@ -89,14 +76,16 @@ structural claim holds independently.
   invoking the cached delegate; the eval-cache miss pays a compile cost that is in
   the same ballpark as the outer Lab 2 cold-compile. Recursive separability
   observed.
-- **Domain-independence**: the cache-hit/miss ratio (~120×) holds across two
-  unrelated host codebases (a prior production e-commerce system, and the
-  open-source eShop reference). The mechanism is structural, not domain-specific.
+- **Structural separation**: the ~2 orders of magnitude separation between
+  cache hit and cache miss is the empirical signature of recursive separability.
+  The eval-compile cost (~189 µs) dominates the mutating regime's end-to-end
+  time, mirroring the relationship between cold compile and steady-state on the
+  outer program.
 
 ## What this does NOT (yet) confirm
 
 - **Tier A (shallow `1+1`) and Tier B (50-term arithmetic) replay**: not needed for
-  Paper 2 — the original Tier A and Tier B are synthetic and have no ***REDACTED***
+  Paper 2 — Tier A and Tier B are synthetic and host-independent
   dependency, so they are publishable as-is.
 - **Cross-actor eval contention**: this lab uses one actor per cell. Multi-thread
   eval-cache behavior is out of scope.

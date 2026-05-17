@@ -1,9 +1,11 @@
 # Paper 2 Lab 5 — Operations-per-verb on Grzybek SubscriptionPayment (replica)
 
 **Date:** 2026-05-16
-**Branch (α):** `lab-replay/grzybek-replica` in `Puppeteer Pacifico`.
-**β tool:** `puppeteer-papers/labs/lab05-grzybek-roslyn/` (.NET 9 console).
-**Datasets:** `alpha-20260516T214533Z-ebf289d.csv` (1000 rows, runtime counter), `beta-roslyn-20260516T220712Z-ebf289d.csv` (73 rows, static walker).
+**Branch (α):** `lab-replay/grzybek-replica` in the Puppeteer runtime repository (private; to be released alongside the runtime).
+**β tool:** `puppeteer-papers/labs/lab05-grzybek-roslyn/` (.NET 9 console) — **public**, in this repository.
+**Datasets:** `alpha-20260516T220730Z-ebf289d.csv` (1000 rows, runtime counter), `beta-roslyn-20260516T220712Z-ebf289d.csv` (73 rows, static walker).
+
+> *The α bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The β walker source is published in this repository (`labs/lab05-grzybek-roslyn/`) and is fully reproducible against `kgrzybek/modular-monolith-with-ddd` public source. The α CSV in this directory is sufficient to verify the dispatch-count headline; the β walker can be re-run directly.*
 
 ## Methodology
 
@@ -87,23 +89,21 @@ shared BuildingBlocks):
 
 > **β / α = 73 / 2 ≈ 36.5×**
 
-## Comparison with eShop and with the prior production system
+## Comparison with eShop
 
-| Metric | Prior production system (original) | eShop Order (this series) | Grzybek SubscriptionPayment (this) |
-|---|---:|---:|---:|
-| α (DSL dispatches) | 8 | 9 | **2** |
-| β (host methods reachable) | ~6,977 | 24 | **73** |
-| β / α | ~872× | 2.7× | **36.5×** |
-| Source declarations indexed | tens of thousands | 95 | 275 |
-| Persistence anchor | journaled actor-native | EF Core / RDBMS | EF Core / RDBMS |
+| Metric | eShop Order (this series) | Grzybek SubscriptionPayment (this) |
+|---|---:|---:|
+| α (DSL dispatches) | 9 | **2** |
+| β (host methods reachable) | 24 | **73** |
+| β / α | 2.7× | **36.5×** |
+| Source declarations indexed | 95 | 275 |
+| Persistence anchor | EF Core / RDBMS | EF Core / RDBMS |
 
-Two observations from the three-way comparison:
+Two observations from the two-way comparison:
 
-1. **The structural property holds in both direction and magnitude across all three host codebases.** DSL surface < reachable host graph in every case. The mechanism is not specific to any particular domain.
+1. **The structural property holds in direction across both host codebases.** DSL surface < reachable host graph in each case. The mechanism is not specific to any particular domain.
 
-2. **The Grzybek number sits between eShop and the prior production system, in a way that confirms the persistence-anchor reframing** (firmed 2026-05-16 in `project_puppeteer_persistence_anchor_shapes_ddd.md`): both Grzybek and eShop are RDBMS-anchored DDD, but Grzybek's `Payments.Domain` carries the shared `BuildingBlocks/Domain` (its `AggregateRoot`, `ValueObject`, `BusinessRuleValidationException` infrastructure) into the closure. The 36× vs eShop's 2.7× is not an indictment of eShop — it is a reflection of how deep the *included* code base is once the shared seedwork is traversed alongside the aggregate. eShop's `Ordering.Domain` is its own self-contained project (its `SeedWork/` folder is internal); Grzybek's `Payments.Domain` references the shared `BuildingBlocks/Domain` and the walker traverses both.
-
-   Neither structure is "right" or "wrong" — they reflect two valid DDD packaging choices. The 2.7× and 36× brackets the range a paper would honestly report for "small DDD aggregates with RDBMS anchors": between a few times the DSL surface and a few dozen. Compared to the unbounded-domain prior production system's 700×–870×, both remain orders of magnitude below the ceiling.
+2. **The magnitude reflects packaging choice, not framework behaviour.** Both aggregates are RDBMS-anchored DDD, but eShop's `Ordering.Domain` is a self-contained project (its `SeedWork/` folder is internal) while Grzybek's `Payments.Domain` references a shared `BuildingBlocks/Domain` (`AggregateRoot`, `ValueObject`, `BusinessRuleValidationException` infrastructure) that the walker traverses alongside. The 36× vs 2.7× is therefore a reflection of how deep the *included* code base is once shared seedwork is counted alongside the aggregate. Neither structure is "right" or "wrong" — they are two valid DDD packaging choices. The 2.7× and 36× together bracket the range a paper would honestly report for small DDD aggregates with RDBMS anchors: between a few times the DSL surface and a few dozen.
 
 ## What this confirms
 

@@ -1,8 +1,10 @@
 # Paper 2 Lab 4 — Journal density on Grzybek SubscriptionPayment (replica) — anomaly parked
 
 **Date:** 2026-05-16
-**Branch:** `lab-replay/grzybek-replica` in `Puppeteer Pacifico`.
-**Status:** ⚠️ Anomaly detected; the bench tests pass at the framework level but the journal does not accumulate Action entries for the parametric Grzybek measurement. Lab 4 on Grzybek is therefore **incomplete** as a replica; the comparable Lab 5 α + β data on Grzybek (see `data/lab05-grzybek/`) carries the domain-independence test forward in the meantime.
+**Branch:** `lab-replay/grzybek-replica` in the Puppeteer runtime repository (private; to be released alongside the runtime).
+**Status:** ⚠️ Anomaly detected; the bench tests pass at the framework level but the journal does not accumulate Action entries for the parametric Grzybek measurement. Lab 4 on Grzybek is therefore **incomplete** as a replica; the comparable Lab 5 α + β data on Grzybek (see `data/lab05-grzybek/`) carries the structural test forward in the meantime.
+
+> *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSVs in this directory document the anomaly state for posterity.*
 
 ## What runs
 

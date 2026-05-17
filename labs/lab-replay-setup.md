@@ -125,7 +125,7 @@ También promover field `CompiledModePolicy` (Actor.cs:19) de `internal` a `publ
 
 ### Proyecto nuevo `UnitTestEShopOnPuppeteer/`
 
-Mimetizar el proyecto de test de la prior production system (referencia en lab plan mod #8 — proyecto ya existe en la lab/01 branch interna para inspirarse).
+Mimetizar el patrón de test-project privado de Pacifico (referencia en lab plan mod #8 — proyecto ya existe en la lab/01 branch interna para inspirarse).
 
 `UnitTestEShopOnPuppeteer/UnitTestEShopOnPuppeteer.csproj`:
 - TFM: `net9.0`
