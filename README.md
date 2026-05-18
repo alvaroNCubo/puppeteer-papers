@@ -4,6 +4,14 @@
 
 A series of seven design theory papers, each naming a structural property of software systems that prior literature has documented piecewise without recognizing as one, and each tracing the consequences that follow.
 
+## Single-volume reading
+
+For a continuous reading — preface plus the seven papers as numbered chapters, with table of contents — see the unified monograph:
+
+**[Puppeteer: Journaled Programs and the Dissolution of Infrastructure (PDF)](puppeteer-monograph.pdf)**
+
+Individual papers below are the canonical citable artifacts; the monograph is the recommended entry point for a first read.
+
 ## The papers
 
 | # | Title | Version | One-line summary |
