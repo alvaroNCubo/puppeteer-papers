@@ -38,3 +38,15 @@ If your question is specific, an entry point may answer it without reading the w
 For the full argument, read in order from Paper 1 through Paper 7. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point; Paper 7 is the closing claim.
 
 All seven are working drafts (versions 0.1 through 0.4) and are open to feedback. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
+
+## License
+
+This repository contains two kinds of content, licensed separately.
+
+**Papers and accompanying assets** — the seven `0X-*.md` files, this README, and the asciinema recordings and GIFs under `paper7-assets/` — are licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-papers). You may copy, redistribute, adapt, and build upon them, including for commercial purposes, provided you give appropriate attribution to the author.
+
+**Code** — the C# projects under `labs/`, used as reproducibility artifacts for the papers' empirical sections — is licensed under the [Apache License 2.0](LICENSE-code).
+
+The two licenses apply independently. Citing or quoting from the papers is governed by CC BY 4.0; using or modifying the code is governed by Apache 2.0.
+
+Copyright © 2026 Alvaro Rivera.
