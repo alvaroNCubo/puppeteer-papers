@@ -1,7 +1,7 @@
 ---
 title: "The server is not a structural requirement: identifying accidental architectural roles under journaled programs"
 author: Alvaro Rivera
-affiliation: Ncubo
+affiliation: Ncubo Ideas, Costa Rica
 date: 2026-05-16
 version: 0.1-draft
 status: draft

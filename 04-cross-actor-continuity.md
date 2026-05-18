@@ -1,7 +1,7 @@
 ---
 title: "Preserving semantic continuity across actors: a tell-based approach without orchestration"
 author: Alvaro Rivera
-affiliation: Ncubo
+affiliation: Ncubo Ideas, Costa Rica
 date: 2026-05-10
 version: 0.2-draft
 status: draft

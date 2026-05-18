@@ -1,7 +1,7 @@
 ---
 title: "The Journal as Substrate: Unifying Deployment, Replication, Backup, and Offline Operation in Distributed Systems"
 author: Alvaro Rivera
-affiliation: Ncubo
+affiliation: Ncubo Ideas, Costa Rica
 date: 2026-05-14
 version: 0.2-draft
 status: draft

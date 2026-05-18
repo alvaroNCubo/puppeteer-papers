@@ -1,7 +1,7 @@
 ---
 title: "Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks"
 author: Alvaro Rivera
-affiliation: Ncubo
+affiliation: Ncubo Ideas, Costa Rica
 date: 2026-05-15
 version: 0.1-draft
 status: v0.1-draft complete — all sections + frontmatter + references + table numbering + coherence review applied; ready to publish

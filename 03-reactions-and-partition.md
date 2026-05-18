@@ -1,7 +1,7 @@
 ---
 title: "Reactions and the partition: opt-in eventual consistency in actor-native systems"
 author: Alvaro Rivera
-affiliation: Ncubo
+affiliation: Ncubo Ideas, Costa Rica
 date: 2026-05-12
 version: 0.4-draft
 status: draft
