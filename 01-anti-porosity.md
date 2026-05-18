@@ -2,7 +2,7 @@
 title: "Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-XX-XX
+date: 2026-05-18
 version: 0.2-draft
 status: draft
 keywords:

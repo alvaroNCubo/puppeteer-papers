@@ -2,7 +2,7 @@
 title: "Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-XX-XX
+date: 2026-05-18
 version: 0.2-draft
 status: draft
 keywords:
