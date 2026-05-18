@@ -28,6 +28,13 @@ Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 na
 
 ## How to read
 
-Read in order, Paper 1 through Paper 7. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point; Paper 7 is the closing claim of the series.
+If your question is specific, an entry point may answer it without reading the whole series:
+
+- *"Which of the layers in my production stack are actually structural, and which are compensating for something?"* → Paper 6.
+- *"Is the server-role in this architecture a necessity, or a contingent artifact?"* → Paper 7.
+- *"How does a journaled program actually run — across actor boundaries, across machines, across failures, across deployments?"* → Papers 4 and 5.
+- *"What are the structural preconditions on which the rest of the series rests — vocabulary, compilation, consistency model?"* → Papers 1 through 3.
+
+For the full argument, read in order from Paper 1 through Paper 7. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point; Paper 7 is the closing claim.
 
 All seven are working drafts (versions 0.1 through 0.4) and are open to feedback. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
