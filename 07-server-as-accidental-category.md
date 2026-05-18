@@ -270,7 +270,7 @@ The contribution of this paper is the formalization of a discrimination that can
 
 The discrimination is per role-in-use-case, not per system. Identity authorities, payment networks, sensor integrations, and computationally intensive services remain structural under any substrate. The construct predicts no universal dissolution; it predicts examinability.
 
-Together with Paper 6's notion of *infrastructural symptom* at the layer level, this paper extends the same discrimination to architectural roles. From this point on, treating the server-role as a structural requirement is no longer an assumption but a choice that can be made explicit and evaluated.
+Paper 6 applied the construct at the layer level, identifying many infrastructural layers — caches, queues, locks, application servers, orchestration clusters — as compensations for the underlying persistence model. The present paper extends the same discrimination to the architectural role that made such layers necessary in the first place: the server. The two papers apply one construct at two levels of abstraction — first to layers, then to roles. From this point on, treating the server-role as a structural requirement is no longer an assumption but a choice that can be made explicit and evaluated.
 
 ## Appendix A — Reproducibility
 

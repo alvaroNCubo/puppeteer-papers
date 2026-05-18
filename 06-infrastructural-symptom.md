@@ -16,6 +16,8 @@ keywords:
   - DBMS-centric architecture
   - embedded deployment
   - puppeteer framework
+  - accidental category
+  - server-role
 abstract: >
   Production software systems routinely include layers such as caches,
   object-relational mappers, message queues, distributed locks, application
@@ -88,7 +90,7 @@ Critique of DBMS-centric architecture as the dominant paradigm for production sy
 
 The instantiation presented in §4 is constructed from three lines of prior work. The actor model originates with Hewitt (1973), articulating computation as message passing between isolated entities. Event sourcing as a persistence pattern is associated with Fowler (2005), which characterizes the program's history as the durable artifact rather than a snapshot of current state. Command Query Responsibility Segregation, articulated by Young (2010), separates the read and write paths so they no longer compete for the same model. Vernon (2015) brings these three together as practical patterns in *Reactive Messaging Patterns with the Actor Model*; that synthesis is the immediate ancestor of the present instantiation. The journaled actor-native system used as the existence proof here combines these threads; it does not invent them.
 
-This paper is the sixth in a series. The series develops the construct's foundations across five preceding papers. Paper 1 introduces porosity as the representational defect that this paper's construct identifies in its compensation form. Paper 2 develops program-value separability and the externalized-parameters precondition that supports journal density as a §4.1 mechanism. Paper 3 introduces Reactions and the pragmatic partition between work-due-before-responding and deferred work, which §4.1 invokes as the journal-as-causal-substrate mechanism. Paper 4 introduces the Tell primitive and cross-actor causal continuity, used in §4.1 for the same mechanism. Paper 5 develops the journal as substrate for deployment, replication, backup, and offline operation, which §6 references as the substrate-mediated lifecycle that dissolves application-server scaffolding.
+This paper is the sixth in a series. The series develops the construct's foundations across five preceding papers. Paper 1 introduces porosity as the representational defect that this paper's construct identifies in its compensation form. Paper 2 develops program-value separability and the externalized-parameters precondition that supports journal density as a §4.1 mechanism. Paper 3 introduces Reactions and the pragmatic partition between work-due-before-responding and deferred work, which §4.1 invokes as the journal-as-causal-substrate mechanism. Paper 4 introduces the Tell primitive and cross-actor causal continuity, used in §4.1 for the same mechanism. Paper 5 develops the journal as substrate for deployment, replication, backup, and offline operation, which §6 references as the substrate-mediated lifecycle that dissolves application-server scaffolding. Paper 7 carries the same discrimination upward from infrastructural layers to architectural roles; §9 introduces this extension.
 
 The contribution unique to this paper is conceptual. The construct *infrastructural symptom* names a property that prior work documents in pieces but does not unify. The two conditions — compensation and dissolution — formalize the property. The forensic procedure of §5 operationalizes it without requiring adoption of any particular alternative. The ladder of §6 and the limit case of §7 extend the construct's reach. The instantiation of §4 demonstrates that the construct's predicate dissolves under the conditions; the demonstration is not the contribution.
 
@@ -286,6 +288,18 @@ Section 5's closing observation extends here: the visibility that the construct 
 
 The construct works best where the persistence model is explicit and characterizable, where use-cases are decomposable, and where a counterfactual model is conceivable. Where one of these conditions fails, the construct still applies but its discriminations grow coarser. Where it applies cleanly, what the construct surfaces is not a smaller stack but a domain that the model permits to be modeled, libraried, and evolved without being interleaved with compensating concerns. The utility of the construct is proportional to the decomposability of the system under examination.
 
+Persistence is one axis along which representational pressure deforms a domain — the axis this paper has traced. There is at least one more. When interaction is modeled before the domain — when aggregates take the shape of the screen rather than the screen rendering the actor's output — the same compensation pattern reappears in a different register: UI components, view-models, request DTOs, and step-state objects accumulate around a domain that no longer fits its own substrate.
+
+The construct of accidental category applies there with the same force it applied to infrastructural layers and to the server-role. The actor's existing output boundary — the primitives by which it emits to its invoker, agnostic of who consumes — already factors transport out of the domain. This axis is not developed here.
+
+## 9. Extension: from layers to roles
+
+The construct of §3 discriminates among *layers* of infrastructure — components that occupy positions in a stack and compensate for the persistence model from those positions. Architectural *roles* — the entity that accepts authoritative writes, the master in replication, the bootstrap issuer, the orchestrator — admit the same discrimination under the same two conditions. A role is an accidental category when its necessity is traceable to a specific representational choice (what nodes replicate to share state) and the role loses justification when that choice is replaced.
+
+The same construct therefore applies beyond layers. Under a substrate in which nodes replicate programs rather than data, state, or operations, the server-role does not survive as a structural requirement. Its dissolution is not an architectural objective; it is a structural consequence of the same representational choice that dissolves the layers described in §6.
+
+The two analyses operate at different levels of abstraction — first on layers, then on the roles that those layers exist to serve — without modifying the construct itself. The discrimination scales upward unchanged.
+
 ## Acknowledgments
 
 The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
@@ -315,6 +329,8 @@ Rivera, A. (2026c). Reactions and the partition: opt-in eventual consistency in 
 Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based approach without orchestration. *Puppeteer Papers Series*, Paper 4. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/04-cross-actor-continuity.md
 
 Rivera, A. (2026e). The journal as substrate: unifying deployment, replication, backup, and offline operation in distributed systems. *Puppeteer Papers Series*, Paper 5. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/05-substrate-operations.md
+
+Rivera, A. (2026g). The server is not a structural requirement: identifying accidental architectural roles under journaled programs. *Puppeteer Papers Series*, Paper 7. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/07-server-as-accidental-category.md
 
 Stonebraker, M. (2005). One size fits all: A concept whose time has come and gone. *Proceedings of the 21st International Conference on Data Engineering (ICDE)*.
 

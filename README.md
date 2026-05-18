@@ -24,7 +24,7 @@ Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 na
 
 ## What is Puppeteer, and why it appears here
 
-*Puppeteer* is a runtime, developed at Ncubo, that combines CQRS, the Actor Model, and Event Sourcing with a domain-specific language whose programs are journaled as the unit of persistence. Across the seven papers it appears as the instantiation — the existence proof that the conditions each construct defines can be realized in a working system. It is neither the subject of the papers nor required by them. Each construct could in principle be instantiated by other systems: an extension of Akka or Microsoft Orleans, a fresh runtime built around a journaled DSL, or a framework that has not yet been written. The role of the instantiation is to demonstrate realizability; the contribution lies in the constructs themselves and the conditions they name.
+*Puppeteer* is a runtime that combines CQRS, the Actor Model, and Event Sourcing with a domain-specific language whose programs are journaled as the unit of persistence. Across the seven papers it appears as the instantiation — the existence proof that the conditions each construct defines can be realized in a working system. It is neither the subject of the papers nor required by them. Each construct could in principle be instantiated by other systems: an extension of Akka or Microsoft Orleans, a fresh runtime built around a journaled DSL, or a framework that has not yet been written. The role of the instantiation is to demonstrate realizability; the contribution lies in the constructs themselves and the conditions they name.
 
 ## How to read
 
