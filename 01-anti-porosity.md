@@ -393,7 +393,7 @@ Young, G. (2010). *CQRS documents*. https://cqrs.files.wordpress.com/2010/11/cqr
 
 ## Appendix A: Source-code verification
 
-This appendix consolidates the source-code references cited throughout the paper. All paths are relative to the public Puppeteer repository (`Puppeteer Pacifico/`); line numbers reflect the version of the code at the time of writing. The framework's source was migrated from Spanish to English identifiers between v0.1 and v0.2 of this paper; the line numbers and file names below reflect the current English-language source.
+This appendix consolidates the source-code references cited throughout the paper. All paths are relative to the public Puppeteer repository; line numbers reflect the version of the code at the time of writing. The framework's source was migrated from Spanish to English identifiers between v0.1 and v0.2 of this paper; the line numbers and file names below reflect the current English-language source.
 
 ### A.1 Reflection-based discovery (§4.1)
 

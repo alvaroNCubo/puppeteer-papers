@@ -252,7 +252,7 @@ This inversion is structural, not stylistic. A reader of the system can list the
 
 ## 6. Implementation in the Puppeteer framework
 
-*[Skeleton — reorganized 2026-05-06 to reflect the technical handoff verified against `Puppeteer/EventSourcing/Follower/` and `ActorHandler.cs`. Path:line citations have been verified against the current Pacifico mainline.]*
+*[Skeleton — reorganized 2026-05-06 to reflect the technical handoff verified against `Puppeteer/EventSourcing/Follower/` and `ActorHandler.cs`. Path:line citations have been verified against the current Puppeteer mainline.]*
 
 ### 6.1 The two modes: Cue and Job
 
