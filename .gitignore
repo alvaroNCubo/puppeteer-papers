@@ -1,0 +1,3 @@
+# Build artifacts (any .NET project under labs/)
+bin/
+obj/
