@@ -1,5 +1,5 @@
 ---
-title: "Server as accidental category: a design construct for identifying architectural roles that dissolve under journaled programs"
+title: "The server is not a structural requirement: identifying accidental architectural roles under journaled programs"
 author: Alvaro Rivera
 affiliation: Ncubo
 date: 2026-05-16
@@ -368,7 +368,7 @@ Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based a
 
 Rivera, A. (2026e). The journal as substrate: unifying deployment, replication, backup, and offline operation in distributed systems. *Puppeteer Papers Series*, Paper 5. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/05-substrate-operations.md
 
-Rivera, A. (2026f). Infrastructural symptom: a design construct for distinguishing compensatory infrastructure from structural requirement. *Puppeteer Papers Series*, Paper 6. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/06-infrastructural-symptom.md
+Rivera, A. (2026f). Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks. *Puppeteer Papers Series*, Paper 6. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/06-infrastructural-symptom.md
 
 Sambra, A. V., Mansour, E., Hawke, S., Zereba, M., Greco, N., Ghanem, A., Zagidulin, D., Aboulnaga, A., & Berners-Lee, T. (2016). *Solid: A platform for decentralized social applications based on linked data* (Technical Report). MIT CSAIL & Qatar Computing Research Institute. http://emansour.com/research/lusail/solid_protocols.pdf
 

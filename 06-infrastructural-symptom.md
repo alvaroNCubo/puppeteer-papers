@@ -1,5 +1,5 @@
 ---
-title: "Infrastructural Symptom: A Design Construct for Distinguishing Compensatory Infrastructure from Structural Requirement"
+title: "Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks"
 author: Alvaro Rivera
 affiliation: Ncubo
 date: 2026-05-15
@@ -50,7 +50,7 @@ abstract: >
   problem.
 ---
 
-# Infrastructural Symptom: A Design Construct for Distinguishing Compensatory Infrastructure from Structural Requirement
+# Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks
 
 ## TL;DR
 
