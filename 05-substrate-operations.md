@@ -716,17 +716,17 @@ The constructs named in §7 are publicly available in the Puppeteer codebase. Th
 | `IsAlive` predicate | `Choreography/Theater/Performance.cs` | 167 | False while follower; true after handover |
 | `LockWhileNotSyncronized()` | `Choreography/Theater/Performance.cs` | 177 | Pause writes on primary; return EntryId |
 | `UnlockAndRunAlive()` | `Choreography/Theater/Performance.cs` | 183 | Flip gate; release primary |
-| `CatchUpFromJournal(long targetEntryId)` | `Puppeteer/EventSourcing/ActorHandler.cs` | 2129 | Replay residual tail under write lock |
-| `RehydrateFromEvent` | `Puppeteer/EventSourcing/DB/Diary.cs` | 220 | Diary-side bulk replay primitive |
+| `CatchUpFromJournal(long targetEntryId)` | `Puppeteer/EventSourcing/ActorHandler.cs` | 2159 | Replay residual tail under write lock |
+| `RehydrateFromEvent` | `Puppeteer/EventSourcing/DB/Diary.cs` | 228 | Diary-side bulk replay primitive |
 
 ### §7.2 — Push-to-pull primitives
 
 | Surface | File | Line(s) | What it shows |
 |---|---|---|---|
-| `Diary.OnRecordWritten` setter | `Puppeteer/EventSourcing/DB/Diary.cs` | 136 | Per-record callback (single subscriber) |
-| `AddRecordWrittenCallback` | `Puppeteer/EventSourcing/DB/Diary.cs` | 151 | Chain N subscribers without displacing existing |
+| `Diary.OnRecordWritten` setter | `Puppeteer/EventSourcing/DB/Diary.cs` | 145 | Per-record callback (single subscriber) |
+| `AddRecordWrittenCallback` | `Puppeteer/EventSourcing/DB/Diary.cs` | 160 | Chain N subscribers without displacing existing |
 | `ReactionMode.Cue` | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 19 | Continuous push-mode Reaction |
-| Cue batch → push loop wiring | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 561-580 | Catch-up batch then subscribe to callback |
+| Cue batch → push loop wiring | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 563-579 | Catch-up batch then subscribe to callback |
 | SVIX integration | — | — | Not present in `Puppeteer/` or `Choreography/`; wired at the per-API host process |
 
 ### §7.3 — Materialize construct
@@ -734,12 +734,12 @@ The constructs named in §7 are publicly available in the Puppeteer codebase. Th
 | Surface | File | Line(s) | What it shows |
 |---|---|---|---|
 | `Performance.Start(asFollower: true)` | `Choreography/Theater/Performance.cs` | 100, 118 | Alternate startup mode; `SuppressReactionJournaling` flag |
-| `Reaction.MaterializeFromMetadata(destination)` | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 662 | DSL marker plumbing: records destination on action |
+| `Reaction.MaterializeFromMetadata(destination)` | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 669 | DSL marker plumbing: records destination on action |
 | `actor.Materialization` sub-namespace | `Puppeteer/Materialization.cs` | (whole file) | Register / Deregister / List / ReadRecordsAfter / ConfirmUntil / ReadReactions / ReadElidedRange |
 | `MaterializeMirror` fluent client | `Puppeteer/MaterializeMirror.cs` | (whole file) | `Sync()` (Capa 1); `AsProgramMirror().Sync()` (Capa 2) |
-| `MirrorSyncResult` immutable struct | `Puppeteer/MaterializeMirror.cs` | 137-169 | Records / ReactionsSnapshot / ElisionMarkers + watermark advance |
-| Diary backend polymorphism | `Puppeteer/EventSourcing/DB/Diary.cs` | 36-67 | `(DatabaseType, connectionString)` → InMemory / FileSystem / MySQL / SQLServer |
-| Local-buffer (offline régime) | `Puppeteer/EventSourcing/DB/Diary.cs` | 32, 34, 69-110 | `IsBuffered`; `ReplicationAgent` async drain to canonical storage |
+| `MirrorSyncResult` immutable struct | `Puppeteer/MaterializeMirror.cs` | 170-202 | Records / ReactionsSnapshot / ElisionMarkers + watermark advance |
+| Diary backend polymorphism | `Puppeteer/EventSourcing/DB/Diary.cs` | 53-78 | `(DatabaseType, connectionString)` → InMemory / FileSystem / MySQL / SQLServer |
+| Local-buffer (offline régime) | `Puppeteer/EventSourcing/DB/Diary.cs` | 28, 34, 80-135 | `IsBuffered`; `ReplicationAgent` async drain to canonical storage |
 
 ---
 
