@@ -83,7 +83,7 @@ investment within the first ~150 calls — well under a second of operation.
 - **Curve across program sizes**: the original Lab 2 measured three tiers
   (small/large arithmetic, production verb). The synthetic arithmetic tiers from the
   original Lab 2 (~815 µs small / ~4,118 µs large) are publishable as-is — they have
-  no ***REDACTED*** dependency. This replay only covers the production-verb tier on
+  no prior-system dependency. This replay only covers the production-verb tier on
   eShop.
 
 ## Integration text for Paper 2 §5

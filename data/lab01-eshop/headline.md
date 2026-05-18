@@ -93,7 +93,7 @@ both modes incur identically — domain work does not benefit from DSL specializ
 - **Tier-1 / Tier-2 spectrum on eShop**: the original Lab 1 measured three tiers
   (arithmetic / DSL-rich / production verb). This replay measures only the production
   verb. The arithmetic and DSL-rich tiers from the original Lab 1 already publish as
-  synthetic (no ***REDACTED*** dependency) and stand without replay.
+  synthetic (no prior-system dependency) and stand without replay.
 
 ## Integration text for Paper 2 §5
 

@@ -186,7 +186,7 @@ internal static class Program
 
 	// Synthetic DSL-shaped stand-in calibrated to match the byte length of the Paper 2 Lab 4
 	// production verb (def 2: script_bytes = 681 B). Anonymized per unified_principle: no
-	// domain identifiers (***REDACTED***, ***REDACTED***, ***REDACTED***, ***REDACTED***, ***REDACTED****). Bytes-per-event ratios are
+	// prior-system commercial identifiers appear here. Bytes-per-event ratios are
 	// invariant to the actual text content; gzip ratio depends on entropy and is reported
 	// with caveats in headline.md.
 	private static string SyntheticProductionVerbBody()
