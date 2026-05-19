@@ -334,6 +334,28 @@ Two markdown reports in the `notes/` directory of the same branch document the e
 
 Eleven cast recordings (asciinema format) and eleven GIF renders capture the four cells of the matrix of §4.5 and the rehydration property of §4.6, one recording per Docker container per cell. The recordings are published alongside this paper as supplementary material, hosted in the `paper7-assets/` directory of the `puppeteer-papers` repository.
 
+## Code provenance
+
+Source-code references in this paper resolve against the public
+Puppeteer repository at commit
+[`2f31f96`](https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da)
+(2026-05-18). The snapshot is archived in Software Heritage under
+the following persistent identifier:
+
+```
+swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
+  origin=https://github.com/alvaroNCubo/puppeteer;
+  anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
+```
+
+Inline references of the form `file.cs:NN` (e.g.,
+`ActorHandler.cs:38`) resolve against this snapshot. A reader can
+construct a per-file SWHID by adding the qualifiers
+`;path=<path>;lines=<NN>` to the directory SWHID above. Future
+commits to the repository may renumber lines; the SWHID preserves
+the cited state independently of any future change to the repository
+or its hosting.
+
 ## Acknowledgments
 
 The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.

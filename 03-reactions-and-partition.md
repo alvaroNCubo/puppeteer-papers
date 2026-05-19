@@ -591,6 +591,28 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | `Puppeteer/EventSourcing/Follower/MatchTree.cs` | `TryMatchAtLevel`, BFS/DFS hydration walk | §6.2 |
 | `Puppeteer/EventSourcing/DB/DiaryStorage.EventElisionStorage` | `MarkEventsAsElided` storage interface | §6.5 |
 
+## Code provenance
+
+Source-code references in this paper resolve against the public
+Puppeteer repository at commit
+[`2f31f96`](https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da)
+(2026-05-18). The snapshot is archived in Software Heritage under
+the following persistent identifier:
+
+```
+swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
+  origin=https://github.com/alvaroNCubo/puppeteer;
+  anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
+```
+
+Inline references of the form `file.cs:NN` (e.g.,
+`ActorHandler.cs:38`) resolve against this snapshot. A reader can
+construct a per-file SWHID by adding the qualifiers
+`;path=<path>;lines=<NN>` to the directory SWHID above. Future
+commits to the repository may renumber lines; the SWHID preserves
+the cited state independently of any future change to the repository
+or its hosting.
+
 ## Acknowledgments
 
 The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.

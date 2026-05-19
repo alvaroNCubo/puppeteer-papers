@@ -984,6 +984,28 @@ layers, then on the roles that those layers exist to serve --- without
 modifying the construct itself. The discrimination scales upward
 unchanged.
 
+\subsection{Code provenance}\label{code-provenance}
+
+Source-code references in this paper resolve against the public
+Puppeteer repository at commit
+\href{https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da}{\texttt{2f31f96}}
+(2026-05-18). The snapshot is archived in Software Heritage under the
+following persistent identifier:
+
+\begin{verbatim}
+swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
+  origin=https://github.com/alvaroNCubo/puppeteer;
+  anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
+\end{verbatim}
+
+Inline references of the form \texttt{file.cs:NN} (e.g.,
+\texttt{ActorHandler.cs:38}) resolve against this snapshot. A reader can
+construct a per-file SWHID by adding the qualifiers
+\texttt{;path=\textless{}path\textgreater{};lines=\textless{}NN\textgreater{}}
+to the directory SWHID above. Future commits to the repository may
+renumber lines; the SWHID preserves the cited state independently of any
+future change to the repository or its hosting.
+
 \subsection{Acknowledgments}\label{acknowledgments}
 
 The author used large language models (including Claude and ChatGPT) as
