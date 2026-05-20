@@ -224,11 +224,13 @@ proliferation of specialized stores. Kleppmann (2017) catalogs the
 patterns by which contemporary deployments combine caches, queues, ORMs,
 and search indices around a relational core, documenting their pairwise
 interactions and operational costs. Helland's \emph{Life beyond
-Distributed Transactions} (2007) and \emph{Immutability Changes
-Everything} (2015) similarly observe the proliferation as a structural
-consequence. The present paper names what these critiques document
-piecewise --- the unifying property of compensation --- and
-operationalizes the discrimination.
+Distributed Transactions} (2007) makes a parallel observation about the
+proliferation of coordination machinery under distributed-transaction
+semantics. His \emph{Immutability Changes Everything} (2016) extends a
+related argument to the substrate itself: append-only representation
+dissolves much of that machinery by construction. The present paper
+names what these critiques document piecewise --- the unifying property
+of compensation --- and operationalizes the discrimination.
 
 The instantiation presented in §4 is constructed from three lines of
 prior work. The actor model originates with Hewitt (1973), articulating
@@ -1023,9 +1025,9 @@ https://martinfowler.com/eaaDev/EventSourcing.html
 
 Helland, P. (2007). Life beyond distributed transactions: An apostate's
 opinion. \emph{Proceedings of the 3rd Biennial Conference on Innovative
-Data Systems Research (CIDR)}.
+Data Systems Research (CIDR)}, 132--141.
 
-Helland, P. (2015). Immutability changes everything.
+Helland, P. (2016). Immutability changes everything.
 \emph{Communications of the ACM}, 59(1), 64--70.
 
 Hevner, A. R., March, S. T., Park, J., \& Ram, S. (2004). Design science
