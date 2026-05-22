@@ -58,8 +58,8 @@
   pdftitle={The server is not a structural requirement: identifying accidental architectural roles under journaled programs},
   pdfauthor={Alvaro Rivera},
   pdfkeywords={\xmpquote{server-role}, \xmpquote{journaled
-programs}, \xmpquote{distributed systems}, \xmpquote{design
-theory}, \xmpquote{event sourcing}, \xmpquote{actor
+programs}, \xmpquote{distributed systems}, \xmpquote{analytic
+typology}, \xmpquote{event sourcing}, \xmpquote{actor
 model}, \xmpquote{bootstrap}, \xmpquote{local-first}},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -83,25 +83,28 @@ goal (Hypercore, Holochain), or replaced it with a different topology
 (peer-to-peer, blockchain). None of these positions removes the
 server-role as a \emph{prerequisite for software construction itself}.
 
-This paper names the property that distinguishes the server-role from
-structural requirements of distributed software: it is an
-\emph{accidental category}. Under a class of systems in which nodes
-replicate programs rather than data or state, the server-role does not
-survive as a necessity. The bootstrap of a new node, the last role that
-appeared to require a running service, can be performed by an analog
-artifact: a printed QR code transferred by any means and authorized by a
-human decision.
+This paper applies Paper 6's \emph{infrastructural symptom} lens at the
+role layer --- what Paper 6 §9 anticipates --- and names the role-level
+expression as \emph{accidental category}. Under a class of systems in
+which nodes replicate programs rather than data or state, the
+server-role does not survive as a necessity. The bootstrap of a new
+node, the last role that appeared to require a running service, can be
+performed by an analog artifact: a printed QR code transferred by any
+means and authorized by a human decision.
 
-The construct is recognition, not prescription. It enables auditing
-distributed systems for whether the server-role exists in them as a
-structural requirement or as a contingent artifact of the persistence
-model. An instantiation --- a port of the Ordering bounded context of
+The lens is diagnostic, not prescriptive. It enables reading distributed
+systems for whether the server-role exists in them as a structural
+requirement or as a contingent artifact of the persistence model. An
+instantiation --- a port of the Ordering bounded context of
 \texttt{dotnet/eShop} to a journaled-program substrate, replicated
-across three nodes that bootstrap through paper QR codes --- confirms
-that the predicate dissolves under the conditions.
+across three nodes that bootstrap through paper QR codes --- makes the
+role-level reading operationally visible.
 
-The contribution is conceptual; the instantiation is the existence
-proof, not the substance.
+The contributions are two: the role-level extension of Paper 6's
+typology (conceptual), and the working instantiation that makes it
+inspectable (operational), together with the §6 observation that under
+the same conditions cloud ecosystems pass from architectural
+dependencies to library invocations.
 
 \subsection{Formal statement}\label{formal-statement}
 
@@ -112,26 +115,30 @@ direct their traffic in a distributed system. The role is independent of
 any specific machine, deployment topology, or cloud provider; it is the
 function, not its incarnation.
 
-A server-role is an \emph{accidental category} in a class of distributed
-systems S when both of two conditions hold:
+A server-role reads as an \emph{accidental category} --- the role-level
+expression of Paper 6's \emph{infrastructural symptom} --- in a class of
+distributed systems S when both of two diagnostic indicators are
+positive:
 
 \begin{itemize}
 \tightlist
 \item
   \textbf{Contingency.} The role's necessity in S is traceable to a
   specific representational choice --- what the nodes of S replicate in
-  order to share state.
+  order to share state. (This is Paper 6's \emph{compensation} indicator
+  at the role layer.)
 \item
   \textbf{Dissolution.} The role loses justification when that
   representational choice is replaced; nothing else about the problem
   domain, workload, or operational context needs to change for the role
-  to become unnecessary.
+  to become unnecessary. (This is Paper 6's \emph{dissolution} indicator
+  unchanged.)
 \end{itemize}
 
 \textbf{Claim.} Under a class of systems in which nodes replicate
-programs rather than data, state, or operations, both conditions hold
-for the server-role. The conditions are stated in §3; the substrate
-satisfying them is exhibited in §4.
+programs rather than data, state, or operations, both indicators read
+positively for the server-role. The indicators are stated in §3; the
+substrate that makes them read positively is exhibited in §4.
 
 \textbf{Evidence.} Three operating nodes derived from a port of the
 Ordering bounded context of \texttt{dotnet/eShop} to a journaled-program
@@ -147,56 +154,57 @@ required at least one such role; the ported topology requires none.
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  The server-role in distributed software is an accidental category: it
-  exists contingently, as a consequence of choices about what nodes
-  replicate, rather than structurally, as a property of the problem
-  being solved (§3).
+  Paper 6's \emph{infrastructural symptom} construct extends from
+  infrastructural layers to architectural roles; the server-role reads
+  as an accidental category --- the role-level expression of that
+  construct --- under the same diagnostic typology (§3).
 \item
-  The property naming this distinction --- \emph{accidental category}
-  --- is operationalized by two conditions: contingency (the role's
-  necessity is traceable to a specific representational choice) and
-  dissolution (the role loses justification when that choice is
-  replaced) (§3).
+  At the role layer, the same two diagnostic indicators of Paper 6 ---
+  re-expressed as contingency and dissolution --- read the server-role
+  as model-dependent or structural per use-case (§3).
 \item
   Under a class of systems in which nodes replicate programs rather than
-  data, the conditions hold for the server-role: it disappears as a
-  structural consequence, not as a design objective (§5).
+  data, both indicators read positively for the server-role: it
+  disappears as a structural consequence, not as a design objective
+  (§5).
 \item
   The bootstrap of a new node --- the operation that prior literature
-  treats as the residual case requiring a server --- admits a
+  treats as the residual case requiring a persistent server --- admits a
   presentation in which the information transferred crosses by analog
-  means and the authorization is exercised by humans, without any
-  service running on either side (§4).
+  means (F2) and the authorization is exercised by humans (F4), and the
+  residual software discharge (F1, F3, F5) is bounded to the duration of
+  the handshake, after which the issuer process exits (§4).
 \item
-  An instantiation of the conditions, constructed by porting the
-  Ordering bounded context of \texttt{dotnet/eShop} to a
-  journaled-program substrate and deploying it across three nodes
-  bootstrapped by paper QR codes, dissolves the server-role across the
-  operational lifecycle (§4, §5).
+  A working instantiation, constructed by porting the Ordering bounded
+  context of \texttt{dotnet/eShop} to a journaled-program substrate and
+  deploying it across three nodes bootstrapped by paper QR codes, makes
+  the role-level reading operationally inspectable: the server-role
+  dissolves across the operational lifecycle (§4, §5).
 \item
-  An unexpected consequence of journaled programs is that existing cloud
-  and microservice ecosystems cease to be architectural dependencies and
-  become reusable domain libraries within the program itself (§6).
+  An unexpected consequence --- not anticipated by Paper 6 --- is that
+  existing cloud and microservice ecosystems cease to be architectural
+  dependencies and become reusable domain libraries within the program
+  itself (§6).
 \item
-  The construct is diagnostic: it enables identifying which
-  architectural categories in any given system are structural and which
-  are contingent, independent of the choice to act on that information
-  (§7, §8).
+  The lens is diagnostic: it enables reading which architectural
+  categories in any given system are structural and which are
+  contingent, independent of the choice to act on that information (§7,
+  §8).
 \end{enumerate}
 
 \subsection{1. Introduction}\label{introduction}
 
-This paper makes a design theory contribution in the sense of Hevner,
-March, Park, and Ram (2004). It identifies and names a structural
-pattern that prior literature has documented case by case without
-articulating as one (the construct); derives the conditions under which
-the pattern dissolves (the principles); and presents an instantiation in
-which those conditions hold and the pattern is absent (the existence
-proof). The genre is design science research: evidence is presented in
-the form of a working artifact rather than a controlled experiment. The
-contribution is conceptual; the instantiation confirms that the pattern
-is contingent rather than structurally necessary, not that any specific
-system is the only way to dissolve it.
+This paper extends the \emph{infrastructural symptom} construct of Paper
+6 from infrastructural layers to architectural roles, an extension that
+Paper 6 §9 anticipates. The genre is closer to \emph{theory for
+analyzing} in the sense of Gregor (2006) than to design theory: the
+construct itself is Paper 6's, applied at a different level of
+abstraction. The novel material of this paper is the role-level
+demonstration --- a working instantiation in which the server-role
+dissolves --- and the operational observation that, under the same
+conditions, cloud ecosystems pass from architectural dependencies to
+libraries invoked by the program. The contribution is conceptual at the
+extension level and operational at the demonstration level.
 
 Production software is built around an assumption that is rarely
 articulated as such: that a \emph{server-role} exists somewhere in the
@@ -227,57 +235,62 @@ system; the system is built to satisfy that objective.
 This paper takes a different position. Under a class of systems in which
 the substrate shared between nodes is the program --- not the data, not
 the state, not even the operations --- the server-role does not survive
-as a necessity. It is a category whose referent dissolves. \emph{In the
-framing developed here, server ceases to be a prerequisite for making
-software. Bootstrap --- the last role that seemed to need a service ---
-can be performed by a printed QR code.}
+as a necessity. It is a category whose referent becomes contingent.
+Server ceases to be a prerequisite for making software. Bootstrap ---
+the last role that seemed to need a persistent service --- can be
+discharged through a printed QR code as its transfer medium, with the
+issuer's software footprint bounded to the duration of the handshake.
 
-The paper develops three claims in cascade. First, the server-role is
-identified as an \emph{accidental category}: a role that exists
-contingently in distributed software, as a consequence of choices about
-what nodes replicate, and that has no referent under different choices.
-Second, the role's disappearance is presented not as a design goal but
-as a structural consequence of those different choices: in the class of
-systems where programs are journaled and replayed against shared domain
-libraries, the role's elimination is what the substrate produces, not
-what the engineer pursues. Third, the displacement extends beyond the
-role itself: under the same conditions, existing cloud and microservice
-ecosystems cease to function as architectural dependencies and become
-reusable domain libraries that programs can invoke at will. The cloud is
-not removed; its position in the system is restated.
+The paper develops two claims. The first identifies the server-role as
+an accidental category --- a role that exists contingently in
+distributed software, as a consequence of choices about what nodes
+replicate, and whose disappearance under different choices is a
+structural consequence of those choices rather than a design goal. In
+the class of systems where programs are journaled and replayed against
+shared domain libraries, the role's elimination is what the substrate
+produces, not what the engineer pursues. The second observes that the
+displacement extends beyond the role itself: under the same conditions,
+existing cloud and microservice ecosystems cease to function as
+architectural dependencies and become reusable domain libraries that
+programs can invoke at will. The cloud is not removed; its position in
+the system is restated.
 
-The instantiation used to confirm these claims --- a port of the
+The instantiation used to demonstrate these claims --- a port of the
 Ordering bounded context from Microsoft's \texttt{dotnet/eShop}
 reference application, executed across three nodes that share a
 journaled domain library and bootstrap each other through paper QR codes
---- is presented as existence proof, not as the contribution of the
-paper. The same construct admits other instantiations: any system that
-satisfies the conditions derived in §3 would dissolve the server-role in
-the same way. The choice of \texttt{dotnet/eShop} is rhetorical --- a
-canonical cloud-microservices reference whose original deployment
-topology makes the contrast visible --- rather than essential to the
-argument. The framework underlying the instantiation was not designed to
-support this paper's claim. The property is identified retrospectively,
-after a chain of unrelated architectural decisions converged on a system
-in which the server-role had become contingent. The work of this paper
-is, in that sense, a forensic reading of a class of artifacts in which
-the property happens to hold.
+--- is one of the paper's central contributions, not merely an existence
+proof: what Paper 6's lens reads at the role level, this instantiation
+makes operationally visible. The same lens admits other instantiations:
+any system that satisfies the indicators of §3 would dissolve the
+server-role in the same way. The choice of \texttt{dotnet/eShop} is
+rhetorical --- Microsoft's widely-used reference application for
+cloud-microservices patterns in the .NET ecosystem, whose original
+deployment topology makes the contrast visible --- rather than essential
+to the argument. The framework underlying the instantiation was not
+designed to support this paper's claim. The property is identified
+retrospectively, after a chain of unrelated architectural decisions
+converged on a system in which the server-role had become contingent.
+The work of this paper is, in that sense, a forensic reading of a class
+of artifacts in which the property happens to hold --- consistent with
+the analytic genre Gregor (2006) describes as \emph{theory for
+analyzing}.
 
 Section 2 situates the paper among prior work on local-first,
 peer-to-peer, agent-centric, and federated systems, identifying the
 dimension along which each work treats the server-role and the dimension
-along which the present construct differs. Section 3 defines the
-construct formally --- \emph{accidental category} --- and derives the
-two conditions, contingency and dissolution, that distinguish it from a
-structural requirement. Section 4 presents the instantiation: the
-domain-library port, the three-node deployment, the analog bootstrap.
-Section 5 examines the first consequence: the dissolution of the
-server-role across the operational lifecycle. Section 6 examines the
-second consequence --- the one that prior literature does not
-anticipate: the conversion of existing cloud ecosystems from
-architectural dependencies into reusable domain libraries. Section 7
-examines limitations, counter-arguments, and the boundary of the
-construct's applicability. Section 8 concludes.
+along which the present lens differs. Section 3 names \emph{accidental
+category} as the role-level expression of Paper 6's
+\emph{infrastructural symptom}, and re-expresses the two diagnostic
+indicators --- contingency and dissolution --- at the role layer.
+Section 4 presents the instantiation: the domain-library port, the
+three-node deployment, the analog bootstrap. Section 5 examines the
+first consequence: the dissolution of the server-role across the
+operational lifecycle. Section 6 examines the second consequence --- the
+one that prior literature does not anticipate: the conversion of
+existing cloud ecosystems from architectural dependencies into reusable
+domain libraries. Section 7 examines limitations, counter-arguments, and
+the boundary of the lens's applicability. Section 8 concludes.
 
 \subsection{2. Related work}\label{related-work}
 
@@ -294,25 +307,25 @@ server-role is reduced to one of several optional services, and its
 elimination is the explicit objective of the architectural pattern.
 
 Peer-to-peer append-only logs constitute a second line. Secure
-Scuttlebutt (Tarr, 2014) replicates per-identity signed logs across a
-gossip network without a central coordinator; the log, not the data it
-carries, is the unit of synchronization. Hypercore and the Dat protocol
-generalize the same pattern, treating the append-only feed as a
-primitive replicated by a distributed hash table. In each case the unit
-of replication is a log of data --- events, document edits, file
-fragments --- and the application logic that interprets the log lives in
-the consuming application. The server's elimination is the design target
-of the network layer.
+Scuttlebutt (Tarr et al., 2019) replicates per-identity signed logs
+across a gossip network without a central coordinator; the log, not the
+data it carries, is the unit of synchronization. Hypercore (Holepunch,
+n.d.) and the Dat protocol (Ogden et al., 2017) generalize the same
+pattern, treating the append-only feed as a primitive replicated by a
+distributed hash table. In each case the unit of replication is a log of
+data --- events, document edits, file fragments --- and the application
+logic that interprets the log lives in the consuming application. The
+server's elimination is the design target of the network layer.
 
-Holochain (Harris-Braun and Brock) makes the agent the source of truth.
-Each agent maintains a local source chain --- an immutable, signed
-sequence of its own transactions --- and contributes to a validating
-distributed hash table. The architecture inverts the data-centric
-assumption of blockchain rather than addressing the cloud directly; the
-elimination of the server-role is a consequence of the agent-centric
-inversion. The replicated artifacts are the agent's chain and the
-validated DHT; application logic, written as zomes, is interpreted
-locally by each agent.
+Holochain (Harris-Braun et al., 2018) makes the agent the source of
+truth. Each agent maintains a local source chain --- an immutable,
+signed sequence of its own transactions --- and contributes to a
+validating distributed hash table. The architecture inverts the
+data-centric assumption of blockchain rather than addressing the cloud
+directly; the elimination of the server-role is a consequence of the
+agent-centric inversion. The replicated artifacts are the agent's chain
+and the validated DHT; application logic, written as zomes, is
+interpreted locally by each agent.
 
 Federated systems form a fourth line. Matrix federates an event graph
 across cooperating homeservers; ActivityPub federates streams of
@@ -323,13 +336,13 @@ every participating host fulfills the role for some subset of users. The
 cloud is partitioned across cooperating providers rather than
 centralized or rejected.
 
-Adjacent work admits brief mention. Solid (Berners-Lee, 2016) proposes
+Adjacent work admits brief mention. Solid (Sambra et al., 2016) proposes
 Personal Online Datastores that decouple identity from application
 providers; the server-role moves from application owner to data host
-without being eliminated. Earthstar pursues local-first synchronization
-without a distributed hash table, sitting between Kleppmann's CRDT model
-and Hypercore's gossip topology. Neither treats the server-role as a
-category whose referent is contingent.
+without being eliminated. Earthstar (Earthstar Project, n.d.) pursues
+local-first synchronization without a distributed hash table, sitting
+between Kleppmann's CRDT model and Hypercore's gossip topology. Neither
+treats the server-role as a category whose referent is contingent.
 
 Each of these lines treats the server-role as a \emph{design target} ---
 an architectural feature to redesign, redistribute, replace, or
@@ -393,6 +406,44 @@ does not survive. The fifth column is downstream of the fourth: under
 the present construct the cloud is neither evaded, replaced, nor
 pluralized, but reused as a library within the program.
 
+Beyond these four families that treat the server-role as a design
+target, a fifth body of work shares direct lineage with the substrate of
+§4 without making the server-role its design objective. Erlang/OTP
+(Armstrong, 2003) is the longest-running production actor system; its
+supervision trees and gen\_server abstraction shape the ecosystem from
+which the substrate descends, though OTP nodes carry explicit names and
+gen\_server processes carry explicit server-role at the §3 level.
+Microsoft Orleans (Bernstein et al., 2014) introduces virtual actors
+with location-abstracted activation: an actor's host is determined by
+silo-cluster membership, not by application code. Orleans dissolves the
+location-of-the-actor but retains the silo cluster's coordination layer
+--- the server-role is internalized in the membership protocol rather
+than externalized to the application, but it is not dissolved at the §3
+level. Amazon Dynamo (DeCandia et al., 2007) operates as
+eventually-consistent without master, with conflict resolution per-key;
+it is the canonical AP-without-master system within the CAP positioning
+(Brewer, 2000; Gilbert \& Lynch, 2002). Datomic (Cognitect, n.d.), a
+commercial immutable database, treats its journal as the source of truth
+but routes all writes through a single transactor --- under the §3
+reading, the transactor itself is an accidental category that the
+present substrate dissolves.
+
+Two theoretical results bracket the structural claim. The CALM theorem
+(Hellerstein, 2010; Ameloot et al., 2013) establishes a formal
+correspondence between monotonic computation and coordination-freeness
+--- a program admits coordination-free distributed execution iff its
+computation is monotonic. The substrate of §4 does not appeal to
+monotonicity directly, but the dissolution it documents at the role
+layer is consistent with CALM's prediction: when state propagation is by
+replay of a deterministic program over a journal rather than by
+reconciliation of competing writes, the conditions under which
+coordination becomes structurally necessary are restricted.
+Conflict-free Replicated Data Types (Shapiro et al., 2011), the
+mechanism underlying Kleppmann's local-first model, achieve
+coordination-free convergence at the data layer; the present substrate
+achieves the same property at the program layer, replicating script
+invocations rather than data deltas.
+
 The substrate of §4 combines the actor model (Hewitt, 1973), event
 sourcing (Fowler, 2005), and CQRS (Young, 2010), synthesized as
 practical patterns by Vernon (2015). An additional move --- domain
@@ -401,53 +452,69 @@ antedates the synthesis by roughly a decade in the framework underlying
 the instantiation; that genealogy is described in §4.0.
 
 This paper is the seventh in a series. Papers 1--6 develop the
-substrate-level foundations on which the present construct rests,
-culminating in Paper 6's \emph{infrastructural symptom}, of which the
-present construct extends the discrimination from layers of
-infrastructure to architectural roles.
+substrate-level foundations on which the present extension rests,
+culminating in Paper 6's \emph{infrastructural symptom}, of which this
+paper applies the lens from infrastructural layers to architectural
+roles --- a move Paper 6 §9 anticipates explicitly.
 
-The contribution unique to this paper is conceptual. The construct
-\emph{accidental category} names a property that prior work documents
-piecewise --- across local-first, peer-to-peer, agent-centric, and
-federated systems --- without unifying. The two conditions, contingency
-and dissolution, formalize the property. The discrimination table of §3
-operationalizes it without requiring adoption of any particular
-alternative. The instantiation of §4 demonstrates that the construct's
-predicate dissolves under the conditions; the demonstration is not the
-contribution.
+The contributions unique to this paper are conceptual and demonstrative.
+Conceptually, \emph{accidental category} names the role-level expression
+of Paper 6's \emph{infrastructural symptom} --- applying the same two
+diagnostic indicators (re-expressed as contingency and dissolution at
+the role layer) to the server-role across local-first, peer-to-peer,
+agent-centric, and federated systems that prior work treats as piecewise
+design targets. Demonstratively, the instantiation of §4 makes the
+role-level dissolution operationally visible --- what Paper 6's lens
+reads at the role level becomes inspectable in a running three-node
+cluster. The §6 observation --- that cloud ecosystems pass from
+architectural dependencies to library invocations under the same
+conditions --- is a second consequence Paper 6 does not anticipate.
 
-\subsection{3. The construct: accidental
-category}\label{the-construct-accidental-category}
+\subsection{3. The construct: accidental category as role-level
+infrastructural
+symptom}\label{the-construct-accidental-category-as-role-level-infrastructural-symptom}
 
-A server-role is an \emph{accidental category} in a class of systems S
-when both of two conditions hold.
+At the role layer, Paper 6's \emph{infrastructural symptom} typology
+reads as \emph{accidental category}. The construct is not new: it is
+Paper 6's, applied to a different unit of analysis. Where Paper 6 reads
+layers under two diagnostic indicators --- compensation and dissolution
+--- this paper re-expresses the same indicators at the role layer as
+contingency and dissolution, and applies them to architectural roles.
 
-\textbf{The contingency condition.} The role's necessity in S is
-traceable to a specific representational choice --- what the nodes of S
-replicate in order to share state. The choice must be identifiable: not
-\emph{``the system uses a server because that is how distributed systems
-work''}, but \emph{``the system uses a server because the nodes
-replicate property R, and the role compensates for the coordination that
-R imposes.''} When the contingency condition holds, asking \emph{what
-would happen if R were replaced?} yields a non-trivial answer.
+A server-role reads as an \emph{accidental category} in a class of
+systems S when both of two diagnostic indicators are positive.
 
-\textbf{The dissolution condition.} When that representational choice is
-replaced --- by adopting a substrate in which R is replaced by a
-different property --- the role loses justification. The substitution's
-effect must be sufficient: nothing else about the problem domain,
-workload, or operational context needs to change for the role to become
-unnecessary.
+\textbf{The contingency indicator} (Paper 6's \emph{compensation}
+indicator at the role layer). The role's necessity in S is traceable to
+a specific representational choice --- what the nodes of S replicate in
+order to share state. The choice must be identifiable: not \emph{``the
+system uses a server because that is how distributed systems work''},
+but \emph{``the system uses a server because the nodes replicate
+property R, and the role compensates for the coordination that R
+imposes.''} When the contingency indicator is positive, asking
+\emph{what would happen if R were replaced?} yields a non-trivial
+answer.
 
-Both conditions must hold. Contingency without dissolution describes a
-role whose justification survives substrate change --- a structural
-requirement of the problem domain. Dissolution without contingency is
-not constructible: a role cannot lose justification under a substrate
-change unless its justification was tied to the substrate in the first
-place. \textbf{The boundary between accidental category and structural
-requirement is not a property of the role-as-name but of the
+\textbf{The dissolution indicator} (Paper 6's \emph{dissolution}
+indicator unchanged). When that representational choice is replaced ---
+by adopting a substrate in which R is replaced by a different property
+--- the role loses justification. The substitution's effect must be
+sufficient: nothing else about the problem domain, workload, or
+operational context needs to change for the role to become unnecessary.
+The constructibility bound of Paper 6 §3 applies here as well: the
+substitute substrate must be operationally constructible, not merely an
+imagined absence of R.
+
+Both indicators must be positive. Contingency without dissolution
+describes a role whose justification survives substrate change --- a
+structural requirement of the problem domain. Dissolution without
+contingency is not constructible: a role cannot lose justification under
+a substrate change unless its justification was tied to the substrate in
+the first place. \textbf{The boundary between accidental category and
+structural requirement is not a property of the role-as-name but of the
 function-for-which-it-is-used.}
 
-The construct is not a universal accusation. Many roles in distributed
+The lens is not a universal accusation. Many roles in distributed
 systems are structural requirements --- identity providers backed by
 cryptographic root authority, gateways mediating external systems,
 computationally expensive services such as analytics or inference
@@ -455,21 +522,20 @@ engines. No substrate change redistributes the authority of an identity
 provider, removes the integration problem of an external network, or
 makes intrinsically expensive computation cheap.
 
-The discrimination operates per role-in-use-case. The same node,
-identified in a deployment as ``API server,'' instantiates an accidental
-category when deployed to accept authoritative writes against a shared
-database, and a structural requirement when deployed to enforce
-cryptographic identity claims. The discriminator is the function, not
-the name.
+The reading operates per role-in-use-case. The same node, identified in
+a deployment as ``API server,'' reads as an accidental category when
+deployed to accept authoritative writes against a shared database, and
+as a structural requirement when deployed to enforce cryptographic
+identity claims. The discriminator is the function, not the name.
 
 Seven categories of architectural role are encountered regularly in
-production deployments and admit discrimination under the two
-conditions. The third column describes, in substrate-property terms
-rather than system terms, what a substrate satisfying the two conditions
+production deployments and admit reading under the two indicators. The
+third column describes, in substrate-property terms rather than system
+terms, what a substrate under which both indicators read positively
 offers in place of each role.
 
-\textbf{Table 2.} Discriminator: seven canonical categories of
-architectural role under the two conditions of §3. The table identifies,
+\textbf{Table 2.} Diagnostic reading: seven canonical categories of
+architectural role under the two indicators of §3. The table identifies,
 for each role, the representational choice that necessitates it and the
 substrate property that would render it unnecessary.
 
@@ -484,7 +550,7 @@ Architectural role
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Representational choice that necessitates it
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-What a substrate satisfying the conditions offers instead
+What a substrate with both indicators positive offers instead
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
@@ -517,9 +583,9 @@ actors; the substrate provides location and continuity intrinsically \\
 }
 
 The seven rows are not exhaustive; service discovery, queue-as-glue, and
-configuration management admit similar analysis (§7). The construct is
+configuration management admit similar analysis (§7). The lens is
 diagnostic, not prescriptive: it enables auditing existing systems under
-the two conditions, independently of any decision to adopt the substrate
+the two indicators, independently of any decision to adopt the substrate
 of §4.
 
 \subsection{4. Instantiation}\label{instantiation}
@@ -536,16 +602,16 @@ are consolidated in Appendix A.
 
 \subsubsection{4.1 The substrate}\label{the-substrate}
 
-The substrate provides three properties that together satisfy the two
-conditions of §3 for the server-role. First, each node owns a local
-journal of programs --- DSL scripts that, on replay, reconstruct the
-node's state deterministically. Second, the domain library --- the
-classes and verbs that the journal scripts invoke --- is loaded by
-reflection at startup; no node hosts the domain as a service for others.
-Third, replication is journal-to-journal: nodes exchange script
-references and parameters, not state diffs, and reach convergence by
-replaying the same sequence of scripts against the same library. None of
-these properties requires a node to fulfill the server-role; each is
+The substrate provides three properties that together make the two
+indicators of §3 read positively for the server-role. First, each node
+owns a local journal of programs --- DSL scripts that, on replay,
+reconstruct the node's state deterministically. Second, the domain
+library --- the classes and verbs that the journal scripts invoke --- is
+loaded by reflection at startup; no node hosts the domain as a service
+for others. Third, replication is journal-to-journal: nodes exchange
+script references and parameters, not state diffs, and reach convergence
+by replaying the same sequence of scripts against the same library. None
+of these properties requires a node to fulfill the server-role; each is
 intrinsic to the substrate, not externalized.
 
 The substrate is described in the abstract throughout this section. Its
@@ -558,17 +624,17 @@ whose source is available and whose author can speak to its properties
 \subsubsection{4.2 The port}\label{the-port}
 
 The instantiation ports the \emph{Ordering} bounded context of
-Microsoft's \texttt{dotnet/eShop} reference application --- a canonical
-example of microservice-oriented cloud architecture --- onto the
-substrate of §4.1. The diagnostic value of the port is what it makes
-visible: the lines of the original codebase that the substrate cannot
-host without modification are a small minority, concentrated in
-persistence-and-deployment glue. The aggregate, the value objects, the
-lifecycle verbs, and the invariants move into the journaled substrate
-without modification. What was previously named ``the Ordering
-microservice'' turns out to be a clean domain library wrapped in
-infrastructure compensating for a different substrate; the port
-separates the two.
+Microsoft's \texttt{dotnet/eShop} reference application --- a
+widely-used example of microservice-oriented cloud architecture in the
+.NET ecosystem --- onto the substrate of §4.1. The diagnostic value of
+the port is what it makes visible: the lines of the original codebase
+that the substrate cannot host without modification are a small
+minority, concentrated in persistence-and-deployment glue. The
+aggregate, the value objects, the lifecycle verbs, and the invariants
+move into the journaled substrate without modification. What was
+previously named ``the Ordering microservice'' turns out to be a clean
+domain library wrapped in infrastructure compensating for a different
+substrate; the port separates the two.
 
 \subsubsection{4.3 The three-node
 deployment}\label{the-three-node-deployment}
@@ -601,6 +667,32 @@ No node carries the write-acceptance privilege permanently; the role
 rotates symmetrically across peers. After the rotation completes, the
 three journals are byte-coincident.
 
+The rotation is not consensus-based, in the sense of Raft (Ongaro \&
+Ousterhout, 2014) or Multi-Paxos. The substrate does not elect Directors
+internally, does not run a voting protocol, does not maintain term or
+epoch numbers, and does not provide fencing tokens. Promotion is an
+external decision --- the application or operator calls
+\texttt{PromoteToDirector()}
+(\texttt{Choreography/StageManager/Stage.cs:470}) --- and the new
+Director's identity propagates via best-effort announce on the
+coordination bus; peers update a local \texttt{directorId} field on
+receipt. What the substrate offers is eventual consistency via
+deterministic journal replay (Paper 3 develops this as the partition
+between work-due-before-responding and deferred work) and cross-actor
+causal continuity recorded in the journal rather than orchestrated
+externally (Paper 4); it does not offer linearizability, which is a
+stronger guarantee that requires consensus and is constructible above
+the substrate, not promised by it. If two peers simultaneously believe
+themselves to be Director --- a possibility the substrate does not
+prevent --- both write to their local journals; on reconnection the
+divergence is detectable by journal-hash comparison, and resolution is
+per-domain rather than provided by the substrate. The server-role of §3
+is the permanent privileged identity that prior topologies require some
+node to hold; the substrate dissolves that permanence by making
+write-acceptance a transient mode any peer can assume locally. What it
+does not remove, and does not claim to remove, is the broader consensus
+problem --- a different question with different machinery.
+
 \subsubsection{4.4 The analog bootstrap}\label{the-analog-bootstrap}
 
 The bootstrap of a new peer proceeds in five phases. \textbf{F1} opens
@@ -614,12 +706,20 @@ peer's public key and closes.
 Two of the five phases are sub-software: F2 (the information transfer)
 and F4 (the authorization decision). Neither requires a service to be
 running anywhere; the carrier of F2 is whatever the operator chooses,
-and the decision-maker of F4 is human. The three software-mediated
-phases (F1, F3, F5) are local to the issuer process, which exits when
-the bootstrap is complete. \textbf{The issuer process does not act as a
-server, coordinator, authority, registry, or rendezvous point after
-bootstrap; its only role is to transfer a credential that allows peers
-to recognize each other.}
+and the decision-maker of F4 is human. The other three phases (F1, F3,
+F5) are themselves server-role discharge by the §3 definition: the
+issuer listens on an address (F1), accepts a connection (F3), and seals
+a credential (F5). The discharge is genuine, not concealed. What §4
+documents is that this discharge is ephemeral, time-bounded, and
+terminating: the three software-mediated phases are local to the issuer
+process, which exits when the bootstrap is complete. The transport stack
+that carries F3 (HTTPS/TLS via Kestrel; see Appendix A.4) is a property
+of the underlying transport, not of the journaled substrate --- the
+substrate's contract is that whatever the transport delivers, the
+journal records and replays. \textbf{The issuer process does not act as
+a server, coordinator, authority, registry, or rendezvous point after
+bootstrap; its only role is to transfer a credential during the brief
+lifetime of the handshake, after which it ceases to exist.}
 
 After all three containers complete the handshake --- each with its own
 QR code carried by analog means and approved by a human --- the issuer
@@ -635,11 +735,11 @@ process exits. The containers continue to operate.
 No surviving network path connects the containers to the issuer; the
 bootstrap papers are in a drawer.
 
-\emph{In the framing developed here, the information that constituted
-the bootstrap traveled by paper; the decision that authorized it was
-made by a human; the cryptographic protection of the credential happened
-during the brief lifetime of the issuer process. The artifact that
-survives is the three running containers.}
+The information that constituted the bootstrap traveled by paper. The
+decision that authorized it was made by a human. The cryptographic
+protection of the credential happened during the brief lifetime of the
+issuer process. The artifact that survives is the three running
+containers.
 
 \subsubsection{4.5 The empirical matrix}\label{the-empirical-matrix}
 
@@ -684,6 +784,18 @@ isolates the substrate's intrinsic properties from the network. The
 compaction from inline to parametric is real and measured; its precise
 ratio and the conditions under which it varies are treated in Paper 2.
 
+Byte-coincidence is the structural witness of the §3 reading: it shows
+that no peer is privileged --- the four functions of the server-role
+definition (write authority, coordination ownership, mediation,
+addressing) are met symmetrically across peers rather than by a single
+node. Operational metrics --- write throughput, append latency, cross-DC
+convergence --- live elsewhere in the series: Paper 5 lab L1 reports
+451k events/sec on the substrate, lab L6 reports 347µs p50 append on the
+FS backend, and lab L4 demonstrates bit-exact cross-DC convergence under
+sustained workload. The present experiment is not a benchmark; it is the
+existence proof for the role-level reading of Paper 6's lens, alongside
+the operational floor that Paper 5 establishes.
+
 In the parametric regime, the journal records seven entries rather than
 five: each rotation Director emits its own Define + Invocation pair,
 because the Define cache is local to the Stage that emits it, not
@@ -716,14 +828,15 @@ node. This section reports the dissolution as it occurs across the
 operational lifecycle of the cluster.
 
 Acceptance of authoritative writes and ownership of coordination
-dissolve together under Director rotation. The Director role traverses
-the three peers in turn; no node carries the write-acceptance privilege
-permanently; the privilege is a transient mode that any peer can assume.
-The same property holds across the workload's non-happy paths ---
-cancellation, error recovery --- not only across its main sequence.
+redistribute together under Director rotation. The Director role
+traverses the three peers in turn; no node carries the write-acceptance
+privilege permanently; the privilege is a transient mode that any peer
+can assume. The same property holds across the workload's non-happy
+paths --- cancellation, error recovery --- not only across its main
+sequence.
 
 Mediation between clients and provision of the cluster's address
-dissolve into the peer-to-peer mesh. No node carries an authoritative
+distribute into the peer-to-peer mesh. No node carries an authoritative
 address for the cluster as a whole; a request directed at any peer is
 acceptable and that peer can act as Director for it. The ``address
 against which other parties direct their traffic'' --- the fourth limb
@@ -780,11 +893,11 @@ peer loses its disk, it re-onboards as a new peer; if it preserves its
 disk, it returns as itself, regardless of how long it was absent.
 
 The four functions of the §3 definition, taken together, are what the
-literature names ``server.'' The §4 substrate dissolves them in turn:
-write acceptance and coordination ownership distribute across the three
-peers via rotation; mediation and addressing distribute across the mesh;
-partition tolerance and re-join distribute across the surviving peers
-via catch-up; the bootstrap issuer participates once and is absent
+literature names ``server.'' The §4 substrate redistributes them in
+turn: write acceptance and coordination ownership distribute across the
+three peers via rotation; mediation and addressing distribute across the
+mesh; partition tolerance and re-join distribute across the surviving
+peers via catch-up; the bootstrap issuer participates once and is absent
 thereafter. \textbf{The server is not a permanent identity. The server
 is a transferable coordinator role that any peer can assume in turn ---
 and any peer can leave the cluster and re-join without reference to a
@@ -800,12 +913,24 @@ ecosystems, when accessed from a journaled program, are observable as
 libraries invoked by the program rather than as services required for
 the cluster to exist.
 
-The difference becomes operationally visible in what the cluster does
-when the external system is unreachable. A dependency's absence is an
-outage: the dependent system stops functioning because its precondition
-is missing. A library's absence is a failed invocation: the program
-records the failure and continues. The two relations differ in what the
-dependent system does at the moment of unavailability.
+The structural difference is not in what happens when an external
+service is unreachable --- resilience patterns developed for
+microservices already achieve graceful degradation under that condition
+--- but in the substrate's relation to external invocation by default.
+Resilience patterns (Hystrix at Netflix; Polly in .NET; sidecar-based
+circuit breakers in Istio; the catalog in Nygard, 2018) achieve
+library-like consumption at the application level: each external call is
+wrapped in an opt-in policy, each fallback handler is explicitly
+written, and the discipline of doing this consistently is a property of
+the development team, not of the runtime. Under the journaled substrate,
+library-like consumption is the default: every external invocation is
+recorded as a journal entry whether or not the developer thought to wrap
+it, the outcome (including failure) is part of the program's durable
+state, and the journal is replayable as part of the program's history.
+The substrate makes the property structural rather than disciplinary;
+the journal-recorded failure is not merely observability metadata but
+program state available to subsequent Reactions (Paper 3) and Tell
+continuations (Paper 4).
 
 After the port described in §4.2, none of the services that previously
 had to be running for the Ordering microservice to exist are reachable
@@ -845,8 +970,8 @@ The present construct
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\emph{Own your data in spite of the cloud.} & \emph{Use the cloud
-without depending on it.} \\
+\emph{Own your data in spite of the cloud.} & \emph{Record the cloud;
+don't inhabit it.} \\
 \end{longtable}
 }
 
@@ -865,32 +990,57 @@ counter-arguments}\label{limitations-and-counter-arguments}
 
 The instantiation of §4 carries specific limitations that follow from
 the choices made for the demo. They are reported here honestly; none of
-them affects the construct's predicate, but each affects what the
-present experiment alone establishes.
+them affects the lens's reading, but each affects what the present
+experiment alone establishes.
 
 \textbf{Identity in the port is local.} The original
 \texttt{dotnet/eShop} deployment uses an external identity provider; the
-port substitutes a local string-typed identifier. The construct does not
-predict that identity providers dissolve under the conditions of §3 ---
-identity providers backed by cryptographic root authority are structural
+port substitutes a local string-typed identifier. The lens does not read
+identity providers as dissolving under the indicators of §3 --- identity
+providers backed by cryptographic root authority are structural
 requirements, as Table 2 notes --- and the demo does not exhibit one. A
 second experiment that integrates an external identity provider as a
 Reaction-invoked library would extend the empirical surface without
-changing the construct's claim.
+changing the lens's reading.
 
 \textbf{Cross-context dependencies are not portrayed.} The Ordering
 bounded context of \texttt{dotnet/eShop} carries references resolved by
 the Catalog and Basket bounded contexts; the port treats those
-references as opaque identifiers. The construct predicts that the same
-port mechanism applies to Catalog and Basket; the present experiment
-exhibits Ordering only.
+references as opaque identifiers. The lens reads the same port mechanism
+as applying to Catalog and Basket; the present experiment exhibits
+Ordering only.
+
+The two limitations above warrant clarification, because they are easy
+to read as selection bias when they are in fact bounded-context
+isolation in the Domain-Driven Design sense (Evans, 2003; Vernon, 2013).
+The Ordering bounded context, in any architecture --- microservices,
+monolith, or journaled-program substrate --- references Catalog and
+Basket entities by identifier rather than by full object, because
+cross-context object resolution is itself an integration boundary, not a
+property of Ordering's domain. Identity, similarly, lives in its own
+bounded context (the Identity microservice in the original eShop);
+Ordering does not authenticate users, it accepts a \texttt{UserId}.
+Removing those from the port is not eliminating components that ``need a
+server''; it is respecting the same boundaries DDD prescribes. Table 2
+itself lists identity providers backed by cryptographic root authority
+as structural requirements --- the lens never reads identity as
+dissolving, so its exclusion is not adverse evidence. What the port
+demonstrates is server-role dissolution for the Ordering bounded
+context; the same lens applied to Catalog or Basket would be a separate
+exercise, and the same lens applied to Identity would read it as
+structural.
 
 \textbf{The empirical matrix is at N = 3.} The mesh in §4.3 connects
-three peers --- the minimum non-trivial fully-connected mesh. The
-construct's predicate is not bounded at N = 3; it dissolves the
-server-role whenever the conditions of §3 hold for the substrate, which
-is independent of node count. Scaling to larger N changes the network
-cost of the mesh; it does not change the conditions of §3.
+three peers --- the minimum non-trivial fully-connected mesh. The lens's
+reading is not bounded at N = 3; the indicators of §3 are
+topology-agnostic and node-count-agnostic. The fully-connected mesh of
+§4.3 is a demo choice --- the simplest topology in which write-ownership
+rotation is unambiguously visible at the minimum non-trivial peer count.
+At larger N the operator chooses an overlay appropriate to scale
+(gossip, hierarchical overlays, sharding) --- the same techniques by
+which Bluesky's relay network operates at federation scale --- and the
+indicators read positively under any such overlay that preserves
+journal-determinism between peers.
 
 \textbf{The cross-container partition-tolerance scenario is captured in
 a parallel artefact, not in the matrix of §4.} The natural
@@ -913,108 +1063,98 @@ depends on Director rotation.} Each new Director journals a fresh Define
 than on the journal axis. The compaction is real and measured at three
 rounds; its precise value at larger workloads is treated in Paper 2.
 
-A reviewer may object: \emph{did the experiment really remove the
-server, or did it rewrite the controllers under a different name?} The
-discriminator is operational. The server-role of §3 is measured by what
-happens when the candidate node is removed. After the bootstrap of §4.4,
-the issuer process exits; no node in the running cluster fulfills the
-four functions of the §3 definition; the partition-tolerance scenario of
-§4.6 shows that the cluster continues to operate when any single peer is
-removed. The role is not present in the topology to be removed; it does
-not have an incumbent. The objection presupposes a role that the
-experiment shows has no referent.
-
-A second objection: \emph{identity, authority, and payment are
-intrinsically central, so the cluster is not really server-free.} The
-construct does not claim otherwise. §3 separates structural requirements
-(identity providers, external systems, expensive computation) from
-accidental categories. The cluster's discharge of the server-role for
-the Ordering use-case does not imply that no node in any larger
-deployment ever fulfills a server-role; it implies that the role is not
-a structural property of Ordering. The same per-use-case discrimination
-applies to identity: when a deployment attributes credential validation
-to a cryptographic root authority, that authority's role is structural;
-that fact does not propagate to the Ordering domain.
-
-The construct's predicate extends to other architectural roles that
-admit the same analysis. Service discovery, queue-as-glue between
-bounded contexts, configuration-management roles, and
-distributed-tracing collectors are auditable under the two conditions of
-§3; the present experiment does not exercise them, and the substrate's
-predicted relation to each is left as a forward question. The construct
-admits this open extension by design --- its diagnostic value is in
-identifying which categories in any given system are contingent, not in
-enumerating them exhaustively.
+The lens's reading extends to other architectural roles that admit the
+same analysis. Service discovery, queue-as-glue between bounded
+contexts, configuration-management roles, and distributed-tracing
+collectors are auditable under the two indicators of §3; the present
+experiment does not exercise them, and the substrate's relation to each
+is left as a forward question. The lens admits this open extension by
+design --- its diagnostic value is in reading which categories in any
+given system are contingent, not in enumerating them exhaustively.
 
 \subsection{8. Conclusion}\label{conclusion}
 
-This paper has named a property that was previously implicit in
-distributed-systems practice: that the server-role is not necessarily
-structural to the problem domain but can arise from representational
-choices in the persistence model. The term \emph{accidental category}
-designates this condition.
+This paper has extended Paper 6's \emph{infrastructural symptom} lens
+from infrastructural layers to architectural roles, applying it to a
+property that was previously implicit in distributed-systems practice:
+that the server-role is not necessarily structural to the problem domain
+but can arise from representational choices in the persistence model.
+The term \emph{accidental category} names this role-level expression.
 
-Two conditions have been stated that allow practitioners to distinguish
-accidental categories from structural requirements, and §3 has
-operationalized these conditions across canonical architectural roles.
-The instantiation of §4 demonstrates that, under a journaled-program
-substrate, the Ordering bounded context of \texttt{dotnet/eShop}
-continues to operate across three mutually bootstrapping nodes without
-any participant fulfilling the server-role. The demonstration does not
-argue uniqueness of the substrate; it establishes observability of the
-condition.
+The two diagnostic indicators of Paper 6 --- re-expressed as contingency
+and dissolution at the role layer --- allow practitioners to read
+accidental categories apart from structural requirements, and §3 applies
+them across canonical architectural roles. The instantiation of §4
+demonstrates that, under a journaled-program substrate, the Ordering
+bounded context of \texttt{dotnet/eShop} continues to operate across
+three mutually bootstrapping nodes without any participant fulfilling
+the server-role. The demonstration does not argue uniqueness of the
+substrate; it establishes that the role-level reading of Paper 6's lens
+is operationally inspectable.
 
 Under these conditions, the four functions traditionally attributed to
 the server-role --- authoritative writes, coordination ownership, client
-mediation, and address provision --- are observed to dissolve into
-properties of the substrate itself. What appears as ``server behavior''
-is redistributed across peer rotation, mesh communication, disk-backed
+mediation, and address provision --- are observed to become properties
+of the substrate itself. What appears as ``server behavior'' is
+redistributed across peer rotation, mesh communication, disk-backed
 partition tolerance, and one-time bootstrap discharge.
 
 The same observation extends to external infrastructure. Cloud services,
 microservices, and infrastructural ecosystems, when accessed from a
 journaled program, are no longer required habitats for the system to
 exist, but libraries invoked by the program when needed. The distinction
-is not eliminative but relational: from inhabitation to invocation.
+is not eliminative but relational: from inhabitation to invocation. This
+second consequence is novel to this paper --- Paper 6 does not
+anticipate it.
 
-The contribution of this paper is the formalization of a discrimination
-that can be applied independently of the substrate used in §4. The
-construct allows any production system to be examined role-by-role,
-asking whether each role is tied to the problem being solved or to the
-persistence model chosen.
+The contributions of this paper are two. Conceptually, the role-level
+extension of Paper 6's lens can be applied independently of the
+substrate used in §4 --- any production system can be examined
+role-by-role, asking whether each role is tied to the problem being
+solved or to the persistence model chosen. Operationally, the working
+instantiation makes that examination concretely inspectable in one
+well-known reference case.
 
-The discrimination is per role-in-use-case, not per system. Identity
+The reading is per role-in-use-case, not per system. Identity
 authorities, payment networks, sensor integrations, and computationally
-intensive services remain structural under any substrate. The construct
-predicts no universal dissolution; it predicts examinability.
+intensive services remain structural under any substrate. The lens does
+not promise universal dissolution; it offers examinability.
 
-Paper 6 applied the construct at the layer level, identifying many
+Paper 6 applied the lens at the layer level, identifying many
 infrastructural layers --- caches, queues, locks, application servers,
 orchestration clusters --- as compensations for the underlying
-persistence model. The present paper extends the same discrimination to
-the architectural role that made such layers necessary in the first
-place: the server. The two papers apply one construct at two levels of
-abstraction --- first to layers, then to roles. From this point on,
-treating the server-role as a structural requirement is no longer an
-assumption but a choice that can be made explicit and evaluated.
+persistence model. The present paper applies the same lens to the
+architectural role that made such layers necessary in the first place:
+the server. The two papers apply one lens at two levels of abstraction
+--- first to layers, then to roles. From this point on, treating the
+server-role as a structural requirement is no longer an assumption but a
+choice that can be made explicit and evaluated.
 
 \subsection{Appendix A ---
 Reproducibility}\label{appendix-a-reproducibility}
 
-The artifact described in §4 will be released open-source with the
-publication of this paper. The references in this appendix to file
-paths, test method names, and orchestrator scripts are pointers into the
-forthcoming release. The artifact comprises the ported domain library,
-the host process, the orchestrator script, the test suite, and the
-supporting documentation in \texttt{notes/}.
+The artifact described in §4 is publicly available. The references in
+this appendix to file paths, test method names, and orchestrator scripts
+resolve against the released code; the artifact comprises the substrate
+framework, the runtime, the ported \texttt{Ordering} domain library and
+its test suite, the demo orchestrator, the supporting reports, and the
+asciinema recordings, hosted across two repositories described in §A.1.
 
 \subsubsection{A.1 Source and suite}\label{a.1-source-and-suite}
 
-The release will include the substrate framework, the ported
-\texttt{Ordering} domain library, the demo orchestrator, the test suite,
-and the supporting documentation referenced in this appendix. The exact
-branch, commit, and test-count metadata will be recorded with the
-release tag at the time of publication.
+The artifact is hosted in two public repositories under
+https://github.com/alvaroNCubo. The substrate framework
+(\texttt{Choreography/}), the runtime (\texttt{Puppeteer/}), the ported
+\texttt{Ordering} domain library and its test suite
+(\texttt{tests-local/UnitTestPaper7EShop/}), the demo orchestrator
+(\texttt{docker/}), and the supporting reports referenced in §A.7
+(\texttt{notes/paper7\_phase1\_results.md},
+\texttt{notes/paper7\_phase2\_results.md}) are in
+https://github.com/alvaroNCubo/puppeteer. The asciinema recordings and
+GIFs of §A.8 are in the \texttt{paper7-assets/} directory of
+https://github.com/alvaroNCubo/puppeteer-papers. Inline code citations
+of the form \texttt{file.cs:NN} resolve against the commit pinned in
+Code Provenance.
 
 \subsubsection{A.2 Demo orchestrator}\label{a.2-demo-orchestrator}
 
@@ -1175,9 +1315,13 @@ repository.
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-\href{https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da}{\texttt{2f31f96}}
-(2026-05-18). The snapshot is archived in Software Heritage under the
-following persistent identifier:
+\href{https://github.com/alvaroNCubo/puppeteer/tree/91118fc1a3d865e0bb44e0490712c46ceacf5c63}{\texttt{91118fc}}
+(2026-05-22). The substrate code cited inline (file:line references in
+§4-§5) is identical to the earlier snapshot at commit \texttt{2f31f96}
+(2026-05-18); commit \texttt{91118fc} only adds the reproducibility
+artifacts of Appendix A (\texttt{docker/}, \texttt{notes/}). The earlier
+substrate snapshot is archived in Software Heritage under the following
+persistent identifier:
 
 \begin{verbatim}
 swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
@@ -1203,26 +1347,71 @@ author's.
 
 \subsection{References}\label{references}
 
+Ameloot, T. J., Neven, F., \& Van den Bussche, J. (2013). Relational
+transducers for declarative networking. \emph{Journal of the ACM},
+60(2), 1--38.
+
+Armstrong, J. (2003). \emph{Making reliable distributed systems in the
+presence of software errors} {[}Doctoral thesis{]}. KTH Royal Institute
+of Technology.
+
+Bernstein, P. A., Bykov, S., Geller, A., Kliot, G., \& Thelin, J.
+(2014). \emph{Orleans: Distributed virtual actors for programmability
+and scalability} (Tech. Rep.~MSR-TR-2014-41). Microsoft Research.
+
+Brewer, E. A. (2000). Towards robust distributed systems {[}Keynote
+address{]}. \emph{Proceedings of the Nineteenth Annual ACM Symposium on
+Principles of Distributed Computing (PODC '00)}.
+
+Cognitect. (n.d.). \emph{Datomic: A transactional database with a
+flexible data model, queryable as a log of changes} {[}Software
+project{]}. Retrieved May 22, 2026, from https://www.datomic.com/
+
+DeCandia, G., Hastorun, D., Jampani, M., Kakulapati, G., Lakshman, A.,
+Pilchin, A., Sivasubramanian, S., Vosshall, P., \& Vogels, W. (2007).
+Dynamo: Amazon's highly available key-value store. \emph{Proceedings of
+the 21st ACM SIGOPS Symposium on Operating Systems Principles (SOSP
+'07)}, 205--220.
+
+Earthstar Project. (n.d.). \emph{Earthstar: simple personal data sync}
+{[}Software project{]}. Retrieved May 22, 2026, from
+https://earthstar-project.org/
+
+Evans, E. (2003). \emph{Domain-driven design: Tackling complexity in the
+heart of software}. Addison-Wesley.
+
 Fowler, M. (2005). Event sourcing. Retrieved from
 https://martinfowler.com/eaaDev/EventSourcing.html
+
+Gilbert, S., \& Lynch, N. (2002). Brewer's conjecture and the
+feasibility of consistent, available, partition-tolerant web services.
+\emph{ACM SIGACT News}, 33(2), 51--59.
+
+Gregor, S. (2006). The nature of theory in information systems.
+\emph{MIS Quarterly}, 30(3), 611--642.
 
 Harris-Braun, E., Luck, N., \& Brock, A. (2018). \emph{Holochain:
 Scalable agent-centric distributed computing} (Alpha 1 white paper).
 Holo.
 https://www.holochain.org/documents/holochain-white-paper-alpha.pdf
 
-Hevner, A. R., March, S. T., Park, J., \& Ram, S. (2004). Design science
-in information systems research. \emph{MIS Quarterly}, 28(1), 75--105.
+Hellerstein, J. M. (2010). The declarative imperative: Experiences and
+conjectures in distributed logic. \emph{ACM SIGMOD Record}, 39(1),
+5--19.
 
 Hewitt, C., Bishop, P., \& Steiger, R. (1973). A universal modular ACTOR
 formalism for artificial intelligence. \emph{Proceedings of the 3rd
 International Joint Conference on Artificial Intelligence (IJCAI)},
 235--245.
 
+Holepunch. (n.d.). \emph{Hypercore: append-only logs for the
+peer-to-peer web} {[}Software project{]}. Retrieved May 22, 2026, from
+https://docs.pears.com/building-blocks/hypercore
+
 Kleppmann, M., Frazee, P., Gold, J., Graber, J., Holmgren, D., Ivy, D.,
 Johnson, J., Newbold, B., \& Volpert, J. (2024). Bluesky and the AT
 Protocol: Usable decentralized social media. In \emph{Proceedings of the
-ACM ConEXT-2024 Workshop on the Decentralization of the Internet}. ACM.
+ACM CoNEXT-2024 Workshop on the Decentralization of the Internet}. ACM.
 https://doi.org/10.1145/3694809.3700740
 
 Kleppmann, M., Wiggins, A., van Hardenberg, P., \& McGranaghan, M.
@@ -1237,11 +1426,23 @@ Lemmer-Webber, C., Tallon, J., Shepherd, E., Guy, A., \& Prodromou, E.
 Wide Web Consortium. https://www.w3.org/TR/activitypub/
 
 Matrix.org Foundation. (n.d.). \emph{Matrix specification} {[}Online
-document{]}. Retrieved from https://spec.matrix.org/
+document{]}. Retrieved May 22, 2026, from https://spec.matrix.org/
+
+Microsoft. (2026). \emph{dotnet/eShop: A reference .NET application
+implementing an eCommerce site} {[}Software repository, commit 9b4f943,
+2026-04-21{]}. Retrieved May 22, 2026, from
+https://github.com/dotnet/eShop
+
+Nygard, M. T. (2018). \emph{Release it! Design and deploy
+production-ready software} (2nd ed.). Pragmatic Bookshelf.
 
 Ogden, M., McKelvey, K., \& Madsen, M. B. (2017). \emph{Dat: Distributed
 dataset synchronization and versioning} {[}White paper{]}. Code for
 Science. https://github.com/datprotocol/whitepaper
+
+Ongaro, D., \& Ousterhout, J. (2014). In search of an understandable
+consensus algorithm. \emph{Proceedings of the 2014 USENIX Annual
+Technical Conference (USENIX ATC '14)}, 305--319.
 
 Rivera, A. (2026a). Anti-porous architecture: a unified design principle
 for CQRS + Actor + Event-Sourcing systems. \emph{Puppeteer Papers
@@ -1279,11 +1480,18 @@ A., Zagidulin, D., Aboulnaga, A., \& Berners-Lee, T. (2016).
 linked data} (Technical Report). MIT CSAIL \& Qatar Computing Research
 Institute. http://emansour.com/research/lusail/solid\_protocols.pdf
 
+Shapiro, M., Preguiça, N., Baquero, C., \& Zawirski, M. (2011).
+\emph{Conflict-free replicated data types} (Research Report RR-7687).
+INRIA.
+
 Tarr, D., Lavoie, E., Meyer, A., \& Tschudin, C. (2019). Secure
 Scuttlebutt: An identity-centric protocol for subjective and
 decentralized applications. In \emph{Proceedings of the 6th ACM
 Conference on Information-Centric Networking (ICN '19)} (pp.~1--11).
 ACM. https://doi.org/10.1145/3357150.3357396
+
+Vernon, V. (2013). \emph{Implementing domain-driven design}.
+Addison-Wesley.
 
 Vernon, V. (2015). \emph{Reactive messaging patterns with the actor
 model: Applications and integration in Scala and Akka}. Addison-Wesley.
