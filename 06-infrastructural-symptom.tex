@@ -926,14 +926,17 @@ cross-region replication (where the journal and Tell handle topology),
 behind a Kubernetes red-black rolling deployment (where the journal
 mediates the release handoff), behind a single server (where the
 artifact runs against local storage), and behind an on-premises
-appliance sized to a modest small-or-medium business --- a 4 GB / 300 GB
-box hosting an accounting system, a clinic management system, a
+appliance hosting an accounting system, a clinic management system, a
 hardware-store inventory and point-of-sale system, or a
-professional-services back office. The difference between these shapes
-is operational variation over the same architecture. What bounds the
-appliance case is the customer's domain --- how much data, how many
-users, how heavy the workload --- not anything the architecture
-introduces.
+professional-services back office. The substrate's storage requirement
+reduces to two operations --- appending entries and advancing a cursor
+over them --- which together compose the substrate's single primitive of
+replay (Paper 5); both are executed by commodity flash at marginal cost.
+The RAM requirement scales with the domain's working state, not with the
+deployment topology. The difference between these shapes is operational
+variation over the same architecture. What bounds the appliance case is
+the customer's domain --- its data volume, user count, workload
+heaviness --- not anything the architecture introduces.
 
 This is an engineering-compatibility claim, not an operational
 demonstration. The deployments of the framework's home site run in
