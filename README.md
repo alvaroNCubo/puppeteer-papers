@@ -47,6 +47,14 @@ For the full argument, read in order from Paper 1 through Paper 7. The papers ar
 
 All seven are working drafts (versions 0.1 through 0.4) and are open to feedback. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
 
+## How to cite
+
+Paper 6 — *Most infrastructure layers are symptoms of the persistence model* — is archived in Zenodo with a citable DOI:
+
+> Rivera, A. (2026). *Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20317450
+
+The remaining papers can be cited by their GitHub URLs while their Zenodo depositions are pending.
+
 ## License
 
 This repository contains two kinds of content, licensed separately.
