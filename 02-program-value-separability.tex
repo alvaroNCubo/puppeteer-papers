@@ -441,6 +441,24 @@ follow trace how separability, joined to code-as-data, yields the three
 faces in turn --- and where a runtime that holds separability without
 the second commitment falls short.
 
+The DSL program characterized above --- the textual artifact with
+declared parameters --- is the unit of separability. When the term
+\emph{program} appears at the substrate level in subsequent papers of
+this series (the unit that is recorded, replicated between nodes, and
+replayed against state), it denotes the pair: a \textbf{domain library}
+(the compiled classes and verbs against which the DSL is interpreted,
+loaded statically and identical across replicas) and a \textbf{journal
+of invocations} (the ordered sequence of action references with
+parameter bindings that the runtime has applied). Replay is the
+deterministic re-execution of the journal against the library; what
+persists, replicates, and reconstructs state is this pair. A DSL program
+in the sense of §1.2 is the unit; the substrate-level program is the
+cumulative state-producing artifact built from many DSL invocations
+executed against a stable library. The two readings are not in tension:
+separability of the unit is what makes the cumulative artifact dense;
+the cumulative artifact is what makes the unit's separability
+operationally consequential.
+
 \subsection{2. Consequences of
 separability}\label{consequences-of-separability}
 

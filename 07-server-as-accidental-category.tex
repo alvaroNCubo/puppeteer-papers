@@ -233,13 +233,15 @@ each case, the role's elimination is the explicit objective of the
 system; the system is built to satisfy that objective.
 
 This paper takes a different position. Under a class of systems in which
-the substrate shared between nodes is the program --- not the data, not
-the state, not even the operations --- the server-role does not survive
-as a necessity. It is a category whose referent becomes contingent.
-Server ceases to be a prerequisite for making software. Bootstrap ---
-the last role that seemed to need a persistent service --- can be
-discharged through a printed QR code as its transfer medium, with the
-issuer's software footprint bounded to the duration of the handshake.
+the substrate shared between nodes is the program (in the sense
+established in Paper 2 §1.2: the pair of domain library and journal of
+invocations) --- not the data, not the state, not even the operations
+--- the server-role does not survive as a necessity. It is a category
+whose referent becomes contingent. Server ceases to be a prerequisite
+for making software. Bootstrap --- the last role that seemed to need a
+persistent service --- can be discharged through a printed QR code as
+its transfer medium, with the issuer's software footprint bounded to the
+duration of the handshake.
 
 The paper develops two claims. The first identifies the server-role as
 an accidental category --- a role that exists contingently in
@@ -602,17 +604,20 @@ are consolidated in Appendix A.
 
 \subsubsection{4.1 The substrate}\label{the-substrate}
 
-The substrate provides three properties that together make the two
-indicators of §3 read positively for the server-role. First, each node
-owns a local journal of programs --- DSL scripts that, on replay,
-reconstruct the node's state deterministically. Second, the domain
-library --- the classes and verbs that the journal scripts invoke --- is
-loaded by reflection at startup; no node hosts the domain as a service
-for others. Third, replication is journal-to-journal: nodes exchange
-script references and parameters, not state diffs, and reach convergence
-by replaying the same sequence of scripts against the same library. None
-of these properties requires a node to fulfill the server-role; each is
-intrinsic to the substrate, not externalized.
+The term \emph{program} throughout this section is used in the
+substrate-level sense of Paper 2 §1.2: the pair (domain library, journal
+of invocations) that nodes replicate to share state. The substrate
+provides three properties that together make the two indicators of §3
+read positively for the server-role. First, each node owns a local
+journal of invocations --- DSL scripts (in the unit sense of Paper 2)
+that, on replay, reconstruct the node's state deterministically. Second,
+the domain library --- the classes and verbs that the journal scripts
+invoke --- is loaded by reflection at startup; no node hosts the domain
+as a service for others. Third, replication is journal-to-journal: nodes
+exchange script references and parameters, not state diffs, and reach
+convergence by replaying the same sequence of scripts against the same
+library. None of these properties requires a node to fulfill the
+server-role; each is intrinsic to the substrate, not externalized.
 
 The substrate is described in the abstract throughout this section. Its
 concrete instantiation as the framework that this paper's existence

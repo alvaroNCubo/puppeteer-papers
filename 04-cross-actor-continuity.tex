@@ -285,14 +285,16 @@ a logical consequence of the actor model; it is a structural feature of
 how actor systems have historically been constructed.
 
 This paper names that gap. The construct introduced is \emph{semantic
-continuity}: the property of a program whose causal structure remains
-recorded as part of the program itself, even when its effects cross
-boundaries. The defect identified is the absence of semantic continuity
-at actor boundaries. The principles derived are the conditions under
-which semantic continuity can be preserved without violating actor
-isolation and without introducing orchestration. The instantiation
-presented is \emph{tell}, a primitive in which the cross-actor send is
-recorded as a sentence of the sender's journal.
+continuity}: the property of a program (in the substrate-level sense
+established in Paper 2 §1.2: the pair of domain library and journal of
+invocations) whose causal structure remains recorded as part of the
+program itself, even when its effects cross boundaries. The defect
+identified is the absence of semantic continuity at actor boundaries.
+The principles derived are the conditions under which semantic
+continuity can be preserved without violating actor isolation and
+without introducing orchestration. The instantiation presented is
+\emph{tell}, a primitive in which the cross-actor send is recorded as a
+sentence of the sender's journal.
 
 §2 traces the genealogy of the assumption that produces this gap,
 showing that across five decades and multiple canonical generations of

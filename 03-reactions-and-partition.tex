@@ -470,9 +470,11 @@ commits to as part of its contract. What happens after the verb is, in
 those frameworks, side effect: a method call into another grain, a
 \texttt{tell} to another actor, a registered timer, a write to a queue.
 None of those are part of the actor's program in the sense the journal
-preserves. This paper argues that Reactions are that missing mechanism
---- and that without it, the journal-density property established in
-\href{01-anti-porosity.md}{Paper 1} and
+preserves (substrate-level \emph{program} throughout this paper refers
+to the construct of Paper 2 §1.2: the pair of domain library and journal
+of invocations). This paper argues that Reactions are that missing
+mechanism --- and that without it, the journal-density property
+established in \href{01-anti-porosity.md}{Paper 1} and
 \href{02-program-value-separability.md}{Paper 2} cannot survive contact
 with operational requirements that span the verb's response.
 
