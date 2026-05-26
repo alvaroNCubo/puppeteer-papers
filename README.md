@@ -49,9 +49,15 @@ All seven are working drafts (versions 0.1 through 0.4) and are open to feedback
 
 ## How to cite
 
-Paper 6 — *Most infrastructure layers are symptoms of the persistence model* — is archived in Zenodo with a citable DOI:
+The following papers are archived in Zenodo with citable DOIs:
+
+**Paper 6** — *Most infrastructure layers are symptoms of the persistence model*:
 
 > Rivera, A. (2026). *Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20317450
+
+**Paper 7** — *After the substrate*:
+
+> Rivera, A. (2026). *After the substrate: building software without a datacenter* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20398998
 
 The remaining papers can be cited by their GitHub URLs while their Zenodo depositions are pending.
 
