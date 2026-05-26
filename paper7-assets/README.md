@@ -27,11 +27,20 @@ docker/build/casts/
 │   ├── ordering-a.cast
 │   ├── ordering-b.cast
 │   └── ordering-c.cast
-└── rehydrate/                 ← orthogonal: rehydration from local journal
-    ├── ordering-a.cast
-    ├── ordering-b.cast        ← canonical Video 3 material
-    └── ordering-c.cast
+├── rehydrate/                 ← orthogonal: rehydration from local journal
+│   ├── ordering-a.cast
+│   ├── ordering-b.cast        ← canonical Video 3 material
+│   └── ordering-c.cast
+└── simplex/                   ← orthogonal: transport substitution (SMP)
+    └── (not yet captured — see "Transport substitution" section below)
 ```
+
+All cells above were captured against the **Kestrel/HTTPS peer
+transport**, which is the default §5 baseline. The 2026-05-17
+asciinema batch — `standard/`, `parametric/`, `rehydrate/`, plus the
+in-process row — is HTTPS-only by design; the orthogonal SimpleX
+cell (`simplex/`) is documented empirically but its asciinema casts
+are still pending capture (see below).
 
 ## File inventory
 
@@ -84,6 +93,60 @@ parametric or in-process; the wire-up landed in `PuppeteerHost` so
 the property is on the host runtime, not the workload regime).
 
 asciinema v2 format. JSON header + ndjson events `[time_delta, "o", "text"]`.
+
+### Orthogonal transport substitution (SimpleX peer transport)
+
+**Empirical cell exists; asciinema casts pending.** A second
+empirical observation, run on **2026-05-26** in a separate lab
+session, witnesses §6's transport-pluggability claim: the same §5
+three-node Docker scenario, with the peer transport switched from
+Kestrel/HTTPS to SimpleX SMP queues, reaches the same convergence
+checkpoint with the same final journal entry (22) as the HTTPS
+variant — i.e., **bit-equivalent journals under transport
+substitution**.
+
+The lab is reproducible from this repo at public commit `b42d0f7`
+via the new orchestrator flag:
+
+```bash
+bash docker/run-demo.sh --simplex
+```
+
+`--simplex` brings up an additional `smp-server` container
+(`simplexchat/smp-server:latest`), captures its TOFU fingerprint
+from its startup log line (`Fingerprint: ...`), and exports it to
+the three `ordering-*` containers via `PUPPETEER_SMP_FINGERPRINT`.
+The containers then call `ConfigureTransport(TransportType.SimpleX,
+"smp-server:5223", serverFingerprint: ...)` instead of the default
+`ConfigureTransport(TransportType.Https, ...)`. The bootstrap
+rendezvous and Director-rotation rounds proceed unchanged — only
+the underlying queue/channel kind differs.
+
+| Path | Status |
+|---|---|
+| `simplex/ordering-{a,b,c}.cast` | **Not yet captured** |
+
+The 2026-05-17 asciinema batch (above) ran exclusively over HTTPS;
+the SimpleX path required the `docker-compose.yml` additions,
+`PuppeteerHost` env-var parameterisation, and `run-demo.sh
+--simplex` flag that landed in the 2026-05-26 lab session. To add
+SimpleX casts to the screencast asset pool, rerun `bash
+docker/run-demo.sh --simplex` inside the `paper7-capture` sidecar
+— the sidecar incantation is unchanged from the HTTPS captures;
+only the demo flag is new. The bit-equivalence claim of §6 is
+journal-level (same final entry, same content), so the visual
+material from the existing `standard/` casts already conveys the
+"3-node convergence" beat; a SimpleX panel would add cross-
+transport contrast but is not load-bearing for the §6 claim itself.
+
+Like rehydration, transport substitution is **orthogonal to the
+2×2 matrix** — it is a property that holds *within* a cell
+(cross-container × inline as observed on 2026-05-26), not a fifth
+cell. The transport is a property of the host runtime
+composition, not the workload regime, so the same orthogonality
+extends in principle to the parametric and in-process cells as
+well; only the cross-container × inline × SimpleX cell has been
+exercised so far.
 
 ## GIF renders (sibling to each `.cast`)
 
