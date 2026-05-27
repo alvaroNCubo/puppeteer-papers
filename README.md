@@ -51,6 +51,10 @@ All seven are working drafts (versions 0.1 through 0.4) and are open to feedback
 
 The following papers are archived in Zenodo with citable DOIs:
 
+**Paper 1** — *Anti-porous architecture*:
+
+> Rivera, A. (2026). *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
+
 **Paper 6** — *Most infrastructure layers are symptoms of the persistence model*:
 
 > Rivera, A. (2026). *Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20317450
