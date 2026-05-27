@@ -6,10 +6,14 @@ date: 2026-05-18
 version: 0.1-draft
 status: draft
 keywords:
+  - porosity
+  - anti-porosity
+  - operation-centric encoding
+  - representational primary
   - actor model
   - CQRS
   - event sourcing
-  - anti-porosity
+  - executable journal
   - domain modeling
   - DSL design
   - puppeteer framework
@@ -415,9 +419,14 @@ This paper establishes vocabulary that subsequent papers in the series reuse:
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
+[`b42d0f7`](https://github.com/alvaroNCubo/puppeteer/tree/b42d0f76b4278c36a45c221cc1453e3ee8ffb3de)
+(2026-05-26), which ports the SimpleX/StageManager/Usher fixes from
+the active development branch on top of the prior public snapshot.
+
+A prior snapshot — commit
 [`2f31f96`](https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da)
-(2026-05-18). The snapshot is archived in Software Heritage under
-the following persistent identifier:
+(2026-05-18) — is archived in Software Heritage under the following
+persistent identifier:
 
 ```
 swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
@@ -425,13 +434,18 @@ swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
   anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
 ```
 
-Inline references of the form `file.cs:NN` (e.g.,
-`ActorHandler.cs:38`) resolve against this snapshot. A reader can
-construct a per-file SWHID by adding the qualifiers
-`;path=<path>;lines=<NN>` to the directory SWHID above. Future
-commits to the repository may renumber lines; the SWHID preserves
-the cited state independently of any future change to the repository
-or its hosting.
+Re-archival of `b42d0f7` in Software Heritage will be requested at
+the time of paper publication; the line numbers cited below have been
+verified against `b42d0f7` and remain stable across the two snapshots
+(SimpleX integration did not move the cited mechanisms).
+
+Inline references of the form `file.cs:NN` (e.g., `ActorHandler.cs:846`)
+resolve against the `b42d0f7` snapshot on GitHub. Once the new SWHID
+is issued, a reader can construct per-file SWHIDs by adding the
+qualifiers `;path=<path>;lines=<NN>` to the directory SWHID. Future
+commits to the repository may renumber lines; the SWHID, once issued,
+preserves the cited state independently of any future change to the
+repository or its hosting.
 
 ## Acknowledgments
 
@@ -503,7 +517,7 @@ Young, G. (2010). *CQRS documents*. https://cqrs.files.wordpress.com/2010/11/cqr
 
 ## Appendix A: Source-code verification
 
-This appendix consolidates the source-code references cited throughout the paper. All paths are relative to the public Puppeteer repository; line numbers reflect the version of the code at the time of writing. The framework's source was migrated from Spanish to English identifiers between v0.1 and v0.2 of this paper; the line numbers and file names below reflect the current English-language source.
+This appendix consolidates the source-code references cited throughout the paper. All paths are relative to the public Puppeteer repository; line numbers reflect the source at commit `b42d0f7` (see *Code provenance* above). The framework's source was migrated from Spanish to English identifiers during paper development; the line numbers and file names below reflect the English-language source as it currently stands.
 
 ### A.1 Reflection-based discovery (§4.1)
 
