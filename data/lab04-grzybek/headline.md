@@ -1,9 +1,9 @@
 # Paper 2 Lab 4 — Journal density on Grzybek SubscriptionPayment (replica)
 
-**Date:** 2026-05-17
-**Branch:** `lab-replay/grzybek-replica` in the Puppeteer runtime repository (private; to be released alongside the runtime).
-**Runtime config:** .NET 9.0.312 SDK, Debug build, FileSystem journal (BinaryEventCodec), Windows 11 host.
-**Datasets:** `run-N100-20260517T012257Z-d7c1053.csv`, `run-N1000-20260517T012257Z-d7c1053.csv`.
+**Commit:** public Puppeteer `b42d0f7`, built Release. FileSystem journal (BinaryEventCodec). i9-13900, Windows 11 (26200), .NET 9.0.14.
+**Datasets:** `run-N100-*-b42d0f7.csv`, `run-N1000-*-b42d0f7.csv`.
+
+> *Deterministic measurement (entry counts, payload bytes): build-independent. Re-run in Release at `b42d0f7` — figures are bit-identical to the earlier Debug run. Earlier Debug CSVs superseded and removed.*
 
 > *Bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The CSVs in this directory are sufficient to reproduce the entry-type counts, payload sizes, and density ratio from `kgrzybek/modular-monolith-with-ddd` public source plus an instrumented build of the runtime.*
 

@@ -1,9 +1,10 @@
 # Paper 2 Lab 5 — Operations-per-verb on eShop (replay)
 
-**Date:** 2026-05-16
-**Branch (α):** `lab-replay/05-eshop` in the Puppeteer runtime repository (private; to be released alongside the runtime).
-**β tool:** `puppeteer-papers/labs/lab05-eshop-roslyn/` (console app, .NET 9) — **public**, in this repository.
-**Datasets:** `alpha-20260516T212456Z-8d565d4.csv` (1000 rows, runtime counter), `beta-roslyn-20260516T212649Z-8d565d4.csv` (24 rows, static walker).
+**α:** public Puppeteer `b42d0f7`, built Release. **β tool:** `puppeteer-papers/labs/lab05-eshop-roslyn/` (console app, .NET 9) — public, in this repository.
+**Environment:** i9-13900, Windows 11 (26200), .NET 9.0.14.
+**Datasets:** `alpha-*-b42d0f7.csv` (1000 rows, runtime dispatch counter), `beta-roslyn-*.csv` (static Roslyn walker).
+
+> *Deterministic measurement (dispatch count, static call-graph closure): build-independent. Re-run in Release at `b42d0f7` — α=9, β=24, β/α≈2.7× bit-identical to the earlier run. Earlier Debug CSVs superseded and removed.*
 
 > *The α bench source lives in the Puppeteer runtime repository, which is currently internal and will be released alongside the runtime itself. The β walker source is published in this repository (`labs/lab05-eshop-roslyn/`) and is fully reproducible against `dotnet/eShop` public source. The α CSV in this directory is sufficient to verify the dispatch-count headline; the β walker can be re-run directly.*
 
