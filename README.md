@@ -55,6 +55,10 @@ The following papers are archived in Zenodo with citable DOIs:
 
 > Rivera, A. (2026). *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
 
+**Paper 2** — *Program–value separability*:
+
+> Rivera, A. (2026). *Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20740697
+
 **Paper 6** — *Most infrastructure layers are symptoms of the persistence model*:
 
 > Rivera, A. (2026). *Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20317450

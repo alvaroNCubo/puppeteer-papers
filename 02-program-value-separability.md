@@ -3,7 +3,7 @@ title: "Program–value separability: the structural precondition for compilatio
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
 date: 2026-06-17
-version: 0.2-draft
+version: 0.1-draft
 status: draft
 keywords:
   - program-value separability
