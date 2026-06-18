@@ -8,7 +8,8 @@ status: draft
 keywords:
   - program-value separability
   - code-as-data
-  - homoiconic persistence
+  - script-form persistence
+  - executable journal
   - DSL runtime
   - dual compilation
   - journal density
@@ -34,18 +35,23 @@ abstract: >
   static/dynamic separation — but where that tradition uses the split to
   specialize execution and then discards it, this paper repositions it as the
   precondition for persistence and identity: the separated program becomes the
-  durable, replayable unit of state, and compilation is only one of four faces
-  that follow. We trace four runtime faces (compilation,
-  caching, dense journaling, replication-bounded entropy) as projections of
-  this single precondition, characterize one concrete realization in a CQRS +
-  Actor + Event Sourcing runtime — the same Puppeteer framework introduced in
-  the prior paper of this series — and report empirical magnitudes from
-  measurements over two independent open-source DDD aggregates (dotnet/eShop's
-  Order and kgrzybek/modular-monolith's SubscriptionPayment): a compiled-
-  versus-interpreted speedup that scales with DSL-bound work (1.59× to 3.07×);
-  a cold compile cost amortized within several hundred invocations; a journal
-  storing 99.8% of parametric workloads as compact action references,
-  3.5× to 5.6× denser than the equivalent literal-script storage. The
+  durable, replayable unit of state, and compilation is only one of four
+  consequences that follow. Three of them — compilation, caching, and dense
+  journaling — are developed and measured here as projections of this single
+  precondition; a fourth, replication-bounded entropy, follows from the same
+  precondition and is taken up in a companion paper. We characterize one
+  concrete realization in a CQRS + Actor + Event Sourcing runtime — the same
+  Puppeteer framework introduced in the prior paper of this series — and report
+  empirical magnitudes from two independent open-source DDD aggregates
+  (dotnet/eShop's Order and kgrzybek/modular-monolith's SubscriptionPayment): a
+  compiled-versus-interpreted speedup that scales with DSL-bound work (roughly
+  1.5× to 3.1×); a cold compile cost amortized within several hundred
+  invocations; and a journal that stored, on each of the two aggregates, about
+  99.8% of parametric entries as compact action references — 3.5× and 5.6×
+  denser than the equivalent literal-script storage. The journal-density values
+  are exact per-host counts and the speedups carry run-to-run variation; all are
+  reported as illustrations of the structural property on the cases measured,
+  not as estimates of its magnitude in general. The
   principle generalizes beyond any one
   runtime: program-value separability characterizes the structural condition
   any DSL runtime must satisfy to admit compilation, caching, and dense
@@ -61,9 +67,9 @@ canonical_url: https://[pending]/papers/program-value-separability-v1
 >
 > The transition often described as "adding compilation" inverts the causal order. A DSL whose programs embed their values has no stable identifier, no template to cache, no separable sub-program to compile ahead of time — interpretation is not a stylistic choice but a structural necessity. Once values move outside the script, the program becomes a function awaiting its arguments — *F(x₁, x₂, …, xₙ)*, as the runtime documents itself.
 >
-> From that single act of separation, four runtime decisions cohere. Scripts with externalized parameters are eligible for compilation to IL via Expression trees, cache as reusable programs with action identifiers, persist to the journal as compact action entries, and replicate with entropy bounded by argument vectors. Scripts with hardcoded values are not cached, run once, and persist as their literal text. The four faces are not parallel design choices; they are projections of a single precondition.
+> From that single act of separation, four runtime decisions cohere. Scripts with externalized parameters are eligible for compilation to IL via Expression trees, cache as reusable programs with action identifiers, persist to the journal as compact action entries, and replicate with entropy bounded by argument vectors. Scripts with hardcoded values are not cached, run once, and persist as their literal text. The four are not parallel design choices; they are projections of a single precondition. This paper develops and measures the first three (compilation, caching, dense journaling); the fourth, replication-bounded entropy, follows from the same precondition and is developed in a companion paper — it is named here, not claimed as a result of this one.
 >
-> This precondition operates on the substrate characterized in [the previous paper of this series](01-anti-porosity.md) — Puppeteer's journal as a homoiconic representation, code and data sharing one form. We adopt the colloquial label *code-as-data* from this point on; the formalism stands as established. The compactness of these entries is not merely syntactic: each names an operation substantially richer than its surface signature, with the asymmetry scaling with the domain library's depth (§5.5).
+> This precondition operates on the substrate characterized in [the previous paper of this series](01-anti-porosity.md) — Puppeteer's journal as *code-as-data*: programs persisted in their own executable text. The prior paper develops this as *script-form persistence* (the *executable journal*) and is careful to claim it in a sense narrower than Lisp's strong homoiconicity, which it explicitly disclaims; we adopt the label *code-as-data* from this point on, with that formalism standing as established there. The compactness of these entries is not merely syntactic: each names an operation substantially richer than its surface signature, with the asymmetry scaling with the domain library's depth (§5.5).
 >
 > **This is the principle of program–value separability: a DSL program becomes identifiable, compilable, cacheable, and persistable densely only when it is separable from its values. Externalized parameters are the structural precondition under which compilation, caching, and dense journaling become possible at all.**
 
@@ -97,7 +103,7 @@ The runtime described operates with strict per-actor ordering and isolation. Mul
 
 ### C. This paper does not claim program–value separability is sufficient for the four-fold coherence
 
-Separability is necessary but not sufficient. SQL prepared statements achieve compilation and caching while exhibiting only two of the four faces — the persisted artifact is row data, not the parameterized statement itself, so homoiconic persistence does not emerge. Other realizations may exhibit further subsets. Puppeteer demonstrates one realization where all four faces emerge by structural commitment; the converse is not entailed by separability alone.
+Separability is necessary but not sufficient. SQL prepared statements achieve compilation and caching while exhibiting only two of the four faces — the persisted artifact is row data, not the parameterized statement itself, so the journal is not code-as-data (script-form persistence does not emerge). Other realizations may exhibit further subsets. Puppeteer demonstrates one realization where all four faces emerge by structural commitment; the converse is not entailed by separability alone.
 
 ### D. This paper does not extend separability to general-purpose programming languages
 
@@ -115,7 +121,7 @@ Claim 6 grants a running actor the ability to accept and execute DSL programs fo
 
 ## 1. Introduction
 
-This paper makes a design theory contribution. It identifies a structural property of DSL programs that prior literature has touched but not isolated as one — the construct: *program-value separability*; derives the runtime consequences that follow when the property is held — the principles: compilation, caching, dense journaling, replication-bounded entropy; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation is the existence proof of realizability, not the substance of the claim. The genre is the one Hevner, March, Park, and Ram (2004) name design science research: empirical evidence is presented in the form of a working artifact rather than a controlled experiment.
+This paper makes a design theory contribution. It identifies a structural property of DSL programs that prior literature has touched but not isolated as one — the construct: *program-value separability*; derives the runtime consequences that follow when the property is held — the principles: compilation, caching, and dense journaling, developed and measured here, together with a fourth, replication-bounded entropy, that follows from the same precondition and is developed in a companion paper; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation is the existence proof of realizability, not the substance of the claim. The genre is the one Hevner, March, Park, and Ram (2004) name design science research: empirical evidence is presented in the form of a working artifact rather than a controlled experiment.
 
 The structural property at the center of this paper is not, in itself, new, and §7 documents its lineage. Partial evaluation, lambda lifting, closure conversion, and template instantiation all turn on a separation between a program and the values it will receive; each predates this work by decades. What is new is the dependent variable. In those traditions, separability is instrumental to *execution*: a binding-time or free-variable analysis recovers the static/dynamic split, a transformation consumes it to emit a faster residual program, and the split is discarded once the specialized code exists. This paper repositions the same property as the precondition for *persistence and identity*. The separated program is not consumed by a transformation but persisted as the durable, replayable, replicable unit of state — written once as a definition, referenced thereafter by a stable identifier and an argument vector, and reconstructed by deterministic replay. Compilation becomes one face among four, and not the load-bearing one. The claim this paper defends is that compilation, caching, dense journaling, and replication-bounded entropy are not four independent optimizations but four projections of this single precondition once the persisted artifact is the program rather than its effects — a connection the execution-specialization literature has no occasion to draw, because it never treats the program as state.
 
@@ -329,7 +335,7 @@ The principle takes its place alongside the analysis of the prior paper of this 
 |---|---|
 | Problem: porosity | Condition for avoiding it |
 | Density preserved | Program–value separability |
-| Homoiconic journal | Stable program identifier |
+| Executable journal | Stable program identifier |
 | Operations vs state | Functions vs instances |
 
 The two papers describe the same phenomenon from opposite sides: density preservation is what is achieved; separability is what makes it achievable. Together, they argue that density in domain representation is not an optimization but a structural property that follows from how programs relate to their values.
