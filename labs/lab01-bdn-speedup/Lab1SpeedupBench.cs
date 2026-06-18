@@ -16,14 +16,14 @@ namespace BenchPaper2Bdn
     // DSL specialization. GlobalSetup creates one actor per mode, bootstraps, and warms the
     // compiled cache; invocationCount is pinned so the in-memory journal stays bounded
     // (iterationCount × invocationCount entries total).
-    public enum Tier { Arith100, DslRich, Production }
+    public enum Tier { CrudFlat, Arith100, DslRich, Production }
 
     // Job (incl. tiered-compilation disable) is defined in Program.cs so the
     // steady-state, fully-optimized regime is measured without Tier-0→Tier-1
     // bimodality on the dynamically-emitted compiled delegate.
     public class Lab1SpeedupBench
     {
-        [Params(Tier.Arith100, Tier.DslRich, Tier.Production)]
+        [Params(Tier.CrudFlat, Tier.Arith100, Tier.DslRich, Tier.Production)]
         public Tier Workload;
 
         private ActorV2 _compiled;
@@ -34,12 +34,15 @@ namespace BenchPaper2Bdn
 
         private const string ProductionBootstrap = "f = OrderingFacade();";
         private const string ProductionScript = "o = f.CompleteOrder(uid, uname, pid, price, units);";
+        private const string CrudBootstrap = "c = CrudFacade();";
+        private const string CrudScript = "o = c.SetValue(v);";
 
         [GlobalSetup]
         public void Setup()
         {
             _script = Workload switch
             {
+                Tier.CrudFlat => CrudScript,
                 Tier.Arith100 => BuildArithmetic(100),
                 Tier.DslRich => BuildRich(bodyDepth: 10),
                 Tier.Production => ProductionScript,
@@ -63,6 +66,8 @@ namespace BenchPaper2Bdn
             actor.CompiledModePolicy = mode;
             if (Workload == Tier.Production)
                 actor.Using(ProductionBootstrap).PerformCommand();
+            else if (Workload == Tier.CrudFlat)
+                actor.Using(CrudBootstrap).PerformCommand();
             return actor;
         }
 
@@ -77,6 +82,9 @@ namespace BenchPaper2Bdn
             int n = _n++;
             switch (Workload)
             {
+                case Tier.CrudFlat:
+                    actor.Using(_script).WithParameters(p => { p["v", typeof(int)] = n; }).PerformCommand();
+                    break;
                 case Tier.Arith100:
                     actor.Using(_script).WithParameters(p => { p["X", typeof(int)] = n; }).PerformCommand();
                     break;

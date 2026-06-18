@@ -12,11 +12,20 @@ block) in `bdn-b42d0f7/`.
 
 | Workload | Interpreted | Compiled | Speedup |
 |---|---:|---:|---:|
-| Arithmetic depth-100 (DSL-bound) | 3.03 µs | 0.99 µs | **3.07×** |
-| DSL-rich ~500 ops (for/if/arith) | 15.42 µs | 6.05 µs | **2.55×** |
-| eShop `Order` production verb (domain-bound) | 1.87 µs | 1.17 µs | **1.59×** |
+| Arithmetic depth-100 (DSL-bound) | 2.99 µs | 0.97 µs | **3.10×** |
+| DSL-rich ~500 ops (for/if/arith) | 15.98 µs | 7.27 µs | **~2.2×** |
+| eShop `Order` production verb (domain-bound) | 1.97 µs | 1.31 µs | **1.51×** |
+| Flat-CRUD verb (single setter, α=1) — *adversarial* | 0.63 µs | 0.34 µs | **1.86×** |
 
-99.9% CI half-interval within ±3% of each mean.
+Within-run 99.9% CI half-interval is a few percent; ratios carry process-to-process variation of
+order ±0.2 (e.g. the production verb measured 1.51× here and 1.59× on a prior run), so they are read
+to ~1 significant figure of confidence — the ordering, not the third digit.
+
+**Adversarial reading.** The flat-CRUD verb does not collapse to 1×: even a single trivial dispatch
+carries ~1.9× of removable DSL-dispatch overhead. The speedup tracks the DSL-dispatch fraction of
+per-invocation time, not domain richness — its floor is the host-/I/O-bound regime (the production
+verb at ~1.5×), not domain simplicity. Verb richness (β/α), by contrast, *does* collapse on flat
+CRUD (α=1, β=1 → 1×); caching and journal density are unaffected (domain-independent).
 
 ## What this confirms
 

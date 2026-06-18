@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>BenchPaper2Bdn.Lab1SpeedupBench-20260617-191853</title>
+<title>BenchPaper2Bdn.Lab1SpeedupBench-20260617-202346</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -25,14 +25,16 @@ WarmupCount=8
 </code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>Workload</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Min </th><th>Max</th><th>P95</th><th>Ratio</th><th>RatioSD</th>
+<thead><tr><th>Method</th><th>Workload</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Min </th><th>Max </th><th>P95 </th><th>Ratio</th><th>RatioSD</th>
 </tr>
-</thead><tbody><tr><td>Interpreted</td><td>Arith100</td><td>3.0343 &mu;s</td><td>0.0809 &mu;s</td><td>0.0717 &mu;s</td><td>3.0318 &mu;s</td><td>2.9159 &mu;s</td><td>3.166 &mu;s</td><td>3.150 &mu;s</td><td>1.00</td><td>0.03</td>
-</tr><tr><td>Compiled</td><td>Arith100</td><td>0.9884 &mu;s</td><td>0.0249 &mu;s</td><td>0.0221 &mu;s</td><td>0.9811 &mu;s</td><td>0.9566 &mu;s</td><td>1.033 &mu;s</td><td>1.029 &mu;s</td><td>0.33</td><td>0.01</td>
-</tr><tr><td>Interpreted</td><td>DslRich</td><td>15.4226 &mu;s</td><td>1.3363 &mu;s</td><td>1.2500 &mu;s</td><td>14.8200 &mu;s</td><td>14.4394 &mu;s</td><td>17.918 &mu;s</td><td>17.736 &mu;s</td><td>1.01</td><td>0.11</td>
-</tr><tr><td>Compiled</td><td>DslRich</td><td>6.0463 &mu;s</td><td>0.0886 &mu;s</td><td>0.0829 &mu;s</td><td>6.0346 &mu;s</td><td>5.8833 &mu;s</td><td>6.199 &mu;s</td><td>6.167 &mu;s</td><td>0.39</td><td>0.03</td>
-</tr><tr><td>Interpreted</td><td>Production</td><td>1.8715 &mu;s</td><td>0.0233 &mu;s</td><td>0.0207 &mu;s</td><td>1.8736 &mu;s</td><td>1.8215 &mu;s</td><td>1.906 &mu;s</td><td>1.899 &mu;s</td><td>1.00</td><td>0.02</td>
-</tr><tr><td>Compiled</td><td>Production</td><td>1.1735 &mu;s</td><td>0.0188 &mu;s</td><td>0.0167 &mu;s</td><td>1.1737 &mu;s</td><td>1.1498 &mu;s</td><td>1.201 &mu;s</td><td>1.195 &mu;s</td><td>0.63</td><td>0.01</td>
+</thead><tbody><tr><td>Interpreted</td><td>CrudFlat</td><td>0.6285 &mu;s</td><td>0.0147 &mu;s</td><td>0.0130 &mu;s</td><td>0.6322 &mu;s</td><td>0.5981 &mu;s</td><td>0.6476 &mu;s</td><td>0.6449 &mu;s</td><td>1.00</td><td>0.03</td>
+</tr><tr><td>Compiled</td><td>CrudFlat</td><td>0.3376 &mu;s</td><td>0.0124 &mu;s</td><td>0.0110 &mu;s</td><td>0.3352 &mu;s</td><td>0.3231 &mu;s</td><td>0.3624 &mu;s</td><td>0.3539 &mu;s</td><td>0.54</td><td>0.02</td>
+</tr><tr><td>Interpreted</td><td>Arith100</td><td>2.9903 &mu;s</td><td>0.0756 &mu;s</td><td>0.0707 &mu;s</td><td>3.0100 &mu;s</td><td>2.8842 &mu;s</td><td>3.0868 &mu;s</td><td>3.0749 &mu;s</td><td>1.00</td><td>0.03</td>
+</tr><tr><td>Compiled</td><td>Arith100</td><td>0.9655 &mu;s</td><td>0.0320 &mu;s</td><td>0.0283 &mu;s</td><td>0.9607 &mu;s</td><td>0.9292 &mu;s</td><td>1.0219 &mu;s</td><td>1.0148 &mu;s</td><td>0.32</td><td>0.01</td>
+</tr><tr><td>Interpreted</td><td>DslRich</td><td>15.9805 &mu;s</td><td>0.2289 &mu;s</td><td>0.2029 &mu;s</td><td>16.0556 &mu;s</td><td>15.5292 &mu;s</td><td>16.2510 &mu;s</td><td>16.1683 &mu;s</td><td>1.00</td><td>0.02</td>
+</tr><tr><td>Compiled</td><td>DslRich</td><td>7.2709 &mu;s</td><td>0.7339 &mu;s</td><td>0.6865 &mu;s</td><td>6.9023 &mu;s</td><td>6.4446 &mu;s</td><td>8.3537 &mu;s</td><td>8.2708 &mu;s</td><td>0.46</td><td>0.04</td>
+</tr><tr><td>Interpreted</td><td>Production</td><td>1.9742 &mu;s</td><td>0.0787 &mu;s</td><td>0.0736 &mu;s</td><td>1.9472 &mu;s</td><td>1.8631 &mu;s</td><td>2.0986 &mu;s</td><td>2.0930 &mu;s</td><td>1.00</td><td>0.05</td>
+</tr><tr><td>Compiled</td><td>Production</td><td>1.3104 &mu;s</td><td>0.0561 &mu;s</td><td>0.0525 &mu;s</td><td>1.3027 &mu;s</td><td>1.2339 &mu;s</td><td>1.4151 &mu;s</td><td>1.3950 &mu;s</td><td>0.66</td><td>0.04</td>
 </tr></tbody></table>
 </body>
 </html>
