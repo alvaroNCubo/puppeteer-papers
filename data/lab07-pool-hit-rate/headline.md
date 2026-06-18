@@ -2,9 +2,7 @@
 
 ## Date / branch / config
 
-- **Run date:** 2026-05-05 (UTC 2026-05-06T00:48Z) — v2 re-run with thread-safe fluent ActorV2 API.
-- **Branch:** `lab/07-pool-hit-rate` in `Puppeteer Pacifico`. Includes `master` merged at `6e47668` (`fix(ActorV2): make fluent invocation API thread-safe via ref struct`).
-- **Worktree:** `C:/Users/alvar/source/repos/Puppeteer-Pacifico-lab07/`.
+- **Runtime:** the Puppeteer runtime (public at `github.com/alvaroNCubo/puppeteer`). Pool hit rate is an `Interlocked`-counter ratio — insensitive to build configuration and to the exact commit; it was not re-pinned to `b42d0f7`, whose `ConcurrentParametersPool` / `ParsersPool` rent paths are the identical code it exercises.
 - **Config:** Release, .NET 9.0. `CompilationModePolicy.AlwaysCompiled` on every actor (explicit alignment with the paper's compiled-mode focus). Default pool capacity (`maxPoolSize = 200`).
 
 ### v1 → v2 changes
@@ -78,7 +76,7 @@ Suggested location: §5 footnote, or as a supporting sentence in §3.1 Beat 2 af
 
 > *"Under sustained load, the parser and parameter pools service nearly all rents from cached entries. In a measurement of 1,000 invocations against a stable parametric script, the parameter pool recorded 1,000 hits and zero misses; in 1,000 invocations against distinct scripts (cache-miss every call), both pools recorded 1,000 hits and zero misses. Under 8-thread parallel queries against 5,000 distinct scripts, the parser pool recorded 4,995 hits and 5 misses (99.90%) and the parameter pool recorded 4,993 hits and 7 misses (99.86%) — symmetric behavior under contention. The allocation cost of `new Parser(...)` and `new Parameters()` is incurred at startup and under brief thread-fanout transients only; on every steady-state invocation, both pools service the rent without allocation."*
 
-## Branch-only modifications to Pacifico
+## Runtime modifications (lab instrumentation)
 
 Heredables, additive-only. Three mods (numbered 13–15 to continue the lab series).
 
@@ -99,4 +97,4 @@ CSV schema: `workload,iteration,parsers_hits_delta,parsers_misses_delta,params_h
 
 ## Test class
 
-`Puppeteer Pacifico/UnitTestPuppeteer/Lab07_PoolHitRate.cs`. Four `[TestMethod, TestCategory("Bench")]` methods: one per workload + one unified runner that produces the three CSVs in a single test run. v2 sets `actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled` explicitly on each actor and uses the `ActorV2` fluent API uniformly across all three workloads.
+`tests-local/UnitTestPuppeteer/PaperLabs/paper2/Lab07_PoolHitRate.cs`. Four `[TestMethod, TestCategory("Bench")]` methods: one per workload + one unified runner that produces the three CSVs in a single test run. v2 sets `actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled` explicitly on each actor and uses the `ActorV2` fluent API uniformly across all three workloads.

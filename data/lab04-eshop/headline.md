@@ -100,7 +100,7 @@ eShop's `AddOrderItem` signature requires the full product specification per cal
 
 > *"In a parametric workload over the eShop Order production verb (nine-line DSL script: order construction in Submitted state, four `AddOrderItem` calls representing a multi-product cart, and a four-step state-machine walk to Shipped), the FileSystem journal records 99.8% of entries as compact Action references with an average payload of 115 B — the argument vector for seventeen parameters (user identity + four products' details + shared modifiers). The script body — 642 B — is stored exactly once, as a Define entry. Had each of the 1,000 invocations stored the literal script text instead, the Action payload would be 5.6× larger. The density mechanism is structural: arguments scale with invocations, the script body does not. The magnitude of the ratio is a function of the host domain's argument density — hosts whose verbs identify entries by short stable references would carry sparser argument vectors and the ratio would compound into the tens — but the mechanism applies regardless."*
 
-## Modifications to Pacifico applied in this branch (+1 on top of `lab-replay/03-eshop`)
+## Runtime modifications (now absorbed into the public runtime at `b42d0f7`)
 
 | Mod | File | Change |
 |---|---|---|
@@ -113,5 +113,5 @@ Mods 8–11 inherited from prior lab-replay branches. UnitTestPuppeteer suite ve
 - `puppeteer-papers/data/lab04-eshop/run-N100-20260516T211544Z-5efc274.csv` — N=100 metrics.
 - `puppeteer-papers/data/lab04-eshop/run-N1000-20260516T211545Z-5efc274.csv` — N=1000 metrics.
 - `puppeteer-papers/data/lab04-eshop/headline.md` — this file.
-- `Puppeteer Pacifico/UnitTestEShopOnPuppeteer/Lab04JournalDensityEShopBench.cs` — bench class with 3-entry-type binary parser (Script / Action / Define), `TestCategory("Bench")`.
-- `Puppeteer Pacifico/UnitTestEShopOnPuppeteer/OrderingFacade.cs` — extended with `NewSubmittedOrder(userId, userName)` (returns Order in Submitted state via 10-arg ctor).
+- `tests-local/UnitTestEShopOnPuppeteer/Lab04JournalDensityEShopBench.cs` — bench class with 3-entry-type binary parser (Script / Action / Define), `TestCategory("Bench")`.
+- `tests-local/UnitTestEShopOnPuppeteer/OrderingFacade.cs` — extended with `NewSubmittedOrder(userId, userName)` (returns Order in Submitted state via 10-arg ctor).

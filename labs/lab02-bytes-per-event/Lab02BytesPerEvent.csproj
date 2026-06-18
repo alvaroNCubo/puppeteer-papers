@@ -7,12 +7,12 @@
     <AssemblyName>Lab02BytesPerEvent</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\..\..\Puppeteer-Pacifico-lab-p05l2\UnitTestPuppeteer\UnitTestPuppeteerKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Puppeteer-Pacifico-lab-p05l2\Puppeteer\Puppeteer.csproj" />
+    <!-- Re-point to your local clone of the public Puppeteer runtime
+         (github.com/alvaroNCubo/puppeteer). -->
+    <ProjectReference Include="..\..\..\puppeteer\Puppeteer\Puppeteer.csproj" />
   </ItemGroup>
 
 </Project>

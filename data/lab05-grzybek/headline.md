@@ -32,9 +32,9 @@ p = f.NewWaitingPayment(payerGuidStr, country, periodCode, amount, currency);
 p.MarkAsPaid();
 ```
 
-The payer identifier is passed as a string and parsed to `Guid` inside the facade. See `data/lab04-grzybek/headline.md` for the rationale: Pacifico's action-recording path requires every DSL parameter to fall within `CanonicalTypeName`'s supported primitive set, and `Guid` is currently outside that set. Passing the GUID as a string keeps every parameter inside the supported set without affecting the structural measurements of α (DSL dispatches) or β (static call graph).
+The payer identifier is passed as a string and parsed to `Guid` inside the facade. See `data/lab04-grzybek/headline.md` for the rationale: the runtime's action-recording path requires every DSL parameter to fall within `CanonicalTypeName`'s supported primitive set, and `Guid` is currently outside that set. Passing the GUID as a string keeps every parameter inside the supported set without affecting the structural measurements of α (DSL dispatches) or β (static call graph).
 
-The DSL invokes the Pacifico-side `SubscriptionPaymentFacade`, which assembles
+The DSL invokes the lab's `SubscriptionPaymentFacade`, which assembles
 the value objects (PayerId, SubscriptionPeriod, MoneyValue,
 PriceListItemData, DirectValueFromPriceListPricingStrategy, PriceList) and
 invokes the static `SubscriptionPayment.Buy(...)` factory — Grzybek's
@@ -64,7 +64,7 @@ advances via `MarkAsPaid()`.
 | Variance across N=1,000 | **zero** |
 
 The 2 dispatches map exactly to the 2 DSL statements: `f.NewWaitingPayment(...)`
-and `p.MarkAsPaid()`. The Pacifico-side facade absorbs the value-object
+and `p.MarkAsPaid()`. The lab's facade absorbs the value-object
 assembly into a single host-language method call from the DSL's perspective.
 
 ### β — Host call graph closure (static)
@@ -114,7 +114,7 @@ Two observations from the two-way comparison:
 - **β / α direction and magnitude across three host codebases**: the asymmetry has the same sign in every case (DSL < graph), and the magnitudes form a meaningful ordering tied to the *packaging shape* and *persistence anchor* of each host, not to any property of Puppeteer's runtime mechanism.
 - **Domain-independence**: the same instrumentation, the same bench scaffolding, the same DSL pattern produce coherent measurements against three structurally distinct host codebases.
 
-## Modifications to Pacifico applied in this branch (additive over `lab-replay/05-eshop`)
+## Runtime modifications (now absorbed into the public runtime at `b42d0f7`)
 
 No new mods. Inherits mods 2, 3, 5, 5b, 6, 9, 11, 12, 11b, 12b from `lab-replay/05-eshop`. The α bench reuses `LabCounter.Increment()` in `DotAccess.Execute()` + `NewInstance.Execute()` (mods 11b + 12b) that the eShop Lab 5 added.
 
@@ -127,6 +127,6 @@ UnitTestPuppeteer suite remains green 768/768.
 - `puppeteer-papers/data/lab05-grzybek/alpha-*.csv` — α dataset.
 - `puppeteer-papers/data/lab05-grzybek/beta-roslyn-*.csv` — β dataset.
 - `puppeteer-papers/data/lab05-grzybek/headline.md` — this file.
-- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/Lab05OpsPerVerbGrzybekBench.cs` — α bench.
-- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.cs` — facade.
+- `tests-local/UnitTestGrzybekOnPuppeteer/Lab05OpsPerVerbGrzybekBench.cs` — α bench.
+- `tests-local/UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.cs` — facade.
 - `puppeteer-papers/labs/lab05-grzybek-roslyn/` — β walker.

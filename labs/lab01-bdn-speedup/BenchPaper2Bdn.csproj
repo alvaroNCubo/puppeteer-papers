@@ -18,9 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Pin to the PUBLIC, citable runtime commit (Paper 1 provenance b42d0f7),
-         not Pacifico master, so Paper 2's numbers correspond to already-public source. -->
-    <ProjectReference Include="C:\Users\alvar\source\repos\puppeteer-github-public\Puppeteer\Puppeteer.csproj" />
+    <!-- Pin to the public, citable runtime commit b42d0f7 (Paper 1 provenance),
+         so Paper 2's numbers correspond to already-public source.
+         Re-point to your local clone of github.com/alvaroNCubo/puppeteer @ b42d0f7. -->
+    <ProjectReference Include="..\..\..\puppeteer\Puppeteer\Puppeteer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

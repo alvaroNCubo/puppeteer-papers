@@ -1,7 +1,6 @@
 # Lab 06 — Memory footprint with N cached compiled delegates
 
-**Date:** 2026-05-05
-**Branch (Pacifico):** `lab/06-memory-footprint` from `master` (HEAD `2837f64`)
+**Runtime:** the Puppeteer runtime (public at `github.com/alvaroNCubo/puppeteer`). This is a `GC.GetTotalMemory` measurement of cache retention — a counter/GC quantity insensitive to build configuration and to the exact commit; it was not re-pinned to `b42d0f7`, whose `QuerysEnCache` / `actionCommands` cache and `Expression.Lambda().Compile()` paths are the identical code it exercises.
 **Diary mode:** IN_MEMORY (default; ActorV2 query path does not journal)
 **Compilation policy:** `AlwaysCompiled` (forced — measures the compiled-cache regime explicitly)
 **Measurement primitive:** `GC.GetTotalMemory(forceFullCollection: true)` deltas, settled with three forced full GC + finalizer cycles before each capture.
@@ -78,7 +77,7 @@ A production actor that caches, say, 50 distinct parametric programs incurs ~300
 
 ---
 
-## Branch-only modifications to Pacifico
+## Runtime modifications (lab instrumentation)
 
 Only three files modified, all minimal-surface API exposures (no semantic changes):
 
@@ -97,7 +96,7 @@ Diff summary: `+8 -2` across three files. No runtime semantics changed. (The lab
 - `distinct-20260505T235453Z.csv` — one row per N cell, columns: `N, baseline_bytes, after_bytes, delta_bytes, bytes_per_entry, elapsed_ms`. 4 rows.
 - `hit-20260505T235516Z.csv` — one row per M cell, columns: `M, baseline_bytes, after_bytes, delta_bytes, bytes_per_invocation, elapsed_ms`. 4 rows.
 - `headline.md` — this file.
-- Test code: `Puppeteer-Pacifico-lab06/UnitTestPuppeteer/Lab06_MemoryFootprint.cs` (branch `lab/06-memory-footprint`, not merged).
+- Test code: `tests-local/UnitTestPuppeteer/PaperLabs/paper2/Lab06_MemoryFootprint.cs`.
 
 ---
 

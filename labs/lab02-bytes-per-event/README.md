@@ -25,13 +25,12 @@ Headline numbers and full methodology live in the dataset's [`headline.md`](../.
 
 ## How to run
 
-This is a .NET 9 console application that links against the Puppeteer runtime's `BinaryEventCodec`. It requires a sibling clone of the Puppeteer source tree (currently in a private repository; a public-mirror URL will be added when the codebase is released).
+This is a .NET 9 console application that links against the Puppeteer runtime's `BinaryEventCodec`. It requires a sibling clone of the public Puppeteer source tree (`github.com/alvaroNCubo/puppeteer`).
 
 ```bash
 # Expected layout:
 #   <parent>/puppeteer-papers/labs/lab02-bytes-per-event/   ← this folder
-#   <parent>/Puppeteer-Pacifico-lab-p05l2/                  ← sibling Puppeteer checkout
-#                                                            on lab/paper05-lab2-bytes-per-event @ c68b2f4
+#   <parent>/puppeteer/                                     ← sibling public Puppeteer checkout
 
 dotnet run --project Lab02BytesPerEvent.csproj -c Release
 # or, with an explicit repo root:

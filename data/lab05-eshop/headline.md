@@ -12,7 +12,7 @@
 
 Two complementary measurements, each captures a different facet of "operations-per-verb":
 
-- **α — DSL dispatch count (runtime)**: Pacifico-side `LabCounter.Increment()` fires from inside `DotAccess.Execute()` and `NewInstance.Execute()` (the AST nodes that dispatch into the host language). Reset per iteration; the value reported is the exact number of host-language entry points the interpreter walked for one execution of the measurement script. Runs in interpreted mode only — compiled mode emits IL that bypasses `Execute()`, but the AST shape (and thus α) is mode-invariant.
+- **α — DSL dispatch count (runtime)**: runtime-side `LabCounter.Increment()` fires from inside `DotAccess.Execute()` and `NewInstance.Execute()` (the AST nodes that dispatch into the host language). Reset per iteration; the value reported is the exact number of host-language entry points the interpreter walked for one execution of the measurement script. Runs in interpreted mode only — compiled mode emits IL that bypasses `Execute()`, but the AST shape (and thus α) is mode-invariant.
 
 - **β — host call graph closure (static)**: Roslyn purely-syntactic forward closure from the unique entry points α touches, restricted to source files under `dotnet-eShop/src/Ordering.Domain`. Walker indexes method/constructor/property declarations by simple name; traverses InvocationExpressionSyntax + ObjectCreationExpressionSyntax + MemberAccessExpressionSyntax; filters trivial accessors. Result is a structural ceiling — no overload disambiguation, no virtual-dispatch resolution.
 
@@ -118,7 +118,7 @@ This reframing is the methodological observation that gives §4 Beat 3's "orders
 
 > *"For the eShop Order production verb, the runtime's interpreter dispatches 9 host-language entry points per invocation (exactly reproducible across 1,000 measurements). Static forward closure of the call graph from those 9 entry points reaches 24 methods within `dotnet-eShop/src/Ordering.Domain`. The β/α asymmetry of 2.7× is a floor of the mechanism on an RDBMS-anchored DDD aggregate. Visible marks in `Order.cs` (`private set` everywhere, an explicit `EF Core 2.0 owned entity` annotation on `Address`, FK-style `int?` references on `BuyerId` and `PaymentId`, no polymorphism on Order) show that the domain was shaped from the start by the anticipation of RDBMS persistence; that anticipation flattens polymorphism, caps graph depth, and externalizes references as foreign keys. Domains developed without that representational pressure compound the asymmetry several orders of magnitude further; the β/α magnitude is a function of how much the host's persistence anchor has compressed its domain, not of the mechanism the runtime applies once a verb is invoked."*
 
-## Modifications to Pacifico applied in this branch (+2 on top of `lab-replay/04-eshop`)
+## Runtime modifications (now absorbed into the public runtime at `b42d0f7`)
 
 | Mod | File | Change |
 |---|---|---|
@@ -136,5 +136,5 @@ UnitTestPuppeteer suite verified green 768/768 post-mods.
 - `puppeteer-papers/data/lab05-eshop/alpha-20260516T212456Z-8d565d4.csv` — α dataset (1000 rows: iteration, dispatch_count).
 - `puppeteer-papers/data/lab05-eshop/beta-roslyn-20260516T212649Z-8d565d4.csv` — β dataset (24 rows: depth, kind, namespace, class, method, file, line, source_caller).
 - `puppeteer-papers/data/lab05-eshop/headline.md` — this file.
-- `Puppeteer Pacifico/UnitTestEShopOnPuppeteer/Lab05OpsPerVerbEShopBench.cs` — α bench class.
+- `tests-local/UnitTestEShopOnPuppeteer/Lab05OpsPerVerbEShopBench.cs` — α bench class.
 - `puppeteer-papers/labs/lab05-eshop-roslyn/` — β walker (Program.cs + csproj).

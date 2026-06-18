@@ -9,11 +9,11 @@
 
 ## Note on an earlier anomaly (resolved 2026-05-17)
 
-An earlier version of this bench produced zero Action and Define entries despite the test framework reporting success. The cause was identified as a silent failure path in Pacifico's action-recording pipeline: `Parameters.CanonicalTypeName` (`Parameters.cs:315`) accepts a fixed set of primitive types — `int, string, bool, double, DateTime, decimal`, plus arrays and single-generic collections — and throws `LanguageException` for any unrecognised type, including `Guid`. The earlier facade passed `Guid` directly as a DSL parameter, and the resulting `LanguageException` surfaced *after* the script's effects had already been executed by `Perform()`. The surrounding `catch` block in `ActorHandler.ExecuteCommandWithWriteLock` (lines 1237-1250 of the canonical Pacifico master) treats post-execution exceptions as recoverable and silently records the error without writing the journal entry, so the test caller sees a successful return and no `ExecutionFailed` event fires.
+An earlier version of this bench produced zero Action and Define entries despite the test framework reporting success. The cause was identified as a silent failure path in the runtime's action-recording pipeline: `Parameters.CanonicalTypeName` (`Parameters.cs:315`) accepts a fixed set of primitive types — `int, string, bool, double, DateTime, decimal`, plus arrays and single-generic collections — and throws `LanguageException` for any unrecognised type, including `Guid`. The earlier facade passed `Guid` directly as a DSL parameter, and the resulting `LanguageException` surfaced *after* the script's effects had already been executed by `Perform()`. The surrounding `catch` block in `ActorHandler.ExecuteCommandWithWriteLock` (lines 1237-1250 of the runtime) treats post-execution exceptions as recoverable and silently records the error without writing the journal entry, so the test caller sees a successful return and no `ExecutionFailed` event fires.
 
 **Workaround applied in this lab**: the facade accepts the payer id as a `string` and parses it to `Guid` internally. Every DSL parameter is now within `CanonicalTypeName`'s supported set. The action-recording path completes normally.
 
-**Recommended runtime fix (out of scope for this lab, parked for a Pacifico maintainer to address)**: extend `CanonicalTypeName` to include `Guid` (and the catch block to surface unrecognised-type errors rather than swallow them) so that `Guid` parameters are first-class in the DSL action surface.
+**Recommended runtime fix (out of scope for this lab, parked for the runtime maintainers to address)**: extend `CanonicalTypeName` to include `Guid` (and the catch block to surface unrecognised-type errors rather than swallow them) so that `Guid` parameters are first-class in the DSL action surface.
 
 ## Methodology
 
@@ -109,5 +109,5 @@ Two independent open-source DDD aggregates with disjoint business domains and di
 - `puppeteer-papers/data/lab04-grzybek/run-N100-20260517T012257Z-d7c1053.csv` — N=100 metrics.
 - `puppeteer-papers/data/lab04-grzybek/run-N1000-20260517T012257Z-d7c1053.csv` — N=1000 metrics.
 - `puppeteer-papers/data/lab04-grzybek/headline.md` — this file.
-- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/Lab04JournalDensityGrzybekBench.cs` — bench class.
-- `Puppeteer Pacifico/UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.cs` — facade (payer GUID accepted as string and parsed internally; documents the workaround).
+- `tests-local/UnitTestGrzybekOnPuppeteer/Lab04JournalDensityGrzybekBench.cs` — bench class.
+- `tests-local/UnitTestGrzybekOnPuppeteer/SubscriptionPaymentFacade.cs` — facade (payer GUID accepted as string and parsed internally; documents the workaround).

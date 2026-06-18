@@ -253,11 +253,11 @@ internal static class Program
 
 	private static string ResolveRepoRoot()
 	{
-		// The helper lives in the sibling repo puppeteer-papers; the lab repo is
-		// at <repos-parent>/Puppeteer-Pacifico-lab-p05l2/. Walk up from the
-		// executing assembly until we find a sibling directory of that name.
+		// The helper lives in the sibling repo puppeteer-papers; the runtime is a
+		// sibling clone of the public Puppeteer repo at <repos-parent>/puppeteer/.
+		// Walk up from the executing assembly until we find a sibling of that name.
 		string assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-		const string LAB_REPO_NAME = "Puppeteer-Pacifico-lab-p05l2";
+		const string LAB_REPO_NAME = "puppeteer";
 		DirectoryInfo? cursor = new DirectoryInfo(assemblyDir);
 		while (cursor != null)
 		{

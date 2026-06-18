@@ -278,7 +278,7 @@ static string TryGetSha()
     {
         var psi = new ProcessStartInfo("git", "rev-parse --short HEAD")
         {
-            WorkingDirectory = @"C:\Users\alvar\source\repos\Puppeteer Pacifico",
+            WorkingDirectory = AppContext.BaseDirectory,   // stamp with this repo's commit; β depends on the host source, not the runtime
             RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true
         };
         using var p = Process.Start(psi)!;
