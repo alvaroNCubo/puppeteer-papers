@@ -428,14 +428,14 @@ The references below cite source locations in the Puppeteer codebase as `file:li
 ### §1.2 — Formal characterization
 
 | Reference | Location | What it shows |
-|---|---|---|
+|---|---|------|
 | Runtime self-documentation as `F(x1,...,xn)` | `ActorHandler.cs:1085` | Comment articulating the parametric program model |
 | Parametric/literal regime documented in code | `ActorHandler.cs:1091-1093` | Comment encoding the binary taxonomy: scripts without user parameters are interpreted, uncached, persisted as Script entries; scripts with user parameters are compiled, cached with an ActionId, persisted as Action entries |
 
 ### §3.1 — Compilation pipeline
 
 | Reference | Location | What it shows |
-|---|---|---|
+|---|---|------|
 | Orchestration on first encounter | `ActorHandler.cs:1097-1148` | `PrepareCommandProgram` rents a parser, parses the script, decides parametric vs literal path |
 | AST traversal | `Program.cs:182-244` | `ProgramExpression` walks `Statement`s, accumulates `Expression` nodes into a `BlockExpression` |
 | Lambda composition | `Program.cs:244` | `Expression.Lambda<Func<Parameters, Output, string>>` wraps the `BlockExpression` |
@@ -446,7 +446,7 @@ The references below cite source locations in the Puppeteer codebase as `file:li
 ### §3.2 — Interpretation retained
 
 | Reference | Location | What it shows |
-|---|---|---|
+|---|---|------|
 | `CompilationModePolicy` enum | `Actor.cs:8-13` | Three policy values (`Automatic`, `AlwaysCompiled`, `AlwaysInterpreted`); default is `Automatic` |
 | Policy hint passed at call site | `ActorHandler.cs:1117-1131` | `AdjustCompilationMode(useInterpretedMode, policy)` — `useInterpretedMode: true` for literal path, `false` for parametric |
 | Policy resolution switch | `Program.cs:134-150` | Sets `IsCompiledMode` from policy + hint |
@@ -457,7 +457,7 @@ The references below cite source locations in the Puppeteer codebase as `file:li
 ### §3.3 — Hot-loaded DSL programs
 
 | Reference | Location | What it shows |
-|---|---|---|
+|---|---|------|
 | Domain library loading | `DomainLibraries.cs:77-115` | `GetOrLoad(params Assembly[])` reflects public types and caches them once per deduplicated assembly set; a single-assembly overload remains for the back-compat path |
 | Library binding to actor | `ActorHandler.cs:61` | `libraries = DomainLibraries.GetOrLoad(LibraryAssemblies)` |
 | Fluent script invocation | `ActorV2.cs:32` | `Using(scriptForChk, scriptForCmd)` introduces new scripts at runtime against the cached domain |
@@ -465,7 +465,7 @@ The references below cite source locations in the Puppeteer codebase as `file:li
 ### §4 — Verb richness
 
 | Reference | Location | What it shows |
-|---|---|---|
+|---|---|------|
 | Check-then-command fluent dispatch | `ActorV2Invocation.cs:69` | `PerformCheckThenCommand()` — read-lock check + write-lock command + journal write, with rollback on check failure |
 
 ### §5 — Empirical datasets

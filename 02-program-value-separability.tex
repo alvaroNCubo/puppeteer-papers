@@ -51,6 +51,16 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \usepackage{hyperxmp}
+\usepackage{seqsplit}
+% Inside longtables only, allow monospace content to break at any character.
+% Outside longtables, \texttt behavior is unchanged.
+\AtBeginEnvironment{longtable}{%
+  \let\origtexttt\texttt%
+  \renewcommand{\texttt}[1]{\origtexttt{\seqsplit{#1}}}%
+}
+\AtEndEnvironment{longtable}{%
+  \let\texttt\origtexttt%
+}
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
@@ -58,9 +68,10 @@
   pdftitle={Program--value separability: the structural precondition for compilation{,} caching{,} and dense journaling in a DSL runtime},
   pdfauthor={Alvaro Rivera},
   pdfkeywords={\xmpquote{program-value
-separability}, \xmpquote{code-as-data}, \xmpquote{homoiconic
-persistence}, \xmpquote{DSL runtime}, \xmpquote{dual
-compilation}, \xmpquote{journal density}, \xmpquote{partial
+separability}, \xmpquote{code-as-data}, \xmpquote{script-form
+persistence}, \xmpquote{executable journal}, \xmpquote{DSL
+runtime}, \xmpquote{dual compilation}, \xmpquote{journal
+density}, \xmpquote{partial
 evaluation}, \xmpquote{CQRS}, \xmpquote{actor model}, \xmpquote{event
 sourcing}, \xmpquote{puppeteer framework}},
   hidelinks,
@@ -74,33 +85,48 @@ compilation, caching, and dense journaling in a DSL runtime}
 \begin{document}
 \maketitle
 \begin{abstract}
-This paper is a design theory contribution in the sense of Hevner,
-March, Park, and Ram (2004): it introduces a structural construct ---
-\emph{program-value separability} --- derives the runtime consequences
-that follow from it, and presents one realization in production as
-confirmation that the construct is realizable. Compilation of a
-domain-specific language program to native code, caching of compiled
-programs across invocations, and dense journaling of operations rather
-than their effects are commonly treated as independent runtime
-optimizations. This paper argues that they are not --- that all three
-are downstream consequences of a single structural property of DSL
+This paper is an analytic theory contribution in the sense of Gregor's
+(2006) \emph{theory for analyzing} (Type I): it introduces a structural
+construct --- \emph{program-value separability} --- and the binary
+taxonomy it induces, states a necessary-condition claim about the
+runtime consequences that follow from it, and presents one realization
+in production as an existence proof that the construct is realizable ---
+not the design-science evaluation of an artifact (Hevner, March, Park,
+\& Ram, 2004), which a companion case-study paper is the venue for.
+Compilation of a domain-specific language program to native code,
+caching of compiled programs across invocations, and dense journaling of
+operations rather than their effects are commonly treated as independent
+runtime optimizations. This paper argues that they are not --- that all
+three are downstream consequences of a single structural property of DSL
 programs, which we name \emph{program--value separability}: the
 syntactically decidable condition that a program declares its parameters
-explicitly rather than embedding values in its body. We trace four
-runtime faces (compilation, caching, dense journaling,
-replication-bounded entropy) as projections of this single precondition,
-characterize one concrete realization in a CQRS + Actor + Event Sourcing
-runtime --- the same Puppeteer framework introduced in the prior paper
-of this series --- and report empirical magnitudes from measurements
-over two independent open-source DDD aggregates (dotnet/eShop's Order
-and kgrzybek/modular-monolith's SubscriptionPayment): a compiled-
-versus-interpreted speedup that scales with DSL-bound work (1.49× to
-4.10×); a cold compile cost amortized within hundreds of invocations; a
-journal storing 99.8\% of parametric workloads as compact action
-references, 3.5× to 5.6× denser than the equivalent literal-script
-storage. The principle generalizes beyond any one runtime: program-value
-separability characterizes the structural condition any DSL runtime must
-satisfy to admit compilation, caching, and dense persistence at all.
+explicitly rather than embedding values in its body. The property itself
+is long known --- partial evaluation and related compilation techniques
+exploit the same static/dynamic separation --- but where that tradition
+uses the split to specialize execution and then discards it, this paper
+repositions it as the precondition for persistence and identity: the
+separated program becomes the durable, replayable unit of state, and
+compilation is only one of four consequences that follow. Three of them
+--- compilation, caching, and dense journaling --- are developed and
+measured here as projections of this single precondition; a fourth,
+replication-bounded entropy, follows from the same precondition and is
+taken up in a companion paper. We characterize one concrete realization
+in a CQRS + Actor + Event Sourcing runtime --- the same Puppeteer
+framework introduced in the prior paper of this series --- and report
+empirical magnitudes from two independent open-source DDD aggregates
+(dotnet/eShop's Order and kgrzybek/modular-monolith's
+SubscriptionPayment): a compiled-versus-interpreted speedup that scales
+with DSL-bound work (roughly 1.5× to 3.1×); a cold compile cost
+amortized within several hundred invocations; and a journal that stored,
+on each of the two aggregates, about 99.8\% of parametric entries as
+compact action references --- 3.5× and 5.6× denser than the equivalent
+literal-script storage. The journal-density values are exact per-host
+counts and the speedups carry run-to-run variation; all are reported as
+illustrations of the structural property on the cases measured, not as
+estimates of its magnitude in general. The principle generalizes beyond
+any one runtime: program-value separability characterizes the structural
+condition any DSL runtime must satisfy to admit compilation, caching,
+and dense persistence at all.
 \end{abstract}
 
 \section{Program--value separability}\label{programvalue-separability}
@@ -119,7 +145,12 @@ identifier, no template to cache, no separable sub-program to compile
 ahead of time --- interpretation is not a stylistic choice but a
 structural necessity. Once values move outside the script, the program
 becomes a function awaiting its arguments --- \emph{F(x₁, x₂, \ldots,
-xₙ)}, as the runtime documents itself.
+xₙ)}, as the runtime documents itself. And it is now the \emph{same}
+program on every call, whatever arguments it receives: it has acquired
+an identity of its own, independent of its values. That identity is the
+pivot. The runtime decisions below are not consequences of separability
+directly so much as consequences of a program's having a stable identity
+--- and separability is what confers it.
 
 From that single act of separation, four runtime decisions cohere.
 Scripts with externalized parameters are eligible for compilation to IL
@@ -127,17 +158,24 @@ via Expression trees, cache as reusable programs with action
 identifiers, persist to the journal as compact action entries, and
 replicate with entropy bounded by argument vectors. Scripts with
 hardcoded values are not cached, run once, and persist as their literal
-text. The four faces are not parallel design choices; they are
-projections of a single precondition.
+text. The four are not parallel design choices; they are projections of
+a single precondition. This paper develops and measures the first three
+(compilation, caching, dense journaling); the fourth,
+replication-bounded entropy, follows from the same precondition and is
+developed in a companion paper --- it is named here, not claimed as a
+result of this one.
 
 This precondition operates on the substrate characterized in
 \href{01-anti-porosity.md}{the previous paper of this series} ---
-Puppeteer's journal as a homoiconic representation, code and data
-sharing one form. We adopt the colloquial label \emph{code-as-data} from
-this point on; the formalism stands as established. The compactness of
-these entries is not merely syntactic: each names an operation
-substantially richer than its surface signature, with the asymmetry
-scaling with the domain library's depth (§5.5).
+Puppeteer's journal as \emph{code-as-data}: programs persisted in their
+own executable text. The prior paper develops this as \emph{script-form
+persistence} (the \emph{executable journal}) and is careful to claim it
+in a sense narrower than Lisp's strong homoiconicity, which it
+explicitly disclaims; we adopt the label \emph{code-as-data} from this
+point on, with that formalism standing as established there. The
+compactness of these entries is not merely syntactic: each names an
+operation substantially richer than its surface signature, with the
+asymmetry scaling with the domain library's depth (§5.5).
 
 \textbf{This is the principle of program--value separability: a DSL
 program becomes identifiable, compilable, cacheable, and persistable
@@ -153,17 +191,24 @@ caching, and dense journaling become possible at all.}
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
-  \textbf{Causal inversion: program--value separability is a necessary
-  condition.} Compilation, caching, and dense journaling in the runtime
-  described here are not optimizations layered atop interpretation. They
-  are downstream consequences of \emph{program--value separability} ---
-  the structural property that values live outside the script body, not
-  embedded within it. A DSL program embedding its values has no stable
-  identifier, no template to cache, no separable sub-program to compile
-  ahead of time. Separability is necessary, not optional.
-  \emph{(Verification: logical / structural --- a script embedding its
-  values produces a different cache key per invocation, making caching
-  structurally pointless. The runtime documents itself: ``Un script
+  \textbf{Causal inversion: program--value separation is a necessary
+  condition for the stable-identity faces.} Compilation, caching, and
+  dense journaling in the runtime described here are not optimizations
+  layered atop interpretation. They are downstream consequences of
+  \emph{program--value separability} --- the structural property that
+  values live outside the script body, not embedded within it. A DSL
+  program embedding its values has no stable identifier under which to
+  reuse a specialization across invocations, no template to reference in
+  the journal rather than copy, no bounded argument stream to replicate.
+  The separation is necessary for these faces, not optional --- though
+  it need not be \emph{declared} rather than recovered by analysis
+  (§1.2), and it is not claimed that caching of every kind requires it
+  (memoization of results does not). \emph{(Verification: structural,
+  within this class of runtimes --- a script embedding its values
+  produces a different cache key per invocation, so cross-invocation
+  reuse, reference-based journaling, and bounded replication collapse
+  together; the argument and its two standard objections are made
+  precise in §1.2. The runtime documents the model itself: ``Un script
   funciona como F(x1,x2,\ldots,xn)'' (\texttt{ActorHandler.cs:1085}) ---
   F is the program; the xᵢ are its externalized values.)}
 \item
@@ -211,11 +256,14 @@ caching, and dense journaling become possible at all.}
   persisted tokens and the live-domain operations they represent.
   \emph{(Verification: §4 develops the construct and §5.5 measures it on
   two open-source DDD aggregates --- eShop's \texttt{Order} purchase
-  verb dispatches 9 host-language invocations with a 24-method static
-  closure (β/α ≈ 2.7×); Grzybek's \texttt{SubscriptionPayment} verb
-  dispatches 2 with a 73-method closure (β/α ≈ 36×). The magnitude of
-  the asymmetry is a function of how much the host's persistence anchor
-  compresses its domain, not of the runtime mechanism.)}
+  verb dispatches α = 9 host-language invocations with a 24-method
+  static closure (β/α ≈ 2.7×); Grzybek's \texttt{SubscriptionPayment}
+  verb dispatches α = 2 with a 73-method static closure (β/α ≈ 36×). α
+  is exact; β is a crude static lower bound on reachable host surface
+  (§5.5), and at n=2 the 2.7×-vs-36× gap is not attributable to any
+  single cause. The supported claim is the qualitative one --- the
+  persisted token is far smaller than the behavior it names --- carried
+  by α and by journal density (§5.4), not by the β/α magnitude.)}
 \item
   \textbf{Hot-loaded DSL programs over a stably-loaded domain.} The
   runtime supports hot-loaded DSL programs against a stably-loaded
@@ -265,10 +313,11 @@ coherence}\label{c.-this-paper-does-not-claim-programvalue-separability-is-suffi
 Separability is necessary but not sufficient. SQL prepared statements
 achieve compilation and caching while exhibiting only two of the four
 faces --- the persisted artifact is row data, not the parameterized
-statement itself, so homoiconic persistence does not emerge. Other
-realizations may exhibit further subsets. Puppeteer demonstrates one
-realization where all four faces emerge by structural commitment; the
-converse is not entailed by separability alone.
+statement itself, so the journal is not code-as-data (script-form
+persistence does not emerge). Other realizations may exhibit further
+subsets. Puppeteer demonstrates one realization where all four faces
+emerge by structural commitment; the converse is not entailed by
+separability alone.
 
 \subsubsection{D. This paper does not extend separability to
 general-purpose programming
@@ -312,19 +361,49 @@ beyond a closed boundary.
 
 \subsection{1. Introduction}\label{introduction}
 
-This paper makes a design theory contribution. It identifies a
+This paper makes an analytic theory contribution. It identifies a
 structural property of DSL programs that prior literature has touched
 but not isolated as one --- the construct: \emph{program-value
 separability}; derives the runtime consequences that follow when the
-property is held --- the principles: compilation, caching, dense
-journaling, replication-bounded entropy; and presents an instantiation
---- a system in which those principles have been realized in production
---- as confirmation that the construct is realizable. The contribution
-is conceptual; the instantiation is the existence proof of
-realizability, not the substance of the claim. The genre is the one
-Hevner, March, Park, and Ram (2004) name design science research:
-empirical evidence is presented in the form of a working artifact rather
-than a controlled experiment.
+property is held --- the principles: compilation, caching, and dense
+journaling, developed and measured here, together with a fourth,
+replication-bounded entropy, that follows from the same precondition and
+is developed in a companion paper; and presents an instantiation --- a
+system in which those principles have been realized in production --- as
+confirmation that the construct is realizable. The contribution is
+conceptual; the instantiation is the existence proof of realizability,
+not the substance of the claim. The genre is the one Gregor (2006) names
+\emph{theory for analyzing} (Type I): it introduces constructs and a
+taxonomy that let the phenomenon be described and classified, and states
+a necessary-condition claim about their consequences, with empirical
+evaluation supplementary. The Hevner-style design-science
+\emph{evaluation} of the artifact (Hevner, March, Park, \& Ram, 2004)
+--- bundling artifact assessment with construct introduction --- is
+deferred to a companion case-study paper; the Type I frame separates the
+two cleanly, and the instantiation here serves only as an existence
+proof of realizability.
+
+The structural property at the center of this paper is not, in itself,
+new, and §7 documents its lineage. Partial evaluation, lambda lifting,
+closure conversion, and template instantiation all turn on a separation
+between a program and the values it will receive; each predates this
+work by decades. What is new is the dependent variable. In those
+traditions, separability is instrumental to \emph{execution}: a
+binding-time or free-variable analysis recovers the static/dynamic
+split, a transformation consumes it to emit a faster residual program,
+and the split is discarded once the specialized code exists. This paper
+repositions the same property as the precondition for \emph{persistence
+and identity}. The separated program is not consumed by a transformation
+but persisted as the durable, replayable, replicable unit of state ---
+written once as a definition, referenced thereafter by a stable
+identifier and an argument vector, and reconstructed by deterministic
+replay. Compilation becomes one face among four, and not the
+load-bearing one. The claim this paper defends is that compilation,
+caching, dense journaling, and replication-bounded entropy are not four
+independent optimizations but four projections of this single
+precondition once the persisted artifact is the program rather than its
+effects --- a connection the execution-specialization literature has no
+occasion to draw, because it never treats the program as state.
 
 \subsubsection{1.1 Calibrating the
 surface}\label{calibrating-the-surface}
@@ -337,7 +416,13 @@ string, parsed and planned afresh. The same structural distinction
 governs DSL programs in any runtime that aspires to compilation,
 caching, and dense persistence. What changes between SQL and the runtime
 described here is not the principle, but the surface to which it
-applies.
+applies. The principle, in other words, is neither new nor Puppeteer's:
+it is one every database programmer already relies on locally, each time
+a prepared statement is reused. What is new is the recognition that the
+same condition, taken as general rather than local, is what underwrites
+compilation, caching, dense journaling, and replication alike --- and
+that a runtime can be built to honor it everywhere, not only at the
+query boundary.
 
 That surface tends to be unfamiliar in a specific way. The professional
 reader of this paper has very likely spent a career persisting
@@ -403,10 +488,34 @@ values within its body. Separability is structural, not stylistic: it is
 a property the program either has or does not have. It is decidable
 syntactically at preparation time, by inspection of the parameter
 declarations on the program's surface. The principle that follows admits
-a compact statement: a necessary condition for cacheable specialization,
-stable-key caching, and dense journaling of any DSL program is
-program--value separability. Necessity is the strong claim; the limits
-of what separability does not entail are taken up shortly.
+a compact statement: program--value separation is a necessary condition
+for the \emph{stable-identity} faces --- caching a specialization under
+a key reused across invocations, journaling the program by reference
+rather than by copy, and replicating it as a bounded argument stream.
+Two scopings keep this from collapsing into a definition. The necessity
+is of the separation itself, not of any particular way of obtaining it:
+a runtime may have the programmer declare parameters, as the one
+described here does, or recover the separation by analysis. And the
+necessity is of \emph{these} faces, not of caching in general ---
+caching of other objects, such as memoized results, requires no
+separation at all. Necessity is the strong claim; its scope and the two
+natural objections to it are made precise shortly.
+
+What separability buys, in a word, is \emph{identity}. A program whose
+values are supplied from outside has a textual form that is stable
+across invocations --- it is the same program the second time and the
+thousandth --- and so it can be named; a program that embeds its values
+is a different string on every call, and no two invocations are the same
+program at all. Identity is the pivot on which the rest turns. Once a
+program has an identity independent of its values, caching has something
+to file under, compilation has a stable artifact to specialize, the
+journal has a reference to record in place of a copy, and replication
+has a unit to ship. The faces traced in this paper are best read not as
+four properties of separability but as consequences of the \emph{program
+identity} that separability confers --- and it is the absence of that
+identity, not the presence of embedded values as such, that makes a
+value-embedding script uncacheable, uncompilable-for-reuse, and undense
+in the journal.
 
 Separability admits a binary structural taxonomy of DSL programs. A
 \textbf{parametric script} is separable from its values: it is filed
@@ -441,6 +550,34 @@ follow trace how separability, joined to code-as-data, yields the three
 faces in turn --- and where a runtime that holds separability without
 the second commitment falls short.
 
+Necessity, made precise. Two objections test the claim, and locating
+where each lands sharpens it rather than defeats it. The first is
+\emph{memoization}: a runtime can cache the result of an invocation
+keyed on its inputs with no parameters declared anywhere. This is
+genuine caching, but of a different object --- it caches outputs, not
+the program. A memoized value-embedding script still hits only on
+identical re-invocation, never across distinct argument vectors, and
+yields neither a reusable specialization, nor a reference-based journal
+entry, nor a bounded replication stream. Memoization caches effects; the
+faces at issue cache the operation. The second objection is stronger: a
+runtime can \emph{recover} a separation the programmer never declared
+--- canonicalizing literal scripts and abstracting their literals into a
+template after the fact, the inverse of constant folding. This does not
+refute the claim; it relocates it. What such a runtime recovers
+\emph{is} program--value separation, obtained by analysis instead of by
+declaration. The separation remains the precondition; canonicalization
+is merely another route to it, one that pays an analysis cost and yields
+a separation that is provisional and runtime-derived rather than stable
+and surface-given. So the claim is not that a programmer must declare
+parameters --- it is that the four-fold coherence requires the
+separation to exist, however reached, and that a \emph{stable,
+syntactically decidable} separation is what makes the separated program
+serviceable as the durable identity under which journaling and
+replication operate, where an analysis-recovered one is not. Throughout,
+the definition of separability is syntactic --- a property of program
+text --- while the claim concerns that property's consequences; the two
+are kept apart precisely so the claim is not true by definition.
+
 The DSL program characterized above --- the textual artifact with
 declared parameters --- is the unit of separability. When the term
 \emph{program} appears at the substrate level in subsequent papers of
@@ -458,6 +595,21 @@ executed against a stable library. The two readings are not in tension:
 separability of the unit is what makes the cumulative artifact dense;
 the cumulative artifact is what makes the unit's separability
 operationally consequential.
+
+The central claim can now be stated without hedging. It is not that
+separability improves compilation --- compilation is merely its most
+visible consequence, and the paper would stand were it removed, on
+caching, dense journaling, and replication-bounded entropy alone. The
+claim is that compilation, caching, dense journaling, and
+replication-bounded entropy are four operational projections of one
+structural condition: a program's having an identity independent of its
+values. Nor is the condition peculiar to this runtime or this DSL. No
+system can give a program a \emph{reusable} identity --- and therefore
+none of the consequences that depend on one, a cached specialization, a
+reference recorded in place of a copy, a replayable unit --- while its
+values remain embedded in its representation. Separability is the
+general precondition; the runtime of §3 is one case study in what
+follows once it is met.
 
 \subsection{2. Consequences of
 separability}\label{consequences-of-separability}
@@ -556,7 +708,13 @@ having no stable identifier, is written each time as a script entry: its
 text in full, since it cannot be referred back to anything that came
 before. Three entry kinds, decided mechanically at preparation time from
 the program's separability, encode the program's relation to its
-identity.
+identity. The distinction is, at bottom, ontological: the entry type
+records whether the thing persisted \emph{is} a program with an identity
+of its own --- an Action, referable and replayable --- or merely a
+script that ran once and has none. The journal is, in this sense, a
+ledger of which operations possess operational identity and which do
+not; separability is the test it applies, and the entry type is the
+verdict it records.
 
 The density follows. For a parametric program invoked many times, the
 journal's storage scales with the cumulative size of the argument
@@ -590,6 +748,22 @@ structural rather than programmatic --- first the artifact, then the
 principle that explains why the artifact cohered. What follows describes
 the runtime as it stands; the relationship between its mechanisms and
 the principle of §1.2 is a recognition, not a derivation.
+
+The artifact is open to inspection, and the claims that follow are meant
+to be checked rather than taken on trust. The runtime is public at
+\texttt{github.com/alvaroNCubo/puppeteer}, archived in Software Heritage
+at the commit cited under \emph{Code provenance}; every
+\texttt{file.cs:NN} reference in this section resolves against that
+public source. The benchmark harness of §5 is likewise public (this
+paper repository's \texttt{labs/} and the runtime's
+\texttt{tests-local/}), and the host aggregates it exercises are public
+MIT projects. The existence proof offered here is therefore verifiable
+in the sense that matters for the claim: a reader can read the cited
+code, build it, and re-run the measurements. The earlier, internal
+lineage of the runtime is not part of the proof --- only the public
+snapshot is --- and where the public snapshot differs from the internal
+development line, the public snapshot governs every reference and figure
+in this paper.
 
 \subsubsection{3.1 Compilation pipeline}\label{compilation-pipeline}
 
@@ -810,10 +984,25 @@ arbitrarily expressive without expanding what the journal must record.
 Complex abstractions compose without friction: no DTOs, ORM annotations,
 or projection layers stand between the domain operation and its
 persistence. Porosity makes deep domains expensive to represent;
-anti-porosity makes them economical to compose. The empirical magnitude
-of these numbers --- how many operations a typical verb dispatches, how
-many bytes a typical journal entry occupies, how the ratio behaves at
-scale --- is the subject of §5.
+anti-porosity makes them economical to compose. The two directions
+reinforce one another: the richer the domain, the more meaning each
+Action carries per persisted byte; and because the journal pushes no
+persistence concern back into the domain, the domain is free to grow
+richer still. Density and domain depth are not in tension --- each makes
+room for the other, the plain structural consequence of recording
+operations instead of their effects. This asymmetry is why journal
+density matters at all. The journal is not compressing syntax ---
+shaving bytes from a line of text; it is preserving a reference to an
+operation whose semantic volume exceeds its textual surface. An ActionId
+stands not for a line but for a domain transaction: were a verb a mere
+setter, density would be a trivial saving, but because a verb can name a
+whole transaction, the compact entry preserves something large by
+reference rather than copying it. This is the point the prior paper
+makes from the other side --- the substrate stays dense because what it
+records are operations, not their unfolded effects. The empirical
+magnitude of these numbers --- how many operations a typical verb
+dispatches, how many bytes a typical journal entry occupies, how the
+ratio behaves at scale --- is the subject of §5.
 
 \subsection{5. Empirical results}\label{empirical-results}
 
@@ -843,55 +1032,134 @@ structural consequences of the runtime rather than artifacts of a
 particular domain, the same property should appear on both codebases.
 The selection criterion was structural similarity (DDD aggregates with
 rich behavior methods rather than CRUD entities) over an unrelated
-business domain. Both aggregates are reachable as public source for
-reproduction; Appendix A lists the per-section datasets, the runtime
-branch they were produced from, and the commit SHA.
+business domain. This criterion selects on the dependent variable, and
+we are explicit about what that does and does not buy: choosing two
+rich-behavior aggregates tests whether the measured properties survive a
+change of domain \emph{within} that class --- it does not probe where
+the mechanism stops paying off. To probe the floor rather than the
+favourable case, §5.2 and §5.5 add an adversarial \emph{flat-CRUD} verb
+(a single field setter), and §5.6 reads the result: the CRUD verb is
+itself separable, so all four faces still obtain. What varies with the
+domain is not whether they hold but the \emph{magnitude} of the speedup
+(which persists even on a trivial verb) and the separate, non-face
+property of \emph{verb richness} (which collapses to \textasciitilde1×
+when the domain is shallow). Both aggregates are reachable as public
+source for reproduction; Appendix A lists the per-section datasets and
+the commit SHA.
 
-All measurements use Stopwatch instrumentation around the runtime's
-compilation and execution paths, with N≥1,000 invocations per cell after
-warm-up runs are discarded; cache and pool hit rates use Interlocked
+Two hosts are not a statistical sample, and no claim of generality is
+rested on them. The structural claims of this paper are carried by the
+argument of §1--§4; the two codebases serve a narrower, falsificationist
+purpose --- to test whether the predicted properties are artifacts of
+one domain. Were they domain-specific, they would not appear on a
+second, independently-authored aggregate from a disjoint business
+domain. That they appear on both, with the same structure and differing
+only in magnitude, removes domain-specificity as an explanation; it does
+not, and is not offered to, estimate a population parameter. The two
+hosts are a robustness replication, not a survey.
+
+Measurements were produced against the public runtime commit
+\texttt{b42d0f7} (Appendix A), built in \textbf{Release}, on a
+13th-generation Intel Core i9-13900 (24 physical / 32 logical cores), 64
+GB RAM, Windows 11 (build 26200), .NET 9.0.14 (RyuJIT, AVX2). Two
+classes of measurement are reported and they differ in kind.
+\emph{Deterministic} measurements --- journal entry counts and payload
+bytes (§5.4), DSL dispatch counts and static call-graph closure (§5.5)
+--- are exact, independent of build configuration and of any timing
+instrument, and reproduce bit-identically across runs; they carry the
+structural claims and are verified identical between Debug and Release.
+\emph{Timing} measurements --- the compiled-versus-interpreted speedup
+(§5.2), cold compile cost (§5.2), and eval-cache hit/miss (§5.3) --- use
+the instrument each regime requires. Steady-state throughput (the
+speedup) uses \textbf{BenchmarkDotNet} (v0.14): 8 warm-up iterations and
+15 measured iterations of 20,000 invocations each, with tiered
+compilation disabled (\texttt{DOTNET\_TieredCompilation=0}) so the
+dynamically-emitted compiled delegate is fully optimized from the first
+measured invocation rather than averaged across a Tier-0→Tier-1
+transition; means are reported with their 99.9\% confidence
+half-interval. One-shot costs (a program's cold compile, an eval
+sub-program's recompile) are isolated at their exact call site by a
+runtime instrumentation hook and timed with Stopwatch --- the
+appropriate instrument for a single hundreds-of-microseconds event, not
+a tight steady-state loop. Cache and pool hit rates use Interlocked
 counters; journal-density measurements parse the runtime's binary
-journal format directly. The bench follows a bootstrap-then-measurement
-pattern: a non-parametric bootstrap script establishes the facade in the
-actor's persistent symbol table once, and subsequent timed iterations
-invoke a parametric measurement script that binds per-iteration values
-via the runtime's parameter API. The script string stays constant across
-iterations, so the compiled-program cache hits on every call --- the
-regime the amortization argument names.
+journal format directly. The pool-hit-rate figures (§5.3) and the
+cache-footprint figures (§6.3) are such counter and GC measurements ---
+insensitive to build configuration and to the exact commit --- taken on
+the same public runtime line; they are reported as measured rather than
+separately re-pinned to \texttt{b42d0f7}, whose pool and cache code
+paths they exercise unchanged. The bench follows a
+bootstrap-then-measurement pattern: a non-parametric bootstrap script
+establishes the facade in the actor's persistent symbol table once, and
+subsequent invocations bind per-iteration values via the runtime's
+parameter API while the script string stays constant, so the
+compiled-program cache hits on every call --- the regime the
+amortization argument names. Raw per-iteration data, the BenchmarkDotNet
+environment reports, and the commit SHA are in the companion
+\texttt{data/} directory (Appendix A).
 
 \subsubsection{5.2 Compilation
 amortization}\label{compilation-amortization}
 
-Compiled execution shows a p50 speedup over interpreted execution that
-varies with where the program's work resides. For a synthetic arithmetic
-kernel of depth 100, the speedup is 4.10× (N=1,000 invocations per
-cell). For a DSL-rich kernel of \textasciitilde500 dispatched operations
-exercising for-loops, conditionals, and parameter binding, the speedup
-is 2.92×. For a multi-item purchase verb against the eShop
-\texttt{Order} aggregate --- one DSL dispatch cascading through
-\texttt{Order} ctor, four \texttt{AddOrderItem} calls, and a four-step
-state-machine walk to Shipped --- the speedup is 1.49× (interpreted 5.5
-µs p50, compiled 3.7 µs p50, N=1,000). The pattern is monotonic: the
-more of the per-invocation work is DSL-bound, the larger the speedup;
-the more it is domain-bound, the smaller. The runtime amortizes only the
-AST traversal overhead --- the host-language code dispatched by the verb
-runs identically in both modes.
+Compiled execution shows a steady-state speedup over interpreted
+execution that varies with where the program's work resides. For a
+synthetic arithmetic kernel of depth 100 --- wholly DSL-bound --- the
+speedup is ≈3.1× (interpreted 2.99 µs, compiled 0.97 µs). For a DSL-rich
+kernel of \textasciitilde500 dispatched operations exercising for-loops,
+conditionals, and parameter binding, it is ≈2.2× (interpreted 16.0 µs,
+compiled 7.3 µs). For a multi-item purchase verb against the eShop
+\texttt{Order} aggregate --- one DSL dispatch cascading through the
+\texttt{Order} constructor, three \texttt{AddOrderItem} calls, and a
+four-step state-machine walk to Shipped --- it is ≈1.5× (interpreted
+1.97 µs, compiled 1.31 µs). These are BenchmarkDotNet means from a
+single run with tiered compilation disabled; the within-run 99.9\%
+confidence half-interval is a few percent, but the ratios carry
+process-to-process variation of order ±0.2 (the variation caveat in §5.6
+applies), so they are read to about one significant figure. The pattern
+is monotonic: the more of the per-invocation work is DSL-bound, the
+larger the speedup; the more it is domain-bound, the smaller. The
+runtime amortizes only the AST-traversal overhead --- the host-language
+code the verb dispatches runs identically in both modes, so a verb
+dominated by host work shows the compiler's contribution as a smaller
+fraction. (Under Debug builds, with neither path optimized by the JIT,
+the same curve spans 1.49×--4.10×; the Release figures here are the
+defensible ones and the curve's direction is unchanged.)
 
-Specialization is paid for at first encounter, not at every invocation.
-For straight-line arithmetic kernels, the cost of compiling a single
-program ranges from 0.8 ms (p50, scripts of 5-29 statements) to 4.1 ms
-(p50, scripts of 80-104 statements); for richer DSL kernels exercising
-control flow, from 1.1 ms to 5.3 ms over the same depth range. The cost
-grows linearly in statement count --- approximately 44 µs per statement
-for arithmetic, 43 µs per syntactic structure for richer kernels. For
-the eShop purchase verb, the cold compile cost is 281 µs at p50 (394 µs
-at p95, N=100 distinct script variants forcing cache misses). Against
-the 1.8 µs per-invocation speedup over interpreted execution for the
-same verb, this cost recovers itself after approximately 156
-invocations. Any actor whose lifetime exceeds the first second of
-operation amortizes its compilation investment in full. These numbers
-are not performance claims but empirical confirmation of the structural
-amortization predicted by separability.
+A deliberately adversarial datapoint sharpens what the curve measures. A
+flat-CRUD verb --- a single field setter invoked as
+\texttt{o\ =\ c.SetValue(v)}, with α = 1 host dispatch --- does
+\emph{not} collapse to a 1× speedup: it measures ≈1.9× (interpreted 0.63
+µs, compiled 0.34 µs). The speedup does not track domain richness; it
+tracks the fraction of per-invocation time spent in the DSL dispatch
+that compilation removes --- reflection-based method resolution and
+parameter binding --- and that cost is present even when the host method
+is trivial. What lowers the speedup is host work, not domain simplicity:
+the production verb, one dispatch into a heavy aggregate, sits lowest
+(≈1.5×) precisely because its host work dilutes the fixed DSL overhead,
+and an I/O-bound verb would approach 1× from below. The flat-CRUD case
+is genuinely adversarial only for a \emph{separate} property --- verb
+richness, which collapses to β/α = 1× there (§5.5) and which is not one
+of the four faces --- and for none of the faces themselves: the CRUD
+verb is separable, so it still caches, journals densely, replicates with
+bounded entropy, and compiles with amortization. The adversarial case
+maps the \emph{magnitude} of the speedup and the \emph{depth} a verb
+names; it does not turn any face off.
+
+Specialization is paid once, at first encounter, not at every
+invocation. Compiling a single program scales about linearly with its
+statement count: for straight-line arithmetic kernels the cold compile
+cost, isolated at the \texttt{Compile()} call site, runs from 0.56 ms
+(p50, depth 5) to 4.30 ms (p50, depth 100) --- a slope of roughly 39 µs
+per statement. The eShop purchase verb is a single dispatch and
+therefore a small expression tree; it compiles cold in 380 µs at p50
+(516 µs at p95; N=100 distinct script variants forcing cache misses).
+Against the 0.70 µs per-invocation steady-state saving for that verb,
+the cold compile recovers itself after roughly 540 invocations ---
+within the first moments of any actor that outlives its warm-up. These
+numbers are not performance claims but empirical confirmation of the
+structural amortization predicted by separability; the comparison is
+internal (compiled vs.~interpreted on the same runtime), not a
+competitive benchmark against external systems (§5.6).
 
 \subsubsection{5.3 Cache amortization}\label{cache-amortization}
 
@@ -903,12 +1171,11 @@ while on a cache miss --- when the sub-script's text differs from the
 cached entry --- it re-parses, rebuilds, and re-compiles. Across three
 sub-program complexities (a two-term arithmetic expression, a fifty-term
 arithmetic kernel, and a method call against a facade-bound counter on
-the eShop side), the cache-hit cost ranges from 1.7 to 2.2 µs at p50,
-while the cache-miss cost ranges from 223 to 263 µs at p50. The ratio
-between cache miss and cache hit sits at approximately 120× regardless
-of sub-program complexity --- a two-orders-of-magnitude separation that
-confirms the principle extends to any region of the program with a
-stable textual identity.
+the eShop side), the cache-hit cost is 0.5--0.6 µs at p50 while the
+cache-miss cost is 214--243 µs at p50. The miss-to-hit ratio is roughly
+400× regardless of sub-program complexity --- a separation of nearly
+three orders of magnitude that confirms the principle extends to any
+region of the program with a stable textual identity.
 
 Allocation pressure is amortized at a finer granularity by parser and
 parameter pools. Three workloads measured under AlwaysCompiled policy:
@@ -966,40 +1233,159 @@ invocations; the script body does not.
 
 \subsubsection{5.5 Verb richness}\label{verb-richness}
 
-For the eShop purchase verb the DSL script dispatches 9 host-language
-invocations per invocation, exactly reproducible across 1,000 measured
-runs. Static forward closure of the call graph from those 9 entry points
-reaches 24 methods within \texttt{dotnet-eShop/src/Ordering.Domain} ---
-measured by a syntactic walker that traces method-to-method edges from
-the entry points, excludes trivial accessors, and treats the project
-boundary as a structural ceiling. For the Grzybek
-\texttt{SubscriptionPayment} verb the dispatch count is 2 (the facade
-absorbs the value-object assembly into one host-language call from the
-DSL's perspective) and the closure reaches 73 methods within the
-project's \texttt{Payments.Domain} plus its shared
-\texttt{BuildingBlocks/Domain} (275 declarations indexed, 105 trivial
-accessors filtered). The β/α asymmetries are 2.7× for eShop and
-\textasciitilde36× for Grzybek.
+For the eShop purchase verb the DSL script dispatches \textbf{α = 9}
+host-language invocations per DSL invocation --- an exact, deterministic
+count, reproduced without variance across 1,000 runs. To gauge the
+host-language surface those 9 entry points reach, a syntactic Roslyn
+walker computes the \emph{static forward closure} of the call graph,
+excluding trivial accessors and cutting off at the project boundary:
+\textbf{β = 24} methods within
+\texttt{dotnet-eShop/src/Ordering.Domain}. For the Grzybek
+\texttt{SubscriptionPayment} verb, α = 2 (its facade folds value-object
+construction into one host call) and β = 73 within
+\texttt{Payments.Domain} plus the shared \texttt{BuildingBlocks/Domain}
+(275 declarations indexed, 105 trivial accessors filtered). The β/α
+ratios are 2.7× (eShop) and \textasciitilde36× (Grzybek).
 
-These two numbers do not represent the ceiling of the mechanism --- they
-represent its floor. Both \texttt{Ordering.Domain} and
-\texttt{Payments.Domain} are RDBMS-anchored DDD aggregates: their
-authors designed against the anticipation of EF Core hydration, and that
-anticipation flattens polymorphism, caps graph depth, and externalizes
-references as foreign keys. The marks are directly visible in the source
---- \texttt{private\ set} on every property, explicit
-\texttt{EF\ Core\ 2.0\ owned\ entity} annotations on value objects,
-\texttt{int?} foreign keys instead of object references, and a
-deliberate absence of polymorphism on the aggregate roots. Domains
-developed without this pressure on their representation grow
-polymorphism, deeper graphs, and richer cross-class behavior; the same
-mechanism then traverses substantially further. The β/α magnitude is
-therefore a measurement of how much the host's persistence anchor
-compresses the domain --- not of the mechanism the runtime applies once
-a verb is invoked. The mechanism is what §4 anticipates: a verb whose
-surface signature names an orchestration deeper than its syntax
-suggests. The depth of that orchestration is a property of the host's
-domain, not of the runtime that dispatches into it.
+What β does and does not measure must be stated plainly. β is a
+\emph{static lower bound on reachable declared surface}, not a count of
+operations executed: it over-counts (branches never taken at runtime
+remain in the closure) and under-counts (it does not follow virtual
+dispatch, delegates, or reflection). It is also sensitive to assembly
+partition --- moving code across \texttt{.csproj} boundaries moves the
+cutoff and changes β --- so it measures reachable surface \emph{under a
+chosen boundary}, not an invariant of domain depth. The exact, faithful
+quantity is α: one DSL token dispatches several host operations. β
+corroborates only the coarse direction the surface-vs-depth claim of §4
+needs --- that the host neighborhood a single verb names is much larger
+than the verb's textual surface --- and nothing finer.
+
+The 2.7×-versus-36× gap, in particular, should not be read as the
+measured effect of a single cause. With two hosts, author coding style,
+aggregate granularity, and persistence-driven design pressure are fully
+confounded, and the data cannot apportion the difference among them.
+Both \texttt{Ordering.Domain} and \texttt{Payments.Domain} are
+RDBMS-anchored DDD aggregates --- \texttt{private\ set} properties,
+EF-Core owned-entity annotations, \texttt{int?} foreign keys instead of
+object references, little polymorphism on the roots --- and it is
+\emph{plausible} that this representational pressure flattens a graph a
+richer domain would deepen. But that is a hypothesis these two points
+illustrate, not a relationship they establish; and the very features a
+richer domain would add --- polymorphism, delegates --- are exactly what
+the static walker cannot follow, so the conjecture that β would grow by
+orders of magnitude on such a domain is not one this instrument can
+confirm. What the measurement does support is the modest, exact claim of
+§4: a single persisted DSL token names a host-language operation
+substantially larger than itself, so the journal records far less than
+the behavior it commands. That observation rests on α and on the
+journal-density result (§5.4), both exact --- not on the β/α magnitude
+or any causal reading of it.
+
+An adversarial floor case makes the dependence explicit. A flat-CRUD
+verb --- a single field setter that calls nothing --- has α = 1 and β =
+1, so β/α = 1× and the surface-vs-depth asymmetry vanishes entirely.
+Verb richness is therefore a property of the host domain's depth, not of
+separability or the runtime, and it is not one of the four faces: where
+the domain is shallow there is simply no depth to name. Its collapse
+disables none of the faces --- the flat-CRUD verb, being separable,
+still caches, journals densely, replicates with bounded entropy, and
+compiles with amortization; the journal entry is simply a compact
+reference to a verb that happens to name little.
+
+\subsubsection{5.6 Limitations and threats to
+validity}\label{limitations-and-threats-to-validity}
+
+Several boundaries qualify the magnitudes above. \emph{Sample of hosts.}
+Two aggregates are a robustness replication against domain-specificity
+(§5.1), not a sample from which a population magnitude can be estimated;
+the generality this paper claims is structural (§1--§4), and the
+empirical role of eShop and Grzybek is to show the predicted properties
+are not artifacts of one domain. \emph{Single environment.} All timings
+come from one machine and one runtime build, so absolute microsecond
+figures are machine-specific. The portable quantities are the ratios ---
+speedup, miss-to-hit, density --- each a comparison of two paths under
+identical conditions, where machine-constant factors cancel. The speedup
+ratios additionally vary by order ±0.2 across process launches (ordinary
+microbenchmark reality), so they are read to about one significant
+figure of confidence --- their ordering and direction, not their third
+digit. The journal-density and dispatch-count figures, being
+deterministic counts, do not carry this variation. \emph{Steady state
+versus production regime.} The speedup is measured with tiered
+compilation disabled, which isolates the fully-optimized steady state of
+both paths and removes the Tier-0→Tier-1 transition that otherwise makes
+the dynamically-emitted compiled delegate bimodal; under the default
+tiered regime a long-lived actor reaches the same steady state, with
+wider variance during warm-up. \emph{Synthetic kernels.} The arithmetic
+and DSL-rich kernels isolate runtime overhead independent of host work;
+they are not stand-ins for whole applications, and the production verb
+is included precisely to locate that overhead inside a representative
+end-to-end transaction.
+
+What none of these qualifications touch is the structural result,
+because it rests on the \emph{deterministic} measurements rather than
+the timings. The journal-density and verb-richness figures (§5.4--§5.5)
+are exact counts and bytes, identical across builds and machines, and
+they carry the paper's central empirical observation: that the journal's
+expressiveness per byte rises as the host domain grows richer --- each
+persisted action names a deeper orchestration --- while the persisted
+footprint per invocation does not. The relationship runs both ways. A
+richer domain library makes each named action carry more meaning per
+stored byte; and the DSL, carrying no persistence concern of its own,
+lets the domain be modeled as richly as its designers wish without
+expanding what the journal must record. The timing results confirm only
+the \emph{direction} of the amortization argument --- that compilation
+pays for itself, within a few hundred invocations --- not a universal
+constant; the structural claim does not depend on their magnitude.
+
+\emph{No external baseline, by design.} The speedup of §5.2 is an
+internal, controlled comparison --- compiled versus interpreted
+execution of the same DSL program, against the same host domain code,
+under the same journaling, on the same runtime --- so the only variable
+is the one separability is about: the AST-traversal overhead that
+compilation removes. It is deliberately not a competitive benchmark
+against Orleans, a hand-written compiled expression tree, or a SQL
+stored procedure. Those alternatives differ from the runtime here on
+several axes at once --- language, persistence model, domain encoding,
+transport --- so a latency comparison would measure a confounded mixture
+rather than the separability effect, and this paper makes no claim that
+the runtime is faster than any of them. The external comparison the
+thesis does require is structural rather than chronometric: whether a
+system exhibits the four-fold coherence at all. On that axis SQL
+prepared statements (§6.4, §7.6) and Truffle/GraalVM (§7.2) are compared
+explicitly --- they share separability and its execution-side
+consequences but, persisting rows or volatile machine code rather than
+the named operation, exhibit only a subset of the four faces. The
+speedup confirms that compilation amortizes as the principle predicts;
+it is not offered as evidence of competitive performance, and
+``compiling beats interpreting one's own AST'' is indeed its expected,
+modest content --- the load-bearing empirical results are the
+deterministic density and dispatch measurements, not the timings.
+
+\emph{Selection of hosts, and the adversarial case.} The two production
+hosts were chosen for structural similarity (rich-behavior DDD
+aggregates), which is selection on the dependent variable: on its own it
+can only show the mechanism surviving a change of domain within that
+class, not where it stops paying off. The flat-CRUD verb of §5.2 and
+§5.5 is the corrective, and it locates the limits precisely --- but the
+limits are not where a first reading might place them. The CRUD verb is
+itself separable, so all four faces still obtain: it caches, journals
+densely, replicates with bounded entropy, and compiles with
+amortization. What the adversarial case varies is not \emph{whether} the
+faces hold but two quantities that are not faces at all: the
+\emph{magnitude} of the compiled speedup (a gradient set by how much
+per-invocation time is DSL dispatch versus host work --- ≈1.9× even for
+the trivial verb, falling toward 1× only as host or I/O work dominates)
+and \emph{verb richness} (β/α → 1× when the verb is a bare setter), a
+property of the host domain's depth that the journal-density argument
+uses but that separability does not entail. So this does not qualify the
+title's claim. Separability remains the precondition for the four faces,
+and they obtain wherever a program is separable; the adversarial case
+maps how much each consequence delivers across domains, not a boundary
+where the consequences disappear. The boundary where separability holds
+but a face does \emph{not} is a different case entirely --- a separable
+runtime lacking code-as-data, exhibiting caching and compilation but not
+dense journaling --- and it is SQL prepared statements (§6.4), the
+worked example of necessity without sufficiency.
 
 \subsection{6. Counter-arguments}\label{counter-arguments}
 
@@ -1031,10 +1417,11 @@ when the program will be reused. A script seen once and never again ---
 an ad-hoc query against a live actor, a one-off configuration
 adjustment, an exploratory invocation formed at call time --- provides
 no future invocations against which to amortize the compilation cost.
-Forcing such scripts through the compilation pipeline pays the 1.4 ms
-cold cost (§5.2) and discards the result; the compiled delegate is never
-invoked a second time, and the journal records the script literally
-rather than as a referenced action. The runtime's
+Forcing such scripts through the compilation pipeline pays a cold
+compile cost (§5.2) --- hundreds of microseconds to a few milliseconds,
+depending on program size --- and discards the result; the compiled
+delegate is never invoked a second time, and the journal records the
+script literally rather than as a referenced action. The runtime's
 \texttt{AlwaysCompiled} policy permits this on demand, but the default
 policy correctly recognizes that not every script is amortizable.
 Separability is necessary for compilation to make sense; reuse is the
@@ -1118,7 +1505,7 @@ dissolve when that property is made explicit.
 
 The structural condition this paper formalizes has a close ancestor in
 \textbf{partial evaluation}, as developed by Jones, Gomard, and Sestoft
-(1993) and the Futamura projections (Futamura 1971, 1999). Partial
+(1993) and the Futamura projections (Futamura, 1971/1999). Partial
 evaluation specializes a program with respect to a subset of inputs
 known in advance, producing a residual program that depends only on the
 dynamic arguments --- and it requires, structurally, that the program's
@@ -1128,14 +1515,72 @@ paper applies the same separability principle to a domain-specific
 language whose programs are short, parametric by construction, and
 stored as journal entries; in this setting, separability is syntactic,
 decidable from the program's surface rather than from static analysis.
-The further consequences traced in §2 --- caching and dense journaling
---- are not part of the partial-evaluation tradition; they follow from
-pairing separability with code-as-data persistence.
+Two differences are load-bearing. First, partial evaluation
+\emph{recovers} the static/dynamic split by binding-time analysis and
+\emph{consumes} it: the residual program is the artifact of interest,
+and the separation is discarded once specialization is complete. Here
+the split is declared on the program's surface and \emph{persisted} ---
+it survives into the journal as an (identifier, argument-vector) pair
+and into replication as the unit that replays to state. Second, the
+further consequences traced in §2 --- caching as identity, dense
+journaling, replication-bounded entropy --- fall outside the
+partial-evaluation tradition's concern, which is execution speed rather
+than persistence; they follow from pairing separability with
+code-as-data persistence. Partial evaluation is the closest ancestor of
+the compilation face alone; on the other three it is silent.
 
-\subsubsection{7.2 Lambda lifting}\label{lambda-lifting}
+\subsubsection{7.2 Self-optimizing AST interpreters
+(Truffle/GraalVM)}\label{self-optimizing-ast-interpreters-trufflegraalvm}
 
-\textbf{Lambda lifting} (Johnsson 1985) is a program transformation that
-rewrites locally-defined functions whose free variables capture an
+The most direct comparison is not a classical technique but a production
+system: the Truffle framework and the GraalVM compiler (Würthinger et
+al., 2012, 2017). Truffle hosts a language as a self-optimizing abstract
+syntax tree whose interpreter nodes rewrite themselves under runtime
+profiling, and GraalVM applies partial evaluation to the interpreter
+specialized to a given AST --- realizing the first Futamura projection
+in practice, from interpreter-plus-program to machine code, cached per
+call target and guarded by deoptimization. On the compilation face
+(§2.1, §3.1), Truffle is more sophisticated than the runtime
+characterized here: it profiles observed types and values, speculates
+aggressively, inlines across a polyglot boundary, and deoptimizes when a
+speculation fails. A reviewer is right to ask what program--value
+separability adds once Truffle is on the table. The first half of the
+answer is that Truffle already turns on it: its specialization holds the
+AST constant while frame arguments vary, and its compilation amortizes
+only when the same AST recurs across invocations --- so it
+\emph{presupposes} program--value separation. A program embedding its
+values would present a fresh AST per call and defeat Truffle's reuse
+exactly as §2.2 describes it defeating the cache. Truffle is thus not a
+counterexample to the necessity claim but an independent witness to it,
+operating on the same precondition.
+
+The second half is that Truffle never leaves the execution axis. Its
+specialization is volatile execution machinery --- machine code keyed to
+an in-process call target, provisional under deoptimization, discarded
+at process exit, bound to no stable name, replicated to no other node.
+There is no journal in which the specialized program is the persisted
+entry, no identifier under which it is referenced across time, no
+replication of the program as the unit of state. The separation Truffle
+exploits is operational and implicit, recovered and re-validated by the
+runtime; the separation this paper formalizes is declared on the
+program's surface, decided once at preparation time without profiling or
+speculation, and elevated to a durable identity --- a content-derived
+action reference that is at once the cache key, the journal entry, and
+the replication unit. This makes the necessity claim of §1.2 precise:
+declared separability is not necessary for fast execution --- Truffle
+shows a profile-driven runtime can compile and cache without it --- but
+it is necessary for the persistence faces, because a provisional,
+in-memory, profile-derived boundary cannot serve as a stable journal
+reference or a replication anchor. The mechanism follows the same
+divide: Truffle partially evaluates a host-language interpreter against
+the AST; the runtime here lowers the DSL AST directly into a typed
+expression tree and a delegate over the declared parameter vector, with
+no interpreter to specialize and no speculative guard to maintain.
+
+\subsubsection{7.3 Lambda lifting}\label{lambda-lifting}
+
+\textbf{Lambda lifting} (Johnsson, 1985) is a program transformation
+that rewrites locally-defined functions whose free variables capture an
 enclosing scope into top-level functions that receive those variables as
 explicit parameters. The transformation makes the function's
 dependencies syntactically visible --- and, by doing so, makes the
@@ -1151,15 +1596,15 @@ compilation; this paper extends the same principle to caching, dense
 journaling, and replication-bounded entropy by joining separability with
 code-as-data persistence.
 
-\subsubsection{7.3 Closure conversion}\label{closure-conversion}
+\subsubsection{7.4 Closure conversion}\label{closure-conversion}
 
-\textbf{Closure conversion} (Appel 1992) is a compilation technique that
-translates a function with captured lexical environment into an explicit
-closure record --- a pair of function pointer and environment data ---
-that the runtime carries as a single value. Closure conversion makes
-implicit lexical dependencies explicit, but preserves them as runtime
-data: the closure travels with its environment record, retained in
-memory, and re-bound on each invocation. Lambda lifting and the
+\textbf{Closure conversion} (Appel, 1992) is a compilation technique
+that translates a function with captured lexical environment into an
+explicit closure record --- a pair of function pointer and environment
+data --- that the runtime carries as a single value. Closure conversion
+makes implicit lexical dependencies explicit, but preserves them as
+runtime data: the closure travels with its environment record, retained
+in memory, and re-bound on each invocation. Lambda lifting and the
 principle of this paper sit on the other side of the same choice: rather
 than carry the environment, eliminate it by promoting the variables that
 would have been captured into top-level parameters supplied at the call
@@ -1169,11 +1614,11 @@ a surrounding scope --- which is what permits the journal to record the
 program by name without any captured-environment record traveling
 alongside it.
 
-\subsubsection{7.4 Template instantiation}\label{template-instantiation}
+\subsubsection{7.5 Template instantiation}\label{template-instantiation}
 
 \textbf{Template instantiation} in general-purpose languages ---
-exemplified by C++ templates (Stroustrup 1986--present; Vandevoorde and
-Josuttis 2017) and the broader tradition of generic programming ---
+exemplified by C++ templates (Stroustrup, 1994; Vandevoorde, Josuttis,
+\& Gregor, 2017) and the broader tradition of generic programming ---
 applies the separability principle in another setting: a template body
 names operations parameterized by types or compile-time constants, and
 the compiler instantiates each template with concrete parameters at
@@ -1187,19 +1632,19 @@ operational: instead of monomorphizing the program once per parameter
 tuple, the runtime compiles the program once and rebinds its arguments
 on every call. Both arrangements presuppose what this paper formalizes.
 
-\subsubsection{7.5 Prepared statements}\label{prepared-statements}
+\subsubsection{7.6 Prepared statements}\label{prepared-statements}
 
 \textbf{Prepared statements} in relational database systems (SQL
-standard ISO/IEC 9075; Hellerstein and Stonebraker 2007) are the closest
-operational analog to the runtime described here. A prepared statement
-carries a parametric template (with placeholders for bind values), the
-database parses and plans it once, caches the plan, and reuses both for
-many invocations with different argument vectors --- the same
-parametric-template-plus-bind-values pattern §1.1 used as pedagogical
-anchor for the principle this paper formalizes. The two systems share
-separability and its first two consequences: compilation (the query
-plan) and caching (the plan cache). They diverge on what the runtime
-persists. A relational database persists row data; the prepared
+standard ISO/IEC 9075:2023; Hellerstein, Stonebraker, \& Hamilton, 2007)
+are the closest operational analog to the runtime described here. A
+prepared statement carries a parametric template (with placeholders for
+bind values), the database parses and plans it once, caches the plan,
+and reuses both for many invocations with different argument vectors ---
+the same parametric-template-plus-bind-values pattern §1.1 used as
+pedagogical anchor for the principle this paper formalizes. The two
+systems share separability and its first two consequences: compilation
+(the query plan) and caching (the plan cache). They diverge on what the
+runtime persists. A relational database persists row data; the prepared
 statement itself is not the persisted artifact. The runtime described
 here persists the named operation rather than its row-level effects,
 completing the four-fold coherence with journal density and
@@ -1209,12 +1654,23 @@ condition any DSL runtime must satisfy to admit compilation, caching,
 and dense persistence at all.
 
 These traditions arise in different domains --- compilers, functional
-languages, generic programming, database engines --- but they converge
-on the same structural observation: programs whose dependencies are
-syntactically separable from their bodies admit forms of specialization,
-reuse, and compact representation that programs with embedded values
-cannot. This paper isolates that observation as a single principle and
-traces its full runtime consequences in a DSL setting.
+languages, generic programming, database engines --- and they share one
+structural observation: programs whose dependencies are syntactically
+separable from their bodies admit forms of specialization that programs
+with embedded values cannot. What they do not share is what this paper
+adds. In every case above, separability is instrumental to execution and
+the separation is consumed by a transformation or a query planner; in
+none is the separated program the persisted, replayable, replicable unit
+of state. The contribution here is not to observe separability again but
+to relocate it --- from an enabler of execution specialization to the
+precondition of a persistence regime --- and to show that compilation,
+caching, dense journaling, and replication-bounded entropy are one
+precondition's four projections rather than four independent techniques.
+Prepared statements make the gap concrete: they supply the closest
+operational analog and still exhibit only two of the four faces, because
+they persist rows rather than the named operation. Separability is
+necessary for the four-fold coherence; code-as-data persistence is what
+carries it past the two faces the prior art already reaches.
 
 \subsection{8. Conclusion}\label{conclusion}
 
@@ -1229,15 +1685,17 @@ dense journaling. The runtime characterized in §3 realizes the principle
 concretely; the magnitudes reported in §5 confirm the predicted
 structural amortization across two open-source DDD aggregates --- a
 compiled-versus-interpreted speedup that scales monotonically with
-DSL-bound work (1.49× on the eShop purchase verb to 4.10× on a synthetic
-arithmetic kernel), a cold compile cost (281 µs for the eShop purchase
-verb) that recovers itself after roughly 156 invocations, and a journal
-in which 99.8\% of parametric entries are compact action references
-producing a footprint several-fold denser than the equivalent
-literal-script storage. The magnitudes are floors of the mechanism on
-RDBMS-anchored DDD aggregates whose authors designed against ORM
-hydration; the same mechanism applied to host domains without that
-representational pressure compounds further.
+DSL-bound work (roughly 1.5× on the eShop purchase verb to 3.1× on a
+synthetic arithmetic kernel), a cold compile cost (≈380 µs for the eShop
+purchase verb) that recovers itself within several hundred invocations,
+and a journal in which ≈99.8\% of parametric entries are compact action
+references producing a footprint several-fold denser than the equivalent
+literal-script storage. These magnitudes are drawn from two
+RDBMS-anchored DDD aggregates; whether host domains without that
+representational pressure would widen the surface-vs-depth gap further
+is a plausible conjecture, not a result that two data points --- or a
+static call-graph walker blind to polymorphism and delegates --- can
+establish.
 
 The principle takes its place alongside the analysis of the prior paper
 of this series, \href{01-anti-porosity.md}{\emph{Anti-porous
@@ -1257,7 +1715,7 @@ Prior paper & This paper \\
 \endlastfoot
 Problem: porosity & Condition for avoiding it \\
 Density preserved & Program--value separability \\
-Homoiconic journal & Stable program identifier \\
+Executable journal & Stable program identifier \\
 Operations vs state & Functions vs instances \\
 \end{longtable}
 }
@@ -1267,6 +1725,26 @@ preservation is what is achieved; separability is what makes it
 achievable. Together, they argue that density in domain representation
 is not an optimization but a structural property that follows from how
 programs relate to their values.
+
+Stated as a design space, the two papers occupy a cell that little else
+does. Two properties are at work, and each is common on its own.
+\emph{Separability} --- values external to the program --- is
+everywhere: every prepared statement, every parameterized query has it.
+\emph{Persisting the operation} rather than its effects is also well
+known: event sourcing is built on it. What is rare is their conjunction.
+SQL is separable but persists rows, not the statement; event-sourced
+logs persist operations but their events are command-shaped \emph{data},
+not separable programs with an identity of their own; ordinary CRUD has
+neither. A runtime that is \emph{both} separable \emph{and} persists the
+operation produces what neither tradition has alone: a persistent
+operation carrying a stable identity independent of its values --- an
+\emph{Action}. Separability (this paper) supplies the identity;
+code-as-data persistence (Paper 1) makes the identified operation the
+durable artifact. The Action is precisely what falls out when both hold
+at once, and it is the corner of the design space --- separable
+\emph{and} operation-persisting --- that this series occupies and that
+the surrounding traditions, each holding one property without the other,
+do not reach.
 
 The principle is not bound to the runtime characterized in §3. In an
 Orleans- or Akka-style actor framework with a parameterized command DSL
@@ -1302,15 +1780,24 @@ represent; anti-porosity makes them economical to compose.
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-\href{https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da}{\texttt{2f31f96}}
-(2026-05-18). The snapshot is archived in Software Heritage under the
-following persistent identifier:
+\href{https://github.com/alvaroNCubo/puppeteer/tree/b42d0f76b4278c36a45c221cc1453e3ee8ffb3de}{\texttt{b42d0f7}}
+(2026-05-26) --- the same public snapshot cited by the prior paper of
+this series. The empirical measurements of §5 were produced against this
+commit, built in Release (Appendix A, §5.1). The snapshot is archived in
+Software Heritage under the following persistent identifier:
 
 \begin{verbatim}
-swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
+swh:1:dir:177e2d61486bdbdfd2d5e774fcf392a45406e60d;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
+  anchor=swh:1:rev:b42d0f76b4278c36a45c221cc1453e3ee8ffb3de
 \end{verbatim}
+
+The core files cited inline (\texttt{ActorHandler.cs},
+\texttt{Program.cs}, \texttt{Actor.cs}, \texttt{ActorV2.cs},
+\texttt{ActorV2Invocation.cs}, \texttt{DomainLibraries.cs}) are
+byte-identical between this commit and the prior public snapshot
+\href{https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da}{\texttt{2f31f96}}
+(2026-05-18); the line numbers below resolve against either.
 
 Inline references of the form \texttt{file.cs:NN} (e.g.,
 \texttt{ActorHandler.cs:38}) resolve against this snapshot. A reader can
@@ -1337,8 +1824,12 @@ University Press.
 
 Futamura, Y. (1999). Partial evaluation of computation process --- an
 approach to a compiler-compiler. \emph{Higher-Order and Symbolic
-Computation}, \emph{12}(4), 381--391. (Original work published 1971 in
+Computation}, \emph{12}(4), 381--391.
+https://doi.org/10.1023/A:1010095604496 (Original work published 1971 in
 \emph{Systems, Computers, Controls}, \emph{2}(5), 45--50.)
+
+Gregor, S. (2006). The nature of theory in information systems.
+\emph{MIS Quarterly}, \emph{30}(3), 611--642.
 
 Hellerstein, J. M., Stonebraker, M., \& Hamilton, J. (2007).
 Architecture of a database system. \emph{Foundations and Trends in
@@ -1359,10 +1850,9 @@ languages and computer architecture} (pp.~190--203). Springer-Verlag.
 Jones, N. D., Gomard, C. K., \& Sestoft, P. (1993). \emph{Partial
 evaluation and automatic program generation}. Prentice Hall.
 
-Rivera, A. (2026). \emph{Anti-porous architecture: A unified design
-principle for CQRS + Actor + Event-Sourcing systems} {[}Paper 1 of this
-series{]}.
-https://github.com/alvaroNCubo/puppeteer-papers/blob/main/01-anti-porosity.md
+Rivera, A. (2026a). Anti-porous architecture: a unified design principle
+for CQRS + Actor + Event-Sourcing systems. \emph{Puppeteer Papers
+Series}, Paper 1. Zenodo. https://doi.org/10.5281/zenodo.20404863
 
 Stroustrup, B. (1994). \emph{The design and evolution of C++}.
 Addison-Wesley.
@@ -1370,28 +1860,47 @@ Addison-Wesley.
 Vandevoorde, D., Josuttis, N. M., \& Gregor, D. (2017). \emph{C++
 templates: The complete guide} (2nd ed.). Addison-Wesley.
 
+Würthinger, T., Wöß, A., Stadler, L., Duboscq, G., Simon, D., \& Wimmer,
+C. (2012). Self-optimizing AST interpreters. In \emph{Proceedings of the
+8th Symposium on Dynamic Languages (DLS '12)} (pp.~73--82). ACM.
+https://doi.org/10.1145/2384577.2384587
+
+Würthinger, T., Wimmer, C., Humer, C., Wöß, A., Stadler, L., Seaton, C.,
+Duboscq, G., Simon, D., \& Grimmer, M. (2017). Practical partial
+evaluation for high-performance dynamic language runtimes. In
+\emph{Proceedings of the 38th ACM SIGPLAN Conference on Programming
+Language Design and Implementation (PLDI 2017)} (pp.~662--676). ACM.
+https://doi.org/10.1145/3062341.3062381
+
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{Appendix A --- Code
 references}\label{appendix-a-code-references}
 
-The references below cite source locations in the Puppeteer codebase.
-Citations are given as \texttt{file:line} pairs against the runtime
-version current at the time of measurement (see §5.1 for measurement
-methodology). The codebase currently lives in a private repository; a
-public-mirror URL will be added to this appendix when the codebase is
-sanitized for public release. Datasets cited in §5 are stored in the
-companion \texttt{data/} directory of this paper repository, with the
-same publication caveat.
+The references below cite source locations in the Puppeteer codebase as
+\texttt{file:line} pairs against the public commit \texttt{b42d0f7} (see
+\emph{Code provenance}); the cited core files are byte-identical at the
+prior public snapshot \texttt{2f31f96}. The benchmark harness that
+produced §5 is public: the MSTest cold-compile, eval, journal-density,
+and dispatch-count benches live in the runtime repository under
+\texttt{tests-local/} at commit \texttt{b42d0f7}, while the
+BenchmarkDotNet speedup harness, the synthetic compile/eval sweeps, and
+the Roslyn call-graph walkers live in this paper repository's
+\texttt{labs/} directory (\texttt{lab01-bdn-speedup/},
+\texttt{lab05-eshop-roslyn/}, \texttt{lab05-grzybek-roslyn/}). Datasets
+cited in §5 --- raw per-iteration CSVs, the BenchmarkDotNet environment
+reports, and per-lab summaries --- are stored in the companion
+\texttt{data/} directory of this paper repository, each stamped with the
+commit SHA. The measurement environment is recorded in §5.1.
 
 \subsubsection{§1.2 --- Formal
 characterization}\label{formal-characterization}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5000}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Reference
@@ -1420,9 +1929,9 @@ pipeline}\label{compilation-pipeline-1}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5000}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Reference
@@ -1458,9 +1967,9 @@ retained}\label{interpretation-retained-1}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5000}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Reference
@@ -1498,9 +2007,9 @@ programs}\label{hot-loaded-dsl-programs}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5000}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Reference
@@ -1529,9 +2038,9 @@ runtime against the cached domain \\
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.5000}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Reference
@@ -1575,8 +2084,9 @@ open-source aggregates:
   \texttt{MarkAsPaid}.
 \end{itemize}
 
-The synthetic kernels in §5.2 (arithmetic, DSL-rich) carry no
-external-codebase dependency.
+The synthetic kernels in §5.2--§5.3 (arithmetic, DSL-rich) carry no
+external-codebase dependency; their datasets are in
+\texttt{data/paper2-synthetic/}.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -1601,15 +2111,22 @@ What it contains
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-§5.2 (compilation speedup, production verb) & \texttt{data/lab01-eshop/}
-& Lab 1 Run 3 & eShop & Compiled vs interpreted bench, N=1000,
-bootstrap-then-measurement \\
+§5.2 (compilation speedup) & \texttt{data/lab01-eshop/} & Lab 1 & eShop
++ synthetic & BenchmarkDotNet compiled-vs-interpreted (Release,
+\texttt{DOTNET\_TieredCompilation=0}); GitHub-markdown + CSV reports
+incl.~the BDN environment block \\
 §5.2 (compile cold cost, production verb) & \texttt{data/lab02-eshop/} &
 Lab 2 Tier 3 & eShop & Cold compile cost per distinct script variant,
-N=100 \\
+N=100, isolated at the \texttt{Compile()} call site \\
+§5.2 (compile cost by depth) & \texttt{data/paper2-synthetic/} & Lab 2
+synthetic & synthetic & Cold compile cost vs statement count (depths
+5--100), 50 variants per depth \\
 §5.3 (eval cache hit vs miss) & \texttt{data/lab03-eshop/} & Lab 3 Tier
 C & eShop & Stable vs mutating eval text; per-iteration end-to-end and
 isolated eval-compile ticks \\
+§5.3 (eval cache by complexity) & \texttt{data/paper2-synthetic/} & Lab
+3 synthetic & synthetic & Hit vs miss for 2-term and 50-term eval
+sub-programs \\
 §5.4 (journal density) & \texttt{data/lab04-eshop/} & Lab 4 & eShop &
 Action / Script / Define entry counts and payload bytes parsed directly
 from BinaryEventCodec journal\_*.bin \\

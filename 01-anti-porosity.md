@@ -528,7 +528,7 @@ This appendix consolidates the source-code references cited throughout the paper
 ### A.1 Reflection-based discovery (§4.1)
 
 | Claim | File | Lines |
-|---|---|---|
+|----------|--------------------|--|
 | `Actor` marker base class for domain entry points | `Puppeteer/Actor.cs` | 15 |
 | Reflection-based discovery of domain types via assembly scan | `Puppeteer/EventSourcing/DomainLibraries.cs` | 117–128 |
 | Domain library loaded at handler construction | `Puppeteer/EventSourcing/ActorHandler.cs` | 61 |
@@ -538,7 +538,7 @@ This appendix consolidates the source-code references cited throughout the paper
 ### A.2 Parameter modifiers (§4.2)
 
 | Claim | File | Lines |
-|---|---|---|
+|----------|--------------------|--|
 | Four parameter modifiers defined (`In`, `Out`, `InOut`, `Eval`) | `Puppeteer/Parameter.cs` | 33–36 |
 | `Eval` value setter generates literal-assigning script on first invocation | `Puppeteer/Parameter.cs` | 163–224 |
 | `EvalScript` property (valid only for `Eval` parameters) | `Puppeteer/Parameter.cs` | 228–247 |
@@ -552,7 +552,7 @@ This appendix consolidates the source-code references cited throughout the paper
 ### A.3 Executable journal (§4.3)
 
 | Claim | File | Lines |
-|---|---|---|
+|----------|--------------------|--|
 | Journal high-level interface (append-style writes, read-forward only) | `Puppeteer/EventSourcing/DB/Diary.cs` | 228–337 |
 | Append primitive (`AppendRecord`) | `Puppeteer/EventSourcing/DB/FileSystem/JournalWriter.cs` | 65 |
 | Read-forward primitive (`ReadAll`) | `Puppeteer/EventSourcing/DB/FileSystem/JournalReader.cs` | 35 |
