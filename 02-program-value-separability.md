@@ -19,11 +19,14 @@ keywords:
   - event sourcing
   - puppeteer framework
 abstract: >
-  This paper is a design theory contribution in the sense of Hevner, March,
-  Park, and Ram (2004): it introduces a structural construct — *program-value
-  separability* — derives the runtime consequences that follow from it, and
-  presents one realization in production as confirmation that the construct is
-  realizable. Compilation of a domain-specific language program to native code,
+  This paper is an analytic theory contribution in the sense of Gregor's (2006)
+  *theory for analyzing* (Type I): it introduces a structural construct —
+  *program-value separability* — and the binary taxonomy it induces, states a
+  necessary-condition claim about the runtime consequences that follow from it,
+  and presents one realization in production as an existence proof that the
+  construct is realizable — not the design-science evaluation of an artifact
+  (Hevner, March, Park, & Ram, 2004), which a companion case-study paper is the
+  venue for. Compilation of a domain-specific language program to native code,
   caching of compiled programs across invocations, and dense journaling of
   operations rather than their effects are commonly treated as independent
   runtime optimizations. This paper argues that they are not — that all three are
@@ -121,7 +124,7 @@ Claim 6 grants a running actor the ability to accept and execute DSL programs fo
 
 ## 1. Introduction
 
-This paper makes a design theory contribution. It identifies a structural property of DSL programs that prior literature has touched but not isolated as one — the construct: *program-value separability*; derives the runtime consequences that follow when the property is held — the principles: compilation, caching, and dense journaling, developed and measured here, together with a fourth, replication-bounded entropy, that follows from the same precondition and is developed in a companion paper; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation is the existence proof of realizability, not the substance of the claim. The genre is the one Hevner, March, Park, and Ram (2004) name design science research: empirical evidence is presented in the form of a working artifact rather than a controlled experiment.
+This paper makes an analytic theory contribution. It identifies a structural property of DSL programs that prior literature has touched but not isolated as one — the construct: *program-value separability*; derives the runtime consequences that follow when the property is held — the principles: compilation, caching, and dense journaling, developed and measured here, together with a fourth, replication-bounded entropy, that follows from the same precondition and is developed in a companion paper; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation is the existence proof of realizability, not the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces constructs and a taxonomy that let the phenomenon be described and classified, and states a necessary-condition claim about their consequences, with empirical evaluation supplementary. The Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) — bundling artifact assessment with construct introduction — is deferred to a companion case-study paper; the Type I frame separates the two cleanly, and the instantiation here serves only as an existence proof of realizability.
 
 The structural property at the center of this paper is not, in itself, new, and §7 documents its lineage. Partial evaluation, lambda lifting, closure conversion, and template instantiation all turn on a separation between a program and the values it will receive; each predates this work by decades. What is new is the dependent variable. In those traditions, separability is instrumental to *execution*: a binding-time or free-variable analysis recovers the static/dynamic split, a transformation consumes it to emit a faster residual program, and the split is discarded once the specialized code exists. This paper repositions the same property as the precondition for *persistence and identity*. The separated program is not consumed by a transformation but persisted as the durable, replayable, replicable unit of state — written once as a definition, referenced thereafter by a stable identifier and an argument vector, and reconstructed by deterministic replay. Compilation becomes one face among four, and not the load-bearing one. The claim this paper defends is that compilation, caching, dense journaling, and replication-bounded entropy are not four independent optimizations but four projections of this single precondition once the persisted artifact is the program rather than its effects — a connection the execution-specialization literature has no occasion to draw, because it never treats the program as state.
 
@@ -387,6 +390,8 @@ The author used large language models (including Claude and ChatGPT) as editoria
 Appel, A. W. (1992). *Compiling with continuations*. Cambridge University Press.
 
 Futamura, Y. (1999). Partial evaluation of computation process — an approach to a compiler-compiler. *Higher-Order and Symbolic Computation*, *12*(4), 381–391. https://doi.org/10.1023/A:1010095604496 (Original work published 1971 in *Systems, Computers, Controls*, *2*(5), 45–50.)
+
+Gregor, S. (2006). The nature of theory in information systems. *MIS Quarterly*, *30*(3), 611–642.
 
 Hellerstein, J. M., Stonebraker, M., & Hamilton, J. (2007). Architecture of a database system. *Foundations and Trends in Databases*, *1*(2), 141–259.
 
