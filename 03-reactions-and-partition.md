@@ -117,8 +117,6 @@ A pragmatic partition presupposes that the deferred branch can fail or retry wit
 
 ---
 
-<!-- BODY SECTIONS — SKELETON BELOW. PROSE TO BE WRITTEN IN CHAT. -->
-
 ## 1. Introduction: a developer says things
 
 This paper makes an analytic theory contribution. It identifies a structural primitive that frameworks for actor-native systems have left implicit — the developer-controlled partition of an event's implied work into a "now" branch and a "deferred" branch with a placement decision attached — and derives the design principles required to exercise that primitive at scale. The instantiation that demonstrates the construct is realizable is the Reaction primitive of the Puppeteer framework, treated in §6; it is the existence proof of realizability, not the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary. The Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is deferred to a companion case-study paper; the Type I frame separates construct introduction from artifact assessment cleanly.
@@ -143,13 +141,13 @@ Formally, the situation is sharper. Every domain effect implied by the event sit
 
 ### 2.3 Placement is part of the same act
 
-*[Skeleton — to iterate in chat. Refined 2026-05-06 to anchor the axis on the two canonical points (Cue and Job) per claim 11.]* At the same act of drawing the now/deferred partition, the developer also decides where the deferred work runs. The axis is not continuous: it has two canonical points named explicitly by the framework. *Cue* runs immediately on a separate thread, against the actor's live in-memory state; *Job* runs on demand against the replicated journal, freely placeable on a follower in another pod or another machine. Section 6.1 develops the two modes in detail. The point relevant here is that partition and placement are one decision, not two — choosing what gets deferred and choosing which of the two structurally distinct modes carries it are the same act, not separable concerns.
+At the same act of drawing the now/deferred partition, the developer also decides where the deferred work runs. The axis is not continuous: it has two canonical points named explicitly by the framework. *Cue* runs immediately on a separate thread, against the actor's live in-memory state; *Job* runs on demand against the replicated journal, freely placeable on a follower in another pod or another machine. Section 6.1 develops the two modes in detail. The point relevant here is that partition and placement are one decision, not two — choosing what gets deferred and choosing which of the two structurally distinct modes carries it are the same act, not separable concerns.
 
 This partition — its drawing and its placement, taken as one act — is the primitive of the rest of the paper. Everything that follows is downstream of it. §3 examines the artifacts through which the developer writes the partition (a verb on the actor and the Reactions that handle what the verb deferred), naming the two purposes those Reactions serve. §4 looks at what makes writing them cheap or expensive. §5 follows what falls out when the writing is cheap.
 
 ## 3. The double purpose of Reactions
 
-*[Skeleton.]* Before naming what Reactions exclude from the domain library, the paper must name what they do **not** exclude. The domain library is not tool-free. It is built under the legitimate programming paradigm — currently object orientation — that sustains the language of the domain itself. Once that legitimate tool is named (§3.1), the two reasons to defer can be developed without inviting the misreading that "pure" means "tool-free": pragmatic deferral (§3.2) and categorical segregation of operational pollution (§3.3).
+Before naming what Reactions exclude from the domain library, the paper must name what they do **not** exclude. The domain library is not tool-free. It is built under the legitimate programming paradigm — currently object orientation — that sustains the language of the domain itself. Once that legitimate tool is named (§3.1), the two reasons to defer can be developed without inviting the misreading that "pure" means "tool-free": pragmatic deferral (§3.2) and categorical segregation of operational pollution (§3.3).
 
 ### 3.1 The legitimate tool inside the domain
 
@@ -219,7 +217,7 @@ The architectural responsibility is therefore not to teach the developer discipl
 
 ## 5. Three consequences (ranked)
 
-*[Skeleton. The three consequences fall out of the primitive (§3) when its exercise is low-friction (§4). They are ranked, with closability primary, per the signed thesis of 2026-05-05. Subsections 5.1, 5.2, 5.3 in the order of importance argued by the rhetoric of the series.]*
+The three consequences below fall out of the primitive (§3) when its exercise is low-friction (§4). They are ranked: closability is primary (§5.1); fast verbs by construction (§5.2) and opt-in eventual consistency (§5.3) are secondary.
 
 ### 5.1 A domain that closes
 
@@ -255,7 +253,7 @@ This inversion is structural, not stylistic. A reader of the system can list the
 
 ## 6. Implementation in the Puppeteer framework
 
-*[Skeleton — reorganized 2026-05-06 to reflect the technical handoff verified against `Puppeteer/EventSourcing/Follower/` and `ActorHandler.cs`. Path:line citations have been verified against the current Puppeteer mainline.]*
+This section grounds the discussion in code from the public Puppeteer codebase; the path-and-line citations throughout resolve against the commit recorded under Code provenance.
 
 ### 6.1 The two modes: Cue and Job
 
