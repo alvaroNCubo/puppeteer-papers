@@ -19,12 +19,15 @@ keywords:
   - choreography
   - puppeteer framework
 abstract: >
-  This paper makes a design theory contribution in the sense of Hevner,
-  March, Park, and Ram (2004): it identifies a new design construct — the
-  developer-controlled pragmatic partition of an event's implied work into
-  now and deferred — derives the design principles required for that
-  partition to be exercised in practice, and presents an instantiation in
-  which those principles have been realized in production. Eventual
+  This paper is an analytic theory contribution in the sense of Gregor's
+  (2006) *theory for analyzing* (Type I): it identifies a new design
+  construct — the developer-controlled pragmatic partition of an event's
+  implied work into now and deferred — derives the design principles
+  required for that partition to be exercised in practice, and presents an
+  instantiation in production as an existence proof that the construct is
+  realizable — not the design-science evaluation of an artifact (Hevner,
+  March, Park, & Ram, 2004), which a companion case-study paper is the
+  venue for. Eventual
   consistency is treated, in the CQRS literature, as a defining
   commitment of the architecture: separated read and write stores synchronize
   asynchronously, and applications must absorb the contract. This paper argues
@@ -118,7 +121,7 @@ A pragmatic partition presupposes that the deferred branch can fail or retry wit
 
 ## 1. Introduction: a developer says things
 
-This paper makes a design theory contribution. It identifies a structural primitive that frameworks for actor-native systems have left implicit — the developer-controlled partition of an event's implied work into a "now" branch and a "deferred" branch with a placement decision attached — and derives the design principles required to exercise that primitive at scale. The instantiation that demonstrates the construct is realizable is the Reaction primitive of the Puppeteer framework, treated in §6. The genre is the one Hevner, March, Park, and Ram (2004) name design science research: empirical evidence is presented in the form of a working artifact rather than a controlled experiment.
+This paper makes an analytic theory contribution. It identifies a structural primitive that frameworks for actor-native systems have left implicit — the developer-controlled partition of an event's implied work into a "now" branch and a "deferred" branch with a placement decision attached — and derives the design principles required to exercise that primitive at scale. The instantiation that demonstrates the construct is realizable is the Reaction primitive of the Puppeteer framework, treated in §6; it is the existence proof of realizability, not the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary. The Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is deferred to a companion case-study paper; the Type I frame separates construct introduction from artifact assessment cleanly.
 
 A developer is modeling a purchase-order endpoint. They are not thinking about transactions, consistency contracts, or CQRS sides. They are thinking about roles and what each role does next: *"the cashier confirms the purchase and locks the requested items. Then a confirmation goes out, and the rewarder evaluates whether any promotional campaign applies."* They say it at a whiteboard, and a few hours later it is in code — not as a set of architectural decisions translated through a vocabulary, but as the same sentence the developer just spoke. In C# a developer says things — defines classes, writes methods, encodes invariants. What an actor-native runtime adds is that the same act of saying things now extends to the endpoint level: who handles the request, what the response promises, what is handled afterwards.
 
@@ -630,6 +633,7 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Evans, E. (2003). *Domain-Driven Design: Tackling Complexity in the Heart of Software.* Addison-Wesley. ISBN 978-0-321-12521-7.
 - Fowler, M. (2002). *Patterns of Enterprise Application Architecture.* Addison-Wesley. ISBN 978-0-321-12742-6.
 - Fowler, M. (2003). *AnemicDomainModel.* https://martinfowler.com/bliki/AnemicDomainModel.html (accessed 2026-05-09).
+- Gregor, S. (2006). *The nature of theory in information systems.* MIS Quarterly, 30(3), 611–642.
 - Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
 - Hewitt, C. (1973). *A Universal Modular Actor Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235-245.
 - Hewitt, C. (2010). *Actor Model of Computation: Scalable Robust Information Systems.* arXiv:1008.1459. https://arxiv.org/abs/1008.1459
