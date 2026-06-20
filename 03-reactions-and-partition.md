@@ -491,7 +491,7 @@ Concession: there are rare cases of data that no one anticipated would be needed
 
 ### 9.1 Actor Model and CQRS foundations
 
-The actor model originates with Hewitt (1973), which introduces the actor as the universal unit of computation: an entity with private state, a mailbox for incoming messages, and a single thread of behavior responding to them. The model has accumulated decades of refinement — Agha (1986), Hewitt (2010), Bonér et al.'s *Reactive Manifesto* (2014) — but the core remains: state isolated, computation message-driven, concurrency through the multiplication of actors rather than the sharing of state. Puppeteer's actor sits in this lineage, with the addition that the journal of received messages is itself the persisted artifact rather than a derived log.
+The actor model originates with Hewitt (1973), which introduces the actor as the universal unit of computation: an entity with private state, a mailbox for incoming messages, and a single thread of behavior responding to them. The model has accumulated decades of refinement — Agha (1986), Hewitt (2010), the *Reactive Manifesto* (Bonér, Farley, Kuhn, & Thompson, 2014) — but the core remains: state isolated, computation message-driven, concurrency through the multiplication of actors rather than the sharing of state. Puppeteer's actor sits in this lineage, with the addition that the journal of received messages is itself the persisted artifact rather than a derived log.
 
 Command Query Responsibility Segregation (CQRS) is named in Young (2010), with intellectual antecedents in Meyer's command-query separation (1988) and Fowler's reflections on enterprise architecture (2002). The classical formulation separates write and read stores at the level of the system architecture, with eventual consistency between them as the design contract. This paper engages CQRS not as the primary frame but as the literature that names the consequences of the partition this paper develops; the "logical CQRS" of claim 1 is the classical pattern read at a different level — one in-memory state, two verbs over it, the eventual-consistency contract appearing only at the deferred branch (§5.3, §8.1).
 
@@ -501,7 +501,7 @@ Domain-driven design originates with Evans (2003), where the *anemic domain* and
 
 Fowler's *Patterns of Enterprise Application Architecture* (2002) is the relevant catalog for the DTO antipattern: a Data Transfer Object intended for transport that becomes load-bearing in the domain, contaminating both. The same volume names the *Distributed Object* antipattern — the chatter problem this paper alludes to in §3.1 when it argues for the SQL-analogous use of a DSL as invocation rather than transcription.
 
-Hunt and Thomas (1999) define DRY in *The Pragmatic Programmer* as the prohibition of duplicate *representation of knowledge*, not of repeated text — the formulation §3.1 and §8.4 recover against a more recent industrial reading. Sandi Metz's *AHA — Avoid Hasty Abstractions* (2016) provides the natural complement: the cure for repeated text is sometimes more text, not the wrong abstraction.
+Hunt and Thomas (1999) define DRY in *The Pragmatic Programmer* as the prohibition of duplicate *representation of knowledge*, not of repeated text — the formulation §3.1 and §8.4 recover against a more recent industrial reading. Sandi Metz's *The Wrong Abstraction* (2016) provides the natural complement: the cure for repeated text is sometimes more text, not the wrong abstraction.
 
 ### 9.3 CEP and adjacent runtimes
 
@@ -624,8 +624,8 @@ The author used large language models (including Claude and ChatGPT) as editoria
 
 - Agha, G. (1986). *Actors: A Model of Concurrent Computation in Distributed Systems.* MIT Press. ISBN 978-0-262-01092-7.
 - Akka documentation. https://akka.io/docs/ (accessed 2026-05-09).
-- Bonér, J., Farley, D., Kuhn, R., Thompson, M. (2014). *The Reactive Manifesto, v2.0.* https://www.reactivemanifesto.org/
-- Etzion, O., Niblett, P. (2010). *Event Processing in Action.* Manning Publications. ISBN 978-1-935-18221-4.
+- Bonér, J., Farley, D., Kuhn, R., & Thompson, M. (2014). *The Reactive Manifesto, v2.0.* https://www.reactivemanifesto.org/
+- Etzion, O., & Niblett, P. (2010). *Event Processing in Action.* Manning Publications. ISBN 978-1-935-18221-4.
 - Evans, E. (2003). *Domain-Driven Design: Tackling Complexity in the Heart of Software.* Addison-Wesley. ISBN 978-0-321-12521-7.
 - Fowler, M. (2002). *Patterns of Enterprise Application Architecture.* Addison-Wesley. ISBN 978-0-321-12742-6.
 - Fowler, M. (2003). *AnemicDomainModel.* https://martinfowler.com/bliki/AnemicDomainModel.html (accessed 2026-05-09).
@@ -633,15 +633,12 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
 - Hewitt, C. (1973). *A Universal Modular Actor Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235-245.
 - Hewitt, C. (2010). *Actor Model of Computation: Scalable Robust Information Systems.* arXiv:1008.1459. https://arxiv.org/abs/1008.1459
-- Hunt, A., Thomas, D. (1999). *The Pragmatic Programmer: From Journeyman to Master.* Addison-Wesley. ISBN 978-0-201-61622-4.
+- Hunt, A., & Thomas, D. (1999). *The Pragmatic Programmer: From Journeyman to Master.* Addison-Wesley. ISBN 978-0-201-61622-4.
 - Luckham, D. (2002). *The Power of Events: An Introduction to Complex Event Processing in Distributed Enterprise Systems.* Addison-Wesley. ISBN 978-0-201-72789-1.
 - Metz, S. (2016). *The Wrong Abstraction.* https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction (accessed 2026-05-09).
 - Meyer, B. (1988). *Object-Oriented Software Construction.* Prentice Hall. ISBN 978-0-13-629031-1.
 - Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
+- Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1. Zenodo. https://doi.org/10.5281/zenodo.20404863
+- Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2. Zenodo. https://doi.org/10.5281/zenodo.20740697
 - Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
 - Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
-
----
-
-- Rivera, A. (2026). *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems.* Paper 1 of this series. [01-anti-porosity.md](01-anti-porosity.md)
-- Rivera, A. (2026). *Program-value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime.* Paper 2 of this series. [02-program-value-separability.md](02-program-value-separability.md)
