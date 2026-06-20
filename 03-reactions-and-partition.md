@@ -491,7 +491,7 @@ Concession: there are rare cases of data that no one anticipated would be needed
 
 ### 9.1 Actor Model and CQRS foundations
 
-The actor model originates with Hewitt (1973), which introduces the actor as the universal unit of computation: an entity with private state, a mailbox for incoming messages, and a single thread of behavior responding to them. The model has accumulated decades of refinement — Agha (1986), Hewitt (2010), the *Reactive Manifesto* (Bonér, Farley, Kuhn, & Thompson, 2014) — but the core remains: state isolated, computation message-driven, concurrency through the multiplication of actors rather than the sharing of state. Puppeteer's actor sits in this lineage, with the addition that the journal of received messages is itself the persisted artifact rather than a derived log.
+The actor model originates with Hewitt, Bishop, and Steiger (1973), which introduces the actor as the universal unit of computation: an entity with private state, a mailbox for incoming messages, and a single thread of behavior responding to them. The model has accumulated decades of refinement — Agha (1986), Hewitt (2010), the *Reactive Manifesto* (Bonér, Farley, Kuhn, & Thompson, 2014) — but the core remains: state isolated, computation message-driven, concurrency through the multiplication of actors rather than the sharing of state. Puppeteer's actor sits in this lineage, with the addition that the journal of received messages is itself the persisted artifact rather than a derived log.
 
 Command Query Responsibility Segregation (CQRS) is named in Young (2010), with intellectual antecedents in Meyer's command-query separation (1988) and Fowler's reflections on enterprise architecture (2002). The classical formulation separates write and read stores at the level of the system architecture, with eventual consistency between them as the design contract. This paper engages CQRS not as the primary frame but as the literature that names the consequences of the partition this paper develops; the "logical CQRS" of claim 1 is the classical pattern read at a different level — one in-memory state, two verbs over it, the eventual-consistency contract appearing only at the deferred branch (§5.3, §8.1).
 
@@ -631,7 +631,7 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Fowler, M. (2003). *AnemicDomainModel.* https://martinfowler.com/bliki/AnemicDomainModel.html (accessed 2026-05-09).
 - Gregor, S. (2006). *The nature of theory in information systems.* MIS Quarterly, 30(3), 611–642.
 - Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
-- Hewitt, C. (1973). *A Universal Modular Actor Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235-245.
+- Hewitt, C., Bishop, P., & Steiger, R. (1973). *A Universal Modular Actor Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235-245.
 - Hewitt, C. (2010). *Actor Model of Computation: Scalable Robust Information Systems.* arXiv:1008.1459. https://arxiv.org/abs/1008.1459
 - Hunt, A., & Thomas, D. (1999). *The Pragmatic Programmer: From Journeyman to Master.* Addison-Wesley. ISBN 978-0-201-61622-4.
 - Luckham, D. (2002). *The Power of Events: An Introduction to Complex Event Processing in Distributed Enterprise Systems.* Addison-Wesley. ISBN 978-0-201-72789-1.
