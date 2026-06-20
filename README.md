@@ -49,6 +49,8 @@ All seven are working drafts (versions 0.1 through 0.4) and are open to feedback
 
 ## How to cite
 
+_All papers in this series are self-deposited preprints on Zenodo and have not undergone peer review._
+
 The following papers are archived in Zenodo with citable DOIs:
 
 **Paper 1** — *Anti-porous architecture*:

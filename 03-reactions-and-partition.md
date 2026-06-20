@@ -509,7 +509,7 @@ Akka and Orleans are the most relevant adjacent runtimes (§7). Their documentat
 
 ### 9.4 Prior papers in this series
 
-This paper builds on two prior contributions. *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems* ([Paper 1](01-anti-porosity.md)) names the structural defect — porosity — that the present paper extends to a fourth layer (the operational edge of the domain, §3.3) and the legitimate tool — the domain library shaped by its operations — that §3.1 carries forward. *Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime* ([Paper 2](02-program-value-separability.md)) names the structural property of DSL programs that makes their compilation, caching, and dense journaling possible at all; the static binding of Reaction patterns against the domain's `Libraries` (§6.2) is one more layer of language built atop that substrate.
+This paper builds on two prior contributions. *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems* ([Paper 1](01-anti-porosity.md)) names the structural defect — porosity — that the present paper extends to a fourth layer (the operational edge of the domain, §3.3) and the legitimate tool — the domain library shaped by its operations — that §3.1 carries forward. *Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime* ([Paper 2](02-program-value-separability.md)) names the structural property of DSL programs that makes their compilation, caching, and dense journaling possible at all; the static binding of Reaction patterns against the domain's `Libraries` (§6.2) is one more layer of language built atop that substrate. Both prior papers are self-deposited preprints on Zenodo (Rivera, 2026a, 2026b) and have not undergone peer review, as is the present paper.
 
 ## 10. Conclusion: a developer says things — and now also at the endpoint
 
@@ -634,7 +634,7 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Metz, S. (2016). *The Wrong Abstraction.* https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction (accessed 2026-05-09).
 - Meyer, B. (1988). *Object-Oriented Software Construction.* Prentice Hall. ISBN 978-0-13-629031-1.
 - Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
-- Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1. Zenodo. https://doi.org/10.5281/zenodo.20404863
-- Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2. Zenodo. https://doi.org/10.5281/zenodo.20740697
+- Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
+- Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20740697
 - Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
 - Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
