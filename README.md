@@ -2,7 +2,7 @@
 
 ## What this is
 
-A series of seven design theory papers, each naming a structural property of software systems that prior literature has documented piecewise without recognizing as one, and each tracing the consequences that follow.
+A series of seven *theory for analyzing* (Gregor, 2006, Type I) papers, each naming a structural property of software systems that prior literature has documented piecewise without recognizing as one, and each tracing the consequences that follow.
 
 ## Single-volume reading
 
