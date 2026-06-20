@@ -620,11 +620,9 @@ The author used large language models (including Claude and ChatGPT) as editoria
 
 ## Appendix B. Bibliography
 
-*Online sources accessed at the moment of publication; dates filled in at release.*
-
 - Agha, G. (1986). *Actors: A Model of Concurrent Computation in Distributed Systems.* MIT Press. ISBN 978-0-262-01092-7.
 - Akka documentation. https://akka.io/docs/ (accessed 2026-05-09).
-- Bonér, J., Farley, D., Kuhn, R., & Thompson, M. (2014). *The Reactive Manifesto, v2.0.* https://www.reactivemanifesto.org/
+- Bonér, J., Farley, D., Kuhn, R., & Thompson, M. (2014). *The Reactive Manifesto, v2.0.* https://www.reactivemanifesto.org/ (accessed 2026-05-09).
 - Etzion, O., & Niblett, P. (2010). *Event Processing in Action.* Manning Publications. ISBN 978-1-935-18221-4.
 - Evans, E. (2003). *Domain-Driven Design: Tackling Complexity in the Heart of Software.* Addison-Wesley. ISBN 978-0-321-12521-7.
 - Fowler, M. (2002). *Patterns of Enterprise Application Architecture.* Addison-Wesley. ISBN 978-0-321-12742-6.
