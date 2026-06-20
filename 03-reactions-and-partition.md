@@ -618,23 +618,42 @@ The author used large language models (including Claude and ChatGPT) as editoria
 
 ## Appendix B. Bibliography
 
-- Agha, G. (1986). *Actors: A Model of Concurrent Computation in Distributed Systems.* MIT Press. ISBN 978-0-262-01092-7.
-- Akka documentation. https://akka.io/docs/ (accessed 2026-05-09).
-- Bonér, J., Farley, D., Kuhn, R., & Thompson, M. (2014). *The Reactive Manifesto, v2.0.* https://www.reactivemanifesto.org/ (accessed 2026-05-09).
-- Etzion, O., & Niblett, P. (2010). *Event Processing in Action.* Manning Publications. ISBN 978-1-935-18221-4.
-- Evans, E. (2003). *Domain-Driven Design: Tackling Complexity in the Heart of Software.* Addison-Wesley. ISBN 978-0-321-12521-7.
-- Fowler, M. (2002). *Patterns of Enterprise Application Architecture.* Addison-Wesley. ISBN 978-0-321-12742-6.
-- Fowler, M. (2003). *AnemicDomainModel.* https://martinfowler.com/bliki/AnemicDomainModel.html (accessed 2026-05-09).
-- Gregor, S. (2006). *The nature of theory in information systems.* MIS Quarterly, 30(3), 611–642.
-- Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
-- Hewitt, C., Bishop, P., & Steiger, R. (1973). *A Universal Modular Actor Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235-245.
-- Hewitt, C. (2010). *Actor Model of Computation: Scalable Robust Information Systems.* arXiv:1008.1459. https://arxiv.org/abs/1008.1459
-- Hunt, A., & Thomas, D. (1999). *The Pragmatic Programmer: From Journeyman to Master.* Addison-Wesley. ISBN 978-0-201-61622-4.
-- Luckham, D. (2002). *The Power of Events: An Introduction to Complex Event Processing in Distributed Enterprise Systems.* Addison-Wesley. ISBN 978-0-201-72789-1.
-- Metz, S. (2016). *The Wrong Abstraction.* https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction (accessed 2026-05-09).
-- Meyer, B. (1988). *Object-Oriented Software Construction.* Prentice Hall. ISBN 978-0-13-629031-1.
-- Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
-- Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
-- Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20740697
-- Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
-- Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
+Agha, G. (1986). *Actors: A model of concurrent computation in distributed systems*. MIT Press.
+
+*Akka documentation*. (n.d.). https://akka.io/docs/
+
+Bonér, J., Farley, D., Kuhn, R., & Thompson, M. (2014). *The reactive manifesto* (v2.0). https://www.reactivemanifesto.org/
+
+Etzion, O., & Niblett, P. (2010). *Event processing in action*. Manning Publications.
+
+Evans, E. (2003). *Domain-driven design: Tackling complexity in the heart of software*. Addison-Wesley.
+
+Fowler, M. (2002). *Patterns of enterprise application architecture*. Addison-Wesley.
+
+Fowler, M. (2003). *Anemic domain model*. martinfowler.com. https://martinfowler.com/bliki/AnemicDomainModel.html
+
+Gregor, S. (2006). The nature of theory in information systems. *MIS Quarterly*, *30*(3), 611–642.
+
+Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems research. *MIS Quarterly*, *28*(1), 75–105.
+
+Hewitt, C., Bishop, P., & Steiger, R. (1973). A universal modular actor formalism for artificial intelligence. In *Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73)* (pp. 235–245).
+
+Hewitt, C. (2010). *Actor model of computation: Scalable robust information systems*. arXiv. https://arxiv.org/abs/1008.1459
+
+Hunt, A., & Thomas, D. (1999). *The pragmatic programmer: From journeyman to master*. Addison-Wesley.
+
+Luckham, D. (2002). *The power of events: An introduction to complex event processing in distributed enterprise systems*. Addison-Wesley.
+
+Metz, S. (2016). *The wrong abstraction*. sandimetz.com. https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction
+
+Meyer, B. (1988). *Object-oriented software construction*. Prentice Hall.
+
+*Microsoft Orleans documentation*. (n.d.). https://learn.microsoft.com/en-us/dotnet/orleans/
+
+Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
+
+Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20740697
+
+Vernon, V. (2013). *Implementing domain-driven design*. Addison-Wesley.
+
+Young, G. (2010). *CQRS documents*. https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
