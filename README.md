@@ -2,7 +2,7 @@
 
 ## What this is
 
-A series of seven *theory for analyzing* (Gregor, 2006, Type I) papers, each naming a structural property of software systems that prior literature has documented piecewise without recognizing as one, and each tracing the consequences that follow.
+Seven analytic theory papers (Gregor, 2006, Type I) on journaled-program substrates. Each names a structural property — porosity, separability, partition, continuity, substrate, symptom, accidental category — and traces its consequences.
 
 ## Single-volume reading
 
