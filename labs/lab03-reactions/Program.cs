@@ -21,6 +21,11 @@ namespace Lab03Reactions
                 CueProbe.Run(iters);
                 return;
             }
+            if (args.Length >= 1 && args[0] == "catchup")
+            {
+                CueProbe.RunCatchup(args.Length >= 2 ? int.Parse(args[1]) : 50);
+                return;
+            }
 
             // Steady-state job: tiered compilation disabled so the dynamically-emitted
             // compiled delegate is fully optimized from the first timed invocation,

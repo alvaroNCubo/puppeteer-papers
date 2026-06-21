@@ -22,7 +22,10 @@ provenance):
 - `ReactionLab.cs` — the domain facade (`ReactionLab`) and the probe
   (`ReactionProbe`/`ProbeState`) the Reaction's emit signals.
 - `Program.cs` — entry point. No args → BenchmarkDotNet (verb latency, in-process
-  toolchain, `DOTNET_TieredCompilation=0`); `cue <n>` → the Cue latency driver.
+  toolchain, `DOTNET_TieredCompilation=0`); `cue <n>` → the Cue latency +
+  exactly-once driver; `catchup <n>` → pure catch-up delivery (match
+  pre-journaled before activation), a no-loss / no-re-fire check across a
+  simulated restart.
 
 ## Reproducing
 
@@ -32,6 +35,12 @@ provenance):
 2. Point this project's `ProjectReference` at your `Puppeteer/Puppeteer.csproj`, then:
    `DOTNET_TieredCompilation=0 dotnet run -c Release -- --filter '*VerbLatencyBench*'`   (verb latency)
    `dotnet run -c Release -- cue 200`                                                     (Cue latency + exactly-once)
+   `dotnet run -c Release -- catchup 50`                                                  (catch-up delivery: no-loss / no-re-fire)
+
+The ~1 ms Cue figure below is the same `cue 200` run against commit `a82f67a`
+(the scheduling fix described in Paper 3 §6.9) — i.e. check out `a82f67a`
+instead of `2f31f96` at step 1. Code anchors and the verb figure are at
+`2f31f96`; only the Cue latency was re-measured at `a82f67a`.
 
 ## Figures (published in Paper 3)
 
@@ -41,16 +50,20 @@ RyuJIT AVX2), Windows 11 build 26200, Workstation GC; Release;
 
 - Verb dispatch + persist (in-memory, minimal verb): **mean ≈ 0.40 µs**
   (StdDev ≈ 0.01 µs).
-- Cue end-to-end latency (freshly-activated Cue, in-memory): **median ≈ 0.13 s,
-  p99 ≈ 0.15 s** over ~350 samples; exactly-once per match held (0 double-fires).
+- Cue end-to-end latency (freshly-activated Cue, in-memory) **at `2f31f96`**:
+  **median ≈ 0.13 s, p99 ≈ 0.15 s** over ~350 samples; exactly-once per match
+  held (0 double-fires).
+- Cue end-to-end latency **at `a82f67a`** (the scheduling fix): **median ≈ 1 ms,
+  p99 ≈ 2 ms** over 200 samples, 0 misses; exactly-once per match held
+  (0 double-fires).
 
-Note on the Cue figure: a freshly-activated Cue is served by the catch-up
-replay poll (`ActorReactions.CanContinueReplay`, a 50 ms → 1000 ms backoff
-`Thread.Sleep`), so the measured ~0.13 s is backoff-bound, not the steady
+Note on the Cue figure: at `2f31f96` a freshly-activated Cue is served by the
+catch-up replay poll (`ActorReactions.CanContinueReplay`, a 50 ms → 1000 ms
+backoff `Thread.Sleep`), so the ~0.13 s is backoff-bound, not the steady
 signal-driven push path (`RunPushLoop` / `EnqueuePushEvent`), which wakes near
-instantly. The claim the figure supports is "sub-second", which holds with
-margin; reducing the figure further is a runtime-performance matter, not a
-property of the construct.
+instantly. Commit `a82f67a` replaces that `Thread.Sleep` with a signal-aware
+`pushSignal.Wait`, so a newly journaled entry preempts the backoff — the ~1 ms
+figure. The construct never bounded the latency; it was a scheduling property.
 
 ## Implementation notes (runtime constraints at `2f31f96`)
 

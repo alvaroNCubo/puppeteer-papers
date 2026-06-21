@@ -26,7 +26,7 @@ namespace Lab03Reactions
             var probe = new ReactionProbe();
             actor.Reactions
                 .DefineReaction("r")
-                .Cue().Company().ReadForward().WithSharedHydration()
+                .Cue().Company().WithSharedHydration()
                 .Seek("S")
                     .OnMatch("ReactionLab()")
                     .Program.Emit("{ @probe.Fire(); }");
@@ -35,6 +35,67 @@ namespace Lab03Reactions
             var a = actor;
             loop = Task.Run(() => a.Reactions.ExecuteReactions(new[] { "r" }, ReactionExecutionMode.Continuous, c.Token));
             return actor;
+        }
+
+        // Catch-up + restart correctness for the one-shot single-Seek Cue (no
+        // timing). The matching command is journaled BEFORE the loop activates,
+        // so delivery flows entirely through the catch-up poll (CanContinueReplay,
+        // the path made signal-preemptible) rather than the live push. Validates:
+        //  (1) every pre-journaled match is caught up and fired exactly once
+        //      (no miss, no double-fire) across many fresh actors, and
+        //  (2) re-activating on the same actor/storage (a restart) does NOT
+        //      re-fire the already-processed event (exactly-once across restart).
+        public static void RunCatchup(int iters)
+        {
+            var asm = typeof(ReactionLab).Assembly;
+            int misses = 0, doubles = 0, restartRefires = 0;
+
+            for (int i = 0; i < iters; i++)
+            {
+                var actor = new ActorV2("cue_catchup_" + System.Guid.NewGuid().ToString("N"), asm);
+                actor.ConfigureStorage(DatabaseType.IN_MEMORY, "InMemory");
+                actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
+                var probe = new ReactionProbe();
+                actor.Reactions
+                    .DefineReaction("r")
+                    .Cue().Company().WithSharedHydration()
+                    .Seek("S")
+                        .OnMatch("ReactionLab()")
+                        .Program.Emit("{ @probe.Fire(); }");
+                actor.Reactions["r"].WithParameters(pp => { pp["probe", typeof(ReactionProbe)] = probe; });
+
+                ProbeState.ResetCount();
+
+                // Journal the match BEFORE activation -> pure catch-up delivery.
+                actor.Using("ReactionLab();").PerformCommand();
+
+                var cts1 = new CancellationTokenSource();
+                var loop1 = Task.Run(() => actor.Reactions.ExecuteReactions(new[] { "r" }, ReactionExecutionMode.Continuous, cts1.Token));
+                Thread.Sleep(400); // catch-up drains the pre-journaled event
+                long afterCatchup = Interlocked.Read(ref ProbeState.FireCount);
+                if (afterCatchup == 0) misses++;
+                else if (afterCatchup > 1) doubles++;
+
+                // Restart: cancel, re-activate on the same actor/storage. The
+                // persisted checkpoint must prevent re-firing the processed event.
+                cts1.Cancel(); try { loop1.Wait(1000); } catch { }
+                var cts2 = new CancellationTokenSource();
+                var loop2 = Task.Run(() => actor.Reactions.ExecuteReactions(new[] { "r" }, ReactionExecutionMode.Continuous, cts2.Token));
+                Thread.Sleep(400); // long enough that a (wrong) re-fire would be observed
+                long afterRestart = Interlocked.Read(ref ProbeState.FireCount);
+                if (afterRestart > afterCatchup) restartRefires++;
+
+                cts2.Cancel(); actor.GracefulExit(); try { loop2.Wait(1000); } catch { }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("# Cue catch-up + restart correctness (one-shot single-Seek), IN_MEMORY");
+            Console.WriteLine($"actors (pre-journaled match)    : {iters}");
+            Console.WriteLine($"catch-up misses (fired 0)       : {misses}    (expect 0)");
+            Console.WriteLine($"catch-up double-fires (fired>1) : {doubles}    (expect 0)");
+            Console.WriteLine($"re-fires across restart         : {restartRefires}    (expect 0)");
+            bool ok = misses == 0 && doubles == 0 && restartRefires == 0;
+            Console.WriteLine($"RESULT                          : {(ok ? "PASS — catch-up delivery exactly-once, no re-fire across restart" : "FAIL")}");
         }
 
         public static void Run(int iters)

@@ -17,10 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Pin to the public, citable runtime commit 2f31f96 (Paper 3 provenance),
-         so Paper 3's numbers correspond to already-public source.
-         Re-point to your local clone of github.com/alvaroNCubo/puppeteer @ 2f31f96. -->
-    <ProjectReference Include="..\..\..\puppeteer-public-hw-wt\Puppeteer\Puppeteer.csproj" />
+    <!-- Re-pointed to the working public checkout for the Cue-latency runtime change. -->
+    <ProjectReference Include="..\..\..\puppeteer-github-public\Puppeteer\Puppeteer.csproj" />
   </ItemGroup>
 
 </Project>
