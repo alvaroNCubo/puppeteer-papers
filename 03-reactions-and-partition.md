@@ -2,8 +2,8 @@
 title: "Reactions and the partition: opt-in eventual consistency in actor-native systems"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-05-12
-version: 0.4-draft
+date: 2026-06-21
+version: 0.1-draft
 status: draft
 keywords:
   - reactions
@@ -20,42 +20,28 @@ keywords:
   - puppeteer framework
 abstract: >
   This paper is an analytic theory contribution in the sense of Gregor's
-  (2006) *theory for analyzing* (Type I): it identifies a new design
-  construct — the developer-controlled pragmatic partition of an event's
-  implied work into now and deferred — derives the design principles
-  required for that partition to be exercised in practice, and presents an
-  instantiation in production as an existence proof that the construct is
-  realizable — not the design-science evaluation of an artifact (Hevner,
-  March, Park, & Ram, 2004), which a companion case-study paper is the
-  venue for. Eventual
-  consistency is treated, in the CQRS literature, as a defining
-  commitment of the architecture: separated read and write stores synchronize
-  asynchronously, and applications must absorb the contract. This paper argues
-  for actor-native systems that the contract is upside-down. The primitive is
-  not eventual consistency; it is the developer's pragmatic partition of the
-  work an event implies into a *now* branch (what the verb's contract
-  promises before responding) and a *deferred* branch (placed wherever the
-  developer chose — same thread, another node, the cluster). Reactions are
-  the artifact through which that partition is exercised, and they are not
-  async events under another name: each Reaction matches a *trajectory*
-  through the actor's journal, statically compiled against the domain's
-  libraries, with typed identifiers propagated across stages. Reactions
-  serve a double purpose — pragmatic deferral and categorical segregation
-  of operational concerns away from domain methods — and the segregation
-  is structural, not stylistic: the language itself blocks the operational
-  concern from leaking back into the actor's state. Both purposes share a
-  single guardian — friction — and collapse together if it is high. Three
-  consequences fall out of the primitive when its exercise is low-friction:
-  a domain library that closes (the primary consequence — declarable as
-  "task done" because it is free of present and future operational tools),
-  fast verbs by construction, and opt-in eventual consistency (the
-  developer names each deferred effect by hand, inverting the CQRS-classical
-  assumption). The argument is conceptual; code references throughout point
-  to the public Puppeteer codebase, in which the Reaction primitive — its
-  two modes (`Cue` and `Job`), its three action planes
-  (`Program.Emit`, `Causation.Continue`, `Metadata.Elide`), its activation
-  scopes, and its multi-event pattern matching — instantiates the
-  primitive concretely.
+  (2006) *theory for analyzing* (Type I): it identifies a design construct,
+  derives the principles under which it is exercised, and presents an
+  instantiation in production as an existence proof of realizability — not
+  the design-science evaluation of an artifact (Hevner, March, Park, & Ram,
+  2004), which a companion case-study paper is the venue for. The construct
+  is the developer's pragmatic partition of an event's implied work into a
+  *now* branch (what the verb's contract promises before responding) and a
+  *deferred* branch with a placement. The CQRS literature treats eventual
+  consistency as the architecture's defining commitment; this paper argues
+  that for actor-native systems the contract is upside-down — eventual
+  consistency is the shadow of the partition, not the design choice. The
+  partition is exercised through *Reactions*: not async events under another
+  name, but rules that match a *trajectory* through the actor's journal,
+  statically compiled against the domain libraries, with typed identifiers
+  propagated across stages. Reactions serve a double purpose — pragmatic
+  deferral and categorical segregation of operational concerns from domain
+  methods, the segregation structurally enforced — and both purposes share
+  one guardian, friction. Three consequences follow when friction is low: a
+  domain library that *closes* (the primary one), fast verbs, and opt-in
+  eventual consistency. Code references throughout point to the public
+  Puppeteer codebase, whose Reaction primitive instantiates the construct
+  concretely.
 canonical_url: https://[pending]/papers/reactions-and-partition-v1
 ---
 
@@ -432,7 +418,7 @@ A technical paper that reports what a primitive supports without reporting what 
 - **Absolute time windows** as a dedicated method (`Within(start, end)`). Expressed instead via `Where("@Now >= ... && @Now <= ...")`.
 - **Optional `ThenSeek`.** A `ThenSeek` cannot be marked optional. Optional branches are written as separate Reactions.
 - **`Job`-mode rehydration of the actor.** A `Job` Reaction reads only the journal; it does not wake or rehydrate the actor itself. When domain-computed state is needed by the Reaction, the canonical mechanism is `expose` (§6.7), which pre-writes the data alongside the command. Silent rehydration inside `Job` is intentionally absent — collapsing this boundary would erase the structural distinction between `Cue` and `Job` (§6.1) and reintroduce the cost the design was avoiding.
-- **Cross-actor dispatch with journal-recorded causation — historically a gap, now resolved.** When v0.1 of this paper was published, this was a recognized limitation: cross-actor causation was mediated by `ITransport` infrastructure outside the sender's journal, leaving the broker as the seam. Since v0.1, the framework has gained the third action plane — `Causation.Continue` (the Tell primitive) — that records the cross-actor dispatch as a sentence in the sender's own journal while leaving the transport choice to the developer's `ITransport` and the target actor's processing entirely to its own endpoint. The present paper names the plane (§6.5) but does not develop the primitive; its full treatment — design rationale and comparison against sagas, choreography, and distributed tracing — is out of scope here. The bullet is preserved as historical record of how the gap was named before being filled.
+- **Cross-actor dispatch with journal-recorded causation — once a gap, now resolved.** An earlier draft of this paper named this as a limitation: cross-actor causation was mediated by `ITransport` infrastructure outside the sender's journal, leaving the broker as the seam. Since then, the framework has gained the third action plane — `Causation.Continue` (the Tell primitive) — that records the cross-actor dispatch as a sentence in the sender's own journal while leaving the transport choice to the developer's `ITransport` and the target actor's processing entirely to its own endpoint. The present paper names the plane (§6.5) but does not develop the primitive; its full treatment — design rationale and comparison against sagas, choreography, and distributed tracing — is out of scope here. The bullet is kept as a record of how the gap was named before being filled.
 
 These absences fall into the two kinds named at the top. The value-computation boundary and `Job`-mode non-rehydration are **deliberate**: each follows from a principle the construct rests on — the domain barrier (§3.3) and the `Cue`/`Job` cost distinction (§6.1) — and adding it would erode that principle. The rest — negative patterns, counting quantifiers, absolute-time sugar, optional `ThenSeek` — are **pending gaps**: matcher features consistent with the construct that simply are not built yet. A reader who expects a CEP engine's aggregation and windowing operators is importing a different boundary: there the engine computes; here the matcher recognizes a trajectory and the domain computes. The framework's scope is what it supports; what it does not support is either a boundary to respect or a gap to model around.
 
