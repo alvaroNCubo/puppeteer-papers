@@ -597,7 +597,7 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | Range | What it shows | Cited in |
 |---|---|---|
 | 1662-1733 | `PerformEmit` method (read-only, `isQuery:true`, read lock) | §3.3, §5.2, §6.5, §6.7 |
-| 1659 | In-source comment: *"Parser: isQuery:true — bloquea expose (que persistiria al journal) y declaracion de variables globales"* | §6.5 |
+| 1659 | In-source comment marking the query-mode parse: `isQuery:true` blocks `expose` (which would persist to the journal) and global-variable declaration | §6.5 |
 | 1677 | `parser.Parse(isQuery: true, isCheck: false)` | §6.5 |
 | 1712 | `rwLock.EnterReadLock()` taken before `Perform` | §6.5 |
 
