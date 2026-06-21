@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <Optimize>true</Optimize>
+    <AssemblyName>Lab03Reactions</AssemblyName>
+    <!-- BenchmarkDotNet requires Release; guard against accidental Debug runs. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Pin to the public, citable runtime commit 2f31f96 (Paper 3 provenance),
+         so Paper 3's numbers correspond to already-public source.
+         Re-point to your local clone of github.com/alvaroNCubo/puppeteer @ 2f31f96. -->
+    <ProjectReference Include="..\..\..\puppeteer-public-hw-wt\Puppeteer\Puppeteer.csproj" />
+  </ItemGroup>
+
+</Project>
