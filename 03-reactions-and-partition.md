@@ -43,7 +43,7 @@ abstract: >
   eventual consistency. Code references throughout point to the public
   Puppeteer codebase, whose Reaction primitive instantiates the construct
   concretely.
-canonical_url: https://[pending]/papers/reactions-and-partition-v1
+canonical_url: https://doi.org/10.5281/zenodo.20792156
 ---
 
 # Reactions and the partition
