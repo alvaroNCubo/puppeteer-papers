@@ -10,17 +10,19 @@ keywords:
   - semantic continuity
   - cross-actor causation
   - message passing
-  - design theory
+  - analytic theory
   - journal-based program
   - actor systems
   - tell primitive
   - puppeteer framework
 abstract: >
-  This paper is a design theory contribution in the sense of Alan Hevner,
-  Stuart March, Jinsoo Park, and Sudha Ram (2004): it identifies a structural
-  defect in the canonical actor-systems literature, derives the design
-  principles required to address it, and presents an instantiation
-  demonstrating that the alternative is realizable in production. For five
+  This paper is an analytic theory contribution in the sense of Gregor's
+  (2006) *theory for analyzing* (Type I): it identifies a structural defect
+  in the canonical actor-systems literature, derives the design principles
+  required to address it, and presents an instantiation in production as an
+  existence proof that the alternative is realizable — not the design-science
+  evaluation of an artifact (Hevner, March, Park, & Ram, 2004), which a
+  companion case-study paper is the venue for. For five
   decades, from Carl Hewitt's original formulation through Gul Agha, Joe
   Armstrong, and modern frameworks such as Akka and Microsoft Orleans,
   cross-actor causation has been treated as an operational concern of the
@@ -77,9 +79,9 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 ## 1. Introduction
 
-This paper makes a design theory contribution. It identifies and names a structural assumption that the canonical literature on actor-based systems has repeatedly documented in different forms without recognizing as a single construct; derives the design principles required to reject it; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation serves as an existence proof, not as the substance of the claim. The genre is that described by Alan Hevner, Stuart March, Jinsoo Park, and Sudha Ram (2004) as design science research: empirical evidence is provided in the form of a working artifact rather than a controlled experiment.
+This paper makes an analytic theory contribution. It identifies and names a structural assumption that the canonical literature on actor-based systems has repeatedly documented in different forms without recognizing as a single construct; derives the design principles required to reject it; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation serves as an existence proof, not as the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary. The Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is deferred to a companion case-study paper; the Type I frame separates construct introduction from artifact assessment cleanly.
 
-This is not a systems paper. It does not present performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks. The genre — design theory — measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Section 8 exhibits the instantiation and tests whether the mechanism satisfies its stated structural properties. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
+This is not a systems paper. It does not present performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks. The genre — analytic theory — measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Section 8 exhibits the instantiation and tests whether the mechanism satisfies its stated structural properties. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
 
 Consider an ordinary observation about actor-based systems. An actor performs an operation and, as a result, sends a message to another actor. The first actor's operation, state mutation, and emitted events appear in its journal or trace. The second actor receives the message and its own operation is likewise recorded. Yet the act of sending the message — the causal step that connects the two — does not appear in either actor's program. It is mediated by the runtime, the dispatcher, or the message broker. The sender's journal does not record that it spoke; the receiver's journal does not record, in program terms, who spoke to it.
 
@@ -682,6 +684,7 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Akka documentation. *Akka core: Interaction Patterns.* https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html (accessed 2026-05-09).
 - Armstrong, J. (2003). *Making Reliable Distributed Systems in the Presence of Software Errors.* Doctoral dissertation, Royal Institute of Technology (KTH), Stockholm. https://erlang.org/download/armstrong_thesis_2003.pdf
 - Bernstein, P. A., Bykov, S., Geller, A., Kliot, G., & Thelin, J. (2014). *Orleans: Distributed Virtual Actors for Programmability and Scalability.* Microsoft Research Technical Report MSR-TR-2014-41.
+- Gregor, S. (2006). *The nature of theory in information systems.* MIS Quarterly, 30(3), 611–642.
 - Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
 - Hewitt, C., Bishop, P., & Steiger, R. (1973). *A Universal Modular ACTOR Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235–245.
 - Hoare, C. A. R. (1978). *Communicating Sequential Processes.* Communications of the ACM, 21(8), 666–677.
