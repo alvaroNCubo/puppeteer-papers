@@ -17,8 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Re-pointed to the working public checkout for the Cue-latency runtime change. -->
-    <ProjectReference Include="..\..\..\puppeteer-github-public\Puppeteer\Puppeteer.csproj" />
+    <!-- Sibling clone of https://github.com/alvaroNCubo/puppeteer at the cited
+         provenance commit (see README) — same convention as lab01/lab02. -->
+    <ProjectReference Include="..\..\..\puppeteer\Puppeteer\Puppeteer.csproj" />
   </ItemGroup>
 
 </Project>
