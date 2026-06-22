@@ -202,7 +202,7 @@ The architectural responsibility is therefore not to teach the developer discipl
 
 ## 5. Three consequences (ranked)
 
-The three consequences below fall out of the primitive (§3) when its exercise is low-friction (§4). They are ranked: closability is primary (§5.1); fast verbs by construction (§5.2) and opt-in eventual consistency (§5.3) are secondary.
+The three consequences below fall out of the primitive (§3) when its exercise is low-friction (§4). They are ranked: closability is primary (§5.1); fast verbs by construction (§5.2) and opt-in eventual consistency (§5.3) are secondary. The last of the three is where the paper's central inversion becomes concrete: eventual consistency is not an architectural commitment the system makes up front but the shadow the partition casts — a consequence of a modeling decision, named one deferral at a time (§5.3).
 
 ### 5.1 A domain that closes
 
@@ -529,6 +529,8 @@ In §1 a developer was modeling a purchase-order endpoint by saying things. *"Th
 The developer reached none of these technical names while modeling. They reached for a sentence about who does what. The names are downstream — useful for reasoning about the system, for defending the design, for situating it against Akka and Orleans and the broader CQRS literature. The sentence is upstream — useful for getting the work done.
 
 > *At some point a domain must be declarable as "task done". A library whose definition must absorb every present and future operational tool — email today, Slack tomorrow, a webhook protocol the year after — is a library that never closes. The only way it closes is if it stays pure: free of operational concerns by construction. Reactions are the artifact that makes that closure possible.*
+
+One of those downstream names carries more weight than the others. The CQRS literature treats eventual consistency as the architecture's defining commitment — taken or refused wholesale, a property the application must then absorb wherever the business demands stronger contracts. Read through the partition, it is none of that: it is the shadow the partition casts, present exactly where the developer drew a deferral and nowhere else. That is the inversion this paper turns on — eventual consistency is a consequence of a modeling decision, not a property of the architecture.
 
 In C# a developer says things. In the DSL of an actor-native runtime, a developer says things too — about endpoints, about who does what, about what gets handled afterwards. The act is the same; the surface is bigger. What is new is not how the developer thinks. It is what the language lets them say.
 
