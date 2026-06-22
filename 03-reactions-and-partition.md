@@ -538,9 +538,9 @@ In C# a developer says things. In the DSL of an actor-native runtime, a develope
 
 ## Appendix A. Code references
 
-All references are to the Puppeteer codebase. Path:line citations were verified against the anchored commit (2026-06-21). Releases after this date may shift line numbers; the symbolic references (method names, class names) are stable and locate the same artifact regardless of line drift.
+All references are to the Puppeteer codebase; the files below live under `Puppeteer/EventSourcing/` (the matcher files under `Puppeteer/EventSourcing/Follower/`). Path:line citations were verified against the anchored commit (2026-06-21). Releases after this date may shift line numbers; the symbolic references (method names, class names) are stable and locate the same artifact regardless of line drift.
 
-### Reaction primitive — `Puppeteer/EventSourcing/Follower/Reaction.cs`
+### Reaction primitive — `Reaction.cs`
 
 | Range | What it shows | Cited in |
 |---|---|---|
@@ -561,7 +561,7 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | 1174 | `PerformEmit` invocation from `ExecuteProgram` | §6.5 |
 | 1444 | `SolveActionReferences()` per-event resolution | §6.2 |
 
-### Reaction action planes — `Puppeteer/EventSourcing/Follower/Planes.cs`
+### Reaction action planes — `Planes.cs`
 
 | Range | What it shows | Cited in |
 |---|---|---|
@@ -571,14 +571,14 @@ All references are to the Puppeteer codebase. Path:line citations were verified 
 | 76 | `Causation.Continue(string script)` — journaled cross-actor verb (Tell) | §6.5 |
 | 142 | `Metadata.Elide()` — mark matched entries as elided | §6.5 |
 
-### Reaction language layer — `Puppeteer/EventSourcing/Follower/ReactionEngine.cs`
+### Reaction language layer — `ReactionEngine.cs`
 
 | Range | What it shows | Cited in |
 |---|---|---|
 | 71-83 | `Where(expression)` clause registration with build-time validation | §6.4 |
 | 146-265 | Quantifiers and windows (`Many`, `Accumulate`, `AtLeast`, `Within`, `Aged`, `None`, `One`, `Exactly`) | §6.4 |
 
-### Read-only emit path — `Puppeteer/EventSourcing/ActorHandler.cs`
+### Read-only emit path — `ActorHandler.cs`
 
 | Range | What it shows | Cited in |
 |---|---|---|
