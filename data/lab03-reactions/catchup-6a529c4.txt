@@ -1,0 +1,6 @@
+# Cue catch-up + restart correctness (one-shot single-Seek), IN_MEMORY
+actors (pre-journaled match)    : 50
+catch-up misses (fired 0)       : 0    (expect 0)
+catch-up double-fires (fired>1) : 0    (expect 0)
+re-fires across restart         : 0    (expect 0)
+RESULT                          : PASS — catch-up delivery exactly-once, no re-fire across restart

@@ -1,0 +1,8 @@
+samples fired         : 2000  (misses: 0)
+exactly-once per match: held (double-fires: 0, of 2000)
+latency ms  min       : 0.418
+latency ms  median    : 1.348
+latency ms  mean      : 1.283
+latency ms  p95       : 1.692
+latency ms  p99       : 1.880
+latency ms  max       : 21.815
