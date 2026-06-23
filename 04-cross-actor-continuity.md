@@ -58,7 +58,7 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 ## Claims this paper makes
 
-1. **The assumption named.** Cross-actor causation has been treated as operational rather than programmatic across fifty years of canonical actor-systems literature — from Hewitt 1973 through Akka and Orleans. *(Verification: §2 + the genealogy table in §2.4.)*
+1. **The assumption named.** Cross-actor causation has been treated as operational rather than programmatic across fifty years of canonical actor-systems literature — from Hewitt et al. (1973) through Akka and Orleans. *(Verification: §2 + the genealogy table in §2.4.)*
 
 2. **The assumption is contingent.** No theorem of the actor model entails it. The three structural commitments of the model — autonomy, message-based communication, isolation — define the ontology of actors, not the mechanics of their runtimes. *(Verification: §4.)*
 
@@ -100,29 +100,29 @@ This paper names that gap. The construct introduced is *semantic continuity*: th
 
 ### 2.1 The founding decision (1970s)
 
-The actor model was introduced in 1973 by Hewitt, Bishop, and Steiger as a unifying account of concurrent computation in which "all of the modes of behavior can be defined in terms of one kind of behavior: sending messages to actors" [Hewitt et al. 1973, p. 235]. Sending messages is positioned as a universal primitive, but the framing goes further: it is positioned as a *machine-level* primitive. "The basic unit of execution on an actor machine is sending a message in much the same way that the basic unit of execution on present day machines is an instruction" [ibid., pp. 236–237]. The act of sending is therefore parallel to a hardware instruction — it is what the abstract machine performs *between* actors, not content of any actor's program.
+The actor model was introduced in 1973 by Hewitt, Bishop, and Steiger as a unifying account of concurrent computation in which "all of the modes of behavior can be defined in terms of one kind of behavior: sending messages to actors" (Hewitt et al., 1973, p. 235). Sending messages is positioned as a universal primitive, but the framing goes further: it is positioned as a *machine-level* primitive. "The basic unit of execution on an actor machine is sending a message in much the same way that the basic unit of execution on present day machines is an instruction" (Hewitt et al., 1973, pp. 236–237). The act of sending is therefore parallel to a hardware instruction — it is what the abstract machine performs *between* actors, not content of any actor's program.
 
-A different concurrency tradition emerged in 1978 with Hoare's *Communicating Sequential Processes* [Hoare 1978]. It is worth distinguishing rather than assimilating: CSP's communication is a *symmetric, synchronous* handshake at named ports — sender and receiver rendezvous, each blocking until the other is ready — which is the opposite of the actor model's *asynchronous, fire-and-forget* send. These are different ontologies, and this paper does not fold them together. CSP earns one narrow point of contrast: there too, cross-process communication is a construct of the language, not a statement in either process's program. But the genealogy below tracks the actor lineage specifically; CSP is a foil, not a second witness to the same assumption.
+A different concurrency tradition emerged in 1978 with Hoare's *Communicating Sequential Processes* (Hoare, 1978). It is worth distinguishing rather than assimilating: CSP's communication is a *symmetric, synchronous* handshake at named ports — sender and receiver rendezvous, each blocking until the other is ready — which is the opposite of the actor model's *asynchronous, fire-and-forget* send. These are different ontologies, and this paper does not fold them together. CSP earns one narrow point of contrast: there too, cross-process communication is a construct of the language, not a statement in either process's program. But the genealogy below tracks the actor lineage specifically; CSP is a foil, not a second witness to the same assumption.
 
-The actor model was formalized in 1986 in Agha's MIT thesis [Agha 1986], which defined actors as behavior functions over messages and treated cross-actor effects as emitted output messages of the function. The formal account ratified what Hewitt 1973 had stated informally: an actor's program describes how it responds to the messages it receives; what happens *between* actors is the operational semantics of the model, not the content of any actor's program.
+The actor model was formalized in 1986 in Agha's MIT thesis (Agha, 1986), which defined actors as behavior functions over messages and treated cross-actor effects as emitted output messages of the function. The formal account ratified what Hewitt et al. (1973) had stated informally: an actor's program describes how it responds to the messages it receives; what happens *between* actors is the operational semantics of the model, not the content of any actor's program.
 
 By the close of the 1980s, the actor lineage — Hewitt's informal formulation, Agha's formalization — had stabilized a single architectural decision: the boundary between an actor and the message-passing layer was drawn deliberately, and the layer between actors was characterized as operational rather than programmatic. (CSP reached a structurally similar boundary by a different route and under a different ontology; the resemblance is worth a note of contrast, not a claim that one assumption spans both traditions.)
 
 ### 2.2 The pragmatic maturation (1990s–2000s)
 
-The operational frame became productive in Erlang. Armstrong's 2003 PhD thesis [Armstrong 2003] argued that fault tolerance becomes tractable precisely because processes do not share programmatic flow: failure is handled across process boundaries by links and exit signals. In Armstrong's own terms, "a process can supervise the existence of another process by setting up a link to it. When a process terminates, it automatically sends exit signals to the process to which it is linked" [Armstrong 2003, p. 217]. Supervision is a structural pattern in which a supervisor observes the failure of a child process and reacts. The supervisor's program is local; the failed process's program does not extend into the supervisor; the cross-process relationship is mediated by VM-level links and exit signals. Cross-process causation is an infrastructure concern. The frame stabilized further by becoming useful: the operational-rather-than-programmatic separation was now what made fault-tolerant systems possible.
+The operational frame became productive in Erlang. Armstrong's (2003) PhD thesis argued that fault tolerance becomes tractable precisely because processes do not share programmatic flow: failure is handled across process boundaries by links and exit signals. In Armstrong's own terms, "a process can supervise the existence of another process by setting up a link to it. When a process terminates, it automatically sends exit signals to the process to which it is linked" (Armstrong, 2003, p. 217). Supervision is a structural pattern in which a supervisor observes the failure of a child process and reacts. The supervisor's program is local; the failed process's program does not extend into the supervisor; the cross-process relationship is mediated by VM-level links and exit signals. Cross-process causation is an infrastructure concern. The frame stabilized further by becoming useful: the operational-rather-than-programmatic separation was now what made fault-tolerant systems possible.
 
 ### 2.3 The modern instantiations (2010s–)
 
-Two implementations carried the actor frame into modern production systems. Akka, the canonical JVM actor framework [Lightbend, *Akka core: Interaction Patterns*], characterizes its fundamental message-send pattern directly:
+Two implementations carried the actor frame into modern production systems. Akka, the canonical JVM actor framework (Lightbend, n.d.), characterizes its fundamental message-send pattern directly:
 
 > *"Tell is asynchronous which means that the method returns right away. After the statement is executed there is no guarantee that the message has been processed by the recipient yet. It also means there is no way to know if the message was received, the processing succeeded or failed."*
 
 The verb is named — `tell` — and so is its absence of program-level effect. The dispatch occurs; the sender's program does not record that it occurred, nor whether the recipient acted on it.
 
-Microsoft's Orleans [Bernstein et al. 2014] introduced *virtual actors*: location-transparent grains whose dispatch is mediated by the Orleans runtime. Each grain has a key; the runtime decides where the grain lives and routes calls; the grain's code observes only local state and method invocation. The runtime maintains the cross-grain dispatch logic as infrastructure; the grain's program never sees nor records cross-grain causation as part of its narrative.
+Microsoft's Orleans (Bernstein et al., 2014) introduced *virtual actors*: location-transparent grains whose dispatch is mediated by the Orleans runtime. Each grain has a key; the runtime decides where the grain lives and routes calls; the grain's code observes only local state and method invocation. The runtime maintains the cross-grain dispatch logic as infrastructure; the grain's program never sees nor records cross-grain causation as part of its narrative.
 
-> **Forty years apart, one assumption.** In Hewitt 1973: *"Sending a message to an actor makes no presupposition that the actor sent the message will ever send back a message to the continuation"* (p. 241). In Akka 2014–present: *"there is no way to know if the message was received, the processing succeeded or failed."* The two formulations are forty years apart and identical in substance. The verb `tell` has been part of actor-systems vocabulary throughout. What this paper observes is that the verb names the dispatch, not the program: a `tell` from actor A to actor B leaves no trace in either actor's program. The verb has existed; the assumption that the verb's effect was extra-programmatic has survived intact alongside it.
+> **Forty years apart, one assumption.** In Hewitt et al. (1973): *"Sending a message to an actor makes no presupposition that the actor sent the message will ever send back a message to the continuation"* (p. 241). In Akka 2014–present: *"there is no way to know if the message was received, the processing succeeded or failed."* The two formulations are forty years apart and identical in substance. The verb `tell` has been part of actor-systems vocabulary throughout. What this paper observes is that the verb names the dispatch, not the program: a `tell` from actor A to actor B leaves no trace in either actor's program. The verb has existed; the assumption that the verb's effect was extra-programmatic has survived intact alongside it.
 
 ### 2.4 The naturalized assumption
 
@@ -200,7 +200,7 @@ The assumption named in §3 — that causation between actors is treated as oper
 
 ### 4.1 What the actor model entails
 
-The actor model, in its canonical formulations from Hewitt 1973 through Agha 1986, formally entails three structural commitments:
+The actor model, in its canonical formulations from Hewitt et al. (1973) through Agha (1986), formally entails three structural commitments:
 
 1. **Autonomy.** Each actor has its own state and processes messages serially. No actor's behavior is contingent on the simultaneous execution of another's.
 2. **Message-based communication.** Actors communicate by passing messages. No actor reads or writes another's state directly.
@@ -212,7 +212,7 @@ These three commitments are what distinguish actor systems from shared-memory co
 
 The three commitments above do not entail that the *act of sending* be invisible to the sender's own program. They do not entail that cross-actor dispatch be mediated by a runtime layer that owns the send. They do not entail that a record of "actor A spoke to actor B at time T" must reside outside actor A's narrative.
 
-In Hewitt 1973, the act of sending is an action the actor performs. The framing of message-sending as a machine-level instruction analogous to a hardware instruction [Hewitt et al. 1973, pp. 236–237] is an interpretive choice that supports the architecture proposed in that paper; it is not a formal consequence of what an actor is. In Agha 1986, the actor's behavior is modelled as a function from (state, message) to (next state, outgoing messages) [Agha 1986, ch. 4]. The outgoing messages are output of the function. The formalization neither requires nor prohibits the function from producing, in addition, a record of the send observable in the actor's own program — the question is not raised. The formalization can be extended, without modifying any of the three commitments above, to include as output not only the outgoing messages but also a record of the send observable within the actor's own program.
+In Hewitt et al. (1973), the act of sending is an action the actor performs. The framing of message-sending as a machine-level instruction analogous to a hardware instruction (Hewitt et al., 1973, pp. 236–237) is an interpretive choice that supports the architecture proposed in that paper; it is not a formal consequence of what an actor is. In Agha (1986), the actor's behavior is modelled as a function from (state, message) to (next state, outgoing messages) (Agha, 1986, ch. 4). The outgoing messages are output of the function. The formalization neither requires nor prohibits the function from producing, in addition, a record of the send observable in the actor's own program — the question is not raised. The formalization can be extended, without modifying any of the three commitments above, to include as output not only the outgoing messages but also a record of the send observable within the actor's own program.
 
 What the canonical formulations establish is the *boundary* between actors — autonomy, isolation, message passing as the exclusive cross-actor mechanism. They do not establish that the boundary be invisible from within. The opacity of the cross-actor send to the sender's program is a separate decision that the canonical sources adopted but did not derive.
 
@@ -317,11 +317,11 @@ The asymmetry matters. From the perspective of a participant, an activity invoca
 
 ### 6.4 Causal and message logging
 
-A sharper objection comes not from the business-flow patterns above but from distributed-systems fault tolerance, where recording what one process sent another is decades old. Message logging — in its sender-based, receiver-based, and causal variants, surveyed by Elnozahy, Alvisi, Wang, and Johnson [2002] — records the messages a process sends or receives so that a crashed process can be reconstructed by replaying them [Johnson & Zwaenepoel 1987]. Lamport's happened-before relation [Lamport 1978] and the vector clocks that refine it [Fidge 1988] record cross-process causal order directly. These mechanisms predate this paper by decades and unambiguously record cross-entity causation. A distributed-systems reader is entitled to ask: how is a *tell* recorded in the sender's journal different from a sender-based message log, which has existed since the 1980s?
+A sharper objection comes not from the business-flow patterns above but from distributed-systems fault tolerance, where recording what one process sent another is decades old. Message logging — in its sender-based, receiver-based, and causal variants, surveyed by Elnozahy, Alvisi, Wang, and Johnson (2002) — records the messages a process sends or receives so that a crashed process can be reconstructed by replaying them (Johnson & Zwaenepoel, 1987). Lamport's happened-before relation (Lamport, 1978) and the vector clocks that refine it (Fidge, 1988) record cross-process causal order directly. These mechanisms predate this paper by decades and unambiguously record cross-entity causation. A distributed-systems reader is entitled to ask: how is a *tell* recorded in the sender's journal different from a sender-based message log, which has existed since the 1980s?
 
 The difference is the operational/programmatic distinction of §3, and message logging falls cleanly on the operational side. A message log is maintained by the recovery protocol beneath the application, for the recovery protocol's purposes: it captures message payloads and delivery metadata so the fault-tolerance layer can resend or replay them after a crash, and it is read by that layer, not by any actor's program. The application's program does not contain the act of sending as a sentence; the log is apparatus the runtime keeps *about* the program — the same category as the distributed trace of §6.2, differing in purpose (recovery rather than observability) but not in kind. A vector clock is narrower still: it records the *order* of causation, not its *content* — that B's state causally followed A's, not what A said to B or why.
 
-*Tell* records the send as a sentence in the actor's program: a dense DSL statement in the journal that *is* the program — the anti-porosity of Paper 1, the externalized parameters of Paper 2 — read as narrative and replayed as program. The contrast is exact. A sender-based message log answers *"what bytes must I resend to recover this process?"*; the journal answers *"what did this actor say, to whom, and why?"* The first is a recovery artifact, payload-oriented and type-erased; the second is the program. The same holds for event-sourcing causation and correlation identifiers [Young 2010; Vernon 2013] and for the process-manager pattern [Hohpe & Woolf 2003]: each threads an identifier or a coordinating state machine through messages so the cross-entity chain can be reassembled downstream — operational reconstruction by the same logic as §6.1–6.3. That cross-entity causation has been captured for thirty years is not in dispute. What no prior mechanism does is record it as a sentence of the sending actor's own program. Message logging is, if anything, the strongest witness for §3's distinction: it is the most mature, most studied apparatus for capturing cross-actor sends, and it lives entirely on the operational side of the line.
+*Tell* records the send as a sentence in the actor's program: a dense DSL statement in the journal that *is* the program — the anti-porosity of Paper 1, the externalized parameters of Paper 2 — read as narrative and replayed as program. The contrast is exact. A sender-based message log answers *"what bytes must I resend to recover this process?"*; the journal answers *"what did this actor say, to whom, and why?"* The first is a recovery artifact, payload-oriented and type-erased; the second is the program. The same holds for event-sourcing causation and correlation identifiers (Young, 2010; Vernon, 2013) and for the process-manager pattern (Hohpe & Woolf, 2003): each threads an identifier or a coordinating state machine through messages so the cross-entity chain can be reassembled downstream — operational reconstruction by the same logic as §6.1–6.3. That cross-entity causation has been captured for thirty years is not in dispute. What no prior mechanism does is record it as a sentence of the sending actor's own program. Message logging is, if anything, the strongest witness for §3's distinction: it is the most mature, most studied apparatus for capturing cross-actor sends, and it lives entirely on the operational side of the line.
 
 ### 6.5 Closing
 
@@ -691,27 +691,38 @@ The author used large language models (including Claude and ChatGPT) as editoria
 
 ## Appendix B. Bibliography
 
-*Online sources accessed at the moment of publication; dates filled in at release.*
+Agha, G. (1986). *Actors: A model of concurrent computation in distributed systems*. MIT Press.
 
-- Agha, G. (1986). *Actors: A Model of Concurrent Computation in Distributed Systems.* MIT Press. ISBN 978-0-262-01092-7.
-- Akka documentation. *Akka core: Interaction Patterns.* https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html (accessed 2026-05-09).
-- Armstrong, J. (2003). *Making Reliable Distributed Systems in the Presence of Software Errors.* Doctoral dissertation, Royal Institute of Technology (KTH), Stockholm. https://erlang.org/download/armstrong_thesis_2003.pdf
-- Bernstein, P. A., Bykov, S., Geller, A., Kliot, G., & Thelin, J. (2014). *Orleans: Distributed Virtual Actors for Programmability and Scalability.* Microsoft Research Technical Report MSR-TR-2014-41.
-- Elnozahy, E. N., Alvisi, L., Wang, Y.-M., & Johnson, D. B. (2002). *A Survey of Rollback-Recovery Protocols in Message-Passing Systems.* ACM Computing Surveys, 34(3), 375–408.
-- Fidge, C. J. (1988). *Timestamps in Message-Passing Systems That Preserve the Partial Ordering.* Proceedings of the 11th Australian Computer Science Conference, 56–66.
-- Gregor, S. (2006). *The nature of theory in information systems.* MIS Quarterly, 30(3), 611–642.
-- Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
-- Hewitt, C., Bishop, P., & Steiger, R. (1973). *A Universal Modular ACTOR Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235–245.
-- Hoare, C. A. R. (1978). *Communicating Sequential Processes.* Communications of the ACM, 21(8), 666–677.
-- Hohpe, G., & Woolf, B. (2003). *Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions.* Addison-Wesley. ISBN 978-0-321-20068-6.
-- Johnson, D. B., & Zwaenepoel, W. (1987). *Sender-Based Message Logging.* Proceedings of the 17th International Symposium on Fault-Tolerant Computing (FTCS-17), 14–19.
-- Lamport, L. (1978). *Time, Clocks, and the Ordering of Events in a Distributed System.* Communications of the ACM, 21(7), 558–565.
-- Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
-- Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
-- Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
+Armstrong, J. (2003). *Making reliable distributed systems in the presence of software errors* [Doctoral dissertation, Royal Institute of Technology (KTH)]. https://erlang.org/download/armstrong_thesis_2003.pdf
 
----
+Bernstein, P. A., Bykov, S., Geller, A., Kliot, G., & Thelin, J. (2014). *Orleans: Distributed virtual actors for programmability and scalability* (Technical Report MSR-TR-2014-41). Microsoft Research.
 
-- Rivera, A. (2026). *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems.* Paper 1 of this series. [01-anti-porosity.md](01-anti-porosity.md)
-- Rivera, A. (2026). *Program-value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime.* Paper 2 of this series. [02-program-value-separability.md](02-program-value-separability.md)
-- Rivera, A. (2026). *Reactions and the partition: opt-in eventual consistency in actor-native systems.* Paper 3 of this series. [03-reactions-and-partition.md](03-reactions-and-partition.md)
+Elnozahy, E. N., Alvisi, L., Wang, Y.-M., & Johnson, D. B. (2002). A survey of rollback-recovery protocols in message-passing systems. *ACM Computing Surveys*, *34*(3), 375–408.
+
+Fidge, C. J. (1988). Timestamps in message-passing systems that preserve the partial ordering. In *Proceedings of the 11th Australian Computer Science Conference* (pp. 56–66).
+
+Gregor, S. (2006). The nature of theory in information systems. *MIS Quarterly*, *30*(3), 611–642.
+
+Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems research. *MIS Quarterly*, *28*(1), 75–105.
+
+Hewitt, C., Bishop, P., & Steiger, R. (1973). A universal modular actor formalism for artificial intelligence. In *Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73)* (pp. 235–245).
+
+Hoare, C. A. R. (1978). Communicating sequential processes. *Communications of the ACM*, *21*(8), 666–677.
+
+Hohpe, G., & Woolf, B. (2003). *Enterprise integration patterns: Designing, building, and deploying messaging solutions*. Addison-Wesley.
+
+Johnson, D. B., & Zwaenepoel, W. (1987). Sender-based message logging. In *Proceedings of the 17th International Symposium on Fault-Tolerant Computing (FTCS-17)* (pp. 14–19).
+
+Lamport, L. (1978). Time, clocks, and the ordering of events in a distributed system. *Communications of the ACM*, *21*(7), 558–565.
+
+Lightbend. (n.d.). *Akka core: Interaction patterns* [Akka documentation]. https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html
+
+Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
+
+Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20740697
+
+Rivera, A. (2026c). Reactions and the partition: opt-in eventual consistency in actor-native systems. *Puppeteer Papers Series*, Paper 3 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20792156
+
+Vernon, V. (2013). *Implementing domain-driven design*. Addison-Wesley.
+
+Young, G. (2010). *CQRS documents*. https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
