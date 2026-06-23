@@ -143,7 +143,7 @@ The continuity of this assumption across five decades is not the result of overs
 
 ## 3. The assumption named
 
-What §2 has shown to be continuous across fifty years admits a single one-line formulation. The structural claim that links all six entries of §2.4 — Hewitt's "machine-level instruction", Hoare's parallel composition, Agha's emitted output messages, Armstrong's VM-supported links, Akka's `tell`, Orleans' runtime-mediated dispatch — is:
+What §2 has shown to be continuous across fifty years admits a single one-line formulation. The structural claim that links the five entries of §2.4 — Hewitt's "machine-level instruction", Agha's emitted output messages, Armstrong's VM-supported links, Akka's `tell`, Orleans' runtime-mediated dispatch — is:
 
 > **Causation between actors is operational, not programmatic.**
 
@@ -151,7 +151,9 @@ The two terms in the formulation are the working categories of the rest of this 
 
 *Operational* designates effects that the system performs around or between actors but that no actor's program records. Message dispatch by a runtime, supervision links between processes, virtual-actor placement decisions, message-broker routing, and distributed-tracing correlation IDs are all operational in this sense: their existence is mediated by infrastructure, and their effect on the system is real, but no program in the system contains the act of mediation as a statement.
 
-*Programmatic* designates effects that an actor's program contains as a statement — a line of code, a journal entry, a recorded behavior — in such a way that the effect is observable from within the program's own narrative. A method invocation that an actor performs on itself is programmatic in this sense; so is a state mutation written by that actor; so is a journal entry recorded by that actor. The actor's program records what happened; replay of that program reconstructs what happened.
+*Programmatic* designates an effect that an actor's program contains as a *statement of the program* — an operation the program executes, observable within the program's own narrative and re-executed when the program is replayed. A method invocation an actor performs on itself is programmatic in this sense; so is a state mutation it writes. The program records what it did, as the doing, and replay re-runs it.
+
+The boundary is not whether the send is recorded in the actor's own log. A serialized event can be appended there without being a statement of the program. Conventional event sourcing already does this: an aggregate raises a `MessageSent` or integration event when it dispatches to another context, and the event lands in the aggregate's own stream. But that event is *data the program emitted*, not a *sentence the program runs* — on replay it is folded back into state, not re-executed as the act of sending, and the dispatch is relayed by an outbox or broker the program does not contain. By the test used here it is operational-in-effect despite its location. A recorded cross-actor send is *programmatic* only when the send is a dense operation in the program — an executable sentence naming its recipient and message by reference, replayed as program rather than re-applied as state. That density criterion — a recorded operation, not a serialized payload — is the *anti-porosity* established in Paper 1; the present paper takes it as a precondition and asks what becomes possible at the actor boundary once it holds.
 
 The contrast can be visualized:
 
