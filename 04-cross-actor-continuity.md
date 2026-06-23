@@ -35,7 +35,10 @@ abstract: >
   message passing can be expressed as a sentence of the actor's program
   without violating actor isolation and without introducing orchestration. An
   existing primitive, tell, is shown to satisfy these principles when
-  recorded as part of the actor's journal. Under this construction, program
+  recorded — as a dense program operation rather than a serialized payload —
+  in the actor's journal. The realization presupposes that journal: the
+  contribution is the cross-actor extension of a journal-as-program
+  substrate, not the primitive in isolation. Under this construction, program
   continuity extends across actors while preserving the defining properties
   of actor systems.
 canonical_url: https://[pending]/papers/cross-actor-continuity-v1
@@ -45,7 +48,7 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 ## TL;DR
 
-> The actor model treats cross-actor causation as operational — message dispatch by a runtime, not a statement in any actor's program. The treatment is not entailed by the model; it is a contingent design decision adopted in the canonical sources fifty years ago and never seriously challenged. The cost is structural: an entire ecosystem of compensating patterns — sagas, choreography, distributed tracing, workflow engines — exists to reconstruct cross-actor causal chains that no actor's program records.
+> The actor model treats cross-actor causation as operational — message dispatch by a runtime, not a statement in any actor's program. The treatment is not entailed by the model; it is a contingent design decision, adopted as the default frame of the canonical actor lineage and seldom examined as a choice. The cost is structural: an entire ecosystem of compensating patterns — sagas, choreography, distributed tracing, workflow engines — exists to reconstruct cross-actor causal chains that no actor's program records.
 >
 > This paper observes that the assumption can be removed without altering any structural commitment of the actor model. Three conditions describe a system in which the cross-actor send is recorded as a sentence in the sender's program: locality of writes (each journal records only its own actor's activity), causation as program statement (the cross-actor send is a sentence in the sender's journal), and no external coordinator (no party outside the participating actors decides what happens next). Any primitive satisfying these three conditions dissolves the assumption. *Tell* — a primitive in the Puppeteer framework — is one such realization.
 >
@@ -87,7 +90,7 @@ Consider an ordinary observation about actor-based systems. An actor performs an
 
 This observation is so familiar that it rarely appears noteworthy. But it should. If actors are programs, and a sentence in one actor's program causes an effect in another, then that causal sentence has every reason to appear as part of the first actor's program. That it does not is not a logical consequence of the actor model; it is a structural feature of how actor systems have historically been constructed.
 
-This paper names that gap. The construct introduced is *semantic continuity*: the property of a program (in the substrate-level sense established in Paper 2 §1.2: the pair of domain library and journal of invocations) whose causal structure remains recorded as part of the program itself, even when its effects cross boundaries. The defect identified is the absence of semantic continuity at actor boundaries. The principles derived are the conditions under which semantic continuity can be preserved without violating actor isolation and without introducing orchestration. The instantiation presented is *tell*, a primitive in which the cross-actor send is recorded as a sentence of the sender's journal.
+This paper names that gap. The construct introduced is *semantic continuity*: the property of a program (in the substrate-level sense established in Paper 2 §1.2: the pair of domain library and journal of invocations) whose causal structure remains recorded as part of the program itself, even when its effects cross boundaries. The defect identified is the absence of semantic continuity at actor boundaries. The principles derived are the conditions under which semantic continuity can be preserved without violating actor isolation and without introducing orchestration. The instantiation presented is *tell*, a primitive in which the cross-actor send is recorded as a sentence of the sender's journal — a dense program operation, not a serialized payload, which presupposes the anti-porous journal established in Paper 1.
 
 §2 traces the genealogy of the assumption that produces this gap, showing that across five decades and multiple canonical generations of literature the assumption has remained continuous in substance though varied in form. §3 names the assumption explicitly: *causation between actors is treated as operational rather than programmatic*. §4 demonstrates that this assumption is contingent rather than necessary — no theorem of the actor model entails it. §5 examines the architectural and operational consequences of the assumption. §6 shows why existing responses to those consequences — sagas, choreography, distributed tracing, and workflow engines — cannot dissolve the assumption, because they reconstruct cross-actor flow after the fact rather than preserving it as program. §7 reformulates the model: under three explicit conditions, semantic continuity can be preserved across actors. §8 presents the instantiation, *tell*, through a comparative case study against saga and choreography implementations of the same domain. §9 relates the construct to prior work in this paper series. §10 concludes.
 
@@ -123,7 +126,7 @@ Microsoft's Orleans [Bernstein et al. 2014] introduced *virtual actors*: locatio
 
 ### 2.4 The naturalized assumption
 
-Across fifty years and four canonical generations of literature — Hewitt's foundational paper, Agha's formalization, Armstrong's pragmatic maturation, and the modern instantiations in Akka and Orleans — the question *"Is cross-actor flow part of any actor's program?"* is not asked. It does not need to be asked, because the answer has been assumed. The assumption is so stabilized that it does not appear as a defended thesis; it appears as the default frame within which every subsequent contribution operates.
+Across fifty years and four canonical generations of literature — Hewitt's foundational paper, Agha's formalization, Armstrong's pragmatic maturation, and the modern instantiations in Akka and Orleans — the question of whether cross-actor flow is a *statement* of any actor's program is not the one the lineage asks. Where cross-entity causation is recorded at all — the message logs and causation identifiers of §6.4 — it is recorded operationally, beneath or beside the program, never as the program's own sentence. The assumption does not appear as a defended thesis; it is the default frame within which the lineage operates.
 
 The forms in which the assumption surfaces vary by generation; the substance is continuous.
 
@@ -628,7 +631,7 @@ The first sentence is the joint contribution of Papers 1 through 3: the structur
 
 The actor model has, for fifty years, treated cross-actor causation as an operational concern of the runtime rather than as a construct of the program. The treatment was productive: actor systems became fault-tolerant, scalable, and reliable precisely because the separation between an actor's program and the message-passing layer was operationally effective. Out of that productivity grew the ecosystem of patterns analyzed in §6 and exhibited in §8.3 — saga orchestrators, choreography buses, distributed tracing, workflow engines. Each compensates, in its own way, for the program-level absence the reader saw in the journals.
 
-The present paper observes that the absence is not entailed by the actor model. It is a contingent design decision adopted by the canonical sources, propagated through the lineage, and never seriously challenged because it was never seriously challenged. The conditions under which the absence can be removed — locality of writes, causation as program statement, no external coordinator — preserve every structural commitment of the actor model. A primitive that satisfies the three conditions, whether named *tell* or otherwise, makes the cross-actor send a sentence in the sender's program; the apparatus that exists to compensate for the absence has nothing left to compensate for.
+The present paper observes that the absence is not entailed by the actor model. It is a contingent design decision adopted by the canonical sources and propagated through the lineage as its default frame — productive enough that the question of whether the send could be a statement of the program was seldom raised. The conditions under which the absence can be removed — locality of writes, causation as program statement, no external coordinator — preserve every structural commitment of the actor model. A primitive that satisfies the three conditions, whether named *tell* or otherwise, makes the cross-actor send a sentence in the sender's program; the apparatus that exists to compensate for the absence has nothing left to compensate for.
 
 The contribution of this paper is conceptual. The instantiation in production is the existence proof; the existence proof is the journal the reader saw in §8.3.
 
