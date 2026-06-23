@@ -148,7 +148,7 @@ What §2 has shown to be continuous across fifty years admits a single one-line 
 
 > **Causation between actors is operational, not programmatic.**
 
-The two terms in the formulation are the working categories of the rest of this paper.
+The two terms in the formulation are the working categories of the rest of this paper. They also answer, for now, the question that opened it: *where does the causal sentence live?* Under the assumption, it lives in the operational layer — between actors, mediated by the runtime — and not in any actor's program.
 
 *Operational* designates effects that the system performs around or between actors but that no actor's program records. Message dispatch by a runtime, supervision links between processes, virtual-actor placement decisions, message-broker routing, and distributed-tracing correlation IDs are all operational in this sense: their existence is mediated by infrastructure, and their effect on the system is real, but no program in the system contains the act of mediation as a statement.
 
@@ -286,6 +286,8 @@ The cost of the assumption is not a list of operational difficulties to be addre
 ## 6. Why existing approaches do not dissolve the assumption
 
 The consequences of the assumption named in §3 — auditability through external reconstruction, replay limited to single actors, cross-DC fragility, debugging by log archaeology — are not unrecognized in the actor-systems literature. Each has accumulated a corresponding repertoire of patterns intended to address it. This section examines the principal patterns and shows that they are responses to the consequences, not dissolutions of the assumption that produces them. Each pattern reconstructs cross-actor flow somewhere; none records it as a sentence of any participating actor's program.
+
+This section carries as much of the paper's weight as the instantiation that follows. Once the assumption of §3 is named, sagas, choreography, distributed tracing, and workflow engines stop reading as unrelated tools and resolve into responses to one question — *where does the causal sentence live?* — each answering it the same way: by placing the sentence somewhere outside the participating actors. That so many mature patterns are answers to a single absence is the paper's central claim; §8 is its existence proof.
 
 ### 6.1 Sagas
 
@@ -642,6 +644,8 @@ The actor model has, for fifty years, treated cross-actor causation as an operat
 The present paper observes that the absence is not entailed by the actor model. It is a contingent design decision adopted by the canonical sources and propagated through the lineage as its default frame — productive enough that the question of whether the send could be a statement of the program was seldom raised. The conditions under which the absence can be removed — locality of writes, causation as program statement, no external coordinator — preserve every structural commitment of the actor model. A primitive that satisfies the three conditions, whether named *tell* or otherwise, makes the cross-actor send a sentence in the sender's program; the apparatus that exists to reconstruct that narrative after the fact has nothing left to reconstruct. The message-passing layer itself remains — delivery stays operational — but the causal record no longer lives outside every actor's program.
 
 The contribution of this paper is conceptual. The instantiation is the existence proof; the existence proof is the journal the reader saw in §8.3.
+
+The question that opened the paper has, under tell, a different answer than the one the field gave by default: *where does the causal sentence live?* — in the sender's own program, as a sentence the journal records and replay re-runs.
 
 Fifty years of convention are not fifty years of necessity. The actor model does not need to be replaced. Its commitments — autonomy, message-based communication, isolation — survive the reformulation intact. What changes is the historical interpretation of what must remain invisible to the program. The interpretation, named explicitly in §3, examined for contingency in §4, traced through its consequences in §5, shown to require an entire ecosystem of compensating patterns in §6, and contrasted with the alternative in §8.3, is the only thing the present paper asks the field to revise.
 
