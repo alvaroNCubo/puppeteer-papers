@@ -19,7 +19,7 @@ abstract: >
   This paper is an analytic theory contribution in the sense of Gregor's
   (2006) *theory for analyzing* (Type I): it identifies a structural defect
   in the canonical actor-systems literature, derives the design principles
-  required to address it, and presents an instantiation in production as an
+  required to address it, and presents an instantiation as an
   existence proof that the alternative is realizable — not the design-science
   evaluation of an artifact (Hevner, March, Park, & Ram, 2004), which a
   companion case-study paper is the venue for. For five
@@ -70,7 +70,7 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 6. **The compensating ecosystem exists because of the assumption.** Saga orchestrators, event-driven choreography, distributed tracing, and workflow engines each compensate, in their own way, for the absence of cross-actor causation in any actor's program. Their sophistication, maturity, and widespread adoption are evidence of the cost of the assumption, not of its correctness. *(Verification: §6 + the side-by-side labs in §8.3.)*
 
-7. **Tell exhibits the conditions in production.** A Reaction whose `.Causation.Continue(...)` body issues a `tell` writes one journal entry on the sender's side; the receiver's acknowledgment closes the round-trip in a second entry. The sender's journal becomes a self-contained record of what crossed the actor boundary. *(Verification: §8.2 + §8.3 Style 3.)*
+7. **Tell exhibits the conditions in a runnable instantiation.** A Reaction whose `.Causation.Continue(...)` body issues a `tell` writes one journal entry on the sender's side; the receiver's acknowledgment closes the round-trip in a second entry. The sender's journal becomes a self-contained record of what crossed the actor boundary. *(Verification: §8.2 + §8.3 Style 3.)*
 
 8. **Auditing the cross-actor narrative becomes reading the program.** The journal shows what was sent, to whom, with what content, at what time, and with what acknowledgment — without correlation IDs, distributed tracing, or external aggregation. *(Verification: §8.5 G3.)*
 
@@ -82,7 +82,7 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 ## 1. Introduction
 
-This paper makes an analytic theory contribution. It identifies and names a structural assumption that the canonical literature on actor-based systems has repeatedly documented in different forms without recognizing as a single construct; derives the design principles required to reject it; and presents an instantiation — a system in which those principles have been realized in production — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation serves as an existence proof, not as the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary. The Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is deferred to a companion case-study paper; the Type I frame separates construct introduction from artifact assessment cleanly.
+This paper makes an analytic theory contribution. It identifies and names a structural assumption that the canonical literature on actor-based systems has repeatedly documented in different forms without recognizing as a single construct; derives the design principles required to reject it; and presents an instantiation — a running system in which those principles are realized — as confirmation that the construct is realizable. The contribution is conceptual; the instantiation serves as an existence proof, not as the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary. The Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is deferred to a companion case-study paper; the Type I frame separates construct introduction from artifact assessment cleanly.
 
 This is not a systems paper. It does not present performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks. The genre — analytic theory — measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Section 8 exhibits the instantiation and tests whether the mechanism satisfies its stated structural properties. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
 
@@ -405,7 +405,7 @@ Two journal writes (in JA and JB), one dispatch through the existing message-pas
 
 The conditions are not extensions of the actor model; they are the conditions under which the assumption named in §3 can be removed without altering the model's structural commitments. *tell* is one realization of the conditions; any realization that satisfies C1, C2, and C3 would dissolve the assumption identified in §3. An actor framework whose programs do not currently record cross-actor sends could, in principle, be extended to satisfy the three conditions.
 
-The reformulation is conceptual. The remainder of the paper presents the empirical question: can the conditions be realized in a system that runs in production? §8 answers by exhibiting an instantiation and demonstrating it through a comparative case study.
+The reformulation is conceptual. The remainder of the paper presents the empirical question: can the conditions be realized in a running system? §8 answers by exhibiting an instantiation and demonstrating it through a comparative case study.
 
 ---
 
@@ -463,6 +463,8 @@ The framework rejects `tell` outside `.Causation.Continue(...)`. A direct `tell`
 ### 8.3 Three implementations side by side
 
 The same domain — the Seller confirms a purchase, the RewardEngine applies qualifying campaigns — is exercised in three styles. The code that distinguishes each style and the journals each produces are reproduced below without commentary. The interpretation follows in §8.4.
+
+The saga and choreography implementations are the author's own, written for this comparison and deliberately kept minimal (Appendix A); they are not independent or performance-tuned baselines. The comparison is accordingly structural, not competitive: it establishes *where* each style records the joint cross-actor history, not that tell is faster, more resilient, or operationally simpler. Those are measurable dimensions this paper does not test (§1).
 
 #### Style 1 — Saga (orchestrated)
 
@@ -605,7 +607,7 @@ Each of these properties is a consequence of cross-actor causation being recorde
 
 ### 8.6 Closing
 
-The case study and the defensive tests together constitute the existence proof. The conditions of §7 are realizable in production: a system in which the cross-actor send is recorded as a sentence in the sender's program, dispatched through the existing message-passing layer, and coordinated by no external party can be built and exercised. The instantiation in Puppeteer is one such system. Other realizations of the conditions are possible (§7.5); the present section establishes only that at least one is.
+The case study and the defensive tests together constitute the existence proof. The conditions of §7 are realizable: a system in which the cross-actor send is recorded as a sentence in the sender's program, dispatched through the existing message-passing layer, and coordinated by no external party can be built and exercised. The instantiation in Puppeteer is one such system. The framework's own production deployment, which the case-study domain is modelled on (§8.1), is proprietary and is not exhibited here; the existence proof this paper offers is the runnable instantiation above. Other realizations of the conditions are possible (§7.5); the present section establishes only that at least one is.
 
 ---
 
@@ -633,7 +635,7 @@ The actor model has, for fifty years, treated cross-actor causation as an operat
 
 The present paper observes that the absence is not entailed by the actor model. It is a contingent design decision adopted by the canonical sources and propagated through the lineage as its default frame — productive enough that the question of whether the send could be a statement of the program was seldom raised. The conditions under which the absence can be removed — locality of writes, causation as program statement, no external coordinator — preserve every structural commitment of the actor model. A primitive that satisfies the three conditions, whether named *tell* or otherwise, makes the cross-actor send a sentence in the sender's program; the apparatus that exists to compensate for the absence has nothing left to compensate for.
 
-The contribution of this paper is conceptual. The instantiation in production is the existence proof; the existence proof is the journal the reader saw in §8.3.
+The contribution of this paper is conceptual. The instantiation is the existence proof; the existence proof is the journal the reader saw in §8.3.
 
 Forty years of convention are not forty years of necessity. The actor model does not need to be replaced. Its commitments — autonomy, message-based communication, isolation — survive the reformulation intact. What changes is the historical interpretation of what must remain invisible to the program. The interpretation, named explicitly in §3, examined for contingency in §4, traced through its consequences in §5, shown to require an entire ecosystem of compensating patterns in §6, and contrasted with the alternative in §8.3, is the only thing the present paper asks the field to revise.
 
