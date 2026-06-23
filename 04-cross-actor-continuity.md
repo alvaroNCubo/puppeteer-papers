@@ -110,7 +110,7 @@ By the close of the 1980s, the actor lineage — Hewitt's informal formulation, 
 
 ### 2.2 The pragmatic maturation (1990s–2000s)
 
-The operational frame became productive in Erlang. Armstrong's 2003 PhD thesis [Armstrong 2003] argued that fault tolerance becomes tractable precisely because processes do not share programmatic flow: failures are handled by other processes via supervision links, "ways for one process to react to the failure of another, supported directly by the VM" [Wensel 2018, reflecting on Armstrong's architectural-model chapters]. Supervision is a structural pattern in which a supervisor observes the failure of a child process and reacts. The supervisor's program is local; the failed process's program does not extend into the supervisor; the cross-process relationship is mediated by VM-level links and monitors. Cross-process causation is an infrastructure concern. The frame stabilized further by becoming useful: the operational-rather-than-programmatic separation was now what made fault-tolerant systems possible.
+The operational frame became productive in Erlang. Armstrong's 2003 PhD thesis [Armstrong 2003] argued that fault tolerance becomes tractable precisely because processes do not share programmatic flow: failure is handled across process boundaries by links and exit signals. In Armstrong's own terms, "a process can supervise the existence of another process by setting up a link to it. When a process terminates, it automatically sends exit signals to the process to which it is linked" [Armstrong 2003, p. 217]. Supervision is a structural pattern in which a supervisor observes the failure of a child process and reacts. The supervisor's program is local; the failed process's program does not extend into the supervisor; the cross-process relationship is mediated by VM-level links and exit signals. Cross-process causation is an infrastructure concern. The frame stabilized further by becoming useful: the operational-rather-than-programmatic separation was now what made fault-tolerant systems possible.
 
 ### 2.3 The modern instantiations (2010s–)
 
@@ -134,7 +134,7 @@ The forms in which the assumption surfaces vary by generation; the substance is 
 |---|---|---|---|
 | 1973 | Hewitt et al. — *A Universal Modular ACTOR Formalism* (IJCAI) | "The basic unit of execution on an actor machine is sending a message in much the same way that the basic unit of execution on present day machines is an instruction." (pp. 236–237) | Sending is a machine-level primitive, parallel to a hardware instruction; therefore not content of any actor's program. |
 | 1986 | Agha — *Actors: A Model of Concurrent Computation* (MIT) | Actors are behavior functions; cross-actor effects are emitted output messages of the function. | The behavior function is local; the cross-actor effect is the *output* of the function, separate from the function's body. |
-| 2003 | Armstrong — *Making reliable distributed systems...* (KTH) | "All failures are handled via 'monitors' and 'links', which are ways for one process to react to the failure of another, supported directly by the VM." | Cross-process flow is infrastructure-level (VM links/monitors), not part of any process's program. |
+| 2003 | Armstrong — *Making reliable distributed systems...* (KTH) | "A process can supervise the existence of another process by setting up a link to it [...] it automatically sends exit signals to the process to which it is linked." (p. 217) | Cross-process flow is infrastructure-level (VM links and exit signals), not part of any process's program. |
 | 2010s | Lightbend — Akka *Interaction Patterns* | "There is no way to know if the message was received, the processing succeeded or failed." | The dispatch verb (`tell`) exists; its effect is explicitly outside the sender's program — no acknowledgment record. |
 | 2014 | Bernstein et al. — *Orleans: Distributed Virtual Actors* | The Orleans runtime places grains and mediates cross-grain calls; grain code sees only local state. | Cross-grain dispatch is hidden by the runtime; the grain's program never sees nor records cross-grain causation. |
 
@@ -708,7 +708,6 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Lamport, L. (1978). *Time, Clocks, and the Ordering of Events in a Distributed System.* Communications of the ACM, 21(7), 558–565.
 - Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
 - Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
-- Wensel, S. (2018). *All For Reliability: Reflections on the Erlang Thesis.* DockYard Engineering Blog. https://dockyard.com/blog/2018/07/18/all-for-reliability-reflections-on-the-erlang-thesis (accessed 2026-05-09).
 - Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
 
 ---
