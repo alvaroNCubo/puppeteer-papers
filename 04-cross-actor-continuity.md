@@ -310,9 +310,17 @@ Workflow engines are unusual among the patterns considered here because they do 
 
 The asymmetry matters. From the perspective of a participant, an activity invocation is a remote procedure call from an external system; the participant's program records that it received an invocation and produced a result. The relationship between activities — the flow that connects them — lives in the workflow engine, in a separate codebase, in a separate execution model. Reading the participant's program does not reveal the workflow; reading the workflow does not reveal the participant's local program. Two complementary records that do not compose into one. The workflow and the actors form a bipartite description of what, in a semantically continuous system, would be a single program.
 
-### 6.4 Closing
+### 6.4 Causal and message logging
 
-The four patterns examined — orchestrated sagas, choreographed sagas, distributed tracing, and workflow engines — are different responses to the same consequence: cross-actor flow is not in any participant's program, and something must compensate for that absence. The patterns differ in where they place the compensation: in a coordinator's state machine, in an event-subscription protocol, in a trace storage backend, in a workflow engine's separate program.
+A sharper objection comes not from the business-flow patterns above but from distributed-systems fault tolerance, where recording what one process sent another is decades old. Message logging — in its sender-based, receiver-based, and causal variants, surveyed by Elnozahy, Alvisi, Wang, and Johnson [2002] — records the messages a process sends or receives so that a crashed process can be reconstructed by replaying them [Johnson & Zwaenepoel 1987]. Lamport's happened-before relation [Lamport 1978] and the vector clocks that refine it [Fidge 1988] record cross-process causal order directly. These mechanisms predate this paper by decades and unambiguously record cross-entity causation. A distributed-systems reader is entitled to ask: how is a *tell* recorded in the sender's journal different from a sender-based message log, which has existed since the 1980s?
+
+The difference is the operational/programmatic distinction of §3, and message logging falls cleanly on the operational side. A message log is maintained by the recovery protocol beneath the application, for the recovery protocol's purposes: it captures message payloads and delivery metadata so the fault-tolerance layer can resend or replay them after a crash, and it is read by that layer, not by any actor's program. The application's program does not contain the act of sending as a sentence; the log is apparatus the runtime keeps *about* the program — the same category as the distributed trace of §6.2, differing in purpose (recovery rather than observability) but not in kind. A vector clock is narrower still: it records the *order* of causation, not its *content* — that B's state causally followed A's, not what A said to B or why.
+
+*Tell* records the send as a sentence in the actor's program: a dense DSL statement in the journal that *is* the program — the anti-porosity of Paper 1, the externalized parameters of Paper 2 — read as narrative and replayed as program. The contrast is exact. A sender-based message log answers *"what bytes must I resend to recover this process?"*; the journal answers *"what did this actor say, to whom, and why?"* The first is a recovery artifact, payload-oriented and type-erased; the second is the program. The same holds for event-sourcing causation and correlation identifiers [Young 2010; Vernon 2013] and for the process-manager pattern [Hohpe & Woolf 2003]: each threads an identifier or a coordinating state machine through messages so the cross-entity chain can be reassembled downstream — operational reconstruction by the same logic as §6.1–6.3. That cross-entity causation has been captured for thirty years is not in dispute. What no prior mechanism does is record it as a sentence of the sending actor's own program. Message logging is, if anything, the strongest witness for §3's distinction: it is the most mature, most studied apparatus for capturing cross-actor sends, and it lives entirely on the operational side of the line.
+
+### 6.5 Closing
+
+The patterns examined fall into two groups. Orchestrated sagas, choreographed sagas, distributed tracing, and workflow engines (§6.1–6.3) are responses to the same consequence: cross-actor flow is not in any participant's program, and something must compensate for that absence — a coordinator's state machine, an event-subscription protocol, a trace storage backend, a workflow engine's separate program. Causal and message logging (§6.4) arises for a different purpose — fault-tolerant recovery — but shares the decisive property: the cross-actor send it records lives in a log beneath the program, not as a sentence within it.
 
 | Pattern | Where the flow is encoded | Does it preserve the flow as program in the actors? |
 |---|---|---|
@@ -320,8 +328,9 @@ The four patterns examined — orchestrated sagas, choreographed sagas, distribu
 | Saga (choreographed) | Across event handlers in each actor | No — only local responses appear |
 | Distributed tracing | In the trace storage, observed by an external system | No — the program is observed, not extended |
 | Workflow engine | In the workflow engine's separate program | No — the workflow is a separate artifact |
+| Causal / message logging | In the recovery layer's message log, beneath the program | No — apparatus for crash replay, not a program statement |
 
-The four "No"s share a structure. In every case, cross-actor flow is made programmatic only by placing the program somewhere other than in the actors whose behavior constitutes the flow. The compensation always occurs outside the participants.
+The five "No"s share a structure. In every case, cross-actor flow is made programmatic only by placing the program somewhere other than in the actors whose behavior constitutes the flow. The compensation always occurs outside the participants.
 
 These patterns are therefore not solutions to the assumption stated in §3; they are architectural responses that accept the assumption and build systems around it. Their sophistication, maturity, and widespread adoption are not evidence that the assumption is correct. They are evidence that the absence of semantic continuity is costly enough to justify entire subsystems dedicated to reconstructing what the program does not contain.
 
@@ -683,12 +692,19 @@ The author used large language models (including Claude and ChatGPT) as editoria
 - Akka documentation. *Akka core: Interaction Patterns.* https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html (accessed 2026-05-09).
 - Armstrong, J. (2003). *Making Reliable Distributed Systems in the Presence of Software Errors.* Doctoral dissertation, Royal Institute of Technology (KTH), Stockholm. https://erlang.org/download/armstrong_thesis_2003.pdf
 - Bernstein, P. A., Bykov, S., Geller, A., Kliot, G., & Thelin, J. (2014). *Orleans: Distributed Virtual Actors for Programmability and Scalability.* Microsoft Research Technical Report MSR-TR-2014-41.
+- Elnozahy, E. N., Alvisi, L., Wang, Y.-M., & Johnson, D. B. (2002). *A Survey of Rollback-Recovery Protocols in Message-Passing Systems.* ACM Computing Surveys, 34(3), 375–408.
+- Fidge, C. J. (1988). *Timestamps in Message-Passing Systems That Preserve the Partial Ordering.* Proceedings of the 11th Australian Computer Science Conference, 56–66.
 - Gregor, S. (2006). *The nature of theory in information systems.* MIS Quarterly, 30(3), 611–642.
 - Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
 - Hewitt, C., Bishop, P., & Steiger, R. (1973). *A Universal Modular ACTOR Formalism for Artificial Intelligence.* Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI-73), pp. 235–245.
 - Hoare, C. A. R. (1978). *Communicating Sequential Processes.* Communications of the ACM, 21(8), 666–677.
+- Hohpe, G., & Woolf, B. (2003). *Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions.* Addison-Wesley. ISBN 978-0-321-20068-6.
+- Johnson, D. B., & Zwaenepoel, W. (1987). *Sender-Based Message Logging.* Proceedings of the 17th International Symposium on Fault-Tolerant Computing (FTCS-17), 14–19.
+- Lamport, L. (1978). *Time, Clocks, and the Ordering of Events in a Distributed System.* Communications of the ACM, 21(7), 558–565.
 - Microsoft Orleans documentation. https://learn.microsoft.com/en-us/dotnet/orleans/ (accessed 2026-05-09).
+- Vernon, V. (2013). *Implementing Domain-Driven Design.* Addison-Wesley. ISBN 978-0-321-83457-7.
 - Wensel, S. (2018). *All For Reliability: Reflections on the Erlang Thesis.* DockYard Engineering Blog. https://dockyard.com/blog/2018/07/18/all-for-reliability-reflections-on-the-erlang-thesis (accessed 2026-05-09).
+- Young, G. (2010). *CQRS Documents.* https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
 
 ---
 
