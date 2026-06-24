@@ -2,8 +2,8 @@
 title: "Preserving semantic continuity across actors: a tell-based approach without orchestration"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-05-10
-version: 0.2-draft
+date: 2026-06-23
+version: 0.1-draft
 status: draft
 keywords:
   - actor model
@@ -22,7 +22,7 @@ abstract: >
   required to address it, and presents an instantiation as an
   existence proof that the alternative is realizable — not the design-science
   evaluation of an artifact (Hevner, March, Park, & Ram, 2004), which a
-  companion case-study paper is the venue for. For five
+  design-science case study would undertake separately. For five
   decades, from Carl Hewitt's original formulation through Gul Agha, Joe
   Armstrong, and modern frameworks such as Akka and Microsoft Orleans,
   cross-actor causation has been treated as an operational concern of the
@@ -88,7 +88,7 @@ This is so familiar that it rarely appears noteworthy. But it should. If actors 
 
 This paper names that gap. The construct introduced is *semantic continuity*: the property of a program (in the substrate-level sense established in Paper 2 §1.2: the pair of domain library and journal of invocations) whose causal structure remains recorded as part of the program itself, even when its effects cross boundaries. The defect identified is the absence of semantic continuity at actor boundaries. The principles derived are the conditions under which it can be preserved without violating actor isolation and without introducing orchestration. The instantiation presented is *tell*, a primitive in which the cross-actor send is recorded as a sentence of the sender's journal — a dense program operation, not a serialized payload, which presupposes the anti-porous journal established in Paper 1.
 
-Methodologically, this is an analytic theory contribution: it names a structural assumption that the canonical literature on actor-based systems has documented in different forms without recognizing as a single construct, derives the principles under which the assumption can be rejected, and presents a running system in which those principles are realized as an existence proof — not as the substance of the claim. The weight of the argument is conceptual: the naming of the assumption (§3) and the account of why an entire ecosystem of patterns answers it (§6) carry the claim, while the instantiation (§8) is its existence proof. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary; the Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is deferred to a companion case-study paper. This is not a systems paper — it presents no performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks; analytic theory measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
+Methodologically, this is an analytic theory contribution: it names a structural assumption that the canonical literature on actor-based systems has documented in different forms without recognizing as a single construct, derives the principles under which the assumption can be rejected, and presents a running system in which those principles are realized as an existence proof — not as the substance of the claim. The weight of the argument is conceptual: the naming of the assumption (§3) and the account of why an entire ecosystem of patterns answers it (§6) carry the claim, while the instantiation (§8) is its existence proof. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary; the Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is a separate undertaking this paper does not attempt. This is not a systems paper — it presents no performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks; analytic theory measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
 
 §2 traces the genealogy of the assumption that produces this gap, showing that across five decades and multiple canonical generations of literature the assumption has remained continuous in substance though varied in form. §3 names the assumption explicitly: *causation between actors is treated as operational rather than programmatic*. §4 demonstrates that this assumption is contingent rather than necessary — no theorem of the actor model entails it. §5 examines the architectural and operational consequences of the assumption. §6 shows why existing responses to those consequences — sagas, choreography, distributed tracing, and workflow engines — cannot dissolve the assumption, because they reconstruct cross-actor flow after the fact rather than preserving it as program. §7 reformulates the model: under three explicit conditions, semantic continuity can be preserved across actors. §8 presents the instantiation, *tell*, through a comparative case study against saga and choreography implementations of the same domain. §9 relates the construct to prior work in this paper series. §10 concludes.
 
@@ -429,7 +429,7 @@ The Seller's Reaction is defined as follows:
 
 ```
 seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
-    .Job().Company().ReadForward()
+    .Job().Company()
     .WithSharedHydration()
     .Seek("Purchase")
         .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
@@ -441,7 +441,7 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     ");
 ```
 
-The `tell` statement is a sentence in the actor's DSL. It names the recipient (`RewardEngine('rewards-1')`), the message (`PurchaseConfirmed(...)`), an envelope identifier (`id 'tid-purchase-100'`), and an optional transport hint (`through 'Kafka:loyalty-v1'`). When the Seller's domain command `s.purchase(...)` is executed and Reactions are subsequently evaluated, the matching Reaction's `.Causation.Continue(...)` body fires and the `tell` writes one journal entry on the Seller's side.
+The `tell` statement is a sentence in the actor's DSL. It names the recipient (`RewardEngine('rewards-1')`), the message (`PurchaseConfirmed(...)`), an envelope identifier (`id 'tid-purchase-100'`), and an optional transport hint (`through 'Kafka:loyalty-v1'`). The Reaction is established once, and thereafter watches the Seller's journal. When the Seller's domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, writing one journal entry on the Seller's side.
 
 After the bridge delivers the envelope to the RewardEngine and the receiver acknowledges, the Seller's journal contains three entries:
 
@@ -547,7 +547,7 @@ A Reaction on the Seller observes its own purchase and issues a `tell` from its 
 
 ```
 seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
-    .Job().Company().ReadForward()
+    .Job().Company()
     .WithSharedHydration()
     .Seek("Purchase")
         .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
@@ -558,7 +558,9 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     ");
 
 seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
-seller.Reactions.Execute();
+seller.Reactions.Execute();   // on-demand Job sweep from the Reaction's checkpoint, here only
+                              // to drive the test deterministically; a Cue Reaction runs
+                              // continuously on its own thread. Neither needs a call per command.
 // bridge delivers the envelope to the RewardEngine and acks back
 ```
 
@@ -627,7 +629,7 @@ Paper 1 introduces *porosity* — the representational sparsity that arises when
 
 Paper 2 introduces *externalized parameters* as the structural precondition under which compilation, caching, and dense journaling become possible at all. Without externalized parameters, the journal could not record what was said with parameter references intact — values would be inlined as literals, or the script would lose its connection to the actor's symbol table. The tell sentence in §8.3 carries `@orderId`, `@date`, `@amount`, `@customer` as references rather than literals; this paper is what makes that representation possible.
 
-Paper 3 introduces the *partition* between immediate and deferred work, with Reactions as the guardian of the boundary. Paper 3 §6.8 identifies the cross-actor case as a design space open to the alternative the present paper develops. The Reaction surface that Paper 3 establishes is the surface on which `tell` lives: the `.Causation.Continue(...)` body the reader saw in §8.3 is where the cross-actor send is permitted to appear. The present paper closes the gap that Paper 3 named as honest limit.
+Paper 3 introduces the *partition* between immediate and deferred work, with Reactions as the guardian of the boundary. Paper 3 names the *Causation* plane — `.Causation.Continue(...)` — as the third surface a Reaction may touch (Paper 3 §6.5), and records (Paper 3 §6.8) that the cross-actor case an earlier draft had listed as a limitation is resolved by that plane, while leaving the primitive's full treatment out of scope. The Reaction surface that Paper 3 establishes is the surface on which `tell` lives: the `.Causation.Continue(...)` body the reader saw in §8.3 is where the cross-actor send is permitted to appear. The present paper is the treatment Paper 3 deferred.
 
 The series, taken together, defends a single architectural property under different framings:
 
