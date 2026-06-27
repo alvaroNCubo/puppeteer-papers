@@ -36,7 +36,11 @@ abstract: >
   without violating actor isolation and without introducing orchestration. An
   existing primitive, tell, is shown to satisfy these principles when
   recorded — as a dense program operation rather than a serialized payload —
-  in the actor's journal. The realization presupposes that journal: the
+  in the actor's journal. Because that record is an assertion of a fact the
+  sender has lived, it is named in the past tense, distinct from a command in
+  the present imperative — the verb tense marks which act the sentence performs,
+  a distinction the operational treatment's single dispatch verb erases. The
+  realization presupposes that journal: the
   contribution is the cross-actor extension of a journal-as-program
   substrate, not the primitive in isolation. Under this construction, program
   continuity extends across actors, edge by edge — each send recorded as
@@ -49,7 +53,7 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 ## TL;DR
 
-> The actor model treats cross-actor causation as operational — message dispatch by a runtime, not a statement in any actor's program. The treatment is not entailed by the model; it is a contingent design decision, adopted as the default frame of the canonical actor lineage and seldom examined as a choice. The cost is structural: an entire ecosystem of compensating patterns — sagas, choreography, distributed tracing, workflow engines — exists to reconstruct cross-actor causal chains that no actor's program records.
+> The actor model treats cross-actor causation as operational — message dispatch by a runtime, not a statement in any actor's program. The treatment is not entailed by the model; it is a contingent design decision, adopted as the default frame of the canonical actor lineage and seldom examined as a choice. The cost is structural: an entire ecosystem of compensating patterns — sagas, choreography, distributed tracing, workflow engines — exists to reconstruct cross-actor causal chains that no actor's program records. The treatment even erases a grammatical distinction — one dispatch verb collapsing an assertion of fact (past tense) and a command (present imperative) into a single send — which the programmatic alternative restores.
 >
 > This paper observes that the assumption can be removed without altering any structural commitment of the actor model. Three conditions describe a system in which the cross-actor send is recorded as a sentence in the sender's program: locality of writes (each journal records only its own actor's activity), causation as program statement (the cross-actor send is a sentence in the sender's journal), and no external coordinator (no party outside the participating actors decides what happens next). Any primitive satisfying these three conditions dissolves the assumption — on the dense journal-as-program substrate the conditions presuppose (the send recorded as a sentence, not a payload). *Tell* — a primitive in the Puppeteer framework — is one such realization.
 >
@@ -154,6 +158,8 @@ The two terms in the formulation are the working categories of the rest of this 
 *Operational* designates effects that the system performs around or between actors but that no actor's program records. Message dispatch by a runtime, supervision links between processes, virtual-actor placement decisions, message-broker routing, and distributed-tracing correlation IDs are all operational in this sense: their existence is mediated by infrastructure, and their effect on the system is real, but no program in the system contains the act of mediation as a statement.
 
 *Programmatic* designates an effect that an actor's program contains as a *statement of the program* — an operation the program executes, observable within the program's own narrative and re-executed when the program is replayed. A method invocation an actor performs on itself is programmatic in this sense; so is a state mutation it writes. The program records what it did, as the doing, and replay re-runs it.
+
+The distinction has a linguistic signature. A *command* is a directive — it asks for what is not yet done, named in the imperative present (`ApplyReward`, `Confirm`); an *assertion* reports a fact already lived, named in the past (`PurchaseConfirmed`). Treating the cross-actor send as operational collapses the two into one runtime dispatch — a single send verb carrying both, as in the canonical frameworks (§2.4); treating it as programmatic keeps them distinct and lets the sender record the one it can truthfully make — the assertion of what it did. The verb tense is the surface mark of which act the sentence performs; the choice this paper argues for is the one under which that mark survives into the program (developed at §8.2).
 
 The boundary is not whether the send is recorded in the actor's own log. A serialized event can be appended there without being a statement of the program. Conventional event sourcing already does this: an aggregate raises a `MessageSent` or integration event when it dispatches to another context, and the event lands in the aggregate's own stream. But that event is *data the program emitted*, not a *sentence the program runs* — on replay it is folded back into state by a reducer, never re-executed as a statement of the program, and the dispatch is relayed by an outbox or broker the program does not contain. By the test used here it is operational-in-effect despite its location. A recorded cross-actor send is *programmatic* only when the send is a dense operation in the program — an executable sentence naming its recipient and message by reference, replayed as program rather than re-applied as state. Replayed *as program* means the recorded statement is re-executed by the interpreter — the program re-runs, reconstructing the state the send produced — not that the external dispatch is repeated: no journaled operation repeats its external effects on replay (replaying a debit reconstructs the balance without re-contacting the bank), and the tell is no exception. The programmatic property is that the send is a re-executable statement the program re-runs, where a serialized event is data a reducer folds without the program ever re-executing a send. That density criterion — a recorded operation, not a serialized payload — is the *anti-porosity* established in Paper 1; the present paper takes it as a precondition and asks what becomes possible at the actor boundary once it holds.
 
@@ -455,6 +461,8 @@ The assertion is journaled as a typed *message-action* — defined once (its sig
          once 'tid-purchase-100';
 [3]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
 ```
+
+The signature is inferred once — at first use, on the live path — and recorded in entry [1]; replay replays that recorded definition rather than re-inferring it, so the message-action is identical and order-independent across replays. This is the define-and-invocation discipline of Paper 2, under which a name is defined once and thereafter invoked; a reused name resolves as any operation does there. The inference is a write-time convenience, never a replay-time computation.
 
 The three conditions of §7 are realized by these entries.
 
