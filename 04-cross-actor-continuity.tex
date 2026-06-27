@@ -1035,7 +1035,11 @@ concern that is genuinely hard independently of where the causal record
 lives. tell does not provide that recovery and is not a substitute for
 it; what tell addresses is narrower and prior --- \emph{where the record
 of the cross-actor send lives}. The two are different instruments,
-compared here only on that axis.
+compared here only on that axis. They compose rather than compete:
+tell's relocation of the record is the substrate a receiver-side saga
+can sequence over --- each asserted fact a step the saga recognizes, a
+compensating action itself another asserted fact (\texttt{SaleReversed})
+rather than a coordinator's command.
 
 \subsubsection{6.2 Distributed tracing}\label{distributed-tracing}
 
