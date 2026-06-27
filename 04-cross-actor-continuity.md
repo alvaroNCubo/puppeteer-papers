@@ -2,7 +2,7 @@
 title: "Preserving semantic continuity across actors: a tell-based approach without orchestration"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-06-23
+date: 2026-06-24
 version: 0.1-draft
 status: draft
 keywords:
@@ -31,7 +31,7 @@ abstract: >
   actor causes an effect in another, the causal sentence disappears from the
   program and reappears as infrastructure. This paper shows that this
   fragmentation is not inherent to the actor model but a contingent
-  historical choice. It derives the design principles under which cross-actor
+  design choice. It derives the design principles under which cross-actor
   message passing can be expressed as a sentence of the actor's program
   without violating actor isolation and without introducing orchestration. An
   existing primitive, tell, is shown to satisfy these principles when
@@ -39,7 +39,8 @@ abstract: >
   in the actor's journal. The realization presupposes that journal: the
   contribution is the cross-actor extension of a journal-as-program
   substrate, not the primitive in isolation. Under this construction, program
-  continuity extends across actors while preserving the defining properties
+  continuity extends across actors, edge by edge — each send recorded as
+  program in its sender's journal — while preserving the defining properties
   of actor systems.
 canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 ---
@@ -50,9 +51,9 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 > The actor model treats cross-actor causation as operational — message dispatch by a runtime, not a statement in any actor's program. The treatment is not entailed by the model; it is a contingent design decision, adopted as the default frame of the canonical actor lineage and seldom examined as a choice. The cost is structural: an entire ecosystem of compensating patterns — sagas, choreography, distributed tracing, workflow engines — exists to reconstruct cross-actor causal chains that no actor's program records.
 >
-> This paper observes that the assumption can be removed without altering any structural commitment of the actor model. Three conditions describe a system in which the cross-actor send is recorded as a sentence in the sender's program: locality of writes (each journal records only its own actor's activity), causation as program statement (the cross-actor send is a sentence in the sender's journal), and no external coordinator (no party outside the participating actors decides what happens next). Any primitive satisfying these three conditions dissolves the assumption. *Tell* — a primitive in the Puppeteer framework — is one such realization.
+> This paper observes that the assumption can be removed without altering any structural commitment of the actor model. Three conditions describe a system in which the cross-actor send is recorded as a sentence in the sender's program: locality of writes (each journal records only its own actor's activity), causation as program statement (the cross-actor send is a sentence in the sender's journal), and no external coordinator (no party outside the participating actors decides what happens next). Any primitive satisfying these three conditions dissolves the assumption — on the dense journal-as-program substrate the conditions presuppose (the send recorded as a sentence, not a payload). *Tell* — a primitive in the Puppeteer framework — is one such realization.
 >
-> Three labs are exhibited side by side on the same domain (saga, choreography, tell). The reader sees, in journals, that the saga places the joint history in a coordinator's program, that the choreography places it in an external bus log, and that the tell instantiation places it in the sender's own program. Three additional tests demonstrate that under tell the journal alone supports replay reconstruction, cross-datacenter replication, and audit query — operations that require external apparatus under the assumption. **Fifty years of convention are not fifty years of necessity.**
+> Three implementations of the same domain — saga, choreography, tell — are exhibited side by side. The reader sees, in journals, that the saga places the joint history in a coordinator's program, that the choreography places it in an external bus log, and that the tell instantiation places it in the sender's own program. Four tests demonstrate that under tell the journal alone supports replay reconstruction, cross-datacenter replication, and audit query — and, after a crash in the dispatch window, an honest record of a stranded tell's fate — recovered from the transport's testimony, never fabricated — operations that require external apparatus under the assumption. Each cross-actor edge is recorded as program in its sender's journal; a multi-hop chain composes these per-edge records — programmatic at every hop, where the alternatives reconstruct the chain from artifacts outside any program (§8.5). **Fifty years of convention are not fifty years of necessity.**
 
 ---
 
@@ -64,17 +65,17 @@ canonical_url: https://[pending]/papers/cross-actor-continuity-v1
 
 3. **Three conditions resolve the assumption.** Locality of writes (C1), causation as program statement (C2), and no external coordinator (C3) describe a system in which semantic continuity is preserved across actors without violating any of the actor model's commitments. The conditions are not design choices; they are the minimal consequences of reconciling the model's commitments with the construct. *(Verification: §7.1.)*
 
-4. **Any primitive satisfying C1+C2+C3 dissolves the assumption.** The contribution is conceptual; the realization is one of many possible. An actor framework whose programs do not currently record cross-actor sends could, in principle, be extended to satisfy the three conditions. *(Verification: §7.5.)*
+4. **Any primitive satisfying C1+C2+C3 dissolves the assumption — given a journal-as-program substrate.** The realization is one of many possible, but the conditions are not free-floating: C2 requires the send to be recorded as a *statement of the program* — a dense operation, not a serialized event — which presupposes the anti-porosity of Paper 1 and the externalized parameters of Paper 2. The claim is therefore *tell on such a substrate*, not *tell in any actor framework*; a framework that records sends as opaque payloads would satisfy C2 only by first adopting that substrate, which is the subject of Papers 1–2 and beyond this paper's scope. *(Verification: §7.5.)*
 
 5. **The actor model's commitments survive the reformulation intact.** Autonomy, message-based communication, and isolation each remain unchanged; only the historical interpretation of what each actor's program is *permitted to say* is removed. *(Verification: §7.3.)*
 
-6. **The compensating ecosystem exists because of the assumption.** Saga orchestrators, event-driven choreography, distributed tracing, and workflow engines each compensate, in their own way, for the absence of cross-actor causation in any actor's program. Their sophistication, maturity, and widespread adoption are evidence of the cost of the assumption, not of its correctness. *(Verification: §6 + the side-by-side labs in §8.3.)*
+6. **The compensating ecosystem exists because of the assumption.** Saga orchestrators, event-driven choreography, distributed tracing, and workflow engines each compensate, in their own way, for the absence of cross-actor causation in any actor's program. Their sophistication, maturity, and widespread adoption are evidence of the cost of the assumption, not of its correctness. The scope is the *record* of cross-actor causation: tell relocates that record into the program; it does not provide the transactional recovery — compensation, rollback, timeouts — that sagas and workflow engines also carry, and does not claim to (§6.1). *(Verification: §6 + the side-by-side labs in §8.3.)*
 
-7. **Tell exhibits the conditions in a runnable instantiation.** A Reaction whose `.Causation.Continue(...)` body issues a `tell` writes one journal entry on the sender's side; the receiver's acknowledgment closes the round-trip in a second entry. The sender's journal becomes a self-contained record of what crossed the actor boundary. *(Verification: §8.2 + §8.3 Style 3.)*
+7. **Tell exhibits the conditions in a runnable instantiation.** A Reaction whose `.Causation.Continue(...)` body issues a `tell` records the cross-actor assertion in the sender's journal — as a typed message-action — and the receiver's acknowledgment closes the round-trip. The sender's journal becomes a self-contained record of that cross-actor edge; a multi-hop chain composes these per-edge records — programmatic at every hop, unlike the alternatives' reconstruction from outside any program (§8.5). *(Verification: §8.2 + §8.3 Style 3 + §8.5.)*
 
 8. **Auditing the cross-actor narrative becomes reading the program.** The journal shows what was sent, to whom, with what content, at what time, and with what acknowledgment — without correlation IDs, distributed tracing, or external aggregation. *(Verification: §8.5 G3.)*
 
-9. **Replay reconstructs cross-actor state from the journal alone.** A fresh actor with no shared transport and no live receiver, replaying the journal, reconstructs the in-flight tell state. *(Verification: §8.5 G1.)*
+9. **Replay reconstructs cross-actor state from the journal alone — and recovers each tell's fate.** A fresh actor with no shared transport and no live receiver, replaying the journal, reconstructs the in-flight tell state; for a tell stranded by a crash in the dispatch window, the rehydrated actor reconstructs the pending tell and the transport testifies its fate, which the journal records as a verdict — acked, not-delivered, or honestly pending — so recovery never leaves the journal asserting a send that did not land. *(Verification: §8.5 G1, G4.)*
 
 10. **Cross-datacenter replication preserves the cross-actor causal chain.** The journal carries the cross-actor causation across data centers because the causation was always recorded in a place replication can carry. *(Verification: §8.5 G2.)*
 
@@ -88,9 +89,9 @@ This is so familiar that it rarely appears noteworthy. But it should. If actors 
 
 This paper names that gap. The construct introduced is *semantic continuity*: the property of a program (in the substrate-level sense established in Paper 2 §1.2: the pair of domain library and journal of invocations) whose causal structure remains recorded as part of the program itself, even when its effects cross boundaries. The defect identified is the absence of semantic continuity at actor boundaries. The principles derived are the conditions under which it can be preserved without violating actor isolation and without introducing orchestration. The instantiation presented is *tell*, a primitive in which the cross-actor send is recorded as a sentence of the sender's journal — a dense program operation, not a serialized payload, which presupposes the anti-porous journal established in Paper 1.
 
-Methodologically, this is an analytic theory contribution: it names a structural assumption that the canonical literature on actor-based systems has documented in different forms without recognizing as a single construct, derives the principles under which the assumption can be rejected, and presents a running system in which those principles are realized as an existence proof — not as the substance of the claim. The weight of the argument is conceptual: the naming of the assumption (§3) and the account of why an entire ecosystem of patterns answers it (§6) carry the claim, while the instantiation (§8) is its existence proof. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary; the Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is a separate undertaking this paper does not attempt. This is not a systems paper — it presents no performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks; analytic theory measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
+Methodologically, this is an analytic theory contribution: it names a structural assumption that the canonical literature on actor-based systems has documented in different forms without recognizing as a single construct, derives the principles under which the assumption can be rejected, and presents a running system in which those principles are realized as an existence proof — not as the substance of the claim. The weight of the argument is conceptual: the naming of the assumption (§3) and the account of why an entire ecosystem of patterns answers it (§6) carry the claim, while the instantiation (§8) is its existence proof. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with empirical evaluation supplementary; the Hevner-style design-science *evaluation* of the artifact (Hevner, March, Park, & Ram, 2004) is a separate undertaking this paper does not attempt. The conditions C1–C3 derived in §7.1 are the necessary conditions the construct entails, not a prescriptive method offered for adoption: deriving what a system must satisfy to preserve the construct is Type I analysis, where prescribing and evaluating an artifact would be a separate design-science (Type V) contribution this paper does not undertake. This is not a systems paper — it presents no performance benchmarks, fault-injection metrics, or latency comparisons against existing actor frameworks; analytic theory measures contribution by the precision of the construct, the validity of the principles, and the realizability of the instantiation. Readers expecting quantitative comparisons against alternatives will find structural comparisons — what each pattern records, where the joint history lives — in §6 and §8.4.
 
-§2 traces the genealogy of the assumption that produces this gap, showing that across five decades and multiple canonical generations of literature the assumption has remained continuous in substance though varied in form. §3 names the assumption explicitly: *causation between actors is treated as operational rather than programmatic*. §4 demonstrates that this assumption is contingent rather than necessary — no theorem of the actor model entails it. §5 examines the architectural and operational consequences of the assumption. §6 shows why existing responses to those consequences — sagas, choreography, distributed tracing, and workflow engines — cannot dissolve the assumption, because they reconstruct cross-actor flow after the fact rather than preserving it as program. §7 reformulates the model: under three explicit conditions, semantic continuity can be preserved across actors. §8 presents the instantiation, *tell*, through a comparative case study against saga and choreography implementations of the same domain. §9 relates the construct to prior work in this paper series. §10 concludes.
+§2 traces the genealogy of the assumption that produces this gap, showing that across five decades and multiple canonical generations of literature the assumption has remained continuous in substance though varied in form. §3 names the assumption explicitly: *causation between actors is treated as operational rather than programmatic*. §4 demonstrates that this assumption is contingent rather than necessary — no theorem of the actor model entails it. §5 examines the architectural and operational consequences of the assumption. §6 shows why existing responses to those consequences — sagas, choreography, distributed tracing, and workflow engines — cannot dissolve the assumption, because they reconstruct cross-actor flow after the fact rather than preserving it as program. §7 reformulates the model: under three explicit conditions, semantic continuity can be preserved across actors. §8 presents the instantiation, *tell*, through an illustrative case study against saga and choreography implementations of the same domain. §9 relates the construct to prior work in this paper series. §10 concludes.
 
 ---
 
@@ -154,7 +155,7 @@ The two terms in the formulation are the working categories of the rest of this 
 
 *Programmatic* designates an effect that an actor's program contains as a *statement of the program* — an operation the program executes, observable within the program's own narrative and re-executed when the program is replayed. A method invocation an actor performs on itself is programmatic in this sense; so is a state mutation it writes. The program records what it did, as the doing, and replay re-runs it.
 
-The boundary is not whether the send is recorded in the actor's own log. A serialized event can be appended there without being a statement of the program. Conventional event sourcing already does this: an aggregate raises a `MessageSent` or integration event when it dispatches to another context, and the event lands in the aggregate's own stream. But that event is *data the program emitted*, not a *sentence the program runs* — on replay it is folded back into state, not re-executed as the act of sending, and the dispatch is relayed by an outbox or broker the program does not contain. By the test used here it is operational-in-effect despite its location. A recorded cross-actor send is *programmatic* only when the send is a dense operation in the program — an executable sentence naming its recipient and message by reference, replayed as program rather than re-applied as state. That density criterion — a recorded operation, not a serialized payload — is the *anti-porosity* established in Paper 1; the present paper takes it as a precondition and asks what becomes possible at the actor boundary once it holds.
+The boundary is not whether the send is recorded in the actor's own log. A serialized event can be appended there without being a statement of the program. Conventional event sourcing already does this: an aggregate raises a `MessageSent` or integration event when it dispatches to another context, and the event lands in the aggregate's own stream. But that event is *data the program emitted*, not a *sentence the program runs* — on replay it is folded back into state by a reducer, never re-executed as a statement of the program, and the dispatch is relayed by an outbox or broker the program does not contain. By the test used here it is operational-in-effect despite its location. A recorded cross-actor send is *programmatic* only when the send is a dense operation in the program — an executable sentence naming its recipient and message by reference, replayed as program rather than re-applied as state. Replayed *as program* means the recorded statement is re-executed by the interpreter — the program re-runs, reconstructing the state the send produced — not that the external dispatch is repeated: no journaled operation repeats its external effects on replay (replaying a debit reconstructs the balance without re-contacting the bank), and the tell is no exception. The programmatic property is that the send is a re-executable statement the program re-runs, where a serialized event is data a reducer folds without the program ever re-executing a send. That density criterion — a recorded operation, not a serialized payload — is the *anti-porosity* established in Paper 1; the present paper takes it as a precondition and asks what becomes possible at the actor boundary once it holds.
 
 The contrast can be visualized:
 
@@ -232,9 +233,9 @@ A journal entry that records what an actor did is not a coordinator. It does not
 
 ### 4.5 Closing
 
-The assumption stated in §3 is therefore not entailed by the actor model. It does not follow from Hewitt's formulation, from Agha's formalization, from the requirement of isolation, or from the absence of orchestration. The opacity of the cross-actor send to the sender's program is a contingent design decision — adopted by the canonical sources, propagated through the lineage in §2, and productive enough to remain unexamined. It is not, in any formal sense, a property the model requires.
+The assumption stated in §3 is therefore not entailed by the actor model. It does not follow from Hewitt's formulation, from Agha's formalization, from the requirement of isolation, or from the absence of orchestration. The opacity of the cross-actor send to the sender's program is contingent in exactly this sense — not a theorem of the model — but it is not arbitrary: it is the shadow of a different objective function (§2.4), well suited to location transparency, decoupling, and fault isolation, and so adopted by the canonical sources and left in place. It is not, in any formal sense, a property the model requires.
 
-The consequence is decisive: the absence of semantic continuity at actor boundaries is not a necessity of the actor model, but a historical artifact of how actor systems have been constructed.
+The consequence is bounded but decisive: the absence of semantic continuity at actor boundaries is not a necessity of the actor model. It persists because it served other objectives, not because the model demands it — so removing it is a change of objective, available without abandoning a single commitment, rather than the correction of an oversight.
 
 ---
 
@@ -266,7 +267,7 @@ Recovery from a DC failure can therefore reconstruct each actor's local state bu
 
 A developer asked to explain why an actor produced a particular state, when that state was caused by a chain of events crossing several actors, cannot read a single program to find the answer. The developer assembles the answer from logs, traces, broker dumps, and timestamps — pieces of evidence whose joining is itself an act of reconstruction. The discipline that emerges is log archaeology: the careful inference of a causal narrative from artifacts that are not narrative themselves.
 
-The discipline is real and, in some organizations, mature. Its maturity is proportional to the absence of programmatic causation. But its existence is the symptom. A program whose causation is recorded as program admits debugging by reading; a program whose causation is dispersed across infrastructure admits debugging only by inference.
+The discipline is real and, in some organizations, mature. Its maturity is proportional to the absence of programmatic causation — the cost is not that the discipline fails but that it must exist at all, reconstructing from infrastructure what no program records. But its existence is the symptom. A program whose causation is recorded as program admits debugging by reading; a program whose causation is dispersed across infrastructure admits debugging only by inference.
 
 ### 5.5 Closing
 
@@ -297,7 +298,7 @@ In the orchestrated form, a saga orchestrator holds a state machine that represe
 
 In the choreographed form, the orchestrator is dissolved into a protocol. Each participating actor publishes events when it completes a step; the next actor in the flow subscribes to those events and triggers its own step. The cross-actor flow is encoded across the actors as a distributed protocol — but no single actor's program contains the flow. Each actor's program contains its local response to events; the flow itself is the implicit composition of those responses, observable only from outside.
 
-Both forms treat the cross-actor flow as a separate concern from any participating actor's program. The orchestrated form externalizes it to a coordinator; the choreographed form distributes it across event subscriptions. Neither form makes the cross-actor send a sentence of the sender's program. The assumption stated in §3 is preserved by construction. The saga makes cross-actor flow programmatic only by relocating it outside the actors whose behavior it coordinates.
+Both forms treat the cross-actor flow as a separate concern from any participating actor's program. The orchestrated form externalizes it to a coordinator; the choreographed form distributes it across event subscriptions. Neither form makes the cross-actor send a sentence of the sender's program. The assumption stated in §3 is preserved by construction. The saga makes cross-actor flow programmatic only by relocating it outside the actors whose behavior it coordinates. A saga also does more than relocate the record: it implements transactional recovery — compensating actions, retries, step boundaries — a concern that is genuinely hard independently of where the causal record lives. tell does not provide that recovery and is not a substitute for it; what tell addresses is narrower and prior — *where the record of the cross-actor send lives*. The two are different instruments, compared here only on that axis.
 
 ### 6.2 Distributed tracing
 
@@ -353,7 +354,7 @@ The conditions are derived directly from §4. The actor model entails autonomy, 
 
 **Condition C2 — Causation as program statement.** The cross-actor send appears as a sentence in the sender's program — a journal entry whose content names the recipient and the message. Reading the sender's journal reveals not only what the actor did locally but also the act of speaking that connected its program to another actor's. The cross-actor edge becomes part of the program's narrative rather than an artifact reconstructed from outside it. The construct introduced in §1 — semantic continuity — is realized at the sender's boundary by this condition; symmetrically, the receiver's program records the receipt as a sentence about who spoke to it.
 
-**Condition C3 — No external coordinator.** No party outside the participating actors decides what each actor does next. Each actor processes its own messages autonomously and decides its own response. The journal records what happened; no orchestrator prescribes what should happen, and no participant outside the actors is required to interpret the record. This condition preserves the absence of orchestration that §4.4 identified as a non-negotiable property of the alternative.
+**Condition C3 — No external coordinator.** No party outside the participating actors authors what each actor does next — what it does, which message it sends, how it responds. The message-passing layer may carry those messages, with whatever reliability it provides; what C3 forbids is an external *author* of the flow — a coordinator whose state machine chooses each actor's next step — not an external *carrier* of it. Each actor processes its own messages autonomously and decides its own response. The journal records what happened; no orchestrator prescribes what should happen, and no participant outside the actors is required to interpret the record. This condition preserves the absence of orchestration that §4.4 identified as a non-negotiable property of the alternative.
 
 The three conditions are independent. C1 alone preserves isolation but does not establish continuity; C2 alone establishes continuity but, without C1, would risk shared-state writes; C3 alone preserves autonomy but does not address the recording question. Together, the three conditions yield a system in which cross-actor causation is recorded as program in each participant's local journal, dispatched through the existing message-passing layer, and coordinated by no external party.
 
@@ -393,7 +394,7 @@ sequenceDiagram
     participant ProgB as Actor B's program
     participant JB as B's journal
 
-    ProgA->>JA: tell B(msg) — record send entry
+    ProgA->>JA: tell msg to B — record the assertion
     ProgA->>MPL: dispatch msg
     MPL->>ProgB: deliver msg
     ProgB->>JB: process and record receipt entry
@@ -403,9 +404,9 @@ Two journal writes (in JA and JB), one dispatch through the existing message-pas
 
 ### 7.5 Closing
 
-The conditions are not extensions of the actor model; they are the conditions under which the assumption named in §3 can be removed without altering the model's structural commitments. *tell* is one realization of the conditions; any realization that satisfies C1, C2, and C3 would dissolve the assumption identified in §3. An actor framework whose programs do not currently record cross-actor sends could, in principle, be extended to satisfy the three conditions.
+The conditions are not extensions of the actor model; they are the conditions under which the assumption named in §3 can be removed without altering the model's structural commitments. *tell* is one realization of the conditions; any realization that satisfies C1, C2, and C3 would dissolve the assumption identified in §3. But the conditions presuppose a substrate: C2 requires the cross-actor send to be a *statement of the program* — a dense operation, not a serialized event (§3) — which is the anti-porosity of Paper 1 and the externalized parameters of Paper 2. The generality is therefore over primitives *on a journal-as-program substrate*, not over actor frameworks in general; a framework that records sends as opaque payloads would satisfy C2 only by first adopting that substrate, which is the subject of Papers 1–2 and beyond this paper's scope.
 
-The reformulation is conceptual. The remainder of the paper presents the empirical question: can the conditions be realized in a running system? §8 answers by exhibiting an instantiation and demonstrating it through a comparative case study.
+The reformulation is conceptual. The remainder of the paper presents the empirical question: can the conditions be realized in a running system? §8 answers by exhibiting an instantiation and demonstrating it through an illustrative case study.
 
 ---
 
@@ -413,7 +414,7 @@ The reformulation is conceptual. The remainder of the paper presents the empiric
 
 ### 8.0 Origins of the instantiation
 
-The instantiation discussed below is provided by Puppeteer, an actor-based framework whose journal-as-program substrate predates the analysis presented in this paper. The framework's lineage runs from a 2005 autopersistence prototype — domain classes that persisted themselves through reflection, with no schema decisions in the domain code — through a DSL that emerged as the persistence substrate, to event sourcing as the runtime's primary discipline. By the time the conditions of §7 were articulated, the framework already satisfied them; the present section reads as observation of that alignment, not as derivation of the framework from the conditions.
+The instantiation discussed below is provided by Puppeteer, an actor-based framework whose journal-as-program substrate predates the analysis presented in this paper. The framework's lineage runs from a 2005 autopersistence prototype — domain classes that persisted themselves through reflection, with no schema decisions in the domain code — through a DSL that emerged as the persistence substrate, to event sourcing as the runtime's primary discipline. By the time the conditions of §7 were articulated, the framework already satisfied them; the present section reads as observation of that alignment, not as derivation of the framework from the conditions. This invites a fair question of circularity — were C1–C3 read off Puppeteer and then presented as model-derived? They are not: §7.1 derives them from the actor model's three commitments and the construct alone, citing no framework feature. That a framework built for other reasons, years earlier, already satisfies them is therefore independent evidence that the model-derived conditions are satisfiable — not a sign they were retro-fitted.
 
 ### 8.1 The case study domain
 
@@ -434,41 +435,48 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     .Seek("Purchase")
         .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
     .Causation.Continue(@"
-        tell RewardEngine('rewards-1')
-            PurchaseConfirmed(@orderId, @date, @amount, @customer, 'STORE-42')
-            id 'tid-purchase-100'
-            through 'Kafka:loyalty-v1';
+        tell PurchaseConfirmed
+            with @orderId, @date, @amount, @customer, 'STORE-42'
+            to RewardEngine('rewards-1')
+            once 'tid-purchase-100';
     ");
 ```
 
-The `tell` statement is a sentence in the actor's DSL. It names the recipient (`RewardEngine('rewards-1')`), the message (`PurchaseConfirmed(...)`), an envelope identifier (`id 'tid-purchase-100'`), and an optional transport hint (`through 'Kafka:loyalty-v1'`). The Reaction is established once, and thereafter watches the Seller's journal. When the Seller's domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, writing one journal entry on the Seller's side.
+The `tell` statement is a sentence in the actor's DSL, and the kind of sentence matters: the Seller *asserts a fact it has lived* — `PurchaseConfirmed`, named in the Seller's own vocabulary — addressed to the RewardEngine (`to RewardEngine('rewards-1')`), carrying the values that fact involved (`with @orderId, @date, @amount, @customer, 'STORE-42'`) under a stable identity (`once 'tid-purchase-100'`). It does not invoke a method on the RewardEngine, and it does not name how the message travels. This follows the single discipline the journal obeys throughout this series: an actor's program may record only what that actor could itself have said. The Seller can say *that a purchase was confirmed*; it cannot say *how the RewardEngine applies rewards* — that is the RewardEngine's verb, recorded in the RewardEngine's own journal — nor *which broker carries the message*, which is deployment, not program. The Reaction is established once and thereafter watches the Seller's journal; when the domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, journaling the assertion on the Seller's side.
 
-After the bridge delivers the envelope to the RewardEngine and the receiver acknowledges, the Seller's journal contains three entries:
+The assertion is journaled as a typed *message-action* — defined once (its signature deduced from the values it carries) and then invoked — the same define-then-invoke shape every operation takes on the dense journal-as-program substrate this series builds on (Papers 1–2). After the bridge delivers the assertion to the RewardEngine and the receiver acknowledges, the Seller's journal contains four entries:
 
 ```
 [0]  s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
-[1]  tell RewardEngine('rewards-1') PurchaseConfirmed(orderId, date, amount, customer, 'STORE-42')
-         id 'tid-purchase-100' through 'Kafka:loyalty-v1';
-[2]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
+[1]  (define of the message-action PurchaseConfirmed — its typed signature)
+[2]  tell PurchaseConfirmed
+         with orderId, date, amount, customer, 'STORE-42'
+         to RewardEngine('rewards-1')
+         once 'tid-purchase-100';
+[3]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
 ```
 
 The three conditions of §7 are realized by these entries.
 
-- **C1 (Locality of writes).** The three entries are in the Seller's journal only. The RewardEngine's journal records its receiving operation independently — the two journals never share storage.
-- **C2 (Causation as program statement).** Entry [1] is the cross-actor send rendered as a DSL sentence. Reading the Seller's journal alone reveals that it spoke to RewardEngine, with what message, at what time. Entry [2] closes the round-trip with the receiver's acknowledgment.
-- **C3 (No external coordinator).** The bridge in the test is a transport adapter that drains envelopes and routes them to the receiver. It does not direct what each actor does next; it delivers messages produced by the actors' own programs.
+- **C1 (Locality of writes).** The four entries are in the Seller's journal only. The RewardEngine's journal records its receiving operation independently — the two journals never share storage.
+- **C2 (Causation as program statement).** Entries [1]–[2] are the cross-actor assertion rendered as a DSL sentence — defined once as a typed message-action, then invoked. Reading the Seller's journal alone reveals that it asserted `PurchaseConfirmed` to RewardEngine, with what values, at what time. Entry [3] closes the round-trip with the receiver's acknowledgment.
+- **C3 (No external coordinator).** C3 forbids an external party that *authors* the flow — one that decides, from its own state, what each actor does next. It does not forbid a *carrier*. The Seller's own program makes the assertion — it records, as a sentence of its program, that it told the RewardEngine and what — and the bridge only carries that assertion onward. The journal names no transport at all: which broker or protocol carries the message is a deployment binding resolved outside the program, not a sentence in it (see below). A saga coordinator is the opposite: its state machine authors the flow, which then lives as a quasi-domain artifact outside every participant's program, and folding it into a participant would dirty that domain with coordination it should not carry. Giving delivery a clean home in the carrier is what lets each actor's journal hold only the causal record — the fact that it spoke. (In this single-process didactic test the bridge also stands in for the receiver's own processing; in a deployment the delivered message is processed by the recipient's own program.)
 
-A note on entry [2]. The acknowledgment is not the RewardEngine writing into the Seller's journal. The RewardEngine emits an ordinary result in its own journal; the transport routes an acknowledgment envelope back to the Seller; the Seller's own handler processes that inbound envelope and records `tell ack ...` in the Seller's journal. For the ack message the Seller is the *receiver*, so C1's receiver clause applies unchanged — an actor records its own receipt in its own journal. The cross-actor edge is two messages, the tell outbound and the ack returning, each narrated by the actor that processed it; neither actor writes to the other's journal.
+A note on entry [3]. The acknowledgment is not the RewardEngine writing into the Seller's journal. The RewardEngine emits an ordinary result in its own journal; the transport routes an acknowledgment envelope back to the Seller; the Seller's own handler processes that inbound envelope and records `tell ack ...` in the Seller's journal. For the ack message the Seller is the *receiver*, so C1's receiver clause applies unchanged — an actor records its own receipt in its own journal. The cross-actor edge is two messages, the assertion outbound and the ack returning, each narrated by the actor that processed it; neither actor writes to the other's journal.
 
-Delivery and correlation are separated by design. The journal is the durable record of what was told and what was acknowledged — correlation; redelivery, timeout, dead-lettering, and backoff belong to the transport. The transport is an externalized interface: the framework hands it the envelope and registers an acknowledgment handler, but the implementation — Kafka, REST, gRPC, or a custom one written by the framework's user — is supplied from outside, and the delivery policy lives there, not in the journal. The delivery guarantee is therefore whatever the chosen transport provides; the journal's correlation role is invariant across transports. If an acknowledgment is lost, the transport's retry redelivers and the envelope identifier (`tid-...`) is the receiver-side deduplication key, so a redelivered tell does not duplicate the effect; a replayed journal does not re-emit, because the send is recorded, not re-executed against the wire. The delivery model is thus at-least-once with identifier-based deduplication; the consistency machinery it rests on — the now/deferred partition and its deduplication discipline — is developed in Paper 3, on which this construction builds.
+Delivery and correlation are separated by design. The journal is the durable record of what was asserted and what was acknowledged — correlation; redelivery, timeout, dead-lettering, and backoff belong to the transport. Routing, too, lives outside the program: the sentence names the addressee by its logical role (`to RewardEngine('rewards-1')`), and a deployment-level binding — not a clause in the journal — resolves that role to a physical route (which transport, which topic). The journal therefore reads identically no matter which transport that binding selects; the wire never enters the actor's voice. The delivery guarantee is whatever the chosen transport provides; the journal's correlation role is invariant across all of them. If an acknowledgment is lost, the transport's retry redelivers and the assertion's identity (`once 'tid-...'`, or a content hash when none is given) is the receiver-side deduplication key, so a redelivered tell does not duplicate the effect; a replayed journal re-executes the assertion — rebuilding the in-flight record — but its dispatch to the transport runs only on live execution, so replay does not re-send (the transport never sees a message from rehydration). A crash in the narrow window between journaling the assertion and dispatching it strands the envelope — journaled as issued, yet never handed to the transport; on recovery the rehydrated sender reconstructs that pending tell from the journal alone and the transport, the sole authority on delivery, testifies its fate, which the sender records as a verdict in its own voice (§8.5 G4) — so a crash no longer leaves the journal asserting a send that never landed: each issued tell is resolved (acknowledged, or marked unacknowledged by its addressee) or honestly left pending for the transport to settle, bounded by what that transport can still testify. The delivery model is thus at-least-once with identity-based deduplication; the consistency machinery it rests on — the now/deferred partition and its deduplication discipline — is developed in Paper 3, on which this construction builds.
 
 The framework rejects `tell` outside `.Causation.Continue(...)`. A direct `tell` from a top-level command throws a runtime exception, with the error message pointing the developer at the correct surface. The cross-actor send is always a sentence in some Reaction's Causation body, never a free-floating call.
+
+One feature of the sentence repays attention: the message is named in the past — `PurchaseConfirmed`, a fact the Seller has already lived — never in the imperative. This is not a style convention but a consequence of the criterion: an actor can assert only what has already happened in its own history, and by the time the assertion is journaled the purchase is a settled entry. A *command* — the directive at a request edge, which may still be refused — is named in the present imperative (`ApplyReward`, `Confirm`); to name a command in the past would be a category error, an order to do what is already done. The tense is the surface mark of which kind of act the sentence is. This is where the construct parts from the canonical actor frameworks: Akka exposes a single send verb (`!`, *tell*) for every message and accordingly advises naming them all in the past tense — folding the report of a fact and the issuing of a command into one form, which is right for the events and wrong for the commands, because one verb cannot tell them apart. Here the two are kept distinct and the tense marks the difference — the assertion the sender makes about its own past, and the command the receiver runs in its own present, landing in two journals, in two voices.
 
 ### 8.3 Three implementations side by side
 
 The same domain — the Seller confirms a purchase, the RewardEngine applies qualifying campaigns — is exercised in three styles. The code that distinguishes each style and the journals each produces are reproduced below without commentary. The interpretation follows in §8.4.
 
 The saga and choreography implementations are the author's own, written for this comparison and deliberately kept minimal (Appendix A); they are not independent or performance-tuned baselines. The comparison is accordingly structural, not competitive: it establishes *where* each style records the joint cross-actor history, not that tell is faster, more resilient, or operationally simpler. Those are measurable dimensions this paper does not test (§1).
+
+The exhibit is an illustration. The alternatives are written in their canonical shape — an orchestrated saga whose participants are commanded by a coordinator that owns the flow, and a choreography whose actors publish to a shared bus — so the journal-locality shown is a property of those patterns as practiced. And the obvious objection — that a saga could have each participant record its own role — names exactly the tell move: a participant that records its cross-actor participation as a statement of its own program has, by that act, satisfied C2. The contrast is therefore definitional: the alternatives place the joint history outside any participant's program because their defining feature is externalized coordination, and internalizing it is the construct this paper names.
 
 #### Style 1 — Saga (orchestrated)
 
@@ -552,46 +560,51 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     .Seek("Purchase")
         .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
     .Causation.Continue(@"
-        tell RewardEngine('rewards-1')
-            PurchaseConfirmed(@orderId, @date, @amount, @customer)
-            id 'tid-comp-100';
+        tell PurchaseConfirmed
+            with @orderId, @date, @amount, @customer
+            to RewardEngine('rewards-1')
+            once 'tid-comp-100';
     ");
 
+seller.Reactions.Execute();   // once defined, the Reaction stands over the journal and applies
+                              // to every matching entry — it is not invoked per command. A Job is
+                              // swept on demand (driven here for a deterministic test); a Cue
+                              // Reaction runs continuously on its own thread.
 seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
-seller.Reactions.Execute();   // on-demand Job sweep from the Reaction's checkpoint, here only
-                              // to drive the test deterministically; a Cue Reaction runs
-                              // continuously on its own thread. Neither needs a call per command.
-// bridge delivers the envelope to the RewardEngine and acks back
+// the standing Reaction observes the purchase and asserts PurchaseConfirmed to RewardEngine;
+// the bridge delivers and acks back
 ```
 
 After the run:
 
 ```
-Seller's journal (3 entries):
+Seller's journal (4 entries):
   [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
-  [1] tell RewardEngine('rewards-1')
-        PurchaseConfirmed(orderId, date, amount, customer)
-        id 'tid-comp-100';
-  [2] tell ack 'tid-comp-100' from RewardEngine('rewards-1');
+  [1] (define of the message-action PurchaseConfirmed)
+  [2] tell PurchaseConfirmed
+        with orderId, date, amount, customer
+        to RewardEngine('rewards-1')
+        once 'tid-comp-100';
+  [3] tell ack 'tid-comp-100' from RewardEngine('rewards-1');
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
   [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
 ```
 
-### 8.4 Comparative analysis
+### 8.4 Structural comparison
 
-The three labs in §8.3 exercise the same logical flow but record it differently. Three pairs of journals were exhibited.
+The three implementations in §8.3 exercise the same logical flow but record it differently. Three pairs of journals were exhibited.
 
 **Saga**: the SagaCoordinator's journal contains the workflow narrative — `PurchaseRequested → PurchaseConfirmed → RewardsApplied`. The Seller's journal records its local purchase only; it does not know it is part of a saga. The RewardEngine's journal records its local reward only; equally unaware. Three journals, three local stories. Only the coordinator's journal contains the joint history.
 
 **Choreography**: no coordinator exists. The Seller's journal records the local purchase; the publish to the bus is invisible to the actor. The RewardEngine's journal records the local reward; the receipt from the bus is invisible to the actor. The bus's own log records the publish. No actor's journal contains the joint history; the bus log, an external infrastructure artifact, is the only place the cross-actor handoff is recorded.
 
-**Tell**: the Seller's journal contains the purchase, the tell, and the ack — three entries that constitute the joint history as a sequence of DSL sentences. The RewardEngine's journal records its local reward, as in the other styles. Under tell, the sender's journal alone reconstructs this cross-actor edge — the single hop from Seller to RewardEngine; §8.5 examines what happens when the chain is longer.
+**Tell**: the Seller's journal contains the purchase, the assertion (journaled as a typed message-action — defined once, then invoked), and the ack — four entries that constitute the joint history as a sequence of DSL sentences. The RewardEngine's journal records its local reward, as in the other styles. Under tell, the sender's journal alone reconstructs this cross-actor edge — the single hop from Seller to RewardEngine; §8.5 examines what happens when the chain is longer.
 
 The three styles produce equivalent business outcomes. They differ structurally in where the cross-actor causal chain is recorded. The difference is not cosmetic. The saga coordinator, the event bus log, the distributed trace, and the workflow engine all exist to compensate for the absence identified in §3. Under tell, that program-level absence is gone: the sender's journal already contains the cross-actor narrative those patterns reconstruct elsewhere, so the apparatus built to recover it has nothing to recover.
 
-The claim is about the *record*, not the wire. Tell does not eliminate the message-passing infrastructure: delivery remains operational, carried by whatever transport the `through` hint names (§8.2), and the bridge that routes envelopes is part of it. What moves into the program is the causal record — the intention to send, and the acknowledgment of receipt — not the act of delivery. The contribution is the relocation of the narrative into the program, not the removal of transport.
+The claim is about the *record*, not the wire. Tell does not eliminate the message-passing infrastructure: delivery remains operational, carried by whatever transport a deployment-level binding resolves the addressee to (§8.2), and the bridge that routes envelopes is part of it. What moves into the program is the causal record — the assertion the sender makes, and the acknowledgment of receipt — not the act of delivery. The contribution is the relocation of the narrative into the program, not the removal of transport.
 
 | Style | Joint history location | Audit path |
 |---|---|---|
@@ -603,15 +616,17 @@ In the first two styles, an additional architectural element is required to make
 
 ### 8.5 Property validation
 
-Three additional tests demonstrate that consequences claimed in §5 — auditability through external reconstruction, replay limited to single actors, cross-DC fragility — are reversed under tell, exhibiting properties that would be inaccessible if the assumption named in §3 were in force. These tests are intentionally chosen to mirror the compensating patterns of §6: each test exhibits a property that, under the assumption of §3, requires an external architectural pattern to achieve.
+Four property tests probe the claims of §5 and §6, all reproduced by the harness in `labs/lab04-tell` run against the public commit recorded under Code provenance. The first three (G1–G3) demonstrate that consequences claimed in §5 — auditability through external reconstruction, replay limited to single actors, cross-DC fragility — are reversed under tell, exhibiting properties that would be inaccessible if the assumption named in §3 were in force; they are intentionally chosen to mirror the compensating patterns of §6, each exhibiting a property that, under the assumption of §3, requires an external architectural pattern to achieve. A fourth (G4) turns to a sharper, adversarial question: whether the record stays honest when a tell never crosses.
 
-**G1 — Replay coherence (closes §5.2).** The first test stages an in-flight tell: the envelope leaves the Seller but the bridge does not deliver it before the test asserts. A fresh actor instance with the same name, no shared transport, no live receiver, and no in-memory state replays the journal alone. The replayed actor reconstructs the dedup state for the in-flight envelope from journal entries. The joint history exists as a program artifact and replay reaches it.
+**G1 — Replay coherence (closes §5.2).** The first test stages an in-flight tell: the envelope leaves the Seller but the bridge does not deliver it before the test asserts. A fresh actor instance with the same name, no shared transport, no live receiver, and no in-memory state replays the journal alone. Replaying the journal re-executes the tell statement; under replay it rebuilds the in-flight record rather than re-dispatching, so the replayed actor reconstructs the cross-actor state from the journal alone — the program re-ran, with no duplicate send. The joint history exists as a program artifact and replay reaches it.
 
 **G2 — Cross-DC replication (closes §5.3).** The second test replicates the Seller's journal entry-by-entry to a fresh actor in an independent storage tier — the analogue of moving across data centers. The replicated actor, with no transport connectivity to the original receiver, reconstructs the dedup state from the replicated bytes alone. The cross-actor causal chain travels with the replication because it was always recorded in a place replication can carry.
 
-**G3 — Audit query (closes §5.1).** The third test asks the audit question — *why did this happen?* — by reading the Seller's journal directly. The cross-actor sentence is in entry [1]; the acknowledgment is in entry [2]. The cause-effect chain is reconstructed without distributed tracing, correlation IDs, or log aggregation.
+**G3 — Audit query (closes §5.1).** The third test asks the audit question — *why did this happen?* — by reading the Seller's journal directly. The cross-actor assertion is entry [2] (the message-action invocation); the acknowledgment is entry [3]. The cause-effect chain is reconstructed without distributed tracing, correlation IDs, or log aggregation.
 
 Each of these properties is a consequence of cross-actor causation being recorded as program. Under saga, choreography, tracing, or workflow approaches — where it is not — the same properties are reachable only by consulting artifacts outside the participating actors.
+
+**G4 — Tell-fate recovery, the honest record under crash.** G1–G3 stage an in-flight tell and show the *record* survives a crash, a move across data centers, an audit. A sharper question is what the record *says* when the tell never crosses. The send is journaled before the post-commit dispatch hands its envelope to the transport; a crash in that window strands the envelope — journaled as issued, never delivered, never acknowledged. Left unaddressed this is the one place the "sender's journal alone" property could lie: the journal would assert a send that did not happen. The fourth test stages exactly this crash and rehydrates the sender. Replay reconstructs the set of *pending* tells — issued, neither acknowledged nor settled — from the journal alone; for each, the transport, the sole authority on delivery, testifies its fate and the sender records the verdict *in its own voice* — `tell 'tid-purchase-100' unacknowledged by RewardEngine` when the transport reports the envelope failed, the ordinary `tell ack ...` when it reports the envelope was delivered and only the acknowledgment was lost, and nothing while the fate is still in flight (the transport keeps ownership). The verdict names the addressee the Seller did not hear back from, not the broker that carried the message: A may say *"RewardEngine never acknowledged"* — a fact within its own universe — but not *"per the broker that carried it,"* which is infrastructure it has no standing to assert. This is the dual of §6.4's causal and message logging: there, the record of what crossed lives in a recovery layer beneath the program, consulted only by crash-replay machinery; under tell it is a sentence in the sender's program, so recovering it is reading the journal, not excavating infrastructure. After recovery the sender's journal no longer asserts a send that never landed: each issued tell is either resolved — acknowledged, or marked unacknowledged by its addressee — or honestly carried as still pending, for the transport to settle when it can. The guarantee is honesty about the outcome, not omniscience: a transport that cannot testify — one whose own record of a tell's fate did not survive the failure — answers `InFlight`, and the tell stays pending rather than acquiring a fabricated verdict. Delivery stays the transport's; the verdict is the journal's.
 
 **The multi-hop limit — an adversarial case.** G1–G3 are duals of the consequences named in §5, and so are chosen to show what tell does well. The honest counter-case is a longer chain. The case study is a single hop — the Seller tells the RewardEngine. Suppose instead a chain assembled the way every hop is: a Reaction on A tells B; B carries its own Reaction that observes the entry its receipt produces and, from that Reaction's `.Causation.Continue` body, tells C. Nothing propagates the chain automatically — each actor opts in with its own Reaction (the envelope's causal identifier is per-hop-local, not a threaded chain id), so the hops remain autonomous, as C3 requires. Each hop is recorded as program in the journal of the actor that originated it — A's journal holds the A→B tell and its ack, B's journal holds both its receipt of A and the B→C tell it issued, C's journal holds its receipt of B. No single journal holds the whole A→B→C chain; reconstructing it end to end means composing A's and B's journals (linkable by envelope identifier across them). In this, tell inherits a distributed-history property of the kind §6.1 identified in choreography — but the difference is in kind, not in absence. Under choreography no participant's journal records the cross-actor edge as program at all; the chain lives only in the bus log and is reconstructed from non-programmatic artifacts. Under tell every edge is a programmatic record in its sender's journal, so the multi-hop chain is a composition of programs — each hop locally complete, auditable, and replayable on its own. Tell makes each edge programmatic and local; it does not centralize a multi-hop chain into one journal. The "sender's journal alone" property (§8.4) is therefore a per-edge guarantee: it holds for the hops an actor originates, which is the whole chain only when the chain is a single hop.
 
@@ -625,7 +640,7 @@ The case study and the defensive tests together constitute the existence proof. 
 
 The journal exhibited in §8.3 — a sequence of DSL sentences in the sender's program, recording the cross-actor send and its acknowledgment — required several structural preconditions to be a viable substrate. The journal had to be dense rather than porous: filled with operations, not with type-erased payloads. It had to record the operations with their parameter references intact, not with values inlined as literals. It had to maintain a discipline that separates immediate from deferred work, with a guardian for the boundary between them. Each precondition has been the subject of prior structural analysis in the present series.
 
-Paper 1 introduces *porosity* — the representational sparsity that arises when domain state is recorded as serialized data structures rather than as programmatic operations. Anti-porosity is the design principle that the journal records what was said, not what was stored. Without that property, the entries the reader saw in §8.3 — `tell RewardEngine('rewards-1') PurchaseConfirmed(...)` — could not be programmatic at all; they would be opaque payloads.
+Paper 1 introduces *porosity* — the representational sparsity that arises when domain state is recorded as serialized data structures rather than as programmatic operations. Anti-porosity is the design principle that the journal records what was said, not what was stored. Without that property, the entries the reader saw in §8.3 — `tell PurchaseConfirmed with ... to RewardEngine('rewards-1')` — could not be programmatic at all; they would be opaque payloads.
 
 Paper 2 introduces *externalized parameters* as the structural precondition under which compilation, caching, and dense journaling become possible at all. Without externalized parameters, the journal could not record what was said with parameter references intact — values would be inlined as literals, or the script would lose its connection to the actor's symbol table. The tell sentence in §8.3 carries `@orderId`, `@date`, `@amount`, `@customer` as references rather than literals; this paper is what makes that representation possible.
 
@@ -636,6 +651,10 @@ The series, taken together, defends a single architectural property under differ
 > *Puppeteer preserves semantic continuity inside an actor. Tell preserves semantic continuity across actors.*
 
 The first sentence is the joint contribution of Papers 1 through 3: the structural conditions under which the journal can serve as a program-level substrate for what an actor does. The second sentence is the contribution of the present paper: the cross-actor extension of that substrate that the reader saw exhibited in §8.3.
+
+Read as a sequence, the series traces a single thread — the operation. Paper 1 establishes that operations precede state; Paper 2, that they carry their own parameters and can author themselves; Paper 3, that they can generate further operations as reactions; and the present paper, that an operation can be addressed, as an assertion, to another actor. *Tell* is the cross-actor extension of the journal-as-program substrate the earlier papers build, not messaging added to it from outside.
+
+Papers 1–3 are self-deposited preprints on Zenodo (Rivera, 2026a, 2026b, 2026c) and have not undergone peer review, as is the present paper. This paper rests structurally on them — C2 presupposes the substrate Papers 1 and 2 establish (§3, §7), and the Reaction surface on which `tell` lives is Paper 3's (§8.2) — so it should be read as the latest in a preprint chain, not as resting on peer-reviewed foundations.
 
 ---
 
@@ -665,12 +684,17 @@ The labs cited in §8 are publicly available in the Puppeteer codebase. The refe
 | `Planes.cs` | The three plane types (`ProgramPlane`, `CausationPlane`, `MetadataPlane`) and their property accessors | §8.2 |
 | `ReactionEngine.cs` | Pattern matching surface, `.OnMatch(...)`, plane passthroughs | §8.2 |
 
-### End-to-end labs — `UnitTestPuppeteer/`
+### Reproducibility lab — `labs/lab04-tell/`
+
+The runnable harness that reproduces every journal exhibited in §8 ships with
+this paper (and in `paper04-data.zip`), built against the public runtime commit
+recorded under Code provenance. The framework's own end-to-end tests for the
+same scenarios live in the private fork and are not part of the public clone;
+this lab is the public, self-contained equivalent.
 
 | File | What it shows | Cited in |
 |---|---|---|
-| `TellLoyaltyE2ETests.cs` | Happy-path tell flow (Reaction defines `tell` body; envelope dispatch + ack; journal verbatim asserts); G1 replay coherence; G2 cross-DC replication; G3 audit query; negative test for `tell` outside `.Causation.Continue(...)` | §8.2, §8.5 |
-| `CrossActorComparativeTests.cs` | Three-style side-by-side case study: orchestrated saga, event-driven choreography, tell — same domain, three different journal locations of the joint history | §8.3, §8.4 |
+| `Program.cs` | The harness, one method per scenario: the three-style side-by-side case study (orchestrated saga, event-driven choreography, tell — same domain, three journal locations of the joint history); G1 replay coherence; G2 cross-DC replication; G3 audit query; G4 tell-fate recovery across the crash window; and the negative gate for `tell` outside `.Causation.Continue(...)`. Prints each actor's journal and a PASS/FAIL line per assertion. | §8.2, §8.3, §8.4, §8.5 |
 | `LoyaltyDomainStubs.cs` | Domain-side stubs for `Seller`, `RewardEngine`, `Campaign` — kept minimal so the focus remains on the cross-actor mechanism | §8.1 |
 
 ---
@@ -679,14 +703,14 @@ The labs cited in §8 are publicly available in the Puppeteer codebase. The refe
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-[`2f31f96`](https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da)
-(2026-05-18). The snapshot is archived in Software Heritage under
+[`8bfe689`](https://github.com/alvaroNCubo/puppeteer/tree/8bfe6898d9dad42849edd8748cee494fcec888f6)
+(2026-06-24). The snapshot is archived in Software Heritage under
 the following persistent identifier:
 
 ```
-swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
+swh:1:dir:efe15d9177080407dc8396ab3bb13c68309da428;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
+  anchor=swh:1:rev:8bfe6898d9dad42849edd8748cee494fcec888f6
 ```
 
 Inline references of the form `file.cs:NN` (e.g.,
@@ -729,7 +753,7 @@ Johnson, D. B., & Zwaenepoel, W. (1987). Sender-based message logging. In *Proce
 
 Lamport, L. (1978). Time, clocks, and the ordering of events in a distributed system. *Communications of the ACM*, *21*(7), 558–565.
 
-Lightbend. (n.d.). *Akka core: Interaction patterns* [Akka documentation]. https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html
+Lightbend. (n.d.). *Akka core: Interaction patterns* [Akka documentation]. https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html (Internet Archive snapshot, 2026-02-16: https://web.archive.org/web/20260216052600/https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html)
 
 Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
 
