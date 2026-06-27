@@ -482,9 +482,9 @@ One feature of the sentence repays attention: the message is named in the past �
 
 The same domain — the Seller confirms a purchase, the RewardEngine applies qualifying campaigns — is exercised in three styles. The code that distinguishes each style and the journals each produces are reproduced below without commentary. The interpretation follows in §8.4.
 
-The saga and choreography implementations are the author's own, written for this comparison and deliberately kept minimal (Appendix A); they are not independent or performance-tuned baselines. The comparison is accordingly structural, not competitive: it establishes *where* each style records the joint cross-actor history, not that tell is faster, more resilient, or operationally simpler. Those are measurable dimensions this paper does not test (§1).
+The saga and choreography implementations are the author's own, written for this illustration and deliberately kept minimal (Appendix A); they are not independent or performance-tuned baselines. The illustration is accordingly structural, not competitive: it shows *where* each style records the joint cross-actor history, not that tell is faster, more resilient, or operationally simpler. Those are measurable dimensions this paper does not test (§1).
 
-The exhibit is an illustration. The alternatives are written in their canonical shape — an orchestrated saga whose participants are commanded by a coordinator that owns the flow, and a choreography whose actors publish to a shared bus — so the journal-locality shown is a property of those patterns as practiced. And the obvious objection — that a saga could have each participant record its own role — names exactly the tell move: a participant that records its cross-actor participation as a statement of its own program has, by that act, satisfied C2. The contrast is therefore definitional: the alternatives place the joint history outside any participant's program because their defining feature is externalized coordination, and internalizing it is the construct this paper names.
+Its weight is definitional, not empirical. The alternatives are written in their canonical shape — an orchestrated saga whose participants are commanded by a coordinator that owns the flow, and a choreography whose actors publish to a shared bus — so the reader can see in journals what each pattern's defining feature entails for where the joint history lands. The obvious objection — that a saga could have each participant record its own role — names exactly the tell move: a participant that records its cross-actor participation as a statement of its own program has, by that act, satisfied C2. The contrast is therefore definitional: the alternatives place the joint history outside any participant's program because their defining feature *is* externalized coordination. The journals below illustrate that truth; they are not measured evidence that one pattern outperforms another, and a differently-built saga would not change where externalized coordination, by definition, leaves the record.
 
 #### Style 1 — Saga (orchestrated)
 
@@ -600,7 +600,7 @@ RewardEngine's journal (2 entries):
   [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
 ```
 
-### 8.4 Structural comparison
+### 8.4 Structural reading
 
 The three implementations in §8.3 exercise the same logical flow but record it differently. Three pairs of journals were exhibited.
 
