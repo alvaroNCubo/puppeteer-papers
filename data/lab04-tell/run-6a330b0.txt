@@ -1,0 +1,121 @@
+﻿========================================================================
+Lab 4 — Cross-actor causation: where the joint history lives
+========================================================================
+
+--- Style 1 — Saga (orchestrator): joint history in the coordinator's journal ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+SagaCoordinator (3 entries):
+  [0] step = 'PurchaseRequested';
+  [1] step = 'PurchaseConfirmed';
+  [2] step = 'RewardsApplied';
+Seller (1 entries):
+  [0] s = Seller(); s.purchase('ord-100', 05/09/2026, 250, 'cust-42');
+RewardEngine (2 entries):
+  [0] loyalty = RewardEngine(); loyalty.AddCampaign('C-newcomer', 01/01/2020, 10); loyalty.AddCampaign('C-bigspender', 01/01/2020, 200);
+  [1] foreach ( c in loyalty.Campaigns() ) { If (c.Applies(05/09/2026, 250) == true) { c.Reward('ord-100', 'cust-42'); } }
+  CHECK PASS: coordinator holds the orchestration trace (expected 3, got 3)
+  CHECK PASS: Seller records only its local purchase (expected 1, got 1)
+  CHECK PASS: RewardEngine records only setup + reward (expected 2, got 2)
+  => the joint history lives ONLY in the coordinator's journal.
+
+--- Style 2 — Choreography (event bus): joint history in no actor's journal ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Seller (1 entries):
+  [0] s = Seller(); s.purchase('ord-100', 05/09/2026, 250, 'cust-42');
+RewardEngine (2 entries):
+  [0] loyalty = RewardEngine(); loyalty.AddCampaign('C-newcomer', 01/01/2020, 10);
+  [1] foreach ( c in loyalty.Campaigns() ) { If (c.Applies(05/09/2026, 250) == true) { c.Reward('ord-100', 'cust-42'); } }
+Bus log (1 entries):
+  published: PurchaseConfirmed:ord-100
+  CHECK PASS: Seller records only the local purchase (publish invisible) (expected 1, got 1)
+  CHECK PASS: RewardEngine records only setup + reward (expected 2, got 2)
+  CHECK PASS: the only joint artifact is the bus log (outside any program) (expected 1, got 1)
+  => the joint history lives ONLY in the external bus log.
+
+--- Style 3 — Tell (Puppeteer): joint history in the sender's own journal ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Seller (4 entries):
+  [0] s = Seller(); s.purchase('ord-100', 05/09/2026, 250, 'cust-42');
+  [1] (define action 1)
+  [2] tell PurchaseConfirmed with orderId, date, amount, customer to RewardEngine('rewards-1') once 'tid-comp-100';
+  [3] tell ack 'tid-comp-100' from RewardEngine('rewards-1');
+  CHECK PASS: Seller carries the full joint history (purchase + define + tell + ack) (expected 4, got 4)
+  CHECK PASS: RewardEngine records only setup + reward (expected 2, got 2)
+  CHECK PASS: the round-trip closed inside the Seller's own program
+  => the joint history lives in the sender's journal as DSL sentences.
+
+--- G1 — Replay coherence: a fresh actor reconstructs the in-flight tell from the journal alone ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+1%2%  CHECK PASS: replayed actor knows the in-flight tell (reconstructed from journal)
+  CHECK PASS: replay does not re-emit the envelope (expected 0, got 0)
+
+--- G2 — Cross-DC replication: replicating the journal bytes alone carries the cross-actor chain ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+1%2%  CHECK PASS: DC2 reconstructs the cross-actor state from replicated bytes alone
+  CHECK PASS: DC2 does not re-emit the envelope (expected 0, got 0)
+
+--- G3 — Audit query: 'why did this happen?' answered by reading the sender's journal ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+  CHECK PASS: the cross-actor assertion is reconstructable from the journal (no trace store)
+  CHECK PASS: the acknowledgment is in the journal
+
+--- G4 — Tell-fate recovery: the sender's journal records the FATE of a tell stranded by a crash ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+1%2%Recovered (transport testifies Failed) (4 entries):
+  [0] s = Seller(); s.purchase('ord-100', 05/09/2026, 250, 'cust-42');
+  [1] (define action 1)
+  [2] tell PurchaseConfirmed with orderId, date, amount, customer to RewardEngine('rewards-1') once 'tid-purchase-100';
+  [3] tell 'tid-purchase-100' unacknowledged by RewardEngine;
+  CHECK PASS: a logical non-delivery verdict is journaled (unacknowledged by the addressee)
+  CHECK PASS: the verdict names no transport
+  CHECK PASS: dedup state is terminal not-delivered
+  CHECK PASS: a failed tell is not falsely acked
+  CHECK PASS: recovery testifies, never re-emits (expected 0, got 0)
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+1%2%Recovered (transport testifies Delivered) (4 entries):
+  [0] s = Seller(); s.purchase('ord-100', 05/09/2026, 250, 'cust-42');
+  [1] (define action 1)
+  [2] tell PurchaseConfirmed with orderId, date, amount, customer to RewardEngine('rewards-1') once 'tid-purchase-100';
+  [3] tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
+  CHECK PASS: an ack is journaled when the transport testifies Delivered
+  CHECK PASS: dedup state is acked
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+1%2%  CHECK PASS: the in-flight tell is still reconstructed from the journal
+  CHECK PASS: no verdict is journaled while the fate is InFlight
+  CHECK PASS: the tell stays pending (neither acked nor not-delivered)
+  => after a crash, the sender's journal records each tell's FATE in its own voice
+     (acked / unacknowledged-by-addressee / pending), not just its issuance.
+
+--- G5 — Separated receiver: pure in-process broker carrier + autonomous receiver (§8.2 C3) ---
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Starting Puppeteer.EventSourcing.ActorHandler's Actor
+Seller (origin) (4 entries):
+  [0] s = Seller(); s.purchase('ord-100', 05/09/2026, 250, 'cust-42');
+  [1] (define action 1)
+  [2] tell PurchaseConfirmed with orderId, date, amount, customer to RewardEngine('rewards-1') once 'tid-sep-1';
+  [3] tell ack 'tid-sep-1' from RewardEngine('rewards-1');
+RewardEngine (autonomous receiver) (2 entries):
+  [0] loyalty = RewardEngine(); loyalty.AddCampaign('C-newcomer', 01/01/2020, 10);
+  [1] foreach ( c in loyalty.Campaigns() ) { If (c.Applies(05/09/2026, 250) == true) { c.Reward('ord-100', 'cust-42'); } }
+  CHECK PASS: the receiver ran its own command autonomously (setup + reward in its own journal) (expected 2, got 2)
+  CHECK PASS: the origin's journal records the ack — round-trip closed over the pure carrier
+  => a pure in-process broker carried the envelope; the RewardEngine mapped the
+     assertion to its own command and acked autonomously — no bridge stood in (C3).
+
+--- Negative — a direct tell from a top-level command is rejected ---
+  CHECK PASS: a free-floating tell throws LanguageException
+  CHECK PASS: the error points at .Causation.Continue(...)
+
+ALL CHECKS PASSED.
