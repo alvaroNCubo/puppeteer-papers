@@ -1471,7 +1471,7 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
         .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
     .Causation.Continue(@"
         tell PurchaseConfirmed
-            with @orderId, @date, @amount, @customer, 'STORE-42'
+            with @orderId, @date, @amount, @customer
             to RewardEngine('rewards-1')
             once 'tid-purchase-100';
     ");
@@ -1483,8 +1483,8 @@ kind of sentence matters: the Seller \emph{asserts a fact it has lived}
 addressed to the RewardEngine
 (\texttt{to\ RewardEngine(\textquotesingle{}rewards-1\textquotesingle{})}),
 carrying the values that fact involved
-(\texttt{with\ @orderId,\ @date,\ @amount,\ @customer,\ \textquotesingle{}STORE-42\textquotesingle{}})
-under a stable identity
+(\texttt{with\ @orderId,\ @date,\ @amount,\ @customer}) under a stable
+identity
 (\texttt{once\ \textquotesingle{}tid-purchase-100\textquotesingle{}}).
 It does not invoke a method on the RewardEngine, and it does not name
 how the message travels. This follows the single discipline the journal
@@ -1510,7 +1510,7 @@ acknowledges, the Seller's journal contains four entries:
 [0]  s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
 [1]  (define of the message-action PurchaseConfirmed — its typed signature)
 [2]  tell PurchaseConfirmed
-         with orderId, date, amount, customer, 'STORE-42'
+         with orderId, date, amount, customer
          to RewardEngine('rewards-1')
          once 'tid-purchase-100';
 [3]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');

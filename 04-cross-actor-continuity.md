@@ -442,13 +442,13 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
         .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
     .Causation.Continue(@"
         tell PurchaseConfirmed
-            with @orderId, @date, @amount, @customer, 'STORE-42'
+            with @orderId, @date, @amount, @customer
             to RewardEngine('rewards-1')
             once 'tid-purchase-100';
     ");
 ```
 
-The `tell` statement is a sentence in the actor's DSL, and the kind of sentence matters: the Seller *asserts a fact it has lived* — `PurchaseConfirmed`, named in the Seller's own vocabulary — addressed to the RewardEngine (`to RewardEngine('rewards-1')`), carrying the values that fact involved (`with @orderId, @date, @amount, @customer, 'STORE-42'`) under a stable identity (`once 'tid-purchase-100'`). It does not invoke a method on the RewardEngine, and it does not name how the message travels. This follows the single discipline the journal obeys throughout this series: an actor's program may record only what that actor could itself have said. The Seller can say *that a purchase was confirmed*; it cannot say *how the RewardEngine applies rewards* — that is the RewardEngine's verb, recorded in the RewardEngine's own journal — nor *which broker carries the message*, which is deployment, not program. The Reaction is established once and thereafter watches the Seller's journal; when the domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, journaling the assertion on the Seller's side.
+The `tell` statement is a sentence in the actor's DSL, and the kind of sentence matters: the Seller *asserts a fact it has lived* — `PurchaseConfirmed`, named in the Seller's own vocabulary — addressed to the RewardEngine (`to RewardEngine('rewards-1')`), carrying the values that fact involved (`with @orderId, @date, @amount, @customer`) under a stable identity (`once 'tid-purchase-100'`). It does not invoke a method on the RewardEngine, and it does not name how the message travels. This follows the single discipline the journal obeys throughout this series: an actor's program may record only what that actor could itself have said. The Seller can say *that a purchase was confirmed*; it cannot say *how the RewardEngine applies rewards* — that is the RewardEngine's verb, recorded in the RewardEngine's own journal — nor *which broker carries the message*, which is deployment, not program. The Reaction is established once and thereafter watches the Seller's journal; when the domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, journaling the assertion on the Seller's side.
 
 The assertion is journaled as a typed *message-action* — defined once (its signature deduced from the values it carries) and then invoked — the same define-then-invoke shape every operation takes on the dense journal-as-program substrate this series builds on (Papers 1–2). After the bridge delivers the assertion to the RewardEngine and the receiver acknowledges, the Seller's journal contains four entries:
 
@@ -456,7 +456,7 @@ The assertion is journaled as a typed *message-action* — defined once (its sig
 [0]  s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
 [1]  (define of the message-action PurchaseConfirmed — its typed signature)
 [2]  tell PurchaseConfirmed
-         with orderId, date, amount, customer, 'STORE-42'
+         with orderId, date, amount, customer
          to RewardEngine('rewards-1')
          once 'tid-purchase-100';
 [3]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
