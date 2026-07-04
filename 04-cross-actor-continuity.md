@@ -171,7 +171,7 @@ Under the assumption (§3): causation operational, not programmatic
     A's program                                     B's program
         │                                                 ▲
         │      runtime / broker / dispatcher              │
-        │  ─────────────────────────────────────────────► │
+        │  ─────────────────────────────────────────────> │
         │      (cross-actor causation not                 │
         │       recorded as program)                      │
         ▼                                                 ▼
@@ -183,7 +183,7 @@ Under the alternative (§7): causation as program statement
 
     A's program                                     B's program
         │                                                 ▲
-        │  ─────────────────  tell  ────────────────────► │
+        │  ─────────────────  tell  ────────────────────> │
         │                                                 │
         ▼                                                 ▼
     A's journal                                     B's journal
