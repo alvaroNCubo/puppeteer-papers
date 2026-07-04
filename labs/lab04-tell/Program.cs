@@ -51,10 +51,10 @@ namespace Lab04Tell
 
 		// ---- helpers -------------------------------------------------------
 
-		private static (ActorV1 v1, DiaryStorageInMemory journal) CreateActor(string suffix)
+		private static (ActorV2 v1, DiaryStorageInMemory journal) CreateActor(string suffix)
 		{
 			string uniqueName = $"lab04_{suffix}_{Guid.NewGuid():N}";
-			ActorV1 v1 = new ActorV1(uniqueName, DomainAssembly, PuppeteerAssembly);
+			ActorV2 v1 = new ActorV2(uniqueName, DomainAssembly, PuppeteerAssembly);
 			v1.CompiledModePolicy = CompilationModePolicy.AlwaysInterpreted;
 			v1.Handler.EventSourcingStorage(DatabaseType.IN_MEMORY, "memory");
 			DiaryStorageInMemory journal = new DiaryStorageInMemory(v1.Handler);
@@ -74,14 +74,14 @@ namespace Lab04Tell
 			Console.WriteLine("--- " + title + " ---");
 		}
 
-		private static void DumpJournal(string label, ActorV1 actor, DiaryStorageInMemory journal)
+		private static void DumpJournal(string label, ActorV2 actor, DiaryStorageInMemory journal)
 		{
 			Console.WriteLine($"{label} ({journal.GetEventCount()} entries):");
 			for (int i = 0; i < journal.GetEventCount(); i++)
 				Console.WriteLine($"  [{i}] {RenderEntry(actor, journal.GetEvent(i))}");
 		}
 
-		private static string RenderEntry(ActorV1 actor, EventData e)
+		private static string RenderEntry(ActorV2 actor, EventData e)
 		{
 			string raw;
 			if (e is ScriptEventData s) raw = s.Script;
@@ -184,7 +184,7 @@ namespace Lab04Tell
 		// The Seller asserts a fact it lived — PurchaseConfirmed — addressed to the
 		// RewardEngine, carrying the values that fact involved, under a stable identity.
 		// It names no method on the RewardEngine and no transport.
-		private static (ActorV1 seller, DiaryStorageInMemory sellerJournal, DiaryStorageInMemory rewardsJournal) RunTell(
+		private static (ActorV2 seller, DiaryStorageInMemory sellerJournal, DiaryStorageInMemory rewardsJournal) RunTell(
 			string idLiteral, bool deliver)
 		{
 			var (rewards, rewardsJournal) = CreateActor("tell_rewards");
@@ -248,7 +248,7 @@ namespace Lab04Tell
 			Section("G1 — Replay coherence: a fresh actor reconstructs the in-flight tell from the journal alone");
 			var (originalSeller, _, _) = RunTell("tid-purchase-100", deliver: false); // in-flight: no bridge, no ack
 
-			ActorV1 replayed = new ActorV1(originalSeller.Name, DomainAssembly, PuppeteerAssembly);
+			ActorV2 replayed = new ActorV2(originalSeller.Name, DomainAssembly, PuppeteerAssembly);
 			replayed.CompiledModePolicy = CompilationModePolicy.AlwaysInterpreted;
 			replayed.Handler.Transport = new InMemoryTransport();
 			replayed.Handler.EventSourcingStorage(DatabaseType.IN_MEMORY, "memory"); // triggers replay over the shared in-memory store
@@ -265,7 +265,7 @@ namespace Lab04Tell
 			var (dc1Seller, dc1Journal, _) = RunTell("tid-purchase-100", deliver: false);
 
 			string dc2Name = $"lab04_g2_dc2_{Guid.NewGuid():N}";
-			ActorV1 dc2Setup = new ActorV1(dc2Name, DomainAssembly, PuppeteerAssembly);
+			ActorV2 dc2Setup = new ActorV2(dc2Name, DomainAssembly, PuppeteerAssembly);
 			dc2Setup.CompiledModePolicy = CompilationModePolicy.AlwaysInterpreted;
 			DiaryStorageInMemory dc2Journal = new DiaryStorageInMemory(dc2Setup.Handler);
 
@@ -285,7 +285,7 @@ namespace Lab04Tell
 				}
 			}
 
-			ActorV1 dc2 = new ActorV1(dc2Name, DomainAssembly, PuppeteerAssembly);
+			ActorV2 dc2 = new ActorV2(dc2Name, DomainAssembly, PuppeteerAssembly);
 			dc2.CompiledModePolicy = CompilationModePolicy.AlwaysInterpreted;
 			dc2.Handler.Transport = new InMemoryTransport();
 			dc2.Handler.EventSourcingStorage(DatabaseType.IN_MEMORY, "memory");
@@ -354,9 +354,9 @@ namespace Lab04Tell
 		// Rehydrates a fresh actor over the staged journal with a transport configured
 		// to testify a fate. The transport is set BEFORE EventSourcingStorage so the
 		// primary's post-replay recovery can cite it. Returns the actor + a journal view.
-		private static (ActorV1 actor, DiaryStorageInMemory journal) RecoverWithFate(string actorName, Action<InMemoryTransport> configure)
+		private static (ActorV2 actor, DiaryStorageInMemory journal) RecoverWithFate(string actorName, Action<InMemoryTransport> configure)
 		{
-			ActorV1 actor = new ActorV1(actorName, DomainAssembly, PuppeteerAssembly);
+			ActorV2 actor = new ActorV2(actorName, DomainAssembly, PuppeteerAssembly);
 			actor.CompiledModePolicy = CompilationModePolicy.AlwaysInterpreted;
 			DiaryStorageInMemory journal = new DiaryStorageInMemory(actor.Handler);
 			InMemoryTransport transport = new InMemoryTransport();
@@ -366,7 +366,7 @@ namespace Lab04Tell
 			return (actor, journal);
 		}
 
-		private static bool JournalHas(ActorV1 actor, DiaryStorageInMemory journal, string fragment)
+		private static bool JournalHas(ActorV2 actor, DiaryStorageInMemory journal, string fragment)
 		{
 			for (int i = 0; i < journal.GetEventCount(); i++)
 				if (RenderEntry(actor, journal.GetEvent(i)).Contains(fragment)) return true;
@@ -478,7 +478,7 @@ namespace Lab04Tell
 		private static void Negative_DirectTellRejected()
 		{
 			Section("Negative — a direct tell from a top-level command is rejected");
-			ActorV1 seller = new ActorV1($"lab04_neg_{Guid.NewGuid():N}", DomainAssembly, PuppeteerAssembly);
+			ActorV2 seller = new ActorV2($"lab04_neg_{Guid.NewGuid():N}", DomainAssembly, PuppeteerAssembly);
 			seller.CompiledModePolicy = CompilationModePolicy.AlwaysInterpreted;
 			seller.Handler.Transport = new InMemoryTransport();
 
