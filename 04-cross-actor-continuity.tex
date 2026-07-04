@@ -146,7 +146,7 @@ primitive}, \xmpquote{puppeteer framework}},
 \title{Preserving semantic continuity across actors: a tell-based
 approach without orchestration}
 \author{Alvaro Rivera}
-\date{2026-06-24}
+\date{2026-07-04}
 
 \begin{document}
 \maketitle
@@ -217,17 +217,17 @@ Three implementations of the same domain --- saga, choreography, tell
 --- are exhibited side by side. The reader sees, in journals, that the
 saga places the joint history in a coordinator's program, that the
 choreography places it in an external bus log, and that the tell
-instantiation places it in the sender's own program. Four tests
-demonstrate that under tell the journal alone supports replay
-reconstruction, cross-datacenter replication, and audit query --- and,
-after a crash in the dispatch window, an honest record of a stranded
-tell's fate --- recovered from the transport's testimony, never
-fabricated --- operations that require external apparatus under the
-assumption. Each cross-actor edge is recorded as program in its sender's
-journal; a multi-hop chain composes these per-edge records ---
-programmatic at every hop, where the alternatives reconstruct the chain
-from artifacts outside any program (§8.5). \textbf{Fifty years of
-convention are not fifty years of necessity.}
+instantiation places it in the sender's own program. Four tests probe
+these claims under tell. Three show that the journal alone supports
+replay reconstruction, cross-datacenter replication, and audit query ---
+operations that require external apparatus under the assumption. The
+fourth shows that after a crash in the dispatch window the journal still
+records a stranded tell's fate honestly, recovered from the transport's
+testimony rather than fabricated. Each cross-actor edge is recorded as
+program in its sender's journal; a multi-hop chain composes these
+per-edge records --- programmatic at every hop, where the alternatives
+reconstruct the chain from artifacts outside any program (§8.5).
+\textbf{Fifty years of convention are not fifty years of necessity.}
 \end{quote}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
@@ -253,9 +253,9 @@ convention are not fifty years of necessity.}
   (C1), causation as program statement (C2), and no external coordinator
   (C3) describe a system in which semantic continuity is preserved
   across actors without violating any of the actor model's commitments.
-  The conditions are not design choices; they are the minimal
-  consequences of reconciling the model's commitments with the
-  construct. \emph{(Verification: §7.1.)}
+  The conditions are not design choices; they are the consequences of
+  reconciling the model's commitments with the construct.
+  \emph{(Verification: §7.1.)}
 \item
   \textbf{Any primitive satisfying C1+C2+C3 dissolves the assumption ---
   given a journal-as-program substrate.} The realization is one of many
@@ -1244,7 +1244,7 @@ construct introduced in §1 requires that the cross-actor causal chain be
 recorded as part of some actor's program (semantic continuity).
 Reconciling the two yields three conditions, each of which addresses one
 structural commitment of the model and one element of the construct. The
-conditions are not design choices; they are the minimal consequences of
+conditions are not design choices; they are the consequences of
 reconciling the model's commitments with the construct.
 
 \textbf{Condition C1 --- Locality of writes.} When an actor sends a
@@ -1553,10 +1553,17 @@ The three conditions of §7 are realized by these entries.
   every participant's program, and folding it into a participant would
   dirty that domain with coordination it should not carry. Giving
   delivery a clean home in the carrier is what lets each actor's journal
-  hold only the causal record --- the fact that it spoke. (In this
-  single-process didactic test the bridge also stands in for the
-  receiver's own processing; in a deployment the delivered message is
-  processed by the recipient's own program.)
+  hold only the causal record --- the fact that it spoke. (The
+  reproducibility lab exhibits this edge two ways: a single-process
+  didactic run in which the bridge also stands in for the receiver's own
+  processing, and a separated-receiver run in which a pure in-process
+  broker carries the envelope while the RewardEngine runs its own
+  consumer --- mapping the asserted message to a command it owns,
+  journaling that command in its own journal, and acknowledging
+  autonomously. The second instantiates the carrier/receiver split this
+  clause turns on, with no party standing in for the receiver; in a
+  deployment the delivered message is processed by the recipient's own
+  program in the same way.)
 \end{itemize}
 
 A note on entry {[}3{]}. The acknowledgment is not the RewardEngine
@@ -1620,15 +1627,21 @@ request edge, which may still be refused --- is named in the present
 imperative (\texttt{ApplyReward}, \texttt{Confirm}); to name a command
 in the past would be a category error, an order to do what is already
 done. The tense is the surface mark of which kind of act the sentence
-is. This is where the construct parts from the canonical actor
-frameworks: Akka exposes a single send verb (\texttt{!}, \emph{tell})
-for every message and accordingly advises naming them all in the past
-tense --- folding the report of a fact and the issuing of a command into
-one form, which is right for the events and wrong for the commands,
-because one verb cannot tell them apart. Here the two are kept distinct
-and the tense marks the difference --- the assertion the sender makes
-about its own past, and the command the receiver runs in its own
-present, landing in two journals, in two voices.
+is.\footnote{The surface mark is English verb tense because the DSL is
+  written in English; the distinction it carries --- asserting a settled
+  fact versus issuing a directive --- is not itself tied to tense, and a
+  language that grammaticalizes aspect rather than tense would mark the
+  same distinction by other means. The claim is about the two kinds of
+  act, not about tense as a linguistic universal.} This is where the
+construct parts from the canonical actor frameworks: Akka exposes a
+single send verb (\texttt{!}, \emph{tell}) for every message and
+accordingly advises naming them all in the past tense --- folding the
+report of a fact and the issuing of a command into one form, which is
+right for the events and wrong for the commands, because one verb cannot
+tell them apart. Here the two are kept distinct and the tense marks the
+difference --- the assertion the sender makes about its own past, and
+the command the receiver runs in its own present, landing in two
+journals, in two voices.
 
 \subsubsection{8.3 Three implementations side by
 side}\label{three-implementations-side-by-side}
@@ -1674,7 +1687,7 @@ seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42')
 
 saga.PerformCmd("step = 'PurchaseConfirmed';");
 rewards.PerformCmd(@"
-    for (c: loyalty.Campaigns()) {
+    foreach (c in loyalty.Campaigns()) {
         if (c.Applies(5/9/2026, 250) == true) {
             c.Reward('ord-100', 'cust-42');
         };
@@ -1697,7 +1710,7 @@ Seller's journal (1 entry):
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
+  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
 \end{verbatim}
 
 \paragraph{Style 2 --- Choreography (event-driven, no
@@ -1709,7 +1722,7 @@ An event bus mediates the cross-actor handoff:
 bus.Subscribe(ev => {
     if (ev.StartsWith("PurchaseConfirmed:")) {
         rewards.PerformCmd(@"
-            for (c: loyalty.Campaigns()) {
+            foreach (c in loyalty.Campaigns()) {
                 if (c.Applies(5/9/2026, 250) == true) {
                     c.Reward('ord-100', 'cust-42');
                 };
@@ -1730,7 +1743,7 @@ Seller's journal (1 entry):
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
+  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
 
 Bus log (1 entry):
   published: PurchaseConfirmed:ord-100
@@ -1777,7 +1790,7 @@ Seller's journal (4 entries):
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
+  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
 \end{verbatim}
 
 \subsubsection{8.4 Structural reading}\label{structural-reading}
@@ -2198,14 +2211,14 @@ remains on the cross-actor mechanism & §8.1 \\
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-\href{https://github.com/alvaroNCubo/puppeteer/tree/8bfe6898d9dad42849edd8748cee494fcec888f6}{\texttt{8bfe689}}
-(2026-06-24). The snapshot is archived in Software Heritage under the
+\href{https://github.com/alvaroNCubo/puppeteer/tree/6a330b0f77027618abbdd84ad810c853f8185030}{\texttt{6a330b0}}
+(2026-07-04). The snapshot is archived in Software Heritage under the
 following persistent identifier:
 
 \begin{verbatim}
-swh:1:dir:efe15d9177080407dc8396ab3bb13c68309da428;
+swh:1:dir:246ffb9442b54f994e699e0bb9a2b8f275199b23;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:8bfe6898d9dad42849edd8748cee494fcec888f6
+  anchor=swh:1:rev:6a330b0f77027618abbdd84ad810c853f8185030
 \end{verbatim}
 
 Inline references of the form \texttt{file.cs:NN} (e.g.,

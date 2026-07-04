@@ -2,7 +2,7 @@
 title: "Preserving semantic continuity across actors: a tell-based approach without orchestration"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-06-24
+date: 2026-07-04
 version: 0.1-draft
 status: draft
 keywords:
@@ -498,7 +498,7 @@ seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42')
 
 saga.PerformCmd("step = 'PurchaseConfirmed';");
 rewards.PerformCmd(@"
-    for (c: loyalty.Campaigns()) {
+    foreach (c in loyalty.Campaigns()) {
         if (c.Applies(5/9/2026, 250) == true) {
             c.Reward('ord-100', 'cust-42');
         };
@@ -521,7 +521,7 @@ Seller's journal (1 entry):
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
+  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
 ```
 
 #### Style 2 — Choreography (event-driven, no coordinator)
@@ -532,7 +532,7 @@ An event bus mediates the cross-actor handoff:
 bus.Subscribe(ev => {
     if (ev.StartsWith("PurchaseConfirmed:")) {
         rewards.PerformCmd(@"
-            for (c: loyalty.Campaigns()) {
+            foreach (c in loyalty.Campaigns()) {
                 if (c.Applies(5/9/2026, 250) == true) {
                     c.Reward('ord-100', 'cust-42');
                 };
@@ -553,7 +553,7 @@ Seller's journal (1 entry):
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
+  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
 
 Bus log (1 entry):
   published: PurchaseConfirmed:ord-100
@@ -599,7 +599,7 @@ Seller's journal (4 entries):
 
 RewardEngine's journal (2 entries):
   [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] for (c: loyalty.Campaigns()) { ... c.Reward(...); };
+  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
 ```
 
 ### 8.4 Structural reading
@@ -713,14 +713,14 @@ this lab is the public, self-contained equivalent.
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-[`8bfe689`](https://github.com/alvaroNCubo/puppeteer/tree/8bfe6898d9dad42849edd8748cee494fcec888f6)
-(2026-06-24). The snapshot is archived in Software Heritage under
+[`6a330b0`](https://github.com/alvaroNCubo/puppeteer/tree/6a330b0f77027618abbdd84ad810c853f8185030)
+(2026-07-04). The snapshot is archived in Software Heritage under
 the following persistent identifier:
 
 ```
-swh:1:dir:efe15d9177080407dc8396ab3bb13c68309da428;
+swh:1:dir:246ffb9442b54f994e699e0bb9a2b8f275199b23;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:8bfe6898d9dad42849edd8748cee494fcec888f6
+  anchor=swh:1:rev:6a330b0f77027618abbdd84ad810c853f8185030
 ```
 
 Inline references of the form `file.cs:NN` (e.g.,
