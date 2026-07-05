@@ -65,6 +65,10 @@ The following papers are archived in Zenodo with citable DOIs:
 
 > Rivera, A. (2026). *Reactions and the partition: opt-in eventual consistency in actor-native systems* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20792156
 
+**Paper 4** — *Preserving semantic continuity across actors*:
+
+> Rivera, A. (2026). *Preserving semantic continuity across actors: a tell-based approach without orchestration* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21207062
+
 **Paper 6** — *Most infrastructure layers are symptoms of the persistence model*:
 
 > Rivera, A. (2026). *Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20317450
@@ -73,7 +77,7 @@ The following papers are archived in Zenodo with citable DOIs:
 
 > Rivera, A. (2026). *After the substrate: building software without a datacenter* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20398998
 
-The remaining papers (4 and 5) can be cited by their GitHub URLs while their Zenodo depositions are pending.
+The remaining paper (5) can be cited by its GitHub URL while its Zenodo deposition is pending.
 
 ## License
 
