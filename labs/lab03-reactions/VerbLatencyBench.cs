@@ -30,7 +30,7 @@ namespace Lab03Reactions
         private void Invoke()
         {
             int n = _n++;
-            _actor.Using("p.Ping(n);").WithParameters(p => { p["n", typeof(int)] = n; }).PerformCommand();
+            _actor.Using("p.Ping(@n);").WithParameters(p => { p["n", typeof(int)] = n; }).PerformCommand();
         }
     }
 }

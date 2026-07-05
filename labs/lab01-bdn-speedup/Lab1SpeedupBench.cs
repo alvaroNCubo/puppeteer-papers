@@ -33,9 +33,9 @@ namespace BenchPaper2Bdn
         private int _n;
 
         private const string ProductionBootstrap = "f = OrderingFacade();";
-        private const string ProductionScript = "o = f.CompleteOrder(uid, uname, pid, price, units);";
+        private const string ProductionScript = "o = f.CompleteOrder(@uid, @uname, @pid, @price, @units);";
         private const string CrudBootstrap = "c = CrudFacade();";
-        private const string CrudScript = "o = c.SetValue(v);";
+        private const string CrudScript = "o = c.SetValue(@v);";
 
         [GlobalSetup]
         public void Setup()
@@ -112,7 +112,7 @@ namespace BenchPaper2Bdn
         private static string BuildArithmetic(int depth)
         {
             var sb = new StringBuilder();
-            sb.Append("{ v0 = X + 1; ");
+            sb.Append("{ v0 = @X + 1; ");
             for (int i = 1; i < depth; i++)
                 sb.Append($"v{i} = v{i - 1} {(i % 2 == 0 ? "+" : "-")} 1; ");
             sb.Append($"print v{depth - 1} 'value'; }}");
@@ -124,7 +124,7 @@ namespace BenchPaper2Bdn
         private static string BuildRich(int bodyDepth)
         {
             var sb = new StringBuilder();
-            sb.Append("{ total = 0; for (n : Numbers) { if (n > Threshold) { a0 = n + 1; ");
+            sb.Append("{ total = 0; foreach (n in @Numbers) { if (n > @Threshold) { a0 = n + 1; ");
             for (int i = 1; i < bodyDepth; i++)
                 sb.Append($"a{i} = a{i - 1} {(i % 2 == 0 ? "+" : "-")} 1; ");
             sb.Append($"total = total + a{bodyDepth - 1}; }} else {{ total = total - 1; }} }} print total 'value'; }}");

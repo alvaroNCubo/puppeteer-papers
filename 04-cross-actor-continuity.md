@@ -439,40 +439,42 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     .Job().Company()
     .WithSharedHydration()
     .Seek("Purchase")
-        .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
+        .OnMatch("[s:Seller].purchase($order, $date, $amount, $customer)")
     .Causation.Continue(@"
         tell PurchaseConfirmed
-            with @orderId, @date, @amount, @customer
+            with @order, @date, @amount, @customer
             to RewardEngine('rewards-1')
-            once 'tid-purchase-100';
+            once @order;
     ");
 ```
 
-The `tell` statement is a sentence in the actor's DSL, and the kind of sentence matters: the Seller *asserts a fact it has lived* — `PurchaseConfirmed`, named in the Seller's own vocabulary — addressed to the RewardEngine (`to RewardEngine('rewards-1')`), carrying the values that fact involved (`with @orderId, @date, @amount, @customer`) under a stable identity (`once 'tid-purchase-100'`). It does not invoke a method on the RewardEngine, and it does not name how the message travels. This follows the single discipline the journal obeys throughout this series: an actor's program may record only what that actor could itself have said. The Seller can say *that a purchase was confirmed*; it cannot say *how the RewardEngine applies rewards* — that is the RewardEngine's verb, recorded in the RewardEngine's own journal — nor *which broker carries the message*, which is deployment, not program. The Reaction is established once and thereafter watches the Seller's journal; when the domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, journaling the assertion on the Seller's side.
+The `tell` statement is a sentence in the actor's DSL, and the kind of sentence matters: the Seller *asserts a fact it has lived* — `PurchaseConfirmed`, named in the Seller's own vocabulary — addressed to the RewardEngine (`to RewardEngine('rewards-1')`), carrying the values that fact involved (`with @order, @date, @amount, @customer`) under a per-utterance identity taken from the order it carries (`once @order`), so one compiled action issues a distinctly-identified assertion for each purchase. It does not invoke a method on the RewardEngine, and it does not name how the message travels. This follows the single discipline the journal obeys throughout this series: an actor's program may record only what that actor could itself have said. The Seller can say *that a purchase was confirmed*; it cannot say *how the RewardEngine applies rewards* — that is the RewardEngine's verb, recorded in the RewardEngine's own journal — nor *which broker carries the message*, which is deployment, not program. The Reaction is established once and thereafter watches the Seller's journal; when the domain command `s.purchase(...)` lands as an entry, the standing Reaction matches it and its `.Causation.Continue(...)` body fires, journaling the assertion on the Seller's side.
 
-The assertion is journaled as a typed *message-action* — defined once (its signature deduced from the values it carries) and then invoked — the same define-then-invoke shape every operation takes on the dense journal-as-program substrate this series builds on (Papers 1–2). After the bridge delivers the assertion to the RewardEngine and the receiver acknowledges, the Seller's journal contains four entries:
+The assertion is journaled as a typed *message-action* — defined once (its signature deduced from the values it carries) and then invoked. This is the same define-then-invoke shape *every* parameterized operation takes on the dense journal-as-program substrate this series builds on (Papers 1–2): the domain purchase, issued with typed parameters (`date`, `amount`), is journaled the same way, so the shape below appears twice — once for the purchase, once for the assertion. After the bridge delivers the assertion to the RewardEngine and the receiver acknowledges, the Seller's journal contains six entries:
 
 ```
-[0]  s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
-[1]  (define of the message-action PurchaseConfirmed — its typed signature)
-[2]  tell PurchaseConfirmed
-         with orderId, date, amount, customer
+[0]  s = Seller();
+[1]  (define of the message-action s.purchase — its typed signature)
+[2]  s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+[3]  (define of the message-action PurchaseConfirmed — its typed signature)
+[4]  tell PurchaseConfirmed
+         with 'ord-100', 5/9/2026, 250, 'cust-42'
          to RewardEngine('rewards-1')
-         once 'tid-purchase-100';
-[3]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
+         once 'ord-100';
+[5]  tell ack 'ord-100' from RewardEngine('rewards-1');
 ```
 
-The signature is inferred once — at first use, on the live path — and recorded in entry [1]; replay replays that recorded definition rather than re-inferring it, so the message-action is identical and order-independent across replays. This is the define-and-invocation discipline of Paper 2, under which a name is defined once and thereafter invoked; a reused name resolves as any operation does there. The inference is a write-time convenience, never a replay-time computation.
+The values are passed as typed parameters, not interpolated into the script text — the definition records the signature `s.purchase(order, date, amount, customer)` and the invocation records the bound arguments, so the journal stores the operation and its values separately, exactly as the tell does. The tell's identity is the order it carries (`once @order`), which the invocation binds to `'ord-100'` — the ack in entry [5] returns under that same key. The tell's signature is inferred once — at first use, on the live path — and recorded in entry [3]; replay replays that recorded definition rather than re-inferring it, so the message-action is identical and order-independent across replays. This is the define-and-invocation discipline of Paper 2, under which a name is defined once and thereafter invoked; a reused name resolves as any operation does there. The inference is a write-time convenience, never a replay-time computation.
 
 The three conditions of §7 are realized by these entries.
 
-- **C1 (Locality of writes).** The four entries are in the Seller's journal only. The RewardEngine's journal records its receiving operation independently — the two journals never share storage.
-- **C2 (Causation as program statement).** Entries [1]–[2] are the cross-actor assertion rendered as a DSL sentence — defined once as a typed message-action, then invoked. Reading the Seller's journal alone reveals that it asserted `PurchaseConfirmed` to RewardEngine, with what values, at what time. Entry [3] closes the round-trip with the receiver's acknowledgment.
+- **C1 (Locality of writes).** The six entries are in the Seller's journal only. The RewardEngine's journal records its receiving operation independently — the two journals never share storage.
+- **C2 (Causation as program statement).** Entries [3]–[4] are the cross-actor assertion rendered as a DSL sentence — defined once as a typed message-action, then invoked. Reading the Seller's journal alone reveals that it asserted `PurchaseConfirmed` to RewardEngine, with what values, at what time. Entry [5] closes the round-trip with the receiver's acknowledgment.
 - **C3 (No external coordinator).** C3 forbids an external party that *authors* the flow — one that decides, from its own state, what each actor does next. It does not forbid a *carrier*. The Seller's own program makes the assertion — it records, as a sentence of its program, that it told the RewardEngine and what — and the bridge only carries that assertion onward. The journal names no transport at all: which broker or protocol carries the message is a deployment binding resolved outside the program, not a sentence in it (see below). A saga coordinator is the opposite: its state machine authors the flow, which then lives as a quasi-domain artifact outside every participant's program, and folding it into a participant would dirty that domain with coordination it should not carry. Giving delivery a clean home in the carrier is what lets each actor's journal hold only the causal record — the fact that it spoke. (The reproducibility lab exhibits this edge two ways: a single-process didactic run in which the bridge also stands in for the receiver's own processing, and a separated-receiver run in which a pure in-process broker carries the envelope while the RewardEngine runs its own consumer — mapping the asserted message to a command it owns, journaling that command in its own journal, and acknowledging autonomously. The second instantiates the carrier/receiver split this clause turns on, with no party standing in for the receiver; in a deployment the delivered message is processed by the recipient's own program in the same way.)
 
-A note on entry [3]. The acknowledgment is not the RewardEngine writing into the Seller's journal. The RewardEngine emits an ordinary result in its own journal; the transport routes an acknowledgment envelope back to the Seller; the Seller's own handler processes that inbound envelope and records `tell ack ...` in the Seller's journal. For the ack message the Seller is the *receiver*, so C1's receiver clause applies unchanged — an actor records its own receipt in its own journal. The cross-actor edge is two messages, the assertion outbound and the ack returning, each narrated by the actor that processed it; neither actor writes to the other's journal.
+A note on entry [5]. The acknowledgment is not the RewardEngine writing into the Seller's journal. The RewardEngine emits an ordinary result in its own journal; the transport routes an acknowledgment envelope back to the Seller; the Seller's own handler processes that inbound envelope and records `tell ack ...` in the Seller's journal. For the ack message the Seller is the *receiver*, so C1's receiver clause applies unchanged — an actor records its own receipt in its own journal. The cross-actor edge is two messages, the assertion outbound and the ack returning, each narrated by the actor that processed it; neither actor writes to the other's journal.
 
-Delivery and correlation are separated by design. The journal is the durable record of what was asserted and what was acknowledged — correlation; redelivery, timeout, dead-lettering, and backoff belong to the transport. Routing, too, lives outside the program: the sentence names the addressee by its logical role (`to RewardEngine('rewards-1')`), and a deployment-level binding — not a clause in the journal — resolves that role to a physical route (which transport, which topic). The journal therefore reads identically no matter which transport that binding selects; the wire never enters the actor's voice. The delivery guarantee is whatever the chosen transport provides; the journal's correlation role is invariant across all of them. If an acknowledgment is lost, the transport's retry redelivers and the assertion's identity (`once 'tid-...'`, or a content hash when none is given) is the receiver-side deduplication key, so a redelivered tell does not duplicate the effect; a replayed journal re-executes the assertion — rebuilding the in-flight record — but its dispatch to the transport runs only on live execution, so replay does not re-send (the transport never sees a message from rehydration). A crash in the narrow window between journaling the assertion and dispatching it strands the envelope — journaled as issued, yet never handed to the transport; on recovery the rehydrated sender reconstructs that pending tell from the journal alone and the transport, the sole authority on delivery, testifies its fate, which the sender records as a verdict in its own voice (§8.5 G4) — so a crash no longer leaves the journal asserting a send that never landed: each issued tell is resolved (acknowledged, or marked unacknowledged by its addressee) or honestly left pending for the transport to settle, bounded by what that transport can still testify. The delivery model is thus at-least-once with identity-based deduplication; the consistency machinery it rests on — the now/deferred partition and its deduplication discipline — is developed in Paper 3, on which this construction builds.
+Delivery and correlation are separated by design. The journal is the durable record of what was asserted and what was acknowledged — correlation; redelivery, timeout, dead-lettering, and backoff belong to the transport. Routing, too, lives outside the program: the sentence names the addressee by its logical role (`to RewardEngine('rewards-1')`), and a deployment-level binding — not a clause in the journal — resolves that role to a physical route (which transport, which topic). The journal therefore reads identically no matter which transport that binding selects; the wire never enters the actor's voice. The delivery guarantee is whatever the chosen transport provides; the journal's correlation role is invariant across all of them. If an acknowledgment is lost, the transport's retry redelivers and the assertion's identity (`once @order` — an author-chosen key, here the order the assertion carries — or a content hash when `once` is omitted) is the receiver-side deduplication key, so a redelivered tell does not duplicate the effect; a replayed journal re-executes the assertion — rebuilding the in-flight record — but its dispatch to the transport runs only on live execution, so replay does not re-send (the transport never sees a message from rehydration). A crash in the narrow window between journaling the assertion and dispatching it strands the envelope — journaled as issued, yet never handed to the transport; on recovery the rehydrated sender reconstructs that pending tell from the journal alone and the transport, the sole authority on delivery, testifies its fate, which the sender records as a verdict in its own voice (§8.5 G4) — so a crash no longer leaves the journal asserting a send that never landed: each issued tell is resolved (acknowledged, or marked unacknowledged by its addressee) or honestly left pending for the transport to settle, bounded by what that transport can still testify. The delivery model is thus at-least-once with identity-based deduplication; the consistency machinery it rests on — the now/deferred partition and its deduplication discipline — is developed in Paper 3, on which this construction builds.
 
 The framework rejects `tell` outside `.Causation.Continue(...)`. A direct `tell` from a top-level command throws a runtime exception, with the error message pointing the developer at the correct surface. The cross-actor send is always a sentence in some Reaction's Causation body, never a free-floating call.
 
@@ -493,22 +495,35 @@ Its weight is definitional, not empirical. The alternatives are written in their
 A SagaCoordinator actor drives the workflow via direct commands to participants:
 
 ```
-saga.PerformCmd("step = 'PurchaseRequested';");
-seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
+saga.Using("step = 'PurchaseRequested';").PerformCommand();
 
-saga.PerformCmd("step = 'PurchaseConfirmed';");
-rewards.PerformCmd(@"
+seller.Using("s = Seller();").PerformCommand();
+seller.Using("s.purchase(@order, @date, @amount, @customer);")
+      .WithParameters(p => {
+          p["order",    typeof(string)]   = "ord-100";
+          p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+          p["amount",   typeof(decimal)]  = 250m;
+          p["customer", typeof(string)]   = "cust-42";
+      })
+      .PerformCommand();
+
+saga.Using("step = 'PurchaseConfirmed';").PerformCommand();
+rewards.Using(@"
     foreach (c in loyalty.Campaigns()) {
-        if (c.Applies(5/9/2026, 250) == true) {
-            c.Reward('ord-100', 'cust-42');
-        };
-    };
-");
+        if (c.Applies(@date, @amount) == true) { c.Reward(@order, @customer); };
+    };")
+       .WithParameters(p => {
+           p["order",    typeof(string)]   = "ord-100";
+           p["customer", typeof(string)]   = "cust-42";
+           p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+           p["amount",   typeof(decimal)]  = 250m;
+       })
+       .PerformCommand();
 
-saga.PerformCmd("step = 'RewardsApplied';");
+saga.Using("step = 'RewardsApplied';").PerformCommand();
 ```
 
-After the run, the three journals contain:
+Every value crosses the DSL boundary as a typed parameter — `p["date", typeof(DateTime)]`, `p["amount", typeof(decimal)]`, the string ids too — bound through `.WithParameters(...)`, never string-interpolated into the script text. Each command is issued separately, so each lands as its own journal entry; a parameterized command is journaled as a message-action (define-then-invoke), and two campaigns added by the *same* parameterized command share one definition. The RewardEngine holds two campaigns — `C-newcomer` (min 10, qualifies for the 250 purchase) and `C-highroller` (min 1000, does not) — so the receiver's loop applies one of the two. After the run, the three journals contain:
 
 ```
 SagaCoordinator's journal (3 entries):
@@ -516,12 +531,18 @@ SagaCoordinator's journal (3 entries):
   [1] step = 'PurchaseConfirmed';
   [2] step = 'RewardsApplied';
 
-Seller's journal (1 entry):
-  [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+Seller's journal (3 entries):
+  [0] s = Seller();
+  [1] (define of the message-action s.purchase)
+  [2] s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
 
-RewardEngine's journal (2 entries):
-  [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
+RewardEngine's journal (6 entries):
+  [0] loyalty = RewardEngine();
+  [1] (define of loyalty.AddCampaign)
+  [2] loyalty.AddCampaign('C-newcomer', 1/1/2020, 10);
+  [3] loyalty.AddCampaign('C-highroller', 1/1/2020, 1000);
+  [4] (define of the reward loop)
+  [5] foreach (c in loyalty.Campaigns()) { ... c.Reward('ord-100', 'cust-42'); };
 ```
 
 #### Style 2 — Choreography (event-driven, no coordinator)
@@ -531,29 +552,47 @@ An event bus mediates the cross-actor handoff:
 ```
 bus.Subscribe(ev => {
     if (ev.StartsWith("PurchaseConfirmed:")) {
-        rewards.PerformCmd(@"
+        rewards.Using(@"
             foreach (c in loyalty.Campaigns()) {
-                if (c.Applies(5/9/2026, 250) == true) {
-                    c.Reward('ord-100', 'cust-42');
-                };
-            };
-        ");
+                if (c.Applies(@date, @amount) == true) { c.Reward(@order, @customer); };
+            };")
+          .WithParameters(p => {
+              p["order",    typeof(string)]   = "ord-100";
+              p["customer", typeof(string)]   = "cust-42";
+              p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+              p["amount",   typeof(decimal)]  = 250m;
+          })
+          .PerformCommand();
     }
 });
 
-seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
+seller.Using("s = Seller();").PerformCommand();
+seller.Using("s.purchase(@order, @date, @amount, @customer);")
+      .WithParameters(p => {
+          p["order",    typeof(string)]   = "ord-100";
+          p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+          p["amount",   typeof(decimal)]  = 250m;
+          p["customer", typeof(string)]   = "cust-42";
+      })
+      .PerformCommand();
 bus.Publish("PurchaseConfirmed:ord-100");
 ```
 
 After the run:
 
 ```
-Seller's journal (1 entry):
-  [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+Seller's journal (3 entries):
+  [0] s = Seller();
+  [1] (define of the message-action s.purchase)
+  [2] s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
 
-RewardEngine's journal (2 entries):
-  [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
+RewardEngine's journal (6 entries):
+  [0] loyalty = RewardEngine();
+  [1] (define of loyalty.AddCampaign)
+  [2] loyalty.AddCampaign('C-newcomer', 1/1/2020, 10);
+  [3] loyalty.AddCampaign('C-highroller', 1/1/2020, 1000);
+  [4] (define of the reward loop)
+  [5] foreach (c in loyalty.Campaigns()) { ... c.Reward('ord-100', 'cust-42'); };
 
 Bus log (1 entry):
   published: PurchaseConfirmed:ord-100
@@ -568,38 +607,54 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     .Job().Company()
     .WithSharedHydration()
     .Seek("Purchase")
-        .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
+        .OnMatch("[s:Seller].purchase($order, $date, $amount, $customer)")
     .Causation.Continue(@"
         tell PurchaseConfirmed
-            with @orderId, @date, @amount, @customer
+            with @order, @date, @amount, @customer
             to RewardEngine('rewards-1')
-            once 'tid-comp-100';
+            once @order;
     ");
 
 seller.Reactions.Execute();   // once defined, the Reaction stands over the journal and applies
                               // to every matching entry — it is not invoked per command. A Job is
                               // swept on demand (driven here for a deterministic test); a Cue
                               // Reaction runs continuously on its own thread.
-seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
+seller.Using("s = Seller();").PerformCommand();
+seller.Using("s.purchase(@order, @date, @amount, @customer);")
+      .WithParameters(p => {
+          p["order",    typeof(string)]   = "ord-100";
+          p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+          p["amount",   typeof(decimal)]  = 250m;
+          p["customer", typeof(string)]   = "cust-42";
+      })
+      .PerformCommand();
 // the standing Reaction observes the purchase and asserts PurchaseConfirmed to RewardEngine;
 // the bridge delivers and acks back
 ```
 
+The tell's identity is `once @order` — the per-utterance key *is* the order id, so one compiled action issues a distinctly-identified assertion per purchase, and the ack returns under that same id.
+
 After the run:
 
 ```
-Seller's journal (4 entries):
-  [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
-  [1] (define of the message-action PurchaseConfirmed)
-  [2] tell PurchaseConfirmed
-        with orderId, date, amount, customer
+Seller's journal (6 entries):
+  [0] s = Seller();
+  [1] (define of the message-action s.purchase)
+  [2] s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+  [3] (define of the message-action PurchaseConfirmed)
+  [4] tell PurchaseConfirmed
+        with 'ord-100', 5/9/2026, 250, 'cust-42'
         to RewardEngine('rewards-1')
-        once 'tid-comp-100';
-  [3] tell ack 'tid-comp-100' from RewardEngine('rewards-1');
+        once 'ord-100';
+  [5] tell ack 'ord-100' from RewardEngine('rewards-1');
 
-RewardEngine's journal (2 entries):
-  [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
+RewardEngine's journal (6 entries):
+  [0] loyalty = RewardEngine();
+  [1] (define of loyalty.AddCampaign)
+  [2] loyalty.AddCampaign('C-newcomer', 1/1/2020, 10);
+  [3] loyalty.AddCampaign('C-highroller', 1/1/2020, 1000);
+  [4] (define of the reward loop)
+  [5] foreach (c in loyalty.Campaigns()) { ... c.Reward('ord-100', 'cust-42'); };
 ```
 
 ### 8.4 Structural reading
@@ -610,7 +665,7 @@ The three implementations in §8.3 exercise the same logical flow but record it 
 
 **Choreography**: no coordinator exists. The Seller's journal records the local purchase; the publish to the bus is invisible to the actor. The RewardEngine's journal records the local reward; the receipt from the bus is invisible to the actor. The bus's own log records the publish. No actor's journal contains the joint history; the bus log, an external infrastructure artifact, is the only place the cross-actor handoff is recorded.
 
-**Tell**: the Seller's journal contains the purchase, the assertion (journaled as a typed message-action — defined once, then invoked), and the ack — four entries that constitute the joint history as a sequence of DSL sentences. The RewardEngine's journal records its local reward, as in the other styles. Under tell, the sender's journal alone reconstructs this cross-actor edge — the single hop from Seller to RewardEngine; §8.5 examines what happens when the chain is longer.
+**Tell**: the Seller's journal contains the purchase, the assertion (journaled as a typed message-action — defined once, then invoked), and the ack — six entries in all (each parameterized operation is a define plus an invocation) that constitute the joint history as a sequence of DSL sentences. The RewardEngine's journal records its local reward, as in the other styles. Under tell, the sender's journal alone reconstructs this cross-actor edge — the single hop from Seller to RewardEngine; §8.5 examines what happens when the chain is longer.
 
 The three styles produce equivalent business outcomes. They differ structurally in where the cross-actor causal chain is recorded. The difference is not cosmetic. The saga coordinator, the event bus log, the distributed trace, and the workflow engine all exist to compensate for the absence identified in §3. Under tell, that program-level absence is gone: the sender's journal already contains the cross-actor narrative those patterns reconstruct elsewhere, so the apparatus built to recover it has nothing to recover.
 
@@ -632,11 +687,11 @@ Four property tests probe the claims of §5 and §6, all reproduced by the harne
 
 **G2 — Cross-DC replication (closes §5.3).** The second test replicates the Seller's journal entry-by-entry to a fresh actor in an independent storage tier — the analogue of moving across data centers. The replicated actor, with no transport connectivity to the original receiver, reconstructs the dedup state from the replicated bytes alone. The cross-actor causal chain travels with the replication because it was always recorded in a place replication can carry.
 
-**G3 — Audit query (closes §5.1).** The third test asks the audit question — *why did this happen?* — by reading the Seller's journal directly. The cross-actor assertion is entry [2] (the message-action invocation); the acknowledgment is entry [3]. The cause-effect chain is reconstructed without distributed tracing, correlation IDs, or log aggregation.
+**G3 — Audit query (closes §5.1).** The third test asks the audit question — *why did this happen?* — by reading the Seller's journal directly. The cross-actor assertion is entry [4] (the message-action invocation); the acknowledgment is entry [5]. The cause-effect chain is reconstructed without distributed tracing, correlation IDs, or log aggregation.
 
 Each of these properties is a consequence of cross-actor causation being recorded as program. Under saga, choreography, tracing, or workflow approaches — where it is not — the same properties are reachable only by consulting artifacts outside the participating actors.
 
-**G4 — Tell-fate recovery, the honest record under crash.** G1–G3 stage an in-flight tell and show the *record* survives a crash, a move across data centers, an audit. A sharper question is what the record *says* when the tell never crosses. The send is journaled before the post-commit dispatch hands its envelope to the transport; a crash in that window strands the envelope — journaled as issued, never delivered, never acknowledged. Left unaddressed this is the one place the "sender's journal alone" property could lie: the journal would assert a send that did not happen. The fourth test stages exactly this crash and rehydrates the sender. Replay reconstructs the set of *pending* tells — issued, neither acknowledged nor settled — from the journal alone; for each, the transport, the sole authority on delivery, testifies its fate and the sender records the verdict *in its own voice* — `tell 'tid-purchase-100' unacknowledged by RewardEngine` when the transport reports the envelope failed, the ordinary `tell ack ...` when it reports the envelope was delivered and only the acknowledgment was lost, and nothing while the fate is still in flight (the transport keeps ownership). The verdict names the addressee the Seller did not hear back from, not the broker that carried the message: A may say *"RewardEngine never acknowledged"* — a fact within its own universe — but not *"per the broker that carried it,"* which is infrastructure it has no standing to assert. This is the dual of §6.4's causal and message logging: there, the record of what crossed lives in a recovery layer beneath the program, consulted only by crash-replay machinery; under tell it is a sentence in the sender's program, so recovering it is reading the journal, not excavating infrastructure. After recovery the sender's journal no longer asserts a send that never landed: each issued tell is either resolved — acknowledged, or marked unacknowledged by its addressee — or honestly carried as still pending, for the transport to settle when it can. The guarantee is honesty about the outcome, not omniscience: a transport that cannot testify — one whose own record of a tell's fate did not survive the failure — answers `InFlight`, and the tell stays pending rather than acquiring a fabricated verdict. Delivery stays the transport's; the verdict is the journal's.
+**G4 — Tell-fate recovery, the honest record under crash.** G1–G3 stage an in-flight tell and show the *record* survives a crash, a move across data centers, an audit. A sharper question is what the record *says* when the tell never crosses. The send is journaled before the post-commit dispatch hands its envelope to the transport; a crash in that window strands the envelope — journaled as issued, never delivered, never acknowledged. Left unaddressed this is the one place the "sender's journal alone" property could lie: the journal would assert a send that did not happen. The fourth test stages exactly this crash and rehydrates the sender. Replay reconstructs the set of *pending* tells — issued, neither acknowledged nor settled — from the journal alone; for each, the transport, the sole authority on delivery, testifies its fate and the sender records the verdict *in its own voice* — `tell 'ord-100' unacknowledged by RewardEngine` when the transport reports the envelope failed, the ordinary `tell ack ...` when it reports the envelope was delivered and only the acknowledgment was lost, and nothing while the fate is still in flight (the transport keeps ownership). The verdict names the addressee the Seller did not hear back from, not the broker that carried the message: A may say *"RewardEngine never acknowledged"* — a fact within its own universe — but not *"per the broker that carried it,"* which is infrastructure it has no standing to assert. This is the dual of §6.4's causal and message logging: there, the record of what crossed lives in a recovery layer beneath the program, consulted only by crash-replay machinery; under tell it is a sentence in the sender's program, so recovering it is reading the journal, not excavating infrastructure. After recovery the sender's journal no longer asserts a send that never landed: each issued tell is either resolved — acknowledged, or marked unacknowledged by its addressee — or honestly carried as still pending, for the transport to settle when it can. The guarantee is honesty about the outcome, not omniscience: a transport that cannot testify — one whose own record of a tell's fate did not survive the failure — answers `InFlight`, and the tell stays pending rather than acquiring a fabricated verdict. Delivery stays the transport's; the verdict is the journal's.
 
 **The multi-hop limit — an adversarial case.** G1–G3 are duals of the consequences named in §5, and so are chosen to show what tell does well. The honest counter-case is a longer chain. The case study is a single hop — the Seller tells the RewardEngine. Suppose instead a chain assembled the way every hop is: a Reaction on A tells B; B carries its own Reaction that observes the entry its receipt produces and, from that Reaction's `.Causation.Continue` body, tells C. Nothing propagates the chain automatically — each actor opts in with its own Reaction (the envelope's causal identifier is per-hop-local, not a threaded chain id), so the hops remain autonomous, as C3 requires. Each hop is recorded as program in the journal of the actor that originated it — A's journal holds the A→B tell and its ack, B's journal holds both its receipt of A and the B→C tell it issued, C's journal holds its receipt of B. No single journal holds the whole A→B→C chain; reconstructing it end to end means composing A's and B's journals (linkable by envelope identifier across them). In this, tell inherits a distributed-history property of the kind §6.1 identified in choreography — but the difference is in kind, not in absence. Under choreography no participant's journal records the cross-actor edge as program at all; the chain lives only in the bus log and is reconstructed from non-programmatic artifacts. Under tell every edge is a programmatic record in its sender's journal, so the multi-hop chain is a composition of programs — each hop locally complete, auditable, and replayable on its own. Tell makes each edge programmatic and local; it does not centralize a multi-hop chain into one journal. The "sender's journal alone" property (§8.4) is therefore a per-edge guarantee: it holds for the hops an actor originates, which is the whole chain only when the chain is a single hop.
 
@@ -652,7 +707,7 @@ The journal exhibited in §8.3 — a sequence of DSL sentences in the sender's p
 
 Paper 1 introduces *porosity* — the representational sparsity that arises when domain state is recorded as serialized data structures rather than as programmatic operations. Anti-porosity is the design principle that the journal records what was said, not what was stored. Without that property, the entries the reader saw in §8.3 — `tell PurchaseConfirmed with ... to RewardEngine('rewards-1')` — could not be programmatic at all; they would be opaque payloads.
 
-Paper 2 introduces *externalized parameters* as the structural precondition under which compilation, caching, and dense journaling become possible at all. Without externalized parameters, the journal could not record what was said with parameter references intact — values would be inlined as literals, or the script would lose its connection to the actor's symbol table. The tell sentence in §8.3 carries `@orderId`, `@date`, `@amount`, `@customer` as references rather than literals; this paper is what makes that representation possible.
+Paper 2 introduces *externalized parameters* as the structural precondition under which compilation, caching, and dense journaling become possible at all. Without externalized parameters, the journal could not record what was said with parameter references intact — values would be inlined as literals, or the script would lose its connection to the actor's symbol table. The tell sentence in §8.3 carries `@order`, `@date`, `@amount`, `@customer` as references rather than literals; this paper is what makes that representation possible.
 
 Paper 3 introduces the *partition* between immediate and deferred work, with Reactions as the guardian of the boundary. Paper 3 names the *Causation* plane — `.Causation.Continue(...)` — as the third surface a Reaction may touch (Paper 3 §6.5), and records (Paper 3 §6.8) that the cross-actor case an earlier draft had listed as a limitation is resolved by that plane, while leaving the primitive's full treatment out of scope. The Reaction surface that Paper 3 establishes is the surface on which `tell` lives: the `.Causation.Continue(...)` body the reader saw in §8.3 is where the cross-actor send is permitted to appear. The present paper is the treatment Paper 3 deferred.
 
@@ -713,14 +768,14 @@ this lab is the public, self-contained equivalent.
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-[`6a330b0`](https://github.com/alvaroNCubo/puppeteer/tree/6a330b0f77027618abbdd84ad810c853f8185030)
-(2026-07-04). The snapshot is archived in Software Heritage under
+[`37ad9cf`](https://github.com/alvaroNCubo/puppeteer/tree/37ad9cf44e7749f8fa0d2da8cc0c1093ad5a7e83)
+(2026-07-05). The snapshot is archived in Software Heritage under
 the following persistent identifier:
 
 ```
-swh:1:dir:246ffb9442b54f994e699e0bb9a2b8f275199b23;
+swh:1:dir:2b3ef9f68cf6e3a7a8e32ec73121122cc2ac74c5;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:6a330b0f77027618abbdd84ad810c853f8185030
+  anchor=swh:1:rev:37ad9cf44e7749f8fa0d2da8cc0c1093ad5a7e83
 ```
 
 Inline references of the form `file.cs:NN` (e.g.,

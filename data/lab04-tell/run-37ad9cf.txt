@@ -1,0 +1,361 @@
+========================================================================
+Lab 4 — Cross-actor causation: where the joint history lives
+========================================================================
+
+--- Style 1 — Saga (orchestrator): joint history in the coordinator's journal ---
+SagaCoordinator journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "step = 'PurchaseRequested';\r"
+    id: 2
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "step = 'PurchaseConfirmed';\r"
+    id: 3
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "step = 'RewardsApplied';\r"
+Seller journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+RewardEngine journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "loyalty = RewardEngine();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (campaign:string, validFrom:datetime, minAmount:decimal) as\rloyalty.AddCampaign(campaign, validFrom, minAmount);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-newcomer',01/01/2020,10"
+    id: 4
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-highroller',01/01/2020,1000"
+    id: 5
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (order:string, customer:string, date:datetime, amount:decimal) as\rforeach ( c in loyalty.Campaigns() )\r{\r\tIf (c.Applies(date, amount) == true)\r\t{\r\t\tc.Reward(order, customer);\r\t}\r}\rend;"
+    id: 6
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'ord-100','cust-42',09/05/2026,250"
+  CHECK PASS: the coordinator's journal holds the whole workflow narrative
+  CHECK PASS: the Seller's journal holds only its own purchase, not the coordination
+  CHECK PASS: the RewardEngine's journal holds only its own reward, not the coordination
+  CHECK PASS: the reward was applied
+  => the joint history lives ONLY in the coordinator's journal.
+
+--- Style 2 — Choreography (event bus): joint history in no actor's journal ---
+Seller journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+RewardEngine journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "loyalty = RewardEngine();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (campaign:string, validFrom:datetime, minAmount:decimal) as\rloyalty.AddCampaign(campaign, validFrom, minAmount);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-newcomer',01/01/2020,10"
+    id: 4
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-highroller',01/01/2020,1000"
+    id: 5
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (order:string, customer:string, date:datetime, amount:decimal) as\rforeach ( c in loyalty.Campaigns() )\r{\r\tIf (c.Applies(date, amount) == true)\r\t{\r\t\tc.Reward(order, customer);\r\t}\r}\rend;"
+    id: 6
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'ord-100','cust-42',09/05/2026,250"
+Bus log (1 entries):
+  published: PurchaseConfirmed:ord-100
+  CHECK PASS: the Seller's journal holds only the local purchase (the publish is invisible to it)
+  CHECK PASS: the RewardEngine's journal holds only its own reward
+  CHECK PASS: the only joint artifact is the bus log, external to every program
+  CHECK PASS: the reward was applied
+  => the joint history lives ONLY in the external bus log.
+
+--- Style 3 — Tell (Puppeteer): joint history in the sender's own journal ---
+Seller journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+    id: 4
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (s:string, order:string, date:datetime, amount:decimal, customer:string) as\rtell PurchaseConfirmed with order, date, amount, customer to RewardEngine('rewards-1') once order;end;"
+    id: 5
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'s','ord-100',09/05/2026,250,'cust-42'"
+    id: 6
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "tell ack 'ord-100' from RewardEngine('rewards-1');"
+RewardEngine journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "loyalty = RewardEngine();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (campaign:string, validFrom:datetime, minAmount:decimal) as\rloyalty.AddCampaign(campaign, validFrom, minAmount);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-newcomer',01/01/2020,10"
+    id: 4
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-highroller',01/01/2020,1000"
+    id: 5
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (order:string, customer:string, date:datetime, amount:decimal) as\rforeach ( c in loyalty.Campaigns() )\r{\r\tIf (c.Applies(date, amount) == true)\r\t{\r\t\tc.Reward(order, customer);\r\t}\r}\rend;"
+    id: 6
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'ord-100','cust-42',09/05/2026,250"
+  CHECK PASS: the Seller's journal holds its purchase (captured via a pattern query)
+  CHECK PASS: the Seller's journal holds the assertion PurchaseConfirmed and the ack
+  CHECK PASS: the RewardEngine's journal does not hold the Seller's purchase
+  CHECK PASS: the reward was applied
+  => the joint history lives in the sender's journal as DSL sentences.
+
+--- G1 — Replay coherence: a fresh actor reconstructs the in-flight tell from the journal alone ---
+  CHECK PASS: replay does not re-emit the envelope
+
+--- G2 — Cross-DC replication: replicating the journal bytes alone carries the cross-actor chain ---
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+    id: 4
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (s:string, order:string, date:datetime, amount:decimal, customer:string) as\rtell PurchaseConfirmed with order, date, amount, customer to RewardEngine('rewards-1') once order;end;"
+    id: 5
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'s','ord-100',09/05/2026,250,'cust-42'"
+  CHECK PASS: DC2 reconstructs the cross-actor chain from replicated bytes alone
+  CHECK PASS: DC2 does not re-emit the envelope on replay
+
+--- G3 — Audit query: 'why did this happen?' answered by reading the sender's journal ---
+  CHECK PASS: the cause (the purchase) is reconstructable from the journal, with its arguments
+  CHECK PASS: the effect (the assertion to RewardEngine) is in the same journal
+  CHECK PASS: the acknowledgment closing the chain is in the same journal
+
+--- G4 — Tell-fate recovery: the sender's journal records the FATE of a tell stranded by a crash ---
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+    id: 4
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (s:string, order:string, date:datetime, amount:decimal, customer:string) as\rtell PurchaseConfirmed with order, date, amount, customer to RewardEngine('rewards-1') once order;end;"
+    id: 5
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'s','ord-100',09/05/2026,250,'cust-42'"
+    id: 6
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "tell 'ord-100' unacknowledged by RewardEngine;"
+  CHECK PASS: a logical non-delivery verdict is journaled (unacknowledged by the addressee)
+  CHECK PASS: the verdict names no transport
+  CHECK PASS: a failed tell is not falsely acked
+  CHECK PASS: recovery testifies, never re-emits
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+    id: 4
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (s:string, order:string, date:datetime, amount:decimal, customer:string) as\rtell PurchaseConfirmed with order, date, amount, customer to RewardEngine('rewards-1') once order;end;"
+    id: 5
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'s','ord-100',09/05/2026,250,'cust-42'"
+    id: 6
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "tell ack 'ord-100' from RewardEngine('rewards-1');"
+  CHECK PASS: an ack is journaled when the transport testifies Delivered
+  CHECK PASS: no verdict and no ack are journaled while the fate is InFlight
+  => after a crash, the sender's journal records each tell's FATE in its own voice
+     (acked / unacknowledged-by-addressee / pending), not just its issuance.
+
+--- G5 — Separated receiver: pure in-process broker carrier + autonomous receiver (§8.2 C3) ---
+Seller (origin) journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "s = Seller();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (order:string, date:datetime, amount:decimal, customer:string) as\rs.purchase(order, date, amount, customer);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'ord-100',09/05/2026,250,'cust-42'"
+    id: 4
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (s:string, order:string, date:datetime, amount:decimal, customer:string) as\rtell PurchaseConfirmed with order, date, amount, customer to RewardEngine('rewards-1') once order;end;"
+    id: 5
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'s','ord-100',09/05/2026,250,'cust-42'"
+    id: 6
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "tell ack 'ord-100' from RewardEngine('rewards-1');"
+RewardEngine (autonomous receiver) journal:
+    id: 1
+    kind: "script"
+    at: 07/05/2026 08:46:54
+    script: "loyalty = RewardEngine();\r"
+    id: 2
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    define: "define action 1 (campaign:string, validFrom:datetime, minAmount:decimal) as\rloyalty.AddCampaign(campaign, validFrom, minAmount);\rend;"
+    id: 3
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-newcomer',01/01/2020,10"
+    id: 4
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 1
+    arguments: "'C-highroller',01/01/2020,1000"
+    id: 5
+    kind: "define"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    define: "define action 2 (order:string, customer:string, date:datetime, amount:decimal) as\rforeach ( c in loyalty.Campaigns() )\r{\r\tIf (c.Applies(date, amount) == true)\r\t{\r\t\tc.Reward(order, customer);\r\t}\r}\rend;"
+    id: 6
+    kind: "invocation"
+    at: 07/05/2026 08:46:54
+    actionId: 2
+    arguments: "'ord-100','cust-42',09/05/2026,250"
+  CHECK PASS: the receiver ran its own reward command autonomously
+  CHECK PASS: the origin's journal records the ack — round-trip closed over the pure carrier
+  => a pure in-process broker carried the envelope; the RewardEngine mapped the
+     assertion to its own command and acked autonomously — no bridge stood in (C3).
+
+--- Negative — a direct tell from a top-level command is rejected ---
+  CHECK PASS: a free-floating tell throws LanguageException
+  CHECK PASS: the error points at .Causation.Continue(...)
+
+ALL CHECKS PASSED.

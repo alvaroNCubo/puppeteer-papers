@@ -77,7 +77,7 @@ namespace BenchPaper2Bdn
             var complexities = new (string name, int terms)[] { ("2-term", 2), ("50-term", 50) };
             const int N = 1000;
             var asm = typeof(OrderingFacade).Assembly;
-            const string OuterScript = "{ y = (int)(evalParam + @counter); print y 'v'; }";
+            const string OuterScript = "{ y = (int)(@evalParam + @counter); print y 'v'; }";
 
             var rows = new List<(string complexity, string regime, double endUs, double compUs)>();
             Console.WriteLine("=== §5.3 synthetic — eval cache hit vs miss by sub-program complexity ===");
@@ -138,7 +138,7 @@ namespace BenchPaper2Bdn
         private static string BuildArithmeticVariant(int depth, int seq)
         {
             var sb = new StringBuilder();
-            sb.Append($"_seq_{seq} = {seq}; {{ v0 = X + 1; ");
+            sb.Append($"_seq_{seq} = {seq}; {{ v0 = @X + 1; ");
             for (int i = 1; i < depth; i++)
                 sb.Append($"v{i} = v{i - 1} {(i % 2 == 0 ? "+" : "-")} 1; ");
             sb.Append($"print v{depth - 1} 'value'; }}");

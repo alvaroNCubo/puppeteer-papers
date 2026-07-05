@@ -90,5 +90,15 @@ namespace Puppeteer.UnitTest.LoyaltyDomain
 		{
 			return campaigns;
 		}
+
+		// Read model for queries: how many rewards this engine has applied in
+		// total. Lets a scenario confirm the business outcome with a query
+		// (`print loyalty.TotalRewards() v;`) instead of inspecting the journal.
+		public int TotalRewards()
+		{
+			int total = 0;
+			foreach (Campaign c in campaigns) total += c.RewardsApplied;
+			return total;
+		}
 	}
 }

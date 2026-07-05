@@ -55,20 +55,19 @@ Each check prints PASS/FAIL; the process exits non-zero if any fails.
 
 1. Clone the runtime at the cited commit (as a sibling of this repo, the
    convention lab01/lab02/lab03 use):
-   `git clone https://github.com/alvaroNCubo/puppeteer && cd puppeteer && git checkout 6a330b0`
+   `git clone https://github.com/alvaroNCubo/puppeteer && cd puppeteer && git checkout 37ad9cf`
 2. From this project (its `ProjectReference`s point at
    `..\..\..\puppeteer\Puppeteer\Puppeteer.csproj` and
    `..\..\..\puppeteer\Choreography\Choreography.csproj`):
    `dotnet run -c Release`
 
-The captured output is in `../../data/lab04-tell/run-6a330b0.txt`. The lab is
+The captured output is in `../../data/lab04-tell/run-37ad9cf.txt`. The lab is
 deterministic — journals and counts are exact, with no timing variance.
 
-## Note on the journal-read grant
+## Note on journal inspection
 
-The lab reads the in-memory journal (`DiaryStorageInMemory` / `EventData`) to
-print and count entries — the same internal surface lab02 uses. The framework
-grants it via `InternalsVisibleTo("Lab04Tell")` (keyless in the public repo;
-keyed in the private fork, where the sync strips the key). A pure public-API run
-is not possible because the journal-inspection surface is internal; the grant is
-the minimal, precedented way to exercise and inspect it.
+The lab is a pure public-API Puppeteer program. It reads each actor's journal
+only through the public introspection surface (`perf.Actor.Introspection` —
+`ShowEntry`, `FindPattern`) and reads domain outcomes through `perf.PerformQry`
+with an `Out` parameter. It uses no internal APIs (`DiaryStorageInMemory`,
+`ActorHandler`) and needs no `InternalsVisibleTo` grant.
