@@ -46,7 +46,8 @@ abstract: >
   continuity extends across actors, edge by edge — each send recorded as
   program in its sender's journal — while preserving the defining properties
   of actor systems.
-canonical_url: https://[pending]/papers/cross-actor-continuity-v1
+canonical_url: https://doi.org/10.5281/zenodo.21207062
+doi: 10.5281/zenodo.21207062
 ---
 
 # Preserving semantic continuity across actors
