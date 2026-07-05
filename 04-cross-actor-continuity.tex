@@ -1468,12 +1468,12 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     .Job().Company()
     .WithSharedHydration()
     .Seek("Purchase")
-        .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
+        .OnMatch("[s:Seller].purchase($order, $date, $amount, $customer)")
     .Causation.Continue(@"
         tell PurchaseConfirmed
-            with @orderId, @date, @amount, @customer
+            with @order, @date, @amount, @customer
             to RewardEngine('rewards-1')
-            once 'tid-purchase-100';
+            once @order;
     ");
 \end{verbatim}
 
@@ -1483,42 +1483,57 @@ kind of sentence matters: the Seller \emph{asserts a fact it has lived}
 addressed to the RewardEngine
 (\texttt{to\ RewardEngine(\textquotesingle{}rewards-1\textquotesingle{})}),
 carrying the values that fact involved
-(\texttt{with\ @orderId,\ @date,\ @amount,\ @customer}) under a stable
-identity
-(\texttt{once\ \textquotesingle{}tid-purchase-100\textquotesingle{}}).
-It does not invoke a method on the RewardEngine, and it does not name
-how the message travels. This follows the single discipline the journal
-obeys throughout this series: an actor's program may record only what
-that actor could itself have said. The Seller can say \emph{that a
-purchase was confirmed}; it cannot say \emph{how the RewardEngine
-applies rewards} --- that is the RewardEngine's verb, recorded in the
-RewardEngine's own journal --- nor \emph{which broker carries the
-message}, which is deployment, not program. The Reaction is established
-once and thereafter watches the Seller's journal; when the domain
-command \texttt{s.purchase(...)} lands as an entry, the standing
-Reaction matches it and its \texttt{.Causation.Continue(...)} body
-fires, journaling the assertion on the Seller's side.
+(\texttt{with\ @order,\ @date,\ @amount,\ @customer}) under a
+per-utterance identity taken from the order it carries
+(\texttt{once\ @order}), so one compiled action issues a
+distinctly-identified assertion for each purchase. It does not invoke a
+method on the RewardEngine, and it does not name how the message
+travels. This follows the single discipline the journal obeys throughout
+this series: an actor's program may record only what that actor could
+itself have said. The Seller can say \emph{that a purchase was
+confirmed}; it cannot say \emph{how the RewardEngine applies rewards}
+--- that is the RewardEngine's verb, recorded in the RewardEngine's own
+journal --- nor \emph{which broker carries the message}, which is
+deployment, not program. The Reaction is established once and thereafter
+watches the Seller's journal; when the domain command
+\texttt{s.purchase(...)} lands as an entry, the standing Reaction
+matches it and its \texttt{.Causation.Continue(...)} body fires,
+journaling the assertion on the Seller's side.
 
 The assertion is journaled as a typed \emph{message-action} --- defined
-once (its signature deduced from the values it carries) and then invoked
---- the same define-then-invoke shape every operation takes on the dense
-journal-as-program substrate this series builds on (Papers 1--2). After
-the bridge delivers the assertion to the RewardEngine and the receiver
-acknowledges, the Seller's journal contains four entries:
+once (its signature deduced from the values it carries) and then
+invoked. This is the same define-then-invoke shape \emph{every}
+parameterized operation takes on the dense journal-as-program substrate
+this series builds on (Papers 1--2): the domain purchase, issued with
+typed parameters (\texttt{date}, \texttt{amount}), is journaled the same
+way, so the shape below appears twice --- once for the purchase, once
+for the assertion. After the bridge delivers the assertion to the
+RewardEngine and the receiver acknowledges, the Seller's journal
+contains six entries:
 
 \begin{verbatim}
-[0]  s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
-[1]  (define of the message-action PurchaseConfirmed — its typed signature)
-[2]  tell PurchaseConfirmed
-         with orderId, date, amount, customer
+[0]  s = Seller();
+[1]  (define of the message-action s.purchase — its typed signature)
+[2]  s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+[3]  (define of the message-action PurchaseConfirmed — its typed signature)
+[4]  tell PurchaseConfirmed
+         with 'ord-100', 5/9/2026, 250, 'cust-42'
          to RewardEngine('rewards-1')
-         once 'tid-purchase-100';
-[3]  tell ack 'tid-purchase-100' from RewardEngine('rewards-1');
+         once 'ord-100';
+[5]  tell ack 'ord-100' from RewardEngine('rewards-1');
 \end{verbatim}
 
-The signature is inferred once --- at first use, on the live path ---
-and recorded in entry {[}1{]}; replay replays that recorded definition
-rather than re-inferring it, so the message-action is identical and
+The values are passed as typed parameters, not interpolated into the
+script text --- the definition records the signature
+\texttt{s.purchase(order,\ date,\ amount,\ customer)} and the invocation
+records the bound arguments, so the journal stores the operation and its
+values separately, exactly as the tell does. The tell's identity is the
+order it carries (\texttt{once\ @order}), which the invocation binds to
+\texttt{\textquotesingle{}ord-100\textquotesingle{}} --- the ack in
+entry {[}5{]} returns under that same key. The tell's signature is
+inferred once --- at first use, on the live path --- and recorded in
+entry {[}3{]}; replay replays that recorded definition rather than
+re-inferring it, so the message-action is identical and
 order-independent across replays. This is the define-and-invocation
 discipline of Paper 2, under which a name is defined once and thereafter
 invoked; a reused name resolves as any operation does there. The
@@ -1529,15 +1544,15 @@ The three conditions of §7 are realized by these entries.
 \begin{itemize}
 \tightlist
 \item
-  \textbf{C1 (Locality of writes).} The four entries are in the Seller's
+  \textbf{C1 (Locality of writes).} The six entries are in the Seller's
   journal only. The RewardEngine's journal records its receiving
   operation independently --- the two journals never share storage.
 \item
-  \textbf{C2 (Causation as program statement).} Entries {[}1{]}--{[}2{]}
+  \textbf{C2 (Causation as program statement).} Entries {[}3{]}--{[}4{]}
   are the cross-actor assertion rendered as a DSL sentence --- defined
   once as a typed message-action, then invoked. Reading the Seller's
   journal alone reveals that it asserted \texttt{PurchaseConfirmed} to
-  RewardEngine, with what values, at what time. Entry {[}3{]} closes the
+  RewardEngine, with what values, at what time. Entry {[}5{]} closes the
   round-trip with the receiver's acknowledgment.
 \item
   \textbf{C3 (No external coordinator).} C3 forbids an external party
@@ -1566,7 +1581,7 @@ The three conditions of §7 are realized by these entries.
   program in the same way.)
 \end{itemize}
 
-A note on entry {[}3{]}. The acknowledgment is not the RewardEngine
+A note on entry {[}5{]}. The acknowledgment is not the RewardEngine
 writing into the Seller's journal. The RewardEngine emits an ordinary
 result in its own journal; the transport routes an acknowledgment
 envelope back to the Seller; the Seller's own handler processes that
@@ -1590,25 +1605,26 @@ binding selects; the wire never enters the actor's voice. The delivery
 guarantee is whatever the chosen transport provides; the journal's
 correlation role is invariant across all of them. If an acknowledgment
 is lost, the transport's retry redelivers and the assertion's identity
-(\texttt{once\ \textquotesingle{}tid-...\textquotesingle{}}, or a
-content hash when none is given) is the receiver-side deduplication key,
-so a redelivered tell does not duplicate the effect; a replayed journal
-re-executes the assertion --- rebuilding the in-flight record --- but
-its dispatch to the transport runs only on live execution, so replay
-does not re-send (the transport never sees a message from rehydration).
-A crash in the narrow window between journaling the assertion and
-dispatching it strands the envelope --- journaled as issued, yet never
-handed to the transport; on recovery the rehydrated sender reconstructs
-that pending tell from the journal alone and the transport, the sole
-authority on delivery, testifies its fate, which the sender records as a
-verdict in its own voice (§8.5 G4) --- so a crash no longer leaves the
-journal asserting a send that never landed: each issued tell is resolved
-(acknowledged, or marked unacknowledged by its addressee) or honestly
-left pending for the transport to settle, bounded by what that transport
-can still testify. The delivery model is thus at-least-once with
-identity-based deduplication; the consistency machinery it rests on ---
-the now/deferred partition and its deduplication discipline --- is
-developed in Paper 3, on which this construction builds.
+(\texttt{once\ @order} --- an author-chosen key, here the order the
+assertion carries --- or a content hash when \texttt{once} is omitted)
+is the receiver-side deduplication key, so a redelivered tell does not
+duplicate the effect; a replayed journal re-executes the assertion ---
+rebuilding the in-flight record --- but its dispatch to the transport
+runs only on live execution, so replay does not re-send (the transport
+never sees a message from rehydration). A crash in the narrow window
+between journaling the assertion and dispatching it strands the envelope
+--- journaled as issued, yet never handed to the transport; on recovery
+the rehydrated sender reconstructs that pending tell from the journal
+alone and the transport, the sole authority on delivery, testifies its
+fate, which the sender records as a verdict in its own voice (§8.5 G4)
+--- so a crash no longer leaves the journal asserting a send that never
+landed: each issued tell is resolved (acknowledged, or marked
+unacknowledged by its addressee) or honestly left pending for the
+transport to settle, bounded by what that transport can still testify.
+The delivery model is thus at-least-once with identity-based
+deduplication; the consistency machinery it rests on --- the
+now/deferred partition and its deduplication discipline --- is developed
+in Paper 3, on which this construction builds.
 
 The framework rejects \texttt{tell} outside
 \texttt{.Causation.Continue(...)}. A direct \texttt{tell} from a
@@ -1682,22 +1698,46 @@ A SagaCoordinator actor drives the workflow via direct commands to
 participants:
 
 \begin{verbatim}
-saga.PerformCmd("step = 'PurchaseRequested';");
-seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
+saga.Using("step = 'PurchaseRequested';").PerformCommand();
 
-saga.PerformCmd("step = 'PurchaseConfirmed';");
-rewards.PerformCmd(@"
+seller.Using("s = Seller();").PerformCommand();
+seller.Using("s.purchase(@order, @date, @amount, @customer);")
+      .WithParameters(p => {
+          p["order",    typeof(string)]   = "ord-100";
+          p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+          p["amount",   typeof(decimal)]  = 250m;
+          p["customer", typeof(string)]   = "cust-42";
+      })
+      .PerformCommand();
+
+saga.Using("step = 'PurchaseConfirmed';").PerformCommand();
+rewards.Using(@"
     foreach (c in loyalty.Campaigns()) {
-        if (c.Applies(5/9/2026, 250) == true) {
-            c.Reward('ord-100', 'cust-42');
-        };
-    };
-");
+        if (c.Applies(@date, @amount) == true) { c.Reward(@order, @customer); };
+    };")
+       .WithParameters(p => {
+           p["order",    typeof(string)]   = "ord-100";
+           p["customer", typeof(string)]   = "cust-42";
+           p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+           p["amount",   typeof(decimal)]  = 250m;
+       })
+       .PerformCommand();
 
-saga.PerformCmd("step = 'RewardsApplied';");
+saga.Using("step = 'RewardsApplied';").PerformCommand();
 \end{verbatim}
 
-After the run, the three journals contain:
+Every value crosses the DSL boundary as a typed parameter ---
+\texttt{p{[}"date",\ typeof(DateTime){]}},
+\texttt{p{[}"amount",\ typeof(decimal){]}}, the string ids too --- bound
+through \texttt{.WithParameters(...)}, never string-interpolated into
+the script text. Each command is issued separately, so each lands as its
+own journal entry; a parameterized command is journaled as a
+message-action (define-then-invoke), and two campaigns added by the
+\emph{same} parameterized command share one definition. The RewardEngine
+holds two campaigns --- \texttt{C-newcomer} (min 10, qualifies for the
+250 purchase) and \texttt{C-highroller} (min 1000, does not) --- so the
+receiver's loop applies one of the two. After the run, the three
+journals contain:
 
 \begin{verbatim}
 SagaCoordinator's journal (3 entries):
@@ -1705,12 +1745,18 @@ SagaCoordinator's journal (3 entries):
   [1] step = 'PurchaseConfirmed';
   [2] step = 'RewardsApplied';
 
-Seller's journal (1 entry):
-  [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+Seller's journal (3 entries):
+  [0] s = Seller();
+  [1] (define of the message-action s.purchase)
+  [2] s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
 
-RewardEngine's journal (2 entries):
-  [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
+RewardEngine's journal (6 entries):
+  [0] loyalty = RewardEngine();
+  [1] (define of loyalty.AddCampaign)
+  [2] loyalty.AddCampaign('C-newcomer', 1/1/2020, 10);
+  [3] loyalty.AddCampaign('C-highroller', 1/1/2020, 1000);
+  [4] (define of the reward loop)
+  [5] foreach (c in loyalty.Campaigns()) { ... c.Reward('ord-100', 'cust-42'); };
 \end{verbatim}
 
 \paragraph{Style 2 --- Choreography (event-driven, no
@@ -1721,29 +1767,47 @@ An event bus mediates the cross-actor handoff:
 \begin{verbatim}
 bus.Subscribe(ev => {
     if (ev.StartsWith("PurchaseConfirmed:")) {
-        rewards.PerformCmd(@"
+        rewards.Using(@"
             foreach (c in loyalty.Campaigns()) {
-                if (c.Applies(5/9/2026, 250) == true) {
-                    c.Reward('ord-100', 'cust-42');
-                };
-            };
-        ");
+                if (c.Applies(@date, @amount) == true) { c.Reward(@order, @customer); };
+            };")
+          .WithParameters(p => {
+              p["order",    typeof(string)]   = "ord-100";
+              p["customer", typeof(string)]   = "cust-42";
+              p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+              p["amount",   typeof(decimal)]  = 250m;
+          })
+          .PerformCommand();
     }
 });
 
-seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
+seller.Using("s = Seller();").PerformCommand();
+seller.Using("s.purchase(@order, @date, @amount, @customer);")
+      .WithParameters(p => {
+          p["order",    typeof(string)]   = "ord-100";
+          p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+          p["amount",   typeof(decimal)]  = 250m;
+          p["customer", typeof(string)]   = "cust-42";
+      })
+      .PerformCommand();
 bus.Publish("PurchaseConfirmed:ord-100");
 \end{verbatim}
 
 After the run:
 
 \begin{verbatim}
-Seller's journal (1 entry):
-  [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+Seller's journal (3 entries):
+  [0] s = Seller();
+  [1] (define of the message-action s.purchase)
+  [2] s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
 
-RewardEngine's journal (2 entries):
-  [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
+RewardEngine's journal (6 entries):
+  [0] loyalty = RewardEngine();
+  [1] (define of loyalty.AddCampaign)
+  [2] loyalty.AddCampaign('C-newcomer', 1/1/2020, 10);
+  [3] loyalty.AddCampaign('C-highroller', 1/1/2020, 1000);
+  [4] (define of the reward loop)
+  [5] foreach (c in loyalty.Campaigns()) { ... c.Reward('ord-100', 'cust-42'); };
 
 Bus log (1 entry):
   published: PurchaseConfirmed:ord-100
@@ -1759,38 +1823,57 @@ seller.Reactions.DefineReaction("PurchaseFunnelToRewards")
     .Job().Company()
     .WithSharedHydration()
     .Seek("Purchase")
-        .OnMatch("[s:Seller].purchase($orderId, $date, $amount, $customer)")
+        .OnMatch("[s:Seller].purchase($order, $date, $amount, $customer)")
     .Causation.Continue(@"
         tell PurchaseConfirmed
-            with @orderId, @date, @amount, @customer
+            with @order, @date, @amount, @customer
             to RewardEngine('rewards-1')
-            once 'tid-comp-100';
+            once @order;
     ");
 
 seller.Reactions.Execute();   // once defined, the Reaction stands over the journal and applies
                               // to every matching entry — it is not invoked per command. A Job is
                               // swept on demand (driven here for a deterministic test); a Cue
                               // Reaction runs continuously on its own thread.
-seller.PerformCmd("s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');");
+seller.Using("s = Seller();").PerformCommand();
+seller.Using("s.purchase(@order, @date, @amount, @customer);")
+      .WithParameters(p => {
+          p["order",    typeof(string)]   = "ord-100";
+          p["date",     typeof(DateTime)] = new DateTime(2026, 9, 5);
+          p["amount",   typeof(decimal)]  = 250m;
+          p["customer", typeof(string)]   = "cust-42";
+      })
+      .PerformCommand();
 // the standing Reaction observes the purchase and asserts PurchaseConfirmed to RewardEngine;
 // the bridge delivers and acks back
 \end{verbatim}
 
+The tell's identity is \texttt{once\ @order} --- the per-utterance key
+\emph{is} the order id, so one compiled action issues a
+distinctly-identified assertion per purchase, and the ack returns under
+that same id.
+
 After the run:
 
 \begin{verbatim}
-Seller's journal (4 entries):
-  [0] s = Seller(); s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
-  [1] (define of the message-action PurchaseConfirmed)
-  [2] tell PurchaseConfirmed
-        with orderId, date, amount, customer
+Seller's journal (6 entries):
+  [0] s = Seller();
+  [1] (define of the message-action s.purchase)
+  [2] s.purchase('ord-100', 5/9/2026, 250, 'cust-42');
+  [3] (define of the message-action PurchaseConfirmed)
+  [4] tell PurchaseConfirmed
+        with 'ord-100', 5/9/2026, 250, 'cust-42'
         to RewardEngine('rewards-1')
-        once 'tid-comp-100';
-  [3] tell ack 'tid-comp-100' from RewardEngine('rewards-1');
+        once 'ord-100';
+  [5] tell ack 'ord-100' from RewardEngine('rewards-1');
 
-RewardEngine's journal (2 entries):
-  [0] loyalty = RewardEngine(); loyalty.AddCampaign(...);
-  [1] foreach (c in loyalty.Campaigns()) { ... c.Reward(...); };
+RewardEngine's journal (6 entries):
+  [0] loyalty = RewardEngine();
+  [1] (define of loyalty.AddCampaign)
+  [2] loyalty.AddCampaign('C-newcomer', 1/1/2020, 10);
+  [3] loyalty.AddCampaign('C-highroller', 1/1/2020, 1000);
+  [4] (define of the reward loop)
+  [5] foreach (c in loyalty.Campaigns()) { ... c.Reward('ord-100', 'cust-42'); };
 \end{verbatim}
 
 \subsubsection{8.4 Structural reading}\label{structural-reading}
@@ -1816,7 +1899,8 @@ handoff is recorded.
 
 \textbf{Tell}: the Seller's journal contains the purchase, the assertion
 (journaled as a typed message-action --- defined once, then invoked),
-and the ack --- four entries that constitute the joint history as a
+and the ack --- six entries in all (each parameterized operation is a
+define plus an invocation) that constitute the joint history as a
 sequence of DSL sentences. The RewardEngine's journal records its local
 reward, as in the other styles. Under tell, the sender's journal alone
 reconstructs this cross-actor edge --- the single hop from Seller to
@@ -1910,8 +1994,8 @@ always recorded in a place replication can carry.
 
 \textbf{G3 --- Audit query (closes §5.1).} The third test asks the audit
 question --- \emph{why did this happen?} --- by reading the Seller's
-journal directly. The cross-actor assertion is entry {[}2{]} (the
-message-action invocation); the acknowledgment is entry {[}3{]}. The
+journal directly. The cross-actor assertion is entry {[}4{]} (the
+message-action invocation); the acknowledgment is entry {[}5{]}. The
 cause-effect chain is reconstructed without distributed tracing,
 correlation IDs, or log aggregation.
 
@@ -1934,7 +2018,7 @@ set of \emph{pending} tells --- issued, neither acknowledged nor settled
 --- from the journal alone; for each, the transport, the sole authority
 on delivery, testifies its fate and the sender records the verdict
 \emph{in its own voice} ---
-\texttt{tell\ \textquotesingle{}tid-purchase-100\textquotesingle{}\ unacknowledged\ by\ RewardEngine}
+\texttt{tell\ \textquotesingle{}ord-100\textquotesingle{}\ unacknowledged\ by\ RewardEngine}
 when the transport reports the envelope failed, the ordinary
 \texttt{tell\ ack\ ...} when it reports the envelope was delivered and
 only the acknowledgment was lost, and nothing while the fate is still in
@@ -2029,7 +2113,7 @@ become possible at all. Without externalized parameters, the journal
 could not record what was said with parameter references intact ---
 values would be inlined as literals, or the script would lose its
 connection to the actor's symbol table. The tell sentence in §8.3
-carries \texttt{@orderId}, \texttt{@date}, \texttt{@amount},
+carries \texttt{@order}, \texttt{@date}, \texttt{@amount},
 \texttt{@customer} as references rather than literals; this paper is
 what makes that representation possible.
 
@@ -2211,14 +2295,14 @@ remains on the cross-actor mechanism & §8.1 \\
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-\href{https://github.com/alvaroNCubo/puppeteer/tree/6a330b0f77027618abbdd84ad810c853f8185030}{\texttt{6a330b0}}
-(2026-07-04). The snapshot is archived in Software Heritage under the
+\href{https://github.com/alvaroNCubo/puppeteer/tree/37ad9cf44e7749f8fa0d2da8cc0c1093ad5a7e83}{\texttt{37ad9cf}}
+(2026-07-05). The snapshot is archived in Software Heritage under the
 following persistent identifier:
 
 \begin{verbatim}
-swh:1:dir:246ffb9442b54f994e699e0bb9a2b8f275199b23;
+swh:1:dir:2b3ef9f68cf6e3a7a8e32ec73121122cc2ac74c5;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:6a330b0f77027618abbdd84ad810c853f8185030
+  anchor=swh:1:rev:37ad9cf44e7749f8fa0d2da8cc0c1093ad5a7e83
 \end{verbatim}
 
 Inline references of the form \texttt{file.cs:NN} (e.g.,
@@ -2247,7 +2331,7 @@ distributed systems}. MIT Press.
 Armstrong, J. (2003). \emph{Making reliable distributed systems in the
 presence of software errors} {[}Doctoral dissertation, Royal Institute
 of Technology (KTH){]}.
-\url{https://erlang.org/download/armstrong_thesis_2003.pdf}
+https://erlang.org/download/armstrong\_thesis\_2003.pdf
 
 Bernstein, P. A., Bykov, S., Geller, A., Kliot, G., \& Thelin, J.
 (2014). \emph{Orleans: Distributed virtual actors for programmability
@@ -2289,29 +2373,28 @@ distributed system. \emph{Communications of the ACM}, \emph{21}(7),
 
 Lightbend. (n.d.). \emph{Akka core: Interaction patterns} {[}Akka
 documentation{]}.
-\url{https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html}
+https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html
 (Internet Archive snapshot, 2026-02-16:
-\url{https://web.archive.org/web/20260216052600/https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html})
+https://web.archive.org/web/20260216052600/https://doc.akka.io/libraries/akka-core/current/typed/interaction-patterns.html)
 
 Rivera, A. (2026a). Anti-porous architecture: a unified design principle
 for CQRS + Actor + Event-Sourcing systems. \emph{Puppeteer Papers
 Series}, Paper 1 {[}Preprint{]}. Zenodo.
-\url{https://doi.org/10.5281/zenodo.20404863}
+https://doi.org/10.5281/zenodo.20404863
 
 Rivera, A. (2026b). Program--value separability: the structural
 precondition for compilation, caching, and dense journaling in a DSL
 runtime. \emph{Puppeteer Papers Series}, Paper 2 {[}Preprint{]}. Zenodo.
-\url{https://doi.org/10.5281/zenodo.20740697}
+https://doi.org/10.5281/zenodo.20740697
 
 Rivera, A. (2026c). Reactions and the partition: opt-in eventual
 consistency in actor-native systems. \emph{Puppeteer Papers Series},
-Paper 3 {[}Preprint{]}. Zenodo.
-\url{https://doi.org/10.5281/zenodo.20792156}
+Paper 3 {[}Preprint{]}. Zenodo. https://doi.org/10.5281/zenodo.20792156
 
 Vernon, V. (2013). \emph{Implementing domain-driven design}.
 Addison-Wesley.
 
 Young, G. (2010). \emph{CQRS documents}.
-\url{https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf}
+https://cqrs.files.wordpress.com/2010/11/cqrs\_documents.pdf
 
 \end{document}
