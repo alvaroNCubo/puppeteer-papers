@@ -1,0 +1,7 @@
+run_tag,cell,backend,mode,phase,samples,mean_us,p50_us,p95_us,p99_us,max_us,events_per_sec
+99e8202,MySQL_direct,MySQL,direct,Online,20000,3204.22,3094.10,4199.32,5110.54,18258.60,312
+99e8202,MySQL_buffered,MySQL,buffered,Online,20000,573.76,515.60,668.20,3854.68,15738.60,1743
+99e8202,MySQL_buffered,MySQL,buffered,Partition,20000,419.96,333.30,514.21,3219.66,12430.60,2381
+99e8202,SQLServer_direct,SQLServer,direct,Online,20000,1327.07,1168.30,1933.41,2513.12,17305.50,754
+99e8202,SQLServer_buffered,SQLServer,buffered,Online,20000,538.21,429.30,632.42,3920.96,13518.30,1858
+99e8202,SQLServer_buffered,SQLServer,buffered,Partition,20000,417.11,339.40,525.83,3113.82,12220.30,2397

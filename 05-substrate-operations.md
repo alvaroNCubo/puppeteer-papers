@@ -2,11 +2,11 @@
 title: "The Journal as Substrate: Unifying Deployment, Replication, Backup, and Offline Operation in Distributed Systems"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-05-14
-version: 0.2-draft
+date: 2026-07-13
+version: 0.1-draft
 status: draft
 keywords:
-  - design theory
+  - analytic theory
   - event sourcing
   - journal-based program
   - substrate
@@ -18,14 +18,15 @@ keywords:
   - actor systems
   - puppeteer framework
 abstract: >
-  This paper is a design theory contribution in the sense of Alan Hevner,
-  Stuart March, Jinsoo Park, and Sudha Ram (2004). It identifies a
-  fragmentation that the canonical distributed-systems literature has
-  documented across four separate operational disciplines without
-  recognising them as instances of a single structural condition. It then
-  derives the property under which this fragmentation dissolves and presents
-  an instantiation demonstrating that the alternative is realisable in
-  production.
+  This paper is an analytic theory contribution in the sense of Gregor's
+  (2006) *theory for analyzing* (Type I): it identifies a fragmentation that
+  the canonical distributed-systems literature has documented across four
+  separate operational disciplines without recognising them as instances of a
+  single structural condition, derives the property under which this
+  fragmentation dissolves, and presents an instantiation as an existence
+  proof that the alternative is realisable in production — not the
+  design-science evaluation of an artefact (Hevner, March, Park, & Ram,
+  2004), which a comparative systems study would undertake separately.
 
 
   For decades, deployment without downtime, cross-datacenter replication,
@@ -33,7 +34,7 @@ abstract: >
   practice, each with its own vocabulary, apparatus, and cost model. This
   paper shows that this separation is contingent rather than structural.
   Under the substrate condition established in prior papers of this series —
-  where the journal is homoiconic, dense, and composed of compact named
+  where the journal is code-as-data, dense, and composed of compact named
   operations rather than serialised states — the four disciplines reduce to
   a single primitive.
 
@@ -53,7 +54,8 @@ abstract: >
   The construct introduced here names the substrate, formalises the four
   equivalences that follow from it, and characterises the operational
   regimes in which these equivalences can be observed.
-canonical_url: https://[pending]/papers/operations-from-substrate-v1
+canonical_url: https://doi.org/10.5281/zenodo.21349146
+doi: 10.5281/zenodo.21349146
 ---
 
 # Operations from the substrate
@@ -66,7 +68,7 @@ canonical_url: https://[pending]/papers/operations-from-substrate-v1
 >
 > Deployment is replay to the present head. Replication is the same replay at another site. Backup is the corpus held without replay. Offline operation is replay after a delay. The canonical apparatuses become structurally subsumed: each reconstructs, from outside the program, work the substrate already performs by construction.
 >
-> Six laboratories measure the substrate under conditions where these equivalences hold. A version handover reaches the present head at 451k entries/s; cross-site transfer carries 36–99.7 bytes per event against payloads 3–9× larger; passive consumers converge across heterogeneous backends (FileSystem, MySQL, SQL Server) to identical in-memory state in 18/18 cells; local append latency runs ≈3× below co-located RDBMS engines under matched durability. §7 shows how four runtime primitives — each present for independent structural reasons — compose into the operations the canonical literature implements as separate subsystems.
+> Six laboratories measure the substrate under conditions where these equivalences hold. A version handover reaches the present head at 532k entries/s; cross-site transfer carries 33–96.7 bytes per event against payloads 3–9× larger; passive consumers converge across heterogeneous backends (FileSystem, MySQL, SQL Server) to identical in-memory state in 18/18 cells; local append latency runs ≈3× below co-located RDBMS engines under matched durability. §7 shows how four runtime primitives — each present for independent structural reasons — compose into the operations the canonical literature implements as separate subsystems.
 >
 > **For a journaled program, deployment is replay, replication is sharing history, backup is copying the program, and offline operation is delayed replay.**
 
@@ -74,7 +76,7 @@ canonical_url: https://[pending]/papers/operations-from-substrate-v1
 
 ## 1. Introduction
 
-This paper makes a design theory contribution. It identifies a structural property whose absence has been implicitly assumed by canonical distributed-systems literature, but never named as a single construct; derives the equivalences that follow when the property is present; and presents an instantiation showing it is realisable in production. The contribution is conceptual; the instantiation serves as an existence proof rather than as the substance of the claim. The genre is that described by Alan Hevner, Stuart March, Jinsoo Park, and Sudha Ram (2004) as design science research: an artefact satisfying the construct's conditions, augmented by measurements that exhibit the régime under which the construct holds.
+This paper makes an analytic theory contribution. It identifies a structural property whose absence the canonical distributed-systems literature has assumed without naming it as a single construct; derives the equivalences that follow when the property is present; and presents an instantiation showing it is realisable in production. The contribution is conceptual; the instantiation serves as an existence proof rather than as the substance of the claim. The genre is the one Gregor (2006) names *theory for analyzing* (Type I): it introduces a construct that lets the phenomenon be described and classified, with the measurements reported in §5 exhibiting the régime under which the construct holds rather than evaluating an artefact. The Hevner-style design-science *evaluation* of the artefact (Hevner, March, Park, & Ram, 2004) — a comparative systems study of throughput, availability, or fault tolerance against existing stacks — is a separate undertaking this paper does not attempt.
 
 This is neither a systems paper proposing a new mechanism nor a survey of existing apparatuses. It does not introduce a deployment tool, a replication protocol, a backup format, or an offline-operation pattern. It examines a structural property that prior literature has implicitly assumed absent and shows that, under its presence, four operational disciplines of distributed systems reduce to a single primitive. In this genre, contribution is measured by the precision of the construct, the validity of the equivalences derived from it, and the realisability of the instantiation. Sections 5 and 7 exhibit the instantiation and report measurements establishing the régime in which the equivalences are observable.
 
@@ -96,33 +98,33 @@ For decades, four operational concerns — deployment downtime, cross-datacenter
 
 ### 2.1 Deployment downtime
 
-The earliest deployment practice in production systems was the cutover: stop the running service, swap binaries, start it again. Downtime was accepted as the cost of release. The first patterned response was articulated by Fowler in *BlueGreenDeployment* [Fowler 2010], which named a procedure in which "you ensure that you have two production environments, as identical as possible" and traffic is switched from one to the other at release time. The mechanism is environmental: two parallel deployments, one apparatus for routing, one for binary distribution.
+The earliest deployment practice in production systems was the cutover: stop the running service, swap binaries, start it again. Downtime was accepted as the cost of release. The first patterned response was articulated by Fowler in *BlueGreenDeployment* (Fowler, 2010), which named a procedure in which "you ensure that you have two production environments, as identical as possible" and traffic is switched from one to the other at release time. The mechanism is environmental: two parallel deployments, one apparatus for routing, one for binary distribution.
 
-The continuous-delivery literature ratified the pattern. Humble and Farley [Humble & Farley 2010] generalized blue-green into a broader release-engineering discipline in which deployment is a build-pipeline output rather than an operator action, and downtime is a regression to be detected rather than a default to be accepted.
+The continuous-delivery literature ratified the pattern. Humble and Farley (Humble & Farley, 2010) generalized blue-green into a broader release-engineering discipline in which deployment is a build-pipeline output rather than an operator action, and downtime is a regression to be detected rather than a default to be accepted.
 
-The modern instantiations are canary release [Sato 2014] and the orchestration-mediated rolling update [Burns et al. 2016; Kubernetes documentation]. Canary release introduces partial traffic exposure before full cutover, treating the deployed binary as a hypothesis tested against a fraction of production load. The Kubernetes rolling update replaces pods incrementally under a readiness-probe gate, making the deployment apparatus a property of the orchestrator rather than of the application.
+The modern instantiations are canary release (Sato, 2014) and the orchestration-mediated rolling update (Burns et al., 2016; Kubernetes, n.d.). Canary release introduces partial traffic exposure before full cutover, treating the deployed binary as a hypothesis tested against a fraction of production load. The Kubernetes rolling update replaces pods incrementally under a readiness-probe gate, making the deployment apparatus a property of the orchestrator rather than of the application.
 
-A parallel strand of the deployment canon addresses schema and data migration. Ambler and Sadalage [Ambler & Sadalage 2006] formalized *database refactoring* as a discipline in which every change to the data store is recorded as a forward-and-backward pair of scripts versioned alongside the application code. The pattern is instantiated by migration frameworks such as Rails Migrations, Liquibase [Liquibase project], and Flyway [Flyway project], which apply versioned scripts to the data store at release time. The migration apparatus is separate from the traffic-switching apparatus: it runs adjacent to — or before — the cutover, mutates the store in place, and produces a schema or data shape that the next binary version expects.
+A parallel strand of the deployment canon addresses schema and data migration. Ambler and Sadalage (Ambler & Sadalage, 2006) formalized *database refactoring* as a discipline in which every change to the data store is recorded as a forward-and-backward pair of scripts versioned alongside the application code. The pattern is instantiated by migration frameworks such as Rails Migrations, Liquibase (Liquibase, n.d.), and Flyway (Flyway, n.d.), which apply versioned scripts to the data store at release time. The migration apparatus is separate from the traffic-switching apparatus: it runs adjacent to — or before — the cutover, mutates the store in place, and produces a schema or data shape that the next binary version expects.
 
 Across these mechanisms the shape is constant: a separate apparatus is built whose function is to absorb the change — of binary, of schema, or both — without interrupting the service. The apparatus is external to the program; the program is unaware that it is being replaced or migrated.
 
 ### 2.2 Cross-datacenter replication
 
-Replication across datacenters originates in database engines. MySQL replication [MySQL Reference Manual] established the canonical primary/replica topology in the 1990s: the primary writes a binary log of statements or row-level events, and replicas tail that log. The replication mechanism lives inside the database engine; the application program is unaware that replication is occurring.
+Replication across datacenters originates in database engines. MySQL replication (MySQL, n.d.) established the canonical primary/replica topology in the 1990s: the primary writes a binary log of statements or row-level events, and replicas tail that log. The replication mechanism lives inside the database engine; the application program is unaware that replication is occurring.
 
-The pragmatic maturation came with change-data-capture (CDC). Debezium [Debezium project] and Maxwell [Maxwell project] read the database's binary log and re-emit each change as an event on an external transport, typically Kafka. CDC inserts an apparatus between the database and downstream consumers: a process that watches state changes in one system and reconstructs them as event streams for others. The reconstruction step is necessary precisely because the originating system does not emit events — it emits state changes that CDC observes and translates.
+The pragmatic maturation came with change-data-capture (CDC). Debezium (Debezium, n.d.) and Maxwell (Maxwell, n.d.) read the database's binary log and re-emit each change as an event on an external transport, typically Kafka. CDC inserts an apparatus between the database and downstream consumers: a process that watches state changes in one system and reconstructs them as event streams for others. The reconstruction step is necessary precisely because the originating system does not emit events — it emits state changes that CDC observes and translates.
 
-The modern instantiations extend the apparatus topologically. Cassandra's multi-datacenter replication [Lakshman & Malik 2010] embeds the replication topology in the storage engine itself, allowing writes accepted in any datacenter to propagate to peers under a configurable consistency level. Kafka MirrorMaker [Kreps, Narkhede, & Rao 2011] generalizes the pattern for log-structured systems: a dedicated process consumes from one cluster and re-produces to another, with offsets tracking progress per topic.
+The modern instantiations extend the apparatus topologically. Cassandra's multi-datacenter replication (Lakshman & Malik, 2010) embeds the replication topology in the storage engine itself, allowing writes accepted in any datacenter to propagate to peers under a configurable consistency level. Kafka MirrorMaker (Kreps, Narkhede, & Rao, 2011) generalizes the pattern for log-structured systems: a dedicated process consumes from one cluster and re-produces to another, with offsets tracking progress per topic.
 
 Across these mechanisms the shape is constant: cross-datacenter replication requires a separate apparatus — engine-internal, engine-adjacent, or fully external — whose function is to observe the changes happening in one location and reproduce them elsewhere.
 
 ### 2.3 Backup
 
-The backup canon predates the others. Agent-based backup [Bacula project; Veeam documentation] developed in the 1990s and 2000s as a discipline in which a dedicated process periodically reads the production data store and writes a copy to an archival medium. The agent is external to the application; backup occurs at the storage layer.
+The backup canon predates the others. Agent-based backup (Bacula, n.d.; Veeam, n.d.) developed in the 1990s and 2000s as a discipline in which a dedicated process periodically reads the production data store and writes a copy to an archival medium. The agent is external to the application; backup occurs at the storage layer.
 
-The pragmatic maturation introduced snapshot semantics. The WAFL filesystem [Hitz, Lau, & Malcolm 1994] established the modern primitive: a point-in-time copy taken at the filesystem level, exploiting copy-on-write so that the snapshot is cheap and consistent with respect to the moment of capture. Database engines adopted the same pattern under the name *point-in-time recovery* [PostgreSQL documentation], in which continuous archival of the write-ahead log permits reconstruction of any committed state within the archived range.
+The pragmatic maturation introduced snapshot semantics. The WAFL filesystem (Hitz, Lau, & Malcolm, 1994) established the modern primitive: a point-in-time copy taken at the filesystem level, exploiting copy-on-write so that the snapshot is cheap and consistent with respect to the moment of capture. Database engines adopted the same pattern under the name *point-in-time recovery* (PostgreSQL, n.d.), in which continuous archival of the write-ahead log permits reconstruction of any committed state within the archived range.
 
-The modern instantiations move the apparatus to object storage. Cloud-era backup [AWS S3 Lifecycle; Azure Blob Storage backup documentation] treats archival as a property of the storage tier rather than of a dedicated agent: lifecycle policies move data to colder tiers automatically, and recovery is a matter of retrieval from the archive.
+The modern instantiations move the apparatus to object storage. Cloud-era backup (AWS, n.d.; Azure, n.d.) treats archival as a property of the storage tier rather than of a dedicated agent: lifecycle policies move data to colder tiers automatically, and recovery is a matter of retrieval from the archive.
 
 Across these mechanisms the shape is constant: backup is a separate apparatus that produces a copy of state and is exercised at recovery time to reconstruct that state. The backup procedure observes the data store from the outside; the program being backed up does not participate.
 
@@ -130,9 +132,9 @@ Across these mechanisms the shape is constant: backup is a separate apparatus th
 
 The offline-operation canon is the most heterogeneous of the four, because it spans network-layer, transport-layer, and application-layer treatments of disconnection. The early precedent is store-and-forward messaging: UUCP and, later, SMTP queue undeliverable messages locally and retry until the remote endpoint is reachable. Disconnection is absorbed by a queue at the boundary of the system.
 
-The pragmatic maturation generalized the boundary queue into a programmable apparatus. RabbitMQ [RabbitMQ documentation] introduced dead-letter exchanges to capture messages whose delivery is impeded, deferring them for retry or human inspection. Kafka [Kreps, Narkhede, & Rao 2011] generalized the pattern further: consumer offsets are explicit, durable, and per-partition, so a consumer that goes offline resumes from its last committed offset when it returns. The queue is no longer a remediation mechanism for failed delivery; it is the substrate over which the consumer's progress is tracked.
+The pragmatic maturation generalized the boundary queue into a programmable apparatus. RabbitMQ (RabbitMQ, n.d.) introduced dead-letter exchanges to capture messages whose delivery is impeded, deferring them for retry or human inspection. Kafka (Kreps, Narkhede, & Rao, 2011) generalized the pattern further: consumer offsets are explicit, durable, and per-partition, so a consumer that goes offline resumes from its last committed offset when it returns. The queue is no longer a remediation mechanism for failed delivery; it is the substrate over which the consumer's progress is tracked.
 
-The modern instantiations carry the pattern into application-level state. Eventually-consistent stores [DeCandia et al. 2007] treat each replica as a local source of truth that converges with peers when connectivity permits. The Dynamo paper established the design vocabulary — vector clocks, hinted handoff, read-repair — that subsequent systems (Cassandra, Riak, Redis replication [Redis documentation]) instantiate in varying degrees.
+The modern instantiations carry the pattern into application-level state. Eventually-consistent stores (DeCandia et al., 2007) treat each replica as a local source of truth that converges with peers when connectivity permits. The Dynamo paper established the design vocabulary — vector clocks, hinted handoff, read-repair — that subsequent systems — Cassandra, Riak, and Redis replication (Redis, n.d.) — instantiate in varying degrees.
 
 Once again, the shape is constant: offline operation requires a separate apparatus — a queue, an offset, a convergence protocol — whose function is to absorb the period during which the system cannot reach its counterpart.
 
@@ -173,15 +175,17 @@ The alternative this assumption leaves unexplored is that the program might addr
 
 ### 4.1 The substrate
 
-The first two papers in this series established two structural properties of the journal that this paper takes as preconditions. [Paper 1](01-anti-porosity.md), §3 named *anti-porosity*: the journal records the operations of the program rather than the states they produce, and admits no representational sparsity at the boundary between domain code and persisted form. The journal is therefore homoiconic — entries are sentences in the same language the program is written in — and dense — every effect that crosses the boundary is named in that language, not summarised as state delta. [Paper 2](02-program-value-separability.md), §1.2 and §3 named *separability*: programs that are parametric in their arguments admit a compiled form in which the operation's body is cached under an identifier and the journal entry reduces to that identifier plus the call's arguments. Together the two conditions yield a journal whose entries are compact, named operations rather than serialised states.
+The first two papers in this series established two structural properties of the journal that this paper takes as preconditions. [Paper 1](01-anti-porosity.md), §3 named *anti-porosity*: the journal records the operations of the program rather than the states they produce, and admits no representational sparsity at the boundary between domain code and persisted form. The journal is therefore *code-as-data* — entries are executable sentences in the same language the program is written in, in the narrow *script-form* sense Paper 1 establishes rather than Lisp's strong homoiconicity — and dense — every effect that crosses the boundary is named in that language, not summarised as state delta. [Paper 2](02-program-value-separability.md), §1.2 and §3 named *separability*: programs that are parametric in their arguments admit a compiled form in which the operation's body is cached under an identifier and the journal entry reduces to that identifier plus the call's arguments. Together the two conditions yield a journal whose entries are compact, named operations rather than serialised states.
 
 Under these two conditions the journal is not a record kept by the program; it is the program written out over time. Each entry is a sentence the program has uttered; the journal is the corpus of those sentences in the order they were uttered. The naming move of this paper is to call this artifact *the substrate of the program*: the journal does not store the program's outputs, it constitutes the program's existence over time. The program and the journal are the same artifact under two readings — one synchronous, one diachronic. Under the synchronous reading, the runtime is the program. Under the diachronic reading, the journal is the program.
+
+One further property, established in [Paper 1](01-anti-porosity.md) §4.2, is what makes the substrate *replayable without divergence*, and every equivalence of §4.2 rests on it: the arguments in an entry are *values captured at execution time, not expressions re-evaluated on read*. A nondeterministic or state-derived argument — a generated identifier, a clock reading — is resolved once, on the writing path, and the resolved value is frozen into the entry; a later read reuses that value rather than recomputing it. *(Verification: the capture-at-execution of the `Eval` modifier, [Paper 1](01-anti-porosity.md) §4.2 — on first execution the value is captured as a literal-assigning script `name = (type)(value);` persisted in the entry, and on replay that literal is re-assigned rather than recomputed; `Parameter.cs:33–36, 163–224, 228–247`.)* Were an argument re-evaluated on read, replaying it would diverge from the run that wrote it, and deployment, replication, backup, and offline catch-up would each reconstruct a different program than the one recorded.
 
 ### 4.2 The theorem statement
 
 The theorem of this paper can be stated as a single proposition.
 
-> *Given a program whose execution is recorded as a journal satisfying the anti-porosity condition of Paper 1 and the separability condition of Paper 2 — that is, a journal that is homoiconic, dense, and made of compact named operations rather than serialised states — the following four equivalences hold.*
+> *Given a program whose execution is recorded as a journal satisfying the anti-porosity condition of Paper 1 and the separability condition of Paper 2 — that is, a journal that is code-as-data, dense, and made of compact named operations rather than serialised states — the following four equivalences hold.*
 
 **E1 — Deployment is replay.** A new version of the runtime, started from the substrate, reconstructs the program by reading the journal sequentially and applying each entry. Nothing about the new version's instantiation differs in kind from what the previous version did at every entry up to that point; the act of bringing a process to a state in which it can serve requests is the act of replaying the substrate up to its present head. Deployment therefore differs from steady-state operation only in the position of the read cursor over the same corpus.
 
@@ -228,11 +232,11 @@ The operational specifics of each interval are realized by a single primitive in
 
 #### What the substrate measures
 
-L1 (lab [`paper05-lab1-redblack-replay-time`](data/paper05-lab1-redblack-replay-time/) @ `ef3a002`) instruments the handover window over four journal sizes (N ∈ {1k, 10k, 100k, 1M} entries) under the compact-action régime named in Paper 2. The measurement isolates the inner bulk-replay interval and the handover tail separately so that the structural content of the window — the act of replay — is reported in its own right rather than aggregated with orchestration overhead.
+L1 (lab [`paper05-lab1-redblack-replay-time`](data/paper05-lab1-redblack-replay-time/) @ `99e8202`) times the handover window over four journal sizes (N ∈ {1k, 10k, 100k, 1M} entries) under the compact-action régime named in Paper 2. The measurement brackets the inner bulk-replay interval and the handover tail separately with the public `Stopwatch` API — around `follower.Start(asFollower: true)` and the lock/synchronisation tail — so that the structural content of the window — the act of replay — is reported in its own right rather than aggregated with orchestration overhead.
 
-Under the compact-action régime with `AlwaysCompiled` compilation, the substrate replays N entries at a sustained rate of **451 thousand entries per second** (p50, N = 100 000), completing the bulk replay in **221.6 ms** (p95 = 237.4 ms). The rate is reached as the runtime amortises between N = 10 000 and N = 100 000 entries and holds through the N = 1 000 000 anchor at 416 thousand entries per second. The handover tail is below 30 µs at every N measured. **Bulk replay accounts for more than 99.8 % of the deploy window in every cell.** The replay rate is sustained across a tenfold journal range; were it linear in expanded state rather than in compact-event count, the rate would fall as state grew. It does not.
+Under the compact-action régime with `AlwaysCompiled` compilation, the substrate replays N entries at a sustained rate of **532 thousand entries per second** (p50, N = 100 000), completing the bulk replay in **187.8 ms** (p95 = 190.6 ms). The rate is reached as the runtime amortises between N = 10 000 and N = 100 000 entries and **continues to climb through the N = 1 000 000 anchor to 1.76 million entries per second** — fixed startup cost spread over more events. The handover tail is below 0.3 ms at every N measured. **Bulk replay accounts for more than 99.8 % of the deploy window in every cell.** The replay rate is sustained — indeed it improves — across a tenfold journal range; were it linear in expanded state rather than in compact-event count, the rate would fall as state grew. It does not.
 
-Three properties of the measurement deserve naming. First, the substrate cost of deployment is linear in compact-event count, not in expanded state — replaying ten times the journal takes ten times the time, at constant rate. Second, the orchestration tail is empirically negligible at every measured size; the deploy window *is* the replay window to within a fraction of one percent. Third, the régime under which this holds is the régime Paper 2 already named the canonical one: parametric verbs encoded as `ActionId` plus arguments, not literal scripts. A journal of literal scripts would replay slower in proportion to script length; this paper concerns the compact-action substrate named in Paper 2.
+Three properties of the measurement deserve naming. First, the substrate cost of deployment is bounded by compact-event count, not by expanded state — replaying ten times the journal takes no more than ten times the time, and here less: the per-event rate climbs as fixed startup cost amortises over more entries. Second, the orchestration tail is empirically negligible at every measured size; the deploy window *is* the replay window to within a fraction of one percent. Third, the régime under which this holds is the régime Paper 2 already named the canonical one: parametric verbs encoded as `ActionId` plus arguments, not literal scripts. A journal of literal scripts would replay slower in proportion to script length; this paper concerns the compact-action substrate named in Paper 2.
 
 #### Apparatus
 
@@ -269,7 +273,7 @@ The diagram contains no operation other than reading from the journal and applyi
 
 #### One canonical exception
 
-The equivalence developed here covers the in-process deployment of a single program. One canonical case lies outside its scope: a coordinated cut-over of a producer/consumer pair on an external message broker (typically Kafka) when the message format itself changes between versions. There the two endpoints must release together, because the substrate they share is the broker's topic — a contract between independent programs — rather than the journal of either. The construct of this paper does not deny this case; it narrows its scope. Within a journaled program, deployment is replay; across two journaled programs that share a broker topic with a changing schema, the cut-over remains a separate concern. Paper 3, claim 8, named this exception in the discussion of in-actor continuity; it is preserved here without amendment.
+The equivalence developed here covers the in-process deployment of a single program. One canonical case lies outside its scope: a coordinated cut-over of a producer/consumer pair on an external message broker (typically Kafka) when the message format itself changes between versions. There the two endpoints must release together, because the substrate they share is the broker's topic — a contract between independent programs — rather than the journal of either. The construct of this paper does not deny this case; it narrows its scope. Within a journaled program, deployment is replay; across two journaled programs that share a broker topic with a changing schema, the cut-over remains a separate concern. [Paper 3](03-reactions-and-partition.md), which develops the partition primitive this paper's Reactions build on, named this exception in its claim 8 on in-actor continuity; it is preserved here without amendment.
 
 #### To the next equivalence
 
@@ -283,11 +287,13 @@ The equivalence developed here covers the in-process deployment of a single prog
 
 [Paper 2](02-program-value-separability.md), §2.3 (*dense journaling as reference*), established that under separability the journal entry of an invocation reduces to a reference to the parametric verb's definition plus the arguments of the call. The verb's body is not present in the entry; it lives once, named, in the corpus's vocabulary. Replication across datacenters is the transmission of those entries, not of states; the wire encodes the program as it was uttered, not as it was applied.
 
-L2 (lab [`paper05-lab2-bytes-per-event`](data/paper05-lab2-bytes-per-event/) @ `c68b2f4`) instruments the codec on the substrate's wire surface, comparing the compact encoding (`ActionId` + parameters) against the literal encoding (script DSL + parameter assignments) at three tiers of verb richness, with and without an opportunistic `gzip` on the literal form.
+The entries so transmitted are the domain program: operations and their argument values. Operational metadata *about* the program — the identity, origin, or request context under which an operation was recorded — is, where a deployment maintains it, a distinct channel keyed to the same entries, not part of the entries themselves. It rides the same substrate mechanisms (replicated alongside the corpus, copied with the store), but it is neither a domain value nor an operation, and the equivalences of this paper concern the program the journal constitutes, not the audit envelope a deployment may keep around it. The distinction matters at the cross-actor boundary, where the two channels part ways ([Paper 4](04-cross-actor-continuity.md), §8.2): a value the receiver's domain needs crosses as an argument; the sender's envelope does not cross at all.
 
-Bytes-per-event in compact form is 36 at the trivial-arithmetic tier (68-byte script body), 36 at the branching-arithmetic tier (99-byte body), and 99.7 at the production-shaped tier (681-byte body). The literal form at the same three tiers is 121, 153, and 913.7 bytes. The ratio between literal and compact rises from **3.4× at tier 1** to **9.2× at tier 3**. Applying `gzip` to the literal form closes the gap only to 3.0× / 3.7× / **3.9× at tier 3**. The structural saving cannot be recovered by an opportunistic compressor, because the script body is not present in the compact form at all — it lives once in the definition record (912 bytes at tier 3, amortized to ≈0.91 bytes per invocation over 1 000 calls) and is referenced by a 4-byte `ActionId` thereafter.
+L2 (lab [`paper05-lab2-bytes-per-event`](data/paper05-lab2-bytes-per-event/) @ `99e8202`) instruments the codec on the substrate's wire surface, comparing the compact encoding (`ActionId` + parameters) against the literal encoding (script DSL + parameter assignments) at three tiers of verb richness, with and without an opportunistic `gzip` on the literal form.
 
-The cross-validation against Paper 2 Lab 4 sharpens the claim. Tier 3's compact payload is 67.7 bytes here; Paper 2 Lab 4 measured 67 bytes for the production verb that the synthetic tier-3 stand-in calibrates against. The two numbers agree within rounding. At full production scale, [Paper 2](02-program-value-separability.md) Lab 4 reports the literal-to-compact ratio reaches 20× over a thousand invocations of a real ticket-purchase verb. The 9.2× headline here is a conservative lower bound under the lab's literal-projection; the production figure is reported in Paper 2 Lab 4.
+Bytes-per-event in compact form is 33 at the trivial-arithmetic tier (68-byte script body), 33 at the branching-arithmetic tier (99-byte body), and 96.7 at the production-shaped tier (681-byte body). The literal form at the same three tiers is 118, 150, and 910.7 bytes. The ratio between literal and compact rises from **3.6× at tier 1** to **9.4× at tier 3**. Applying `gzip` to the literal form closes the gap only to 3.2× / 3.9× / **4.0× at tier 3**. The structural saving cannot be recovered by an opportunistic compressor, because the script body is not present in the compact form at all — it lives once in the definition record (909 bytes at tier 3, amortized to ≈0.91 bytes per invocation over 1 000 calls) and is referenced by a 4-byte `ActionId` thereafter.
+
+The cross-validation against Paper 2 Lab 4 sharpens the claim. Tier 3's compact payload is 67.7 bytes here; Paper 2 Lab 4 measured 67 bytes for the production verb that the synthetic tier-3 stand-in calibrates against. The two numbers agree within rounding. At full production scale, [Paper 2](02-program-value-separability.md) Lab 4 reports the literal-to-compact ratio reaches 20× over a thousand invocations of a real ticket-purchase verb. The 9.4× headline here is a conservative lower bound under the lab's literal-projection; the production figure is reported in Paper 2 Lab 4.
 
 Three properties of the measurement deserve naming. First, density is structural rather than algorithmic — compression operating after the fact cannot recover what naming achieved by construction. Second, the saving grows with verb richness; a domain whose operations are named transitions ([Paper 2](02-program-value-separability.md) §3) replicates per event at a width that does not scale with the operation's internal complexity. Third, replication across datacenters, in this régime, is event streaming over a substrate that does not carry state by construction — the wire is the program as uttered, not as expanded.
 
@@ -296,6 +302,8 @@ Three properties of the measurement deserve naming. First, density is structural
 The substrate is written by the producer and read by the consumer; the role of the transport between them is to hold the corpus durably and to deliver entries at the consumer's pace. The producer does not know the consumer's rate; the consumer's progress is measured against the substrate's own offsets, not against any signal from the producer. A consumer that lags absorbs the lag in its own cursor; the producer's write path is unaffected.
 
 This inversion is not a property of any particular delivery service. It is a property of the substrate. The producer's journal is the source of record; any consumer downstream is a reader of that record. An off-the-shelf webhook delivery service satisfies the consumer-pull requirement without adding any structure the substrate did not already license: it accepts an inbound POST from the producer's local journal callback, holds it durably, and offers it to subscribers at the rate they fetch. The fact that an off-the-shelf service suffices is the relevant observation; the service is a witness to the substrate's structural sufficiency, not an extension of it.
+
+This is the *passive-consumer* arrangement: the consumer reads from a durable buffer at its own pace, and no party coordinates the two sides. It is distinct from a synchronous replicated-actor topology — one instance authoritative, others following under an elected role — which is a different mechanism with different coupling and is not the arrangement measured here. E2 is the claim that the *passive* path needs no coordinator, not that every replication topology dispenses with one.
 
 The shape can be rendered between five roles: the primary instance at site A, the primary's journal, the delivery service, the consumer at site B, and the consumer's journal.
 
@@ -324,13 +332,13 @@ The diagram contains no synchronous coupling between producer and consumer. The 
 
 §4.2 stated that replication "differs from deployment only in the site at which the same corpus is replayed." The structural content of this claim is that the consumer at site B, running the same binary as the producer at site A, derives the same program from the corpus it reads as the producer derived from the corpus it wrote. No coordinator is required to synchronise the two sites; the substrate is the coordinator. This property removes the need for any external coordinator between sites: coordination is implicit in the shared corpus rather than enacted by a privileged runtime.
 
-L3 (lab [`paper05-lab3-inproc-symmetric`](data/paper05-lab3-inproc-symmetric/) @ `3984c5d`) measures this property at the level of Reactions — the partition primitive of [Paper 3](03-reactions-and-partition.md) — under two terminators, `Emit` and `MarkAsSkip` (Elide). Two instances of the same actor binary consume the same event stream; the lab compares, at the byte level, both the callback tuples each instance's Reactions produce and the journal segments each instance writes. Across 6 cells (N ∈ {100, 500, 1 000} × K = 2 repetitions), **all 6 cells produce 0 callback byte diffs and 0 journal-segment byte diffs**. The instance at site B reconstructs the Reaction output entirely from the journal prefix it reads.
+L3 (lab [`paper05-lab3-inproc-symmetric`](data/paper05-lab3-inproc-symmetric/) @ `99e8202`) measures this property at the level of Reactions — the partition primitive of [Paper 3](03-reactions-and-partition.md) — under two terminators, `Emit` and `MarkAsSkip` (Elide). Two instances of the same actor binary consume the same event stream; the lab compares, at the byte level, both the callback tuples each instance's Reactions produce and the journal segments each instance writes. Across 6 cells (N ∈ {100, 500, 1 000} × K = 2 repetitions), **all 6 cells produce 0 callback byte diffs and 0 journal-segment byte diffs**. The instance at site B reconstructs the Reaction output entirely from the journal prefix it reads.
 
-The discipline that makes this work without a coordinator is a property of the program, not of the runtime. A Reaction's guard refers to data the program has explicitly *exposed* alongside its events — the `expose` clause established in [Paper 3](03-reactions-and-partition.md). Whatever a Reaction at B needs to evaluate a guard travels in the corpus the program writes; whatever the program chose not to expose, no remote evaluator can see. The substrate carries the program, and the program carries the contract on which its consumers depend.
+The discipline that makes this work without a coordinator is a property of the program, not of the runtime. A Reaction's guard refers only to data resident in the corpus — in L3, the arguments the program journaled when it invoked each operation, frozen at write time by the anti-porosity of [Paper 1](01-anti-porosity.md). Whatever a Reaction at B needs to evaluate a guard travels in the corpus the program writes; whatever the program did not write there, no remote evaluator can see. The substrate carries the program, and the program carries the contract on which its consumers depend.
 
 [Paper 4](04-cross-actor-continuity.md), §5.3 and claim 10, named the closely related property for cross-actor causation: the journal record of the act of speaking from one actor to another is what survives cross-datacenter replication, where canonical apparatuses (CDC, log shipping, message-queue replication) reconstruct state and lose the causal chain that produced it. §5.2 of the present paper completes the picture from the substrate side: the journal record is what the consumer reads, and the consumer's Reactions derive from it without needing the producer's runtime to be reachable.
 
-Two caveats are worth naming, in the spirit of Capa 2 honesty. L3's transport is in-process — a channel between two instances in the same process — and its measurement caps at N = 1 000 entries (beyond which the harness becomes memory-bound). The symmetric property is structurally insensitive to the transport's distance and to N: a Reaction's match path is per-entry, and the journal-segment diff at N = 1 000 is identically zero across all measured cells. But the lab demonstrates the property in vitro; full cross-datacenter delivery is the operational mode realised in §7.2, and the higher-N regime is bounded by the consumer's append throughput rather than by anything the matcher does.
+Two caveats are worth naming, in the spirit of full disclosure. L3's transport is in-process — a channel between two instances in the same process — and its measurement caps at N = 1 000 entries (beyond which the harness becomes memory-bound). The symmetric property is structurally insensitive to the transport's distance and to N: a Reaction's match path is per-entry, and the journal-segment diff at N = 1 000 is identically zero across all measured cells. But the lab demonstrates the property in vitro; full cross-datacenter delivery is the operational mode realised in §7.2, and the higher-N regime is bounded by the consumer's append throughput rather than by anything the matcher does.
 
 #### What §5.2 establishes, and what §5.3 develops next
 
@@ -363,9 +371,9 @@ The three symmetries are not corollaries discovered after the fact. They follow 
 
 #### What the substrate measures
 
-L4 (lab [`paper05-lab4-passive-consumer`](data/paper05-lab4-passive-consumer/) @ `a21a655`) instruments the materialize cycle on three storage backends under the compact-action régime of L1. The dataset spans 3 backends × 3 journal sizes × 2 protocol layers × K = 2 measurement repetitions = 36 cells, plus 3 catch-up cells.
+L4 (lab [`paper05-lab4-passive-consumer`](data/paper05-lab4-passive-consumer/) @ `99e8202`) instruments the materialize cycle on three storage backends under the compact-action régime of L1. The dataset spans 3 backends × 3 journal sizes × 2 protocol layers × K = 2 measurement repetitions = 36 cells, plus 3 catch-up cells.
 
-Under régime N = 100 000 compact entries, the destination journal converges at **≈ 2 419 events/sec on FileSystem**, **≈ 1 004 events/sec on MySQL**, and **≈ 764 events/sec on SQL Server (SQL Edge stand-in)**. The wire round-trip itself accounts for **less than 0.6 % of the cycle** at every cell; the substrate cost is the destination's append rate, not the operation. A replica actor instantiated over the destination journal — a verification step, not part of the backup operation — reaches the same in-memory state as the primary in **18 of 18 measured cells across the three backends and three journal sizes**.
+Under régime N = 100 000 compact entries, the destination journal converges at **≈ 2 150 events/sec on FileSystem**, **≈ 952 events/sec on MySQL**, and **≈ 766 events/sec on SQL Server (SQL Edge stand-in)**. The wire round-trip itself accounts for **less than 0.6 % of the cycle** at every cell; the substrate cost is the destination's append rate, not the operation. A replica actor instantiated over the destination journal — a verification step, not part of the backup operation — reaches the same in-memory state as the primary in **18 of 18 measured cells across the three backends and three journal sizes**.
 
 The independence from backend is the empirically significant property here. The equivalence is not a feature of any storage technology; it holds wherever the journal can be appended to.
 
@@ -375,7 +383,7 @@ The destination's three reading regimes — near the head of the substrate, paus
 
 #### Caveats
 
-Two caveats are worth naming, in the spirit of Capa 2 honesty. First, L4's transport between primary and destination is in-process — a local proxy, not a real cross-datacenter wrapper; the network latency × number of round-trips a cross-datacenter deployment adds is bounded but not measured here. Second, L4 measures the *passive* half of the equivalence — the destination consuming the corpus — not the act of promoting a destination to authoritative status; that promotion is the E1 case §5.1 already developed, and is structurally available to any destination that holds the corpus to a chosen EntryId.
+Two caveats are worth naming, in the spirit of full disclosure. First, L4's transport between primary and destination is in-process — a local proxy, not a real cross-datacenter wrapper; the network latency × number of round-trips a cross-datacenter deployment adds is bounded but not measured here. Second, L4 measures the *passive* half of the equivalence — the destination consuming the corpus — not the act of promoting a destination to authoritative status; that promotion is the E1 case §5.1 already developed, and is structurally available to any destination that holds the corpus to a chosen EntryId.
 
 The operational realisation of E3 — the modes under which a destination starts, how the program declares which entries materialize where, the transport that carries them, and the dimensions along which the construct scales (heterogeneous backends, multi-destination fanout, per-datacenter topology) — is developed in §7.3.
 
@@ -399,15 +407,15 @@ The same mechanism applies in the reverse direction. A producer whose canonical 
 
 #### What the substrate measures
 
-L5 (lab [`paper05-lab5-offline`](data/paper05-lab5-offline/) @ `d5cb906`) measures the offline equivalence by configuring an actor's substrate as a local persistent journal with an asynchronous flush to a remote canonical backend (MySQL and Azure SQL Edge). The remote backend is then partitioned for a measured interval (~5 s of write volume); the partition is resolved; the backlog drains.
+L5 (lab [`paper05-lab5-offline`](data/paper05-lab5-offline/) @ `99e8202`) measures the offline equivalence by configuring an actor's substrate as a local persistent journal with an asynchronous flush to a remote canonical backend (MySQL and Azure SQL Edge). The remote backend is then partitioned for a measured interval (~5 s of write volume); the partition is resolved; the backlog drains.
 
 Three properties of the measurement deserve naming.
 
-1. **Decoupling of write latency from the remote.** Under online operation, the primary appends at **517 µs p50 against MySQL** and **455 µs p50 against SQL Edge** — **7.29× and 2.92× faster** than the unbuffered direct path. The producer's lock release time is bounded by the local substrate's append, not by the remote's commit latency.
-2. **Partition latency is not worse than online latency.** During the partition, the buffered primary's per-append p50 is 338 µs on MySQL and 381 µs on SQL Edge — the same régime as online; the write lock never traverses the network. The substrate's local persistence is what makes this hold; the absence or presence of the remote does not enter the write path.
-3. **Catch-up is linear in the backlog.** On reconnect, the accumulated entries drain at the remote backend's steady-state ingest rate — ≈ 280 events/sec on MySQL, ≈ 420 events/sec on SQL Edge — with **zero events lost** across the measured cells. Catch-up is not a separate mode; it is the remote's cursor advancing from its last position to the present head.
+1. **Decoupling of write latency from the remote.** Under online operation, the primary appends at **516 µs p50 against MySQL** and **429 µs p50 against SQL Edge** — **6.0× and 2.7× faster** than the unbuffered direct path. The producer's lock release time is bounded by the local substrate's append, not by the remote's commit latency.
+2. **Partition latency is not worse than online latency.** During the partition, the buffered primary's per-append p50 is 333 µs on MySQL and 339 µs on SQL Edge — the same régime as online; the write lock never traverses the network. The substrate's local persistence is what makes this hold; the absence or presence of the remote does not enter the write path.
+3. **Catch-up is linear in the backlog.** On reconnect, the accumulated entries drain at the remote backend's steady-state ingest rate — ≈ 296 events/sec on MySQL, ≈ 500 events/sec on SQL Edge — with **zero events lost** across the measured cells. Catch-up is not a separate mode; it is the remote's cursor advancing from its last position to the present head.
 
-Two caveats are worth naming, in the spirit of Capa 2 honesty. First, L5 partitions the remote by stopping its container — a realistic partition mode but not the only one; half-open connections without container death would exercise the connection-timeout path differently and are not measured here. Second, the partition-phase latency being at or below the online phase is partly an artifact of single-host scheduling — the asynchronous flush thread is idle during partition, freeing CPU for the writer; in production with separate threads on separate cores, the artifact shrinks, but the structural property — the write path is independent of the remote's reachability — holds either way.
+Three caveats are worth naming, in the spirit of full disclosure. First, L5 partitions the remote by stopping its container — a realistic partition mode but not the only one; half-open connections without container death would exercise the connection-timeout path differently and are not measured here. Second, the partition-phase latency being at or below the online phase is partly an artifact of single-host scheduling — the asynchronous flush thread is idle during partition, freeing CPU for the writer; in production with separate threads on separate cores, the artifact shrinks, but the structural property — the write path is independent of the remote's reachability — holds either way. Third, *what* drains on reconnect is journal entries to the canonical backend — the remote's cursor advancing to the present head; the measured path does not re-emit cross-actor *tells*. Tell re-delivery on a replay-style catch-up is a separate path belonging to the tell primitive ([Paper 4](04-cross-actor-continuity.md)), with its own delivery semantics and not exercised here; the *zero-events-lost* result is a property of journal drain to the backend, not a claim about tell re-delivery on replay.
 
 The operational realisation of E4 — the configuration that enables the local substrate as the primary's source of truth, the asynchronous component that flushes to the canonical backend, and the catch-up path on reconnect — is developed in §7 alongside the other operational details.
 
@@ -427,23 +435,23 @@ The relevant comparison is between two regimes for the substrate's persistence. 
 
 #### What the substrate measures
 
-L6 (lab [`paper05-lab6-latency-budget`](data/paper05-lab6-latency-budget/) @ `86905dc`) measures per-entry append latency on three local backends under a one-event = one-durable-commit régime: a local FileSystem journal, a co-located SQL Server (Azure SQL Edge stand-in), and a co-located MySQL. The dataset spans 3 backends × K = 5 runs × N = 100 000 entries per backend = 1.5 million samples, with the first 1 000 appends per cell discarded as warm-up.
+L6 (lab [`paper05-lab6-latency-budget`](data/paper05-lab6-latency-budget/) @ `99e8202`) measures per-entry append latency on three local backends under a one-event = one-durable-commit régime: a local FileSystem journal, a co-located SQL Server (Azure SQL Edge stand-in), and a co-located MySQL. The dataset spans 3 backends × K = 5 runs × N = 100 000 entries per backend = 1.5 million samples, with the first 1 000 appends per cell discarded as warm-up.
 
 | Backend                   | Append p50 (µs) | Append p95 (µs) | Append p99 (µs) | Ratio to local FS (p50) |
 |---------------------------|-----------------|-----------------|-----------------|--------------------------|
-| Local FileSystem journal  | **347**         | 581             | 1 919           | 1.0×                     |
-| Co-located SQL Server     | 1 126           | 1 891           | 2 580           | **3.24×**                |
-| Co-located MySQL          | 982             | 1 498           | 2 021           | **2.83×**                |
+| Local FileSystem journal  | **328**         | 540             | 3 434           | 1.0×                     |
+| Co-located SQL Server     | 1 170           | 1 916           | 2 479           | **3.56×**                |
+| Co-located MySQL          | 1 005           | 1 536           | 1 861           | **3.06×**                |
 
 Durability is parameterised identically across the three backends: the FileSystem backend invokes a per-entry flush-to-disk; SQL Server runs with default per-commit log flush; MySQL runs with `innodb_flush_log_at_trx_commit=1` and `sync_binlog=1`. The measurement therefore compares the same physical durability guarantee across all three — one entry, one durable commit.
 
-The journal-append regime favours the substrate by ≈ 3× over both RDBMS engines at the median, and the same ordering holds at the long tail (p95 and p99). The advantage is *structural*: both RDBMS engines land in the same ≈ 3× band, so the gap is a property of the substrate's append being one *fsync* per record versus the RDBMS being one *fsync* per redo-log entry plus the protocol overhead of a transaction.
+The journal-append regime favours the substrate by ≈ 3× over both RDBMS engines at the median, and the ordering holds at p95 (the FileSystem journal remains the fastest). The advantage is *structural*: both RDBMS engines land in the same ≈ 3× band, so the gap is a property of the substrate's append being one *fsync* per record versus the RDBMS being one *fsync* per redo-log entry plus the protocol overhead of a transaction. At p99 the ordering inverts — the FileSystem journal's tail (3 434 µs) exceeds both engines' — because a direct `fsync` is exposed to occasional host-level flush and GC stalls that the RDBMS engines' buffered log-writers absorb; the median and p95 advantage is the operative figure, and the p99 tail is a durability-flush artifact, not a throughput property.
 
 The corollary to E1–E4 follows. Every replay-based operation costs ≈ 3× less per entry against the local-journal substrate than against a co-located RDBMS in the durable-commit regime. Deployment at N entries (E1, §5.1), replication at N entries (E2, §5.2), backup ingestion at N entries (E3, §5.3), and catch-up after a partition at N entries (E4, §5.4) inherit the same factor.
 
 #### Caveats
 
-Two caveats are worth naming, in the spirit of Capa 2 honesty.
+Two caveats are worth naming, in the spirit of full disclosure.
 
 First, the comparison is *conservative against the substrate*. The RDBMS engines in L6 run on ephemeral container storage — MySQL on a tmpfs mount, SQL Edge on a Docker named volume — whereas the local journal goes through the host's NVMe controller. On a production RDBMS deployment with real disk, the RDBMS side would slow further; the 3× ratio reported here is therefore a lower bound, not an upper one. Adding network latency for a remote RDBMS — a typical production topology — adds a flat additive term per commit, pushing the ratio further still.
 
@@ -457,7 +465,7 @@ Second, the comparison can be narrowed by relaxing durability on the RDBMS side.
 
 Two further operations follow from the substrate without requiring separate apparatuses. The substrate is a total, ordered record of every named operation performed by the program. Conventional observability stacks reconstruct this record indirectly by correlating logs, metrics, and traces emitted outside the program. Under the substrate condition, the record already exists in primary form; any observability layer becomes a reader of the substrate rather than a reconstructor of program history. Sagas do not appear as patterns to be inferred post-hoc from logs; they are named at write time by the program's partition primitive ([Paper 3](03-reactions-and-partition.md)) and therefore exist in the substrate as first-class entries.
 
-Replay is deterministic: the same corpus, applied to the same binary, produces the same in-memory state at the same cursor position. A runtime issue traceable to an entry is therefore reproducible by replaying the substrate to that entry's position; a conditional breakpoint over the entry's identifier is trivial because the identifier is a position on the cursor, and the cursor advances one entry at a time. Debugging reduces from forensic analysis over logs to advancing the cursor to a chosen position in the substrate. Both observations exist on the same axis as §5.1–§5.5: they require no additional mechanism beyond the substrate itself. §6 turns to the cost in operational complexity that the canonical disciplines pay to achieve, by separate apparatuses, what the substrate already provides.
+Replay is deterministic — by the argument-capture precondition of §4.1, the same corpus, applied to the same binary, produces the same in-memory state at the same cursor position, because every argument in the corpus is a value frozen at write time rather than an expression re-evaluated on read. A runtime issue traceable to an entry is therefore reproducible by replaying the substrate to that entry's position; a conditional breakpoint over the entry's identifier is trivial because the identifier is a position on the cursor, and the cursor advances one entry at a time. Debugging reduces from forensic analysis over logs to advancing the cursor to a chosen position in the substrate. Both observations exist on the same axis as §5.1–§5.5: they require no additional mechanism beyond the substrate itself. §6 turns to the cost in operational complexity that the canonical disciplines pay to achieve, by separate apparatuses, what the substrate already provides.
 
 ---
 
@@ -469,7 +477,7 @@ This section is not a critique of existing practices but a structural comparison
 
 ### 6.1 Blue-green vs substrate
 
-Blue-green deployment [Fowler 2010] provisions two parallel production environments and switches traffic between them at release time. The apparatus has three components: a duplicate environment, a router that decides which environment is authoritative at any moment, and a procedure for bringing the standby environment to the state from which it can accept traffic. The first two are operational infrastructure; the third — bringing the standby to a serving state — is what the apparatus does that the substrate condition recasts.
+Blue-green deployment (Fowler, 2010) provisions two parallel production environments and switches traffic between them at release time. The apparatus has three components: a duplicate environment, a router that decides which environment is authoritative at any moment, and a procedure for bringing the standby environment to the state from which it can accept traffic. The first two are operational infrastructure; the third — bringing the standby to a serving state — is what the apparatus does that the substrate condition recasts.
 
 Under the substrate condition (§4.1), the act of bringing a process to a state in which it can serve is the act of replaying the journal up to the present head (E1, §4.2). The new version's instantiation differs from the old version's continued operation only in the position of its read cursor. The duplicate environment is therefore not a parallel system to which state must be propagated; it is a process whose cursor on the same corpus has not yet reached the present head. The replay that the apparatus performs implicitly — by re-running migration scripts, by exporting and re-importing state, by re-priming caches — is performed explicitly by the substrate's reading discipline.
 
@@ -477,7 +485,7 @@ The structural redundancy is not that blue-green is wrong; it is that blue-green
 
 ### 6.2 Change-data-capture vs event streaming
 
-Change-data-capture [Debezium project; Maxwell project] reads the binary log of a relational store and re-emits each row-level change as an event on an external transport. The apparatus exists because the originating system does not emit events; it emits state changes, and CDC observes those changes and translates them back into the event form that downstream consumers require. The translation step is the apparatus.
+Change-data-capture (Debezium, n.d.; Maxwell, n.d.) reads the binary log of a relational store and re-emits each row-level change as an event on an external transport. The apparatus exists because the originating system does not emit events; it emits state changes, and CDC observes those changes and translates them back into the event form that downstream consumers require. The translation step is the apparatus.
 
 The translation is informationally lossy in one direction and inferential in the other. State changes do not carry the operation that produced them; CDC infers, from a sequence of column-level deltas, what the application program intended. The inference is necessarily heuristic — two distinct programmatic operations can produce identical column-level deltas, and the CDC consumer cannot recover the distinction. The apparatus is therefore not only a transport; it is a reconstruction layer that approximates events from state, with the loss inherent in that approximation.
 
@@ -485,7 +493,7 @@ Under the substrate condition the reconstruction has no work to do. The originat
 
 ### 6.3 Snapshot backup vs passive consumer
 
-Snapshot backup [WAFL; PostgreSQL PITR; Veeam] captures the state of a data store at a chosen moment and writes that capture to an archival medium. Recovery instantiates the captured state and resumes operation from it. The apparatus has two components: the snapshot mechanism that produces the capture, and the recovery procedure that consumes it. Both operate on state — the captured artifact is a frozen image of what the program had stored, not a record of what the program had done.
+Snapshot backup (Hitz, Lau, & Malcolm, 1994; PostgreSQL, n.d.; Veeam, n.d.) captures the state of a data store at a chosen moment and writes that capture to an archival medium. Recovery instantiates the captured state and resumes operation from it. The apparatus has two components: the snapshot mechanism that produces the capture, and the recovery procedure that consumes it. Both operate on state — the captured artifact is a frozen image of what the program had stored, not a record of what the program had done.
 
 The structural property the apparatus relies on is that the program's state, if captured atomically at a moment, suffices to characterise the program at that moment. The property holds for programs that are reducible to their state. It does not hold for programs that are reducible to their history: a snapshot of the state at moment *t* does not record the operations that produced it, only their cumulative effect, and recovery from the snapshot loses the operational record.
 
@@ -495,7 +503,7 @@ The redundancy is structural in two directions. First, the snapshot apparatus is
 
 ### 6.4 Message queue buffer vs persistent local journal
 
-The message-queue pattern places a durable buffer between a producer and a consumer that may not be reachable in real time. RabbitMQ's dead-letter exchanges, Kafka's consumer offsets, and the eventually-consistent stores derived from Dynamo [DeCandia et al. 2007] each place an apparatus at the boundary between the system and its counterpart. The apparatus is external to the producer; the producer writes to its store, and a separate mechanism — the queue, the broker, the convergence protocol — handles the case in which the consumer is unreachable.
+The message-queue pattern places a durable buffer between a producer and a consumer that may not be reachable in real time. RabbitMQ's dead-letter exchanges, Kafka's consumer offsets, and the eventually-consistent stores derived from Dynamo (DeCandia et al., 2007) each place an apparatus at the boundary between the system and its counterpart. The apparatus is external to the producer; the producer writes to its store, and a separate mechanism — the queue, the broker, the convergence protocol — handles the case in which the consumer is unreachable.
 
 The structural property the apparatus relies on is that the producer's store and the consumer's store are different artifacts, with a transport between them that must be made durable. Under that structural premise, the queue is the right apparatus: it absorbs the period during which the consumer cannot reach the producer, and it persists the messages that would otherwise be lost.
 
@@ -505,7 +513,7 @@ The redundancy here is the most structural of the four. Where the queue, the bro
 
 ### 6.5 The substrate match table
 
-The four examinations of §6.1–§6.4 share a structure. Each canonical pattern relies on a property the substrate condition supplies by construction; each apparatus performs work that the journal, written as the program, already does. The pattern is summarised in the table below, in the form of Paper 4 §6.4 [Paper 4 §6.4]: a single question — *does the apparatus address a property the substrate already provides?* — answered for each pattern.
+The four examinations of §6.1–§6.4 share a structure. Each canonical pattern relies on a property the substrate condition supplies by construction; each apparatus performs work that the journal, written as the program, already does. The pattern is summarised in the table below, in the form of [Paper 4](04-cross-actor-continuity.md) §6.4: a single question — *does the apparatus address a property the substrate already provides?* — answered for each pattern.
 
 | Pattern | Property the apparatus relies on | Does the substrate condition already provide it? |
 |---|---|---|
@@ -536,7 +544,7 @@ A `Performance` is started in one of two modes. A primary starts with `Start()` 
 
 The handover is a single sequence over the gate. The follower invokes `LockWhileNotSyncronized()`, which pauses writes on the live primary and returns the EntryId at which the pause occurred. The follower then catches up over the residual tail with `CatchUpFromJournal(targetEntryId)`, which replays pending events under the actor's write lock until the follower's cursor reaches the targeted EntryId. `UnlockAndRunAlive()` flips the follower's gate and releases the primary. From the perspective of any external caller, the system transitions from "primary alive" to "follower alive" in a single atomic moment — the gate flip — preceded by replay of the substrate and nothing else.
 
-The structural content of the apparatus is therefore minimal. The gate is bookkeeping over the substrate's read cursor; the runtime contains no separate deployment subsystem, no state-extraction layer, and no schema-mediated handoff. The orchestration tail measured in §5.1 — below 30 µs at every measured N — is the cost of the gate flip and the residual-tail replay, not of any apparatus. Appendix A lists the exact source locations of each named surface.
+The structural content of the apparatus is therefore minimal. The gate is bookkeeping over the substrate's read cursor; the runtime contains no separate deployment subsystem, no state-extraction layer, and no schema-mediated handoff. The orchestration tail measured in §5.1 — below 0.3 ms at every measured N — is the cost of the gate flip and the residual-tail replay, not of any apparatus. Appendix A lists the exact source locations of each named surface.
 
 ### 7.2 Event streaming: push-to-pull inversion
 
@@ -562,24 +570,24 @@ The instantiation has four bricks. The reader is asked to hold them separately a
 
 ```
 actor.Reactions.DefineReaction("...")
-    .Job().Company().ReadForward()
+    .Job().Company()
     .Seek("...")
         .OnMatch("...")
     .Metadata.Materialize("DC-B");
 ```
 
-`Metadata.Materialize("DC-B")` records, for every entry that matches the pattern, a row in the `EventMaterialization` table naming the destination. The row is the program's declaration that this entry is part of the corpus the named destination is to receive. Reading the program reveals which entries are intended for which destinations, in the same DSL the program is written in — the construct is, in the sense of [Paper 1](01-anti-porosity.md), an instance of the homoiconic recording the substrate condition requires.
+`Metadata.Materialize("DC-B")` records, for every entry that matches the pattern, a row in the `EventMaterialization` table naming the destination. The row is the program's declaration that this entry is part of the corpus the named destination is to receive. Reading the program reveals which entries are intended for which destinations, in the same DSL the program is written in — the construct is, in the sense of [Paper 1](01-anti-porosity.md), an instance of the code-as-data recording the substrate condition requires.
 
-**Brick 3 — The wire protocol between primary and destination.** The destination, when it wakes up, asks the primary for the entries it has not yet seen. The exchange is realised by four wire verbs on the primary's `actor.Materialization` sub-namespace. `ReadRecordsAfter(destination, fromEntryId)` returns the raw substrate records the destination is missing — Capa 1, the program as the primary wrote it. `ConfirmUntil(destination, entryId)` records the destination's acknowledgment on the primary side as a Max-monotonic watermark — the primary now knows the destination has the corpus up to that EntryId. `ReadReactions(destination)` and `ReadElidedRange(destination, from, to)` return Capa 2 derived state — the Reaction registry's atomic snapshot and the elision markers the primary computed in the same range — so that a destination electing to replay can reach the same in-memory state the primary reached without re-running the Reactions itself.
+**Brick 3 — The wire protocol between primary and destination.** The destination, when it wakes up, asks the primary for the entries it has not yet seen. The exchange is realised by four wire verbs on the primary's `actor.Materialization` sub-namespace. `ReadRecordsAfter(destination, fromEntryId)` returns the raw substrate records the destination is missing — Layer 1, the program as the primary wrote it. `ConfirmUntil(destination, entryId)` records the destination's acknowledgment on the primary side as a Max-monotonic watermark — the primary now knows the destination has the corpus up to that EntryId. `ReadReactions(destination)` and `ReadElidedRange(destination, from, to)` return Layer 2 derived state — the Reaction registry's atomic snapshot and the elision markers the primary computed in the same range — so that a destination electing to replay can reach the same in-memory state the primary reached without re-running the Reactions itself.
 
 The destination side is the fluent client `MaterializeMirror`. The contract is two-layered:
 
 ```
-mirror.Sync();                       // Capa 1 — orchestrates (a) + (b).
-mirror.AsProgramMirror().Sync();     // Capa 2 — orchestrates (a) + (c) + (d) + (b).
+mirror.Sync();                       // Layer 1 — orchestrates (a) + (b).
+mirror.AsProgramMirror().Sync();     // Layer 2 — orchestrates (a) + (c) + (d) + (b).
 ```
 
-`Sync()` fetches records and confirms the watermark; `AsProgramMirror().Sync()` additionally fetches the Reactions snapshot and elision markers, so that the destination's program state is reconstructible without instantiating the Reaction matcher. The destination decides what to do with the result — a passive backup persists the records and discards Capa 2; a replicated read-replica persists both and applies the elision; a snapshot-time mirror runs Capa 1 only.
+`Sync()` fetches records and confirms the watermark; `AsProgramMirror().Sync()` additionally fetches the Reactions snapshot and elision markers, so that the destination's program state is reconstructible without instantiating the Reaction matcher. The destination decides what to do with the result — a passive backup persists the records and discards Layer 2; a replicated read-replica persists both and applies the elision; a snapshot-time mirror runs Layer 1 only.
 
 **Brick 4 — Recovery primitive.** When a destination has been offline for an arbitrary period — or when an intermediate delivery service has exhausted its retention — the destination resumes by issuing `Sync()` against its current watermark. The primary serves the missing entries from its substrate; the destination's watermark advances; the round-trip is the same as steady-state. There is no separate recovery mode in the runtime, because there is no separate steady-state mode either: every fetch is `Sync()` against the watermark, and every catch-up is `Sync()` over a wider range. The recovery primitive is the steady-state primitive.
 
@@ -587,13 +595,13 @@ The four bricks compose into a single operation. The program declares which entr
 
 Three dimensions of the construct deserve naming, because each is structurally present without requiring a separate apparatus.
 
-**Heterogeneous backends.** `Diary` selects its storage implementation polymorphically from `(DatabaseType, connectionString)` at construction time. A primary running on the local FileSystem can materialise to a destination running on MySQL or SQL Server, and the wire protocol carries the same raw records across the heterogeneity — `ReadRecordsAfter` returns Capa 1 records regardless of which backend the primary stores them in. The four wire verbs are implemented on each of the four backends with the same contract; L4 (§5.3) exhibits this independence with **18 of 18 cells reaching equal in-memory state across three backends and three journal sizes**.
+**Heterogeneous backends.** `Diary` selects its storage implementation polymorphically from `(DatabaseType, connectionString)` at construction time. A primary running on the local FileSystem can materialise to a destination running on MySQL or SQL Server, and the wire protocol carries the same raw records across the heterogeneity — `ReadRecordsAfter` returns Layer 1 records regardless of which backend the primary stores them in. The four wire verbs are implemented on each of the four backends with the same contract; L4 (§5.3) exhibits this independence with **18 of 18 cells reaching equal in-memory state across three backends and three journal sizes**.
 
 **Multi-destination fanout.** `AddRecordWrittenCallback` chains additional subscribers without displacing the existing one. Multiple destinations may register against the same primary; the primary's write path is unaware of how many. Each destination holds its own watermark on the primary side; each progresses at its own rate; the primary serves them independently. Multi-backup of one actor — and the per-destination retention policies that go with it — falls out of the chain primitive.
 
 **Per-datacenter topology.** A datacenter is an operational placement of `Performance` instances; it is not a construct the actor knows about. A primary at datacenter A and a destination at datacenter B is a topology decision realised by the operator: a local SVIX at each site for the Cue feed of §7.2, and `/materialize` processes at each site whose mirror clients fetch from the local SVIX or directly from the primary. The substrate's locality property (the journal is the actor's, not the system's; cross-ref §6.2 of [Paper 3](03-reactions-and-partition.md)) extends laterally: each datacenter's destinations are wired to the local instance of the delivery service, and cross-site bandwidth is consumed only by the SVIX-to-SVIX replication the off-the-shelf service performs.
 
-A gap is named honestly in the spirit of Capa 2. The `Diary.OnRecordWritten` setter is wired today for primary FileSystem and for the buffered régime; for primary MySQL or SQL Server the setter is a silent no-op. The canonical case of the substrate (a FileSystem-primary deployment) is unaffected, and the §7.2 push-to-pull path runs against the FileSystem callback as designed. A future deployment with primary MySQL would require the callback to be wired in the MySQL storage path — a localised patch, not a structural change.
+A gap is worth naming here, in the same spirit of full disclosure. The `Diary.OnRecordWritten` setter is wired today for primary FileSystem and for the buffered régime; for primary MySQL or SQL Server the setter is a silent no-op. The canonical case of the substrate (a FileSystem-primary deployment) is unaffected, and the §7.2 push-to-pull path runs against the FileSystem callback as designed. A future deployment with primary MySQL would require the callback to be wired in the MySQL storage path — a localised patch, not a structural change.
 
 ### 7.4 Numbers
 
@@ -603,13 +611,13 @@ The operational régime of the four bricks above runs under the latency budget �
 
 ## 8. Relation to previous work in this paper series
 
-The substrate condition stated in §4.1 — that the journal is homoiconic, dense, and made of compact named operations — is not asserted ex nihilo by the present paper. Each of its components is the conclusion of prior structural analysis in this series, and each entered §4.1 as a precondition rather than as a claim of this paper. Without those preconditions the four equivalences of §4.2 would not follow; with them, the four equivalences are corollaries of the substrate's properties under variations of when and where the read happens. §8 makes the chain of dependence explicit.
+The substrate condition stated in §4.1 — that the journal is code-as-data, dense, and made of compact named operations — is not asserted ex nihilo by the present paper. Each of its components is the conclusion of prior structural analysis in this series, and each entered §4.1 as a precondition rather than as a claim of this paper. Without those preconditions the four equivalences of §4.2 would not follow; with them, the four equivalences are corollaries of the substrate's properties under variations of when and where the read happens. §8 makes the chain of dependence explicit.
 
 [Paper 1](01-anti-porosity.md) introduces *anti-porosity* as a design principle for the boundary between domain code and persisted form. The journal records what the program said, not the data structures the program manipulated; entries are sentences in the same language the program is written in, and every effect that crosses the boundary is named in that language rather than summarised as a state delta. Anti-porosity is the precondition under which the journal can be the program at all: a porous journal records states whose operational origin is lost, and the substrate condition reduces to recording a derivative of the program rather than the program itself. §4.1 takes anti-porosity as given; without it, E2 (replication as sharing history) and E3 (backup as copying the program) collapse into the canonical regimes of §2.
 
 [Paper 2](02-program-value-separability.md) introduces *separability* as the structural property that makes the journal entry of a parametric verb a compact reference plus its arguments. The verb's body is not present in the entry; it lives once, named, in the corpus's vocabulary. Separability is the precondition under which the wire of §5.2 carries operations at a density that does not scale with the operation's internal complexity, and it is the precondition under which the latency budget of §5.5 holds — replay is linear in compact-entry count, not in expanded state, only because separability has reduced the entry to its reference form. §5.5's three-times advantage against co-located RDBMS engines is, in part, the operational expression of the structural property Paper 2 names.
 
-[Paper 3](03-reactions-and-partition.md) introduces *the partition* between immediate work, done at the actor's writer-lock cursor, and deferred work, done by Reactions that read the journal forward and produce their own derived entries. Paper 3 §6 establishes the runtime decomposition — *Performance*, *Theater*, *Ensemble* — that frames the operational realisation of §7. The mechanism that admits a new instance as authoritative (§5.1's gate flip) is named in Paper 3 claim 8 as a property derivable from the partition; the same paper names the cross-actor extension as a forward reference closed by Paper 4. §5.2's symmetric-consumer property — that two instances of the same binary, reading the same corpus, produce identical Reaction output (L3) — depends on the `expose` discipline Paper 3 §5 establishes: a Reaction's guard reads only data the program has explicitly exposed, so whatever the remote consumer needs to evaluate the guard travels in the corpus the program writes.
+[Paper 3](03-reactions-and-partition.md) introduces *the partition* between immediate work, done at the actor's writer-lock cursor, and deferred work, done by Reactions that read the journal forward and produce their own derived entries. Paper 3 §6 establishes the runtime decomposition — *Performance*, *Theater*, *Ensemble* — that frames the operational realisation of §7. The mechanism that admits a new instance as authoritative (§5.1's gate flip) is named in Paper 3 claim 8 as a property derivable from the partition; the same paper names the cross-actor extension as a forward reference closed by Paper 4. §5.2's symmetric-consumer property — that two instances of the same binary, reading the same corpus, produce identical Reaction output (L3) — depends on a Reaction reading only corpus-resident data: in L3, the arguments the program journaled when it invoked each operation — frozen at write time by [Paper 1](01-anti-porosity.md)'s anti-porosity — so whatever the remote consumer needs to evaluate the guard travels in the corpus the program writes.
 
 [Paper 4](04-cross-actor-continuity.md) introduces *tell* as the primitive under which cross-actor causation is recorded as program in each participant's local journal. Paper 4 claim 10 names cross-datacenter replication as the canonical case in which tell's program-level recording survives where the conventional apparatus (CDC, log shipping) reconstructs state and loses the causal chain. §5.2 of the present paper completes the picture from the substrate side: the journal record is what the consumer reads, and the consumer reconstructs not only the local actor's state but, when tell entries are present, the cross-actor causal chain those entries record. The substrate condition makes Paper 4's cross-DC property hold without an external mechanism that observes the producer's runtime.
 
@@ -617,9 +625,9 @@ The dependence is summarised in the table below.
 
 | Paper | What it establishes | What §4.1 takes as given | Where it is load-bearing in this paper |
 |---|---|---|---|
-| [Paper 1](01-anti-porosity.md) | Anti-porosity: the journal records operations, not state | The journal is homoiconic and dense | E2 wire density (§5.2); E3 the corpus is the program (§5.3); §6.3 snapshot is informationally less |
+| [Paper 1](01-anti-porosity.md) | Anti-porosity: the journal records operations, not state | The journal is code-as-data and dense | E2 wire density (§5.2); E3 the corpus is the program (§5.3); §6.3 snapshot is informationally less |
 | [Paper 2](02-program-value-separability.md) | Separability: the entry of a parametric verb is `ActionId` + arguments | The journal entry is compact, named, parameter-referenced | Wire density at production scale (§5.2; L2); replay rate linear in compact count, not state (§5.1; L1); latency budget (§5.5; L6) |
-| [Paper 3](03-reactions-and-partition.md) | Partition: immediate vs deferred; Reactions; runtime decomposition (*Performance*, *Theater*, *Ensemble*) | Reactions and the partition primitive; the runtime apparatus referenced in §7 | Gate flip apparatus (§5.1; §7.1); symmetric consumer via *expose* (§5.2; L3); apparatus vocabulary (§7.0) |
+| [Paper 3](03-reactions-and-partition.md) | Partition: immediate vs deferred; Reactions; runtime decomposition (*Performance*, *Theater*, *Ensemble*) | Reactions and the partition primitive; the runtime apparatus referenced in §7 | Gate flip apparatus (§5.1; §7.1); symmetric consumer via corpus-resident reads (§5.2; L3); apparatus vocabulary (§7.0) |
 | [Paper 4](04-cross-actor-continuity.md) | *tell* primitive: cross-actor causation as program in sender's journal | The cross-actor recording the substrate carries across sites | Cross-DC causal chain travels with replication (§5.2; cross-ref claim 10) |
 
 The four prior papers can be read as the structural derivation that the present paper takes as substrate. Each named one property that the journal had to possess for the program to live in it; the present paper takes the four properties as given and reads off the four operational equivalences that follow. Where each prior paper went from one structural commitment to its consequences, the present paper goes from four structural commitments to a single primitive — replay — under which the four canonical operational disciplines collapse. The relation is therefore not parallel: §4.1's substrate is what the prior four established, and §4.2's theorem is what follows once it is in hand.
@@ -640,7 +648,7 @@ What is valid. Replay is linear in the entries it reads. A journal twice as long
 
 What does not follow. The hour-long load named in the anecdote is not replay over the substrate condition; it is reconstruction of state from a log whose entries are state-change deltas. The two régimes have different cost basis. Under the substrate condition, the entry is a compact named operation — `ActionId` plus arguments — and replay is the application of those operations in order (Papers 1 and 2). The per-entry cost is the in-memory apply of one operation, not the disk-bound write or schema-mediated commit that state-change replay incurs.
 
-§5.1's measurement materialises the structural distinction. L1 reports a sustained replay rate of **451 thousand entries per second** at the median (N = 100 000) and **416 thousand entries per second** at N = 1 000 000 — the rate is bounded by neither N nor the per-entry apply cost, and the orchestration tail around bulk replay is below 30 µs at every measured N. A journal of ten million compact entries replays in the order of twenty seconds at this rate, not an hour. The objection generalises a measurement made in one régime — state replay over a binary log — to a régime in which the entries are operations, and the generalisation does not hold. What grows linearly is the number of operations the program has uttered; what does not grow is the cost of uttering each one again in memory.
+§5.1's measurement materialises the structural distinction. L1 reports a sustained replay rate of **532 thousand entries per second** at the median (N = 100 000), rising to **1.76 million entries per second** at N = 1 000 000 — the rate is bounded by neither N nor the per-entry apply cost, and the orchestration tail around bulk replay is below 0.3 ms at every measured N. A journal of ten million compact entries replays in the order of ten seconds at this rate, not an hour. The objection generalises a measurement made in one régime — state replay over a binary log — to a régime in which the entries are operations, and the generalisation does not hold. What grows linearly is the number of operations the program has uttered; what does not grow is the cost of uttering each one again in memory.
 
 One canonical case lies outside this argument and is preserved as an honest limit. Where the cost-dominant operation at a single entry is itself expensive — a network round-trip to an external service, a complex domain calculation — replay carries that cost per entry just as live operation did. The substrate does not make any one operation cheaper; it makes the bookkeeping around the operation negligible.
 
@@ -654,7 +662,7 @@ What is valid. CDC pipelines work. Production systems replicate across datacente
 
 What does not follow. The structural premise of CDC is that the originating store records state changes, not operations, and that events must be reconstructed from those state changes by inferential reading of the binary log (§2.2, §6.2). The reconstruction is lossy: two distinct programmatic operations that produce identical state changes are indistinguishable at the CDC layer. The wire across which CDC traffic travels carries a derived artifact — column-level deltas — at a width that scales with the size of the affected rows rather than with the operation that caused them.
 
-The substrate condition replaces the reconstruction with direct emission. The journal entry is the program's operation, in the language of the program (Paper 1), reduced to a reference to a parametric verb plus its arguments (Paper 2). The wire carries the operation as uttered, not the state changes it produced. §5.2's measurement (L2) reports a compact wire of **36 to 99.7 bytes per event** depending on verb tier, against literal-form payloads of **121 to 913.7 bytes**; the literal-to-compact ratio reaches **9.2× at the production-shaped tier and 20× at full production scale** (Paper 2 Lab 4). Applying `gzip` to the literal form closes the gap only to **3.9× at tier 3** — the structural saving is not algorithmic but representational, and a compressor operating after the fact cannot recover what naming achieved by construction.
+The substrate condition replaces the reconstruction with direct emission. The journal entry is the program's operation, in the language of the program (Paper 1), reduced to a reference to a parametric verb plus its arguments (Paper 2). The wire carries the operation as uttered, not the state changes it produced. §5.2's measurement (L2) reports a compact wire of **33 to 96.7 bytes per event** depending on verb tier, against literal-form payloads of **118 to 910.7 bytes**; the literal-to-compact ratio reaches **9.4× at the production-shaped tier and 20× at full production scale** (Paper 2 Lab 4). Applying `gzip` to the literal form closes the gap only to **4.0× at tier 3** — the structural saving is not algorithmic but representational, and a compressor operating after the fact cannot recover what naming achieved by construction.
 
 The objection is therefore precise in scope. CDC solves replication as state propagation. The substrate condition does not deny that solution; it shows that under the construct's conditions the problem CDC solves does not arise, and the wire carries a different artifact. The two are not in competition for the same engineering decision; they are at different layers of the design.
 
@@ -670,7 +678,7 @@ What does not follow. The structural premise of snapshot backup is that the prog
 
 Under the substrate condition, the artifact that characterises the program is the journal, not any state derived from it. A snapshot at moment *t* captures *where* the program had arrived; the corpus to *t* captures *how it got there*. The two are not equivalent informational artifacts: from the snapshot, the operational history is lost; from the corpus, the snapshot at any past moment is recoverable by replay. The substrate-based account of backup is therefore not simply a different operational pattern with the same content; it is the strictly more informative choice when the construct's conditions hold.
 
-The cost is honest. A continuously consuming destination, even one whose role is to hold the corpus and never replay it, must be reachable, must persist what arrives, and must catch up when it falls behind. §5.3's measurement (L4) reports steady-state convergence of **≈ 2 419 events/sec on FileSystem, ≈ 1 004 events/sec on MySQL, and ≈ 764 events/sec on SQL Server**, with per-instance verification reaching equal in-memory state in **18 of 18 cells across three backends and three journal sizes**. The numbers establish that the operational obligation is bounded — a destination that ingests at the rates above is not a degenerate case — and that the corpus arrives identically across heterogeneous backends. The objection's premise that simplicity favours snapshot is honest engineering; the construct's reply is that the simpler artifact carries less information, and the choice between holding state and holding program is the choice the substrate condition makes available.
+The cost is honest. A continuously consuming destination, even one whose role is to hold the corpus and never replay it, must be reachable, must persist what arrives, and must catch up when it falls behind. §5.3's measurement (L4) reports steady-state convergence of **≈ 2 150 events/sec on FileSystem, ≈ 952 events/sec on MySQL, and ≈ 766 events/sec on SQL Server**, with per-instance verification reaching equal in-memory state in **18 of 18 cells across three backends and three journal sizes**. The numbers establish that the operational obligation is bounded — a destination that ingests at the rates above is not a degenerate case — and that the corpus arrives identically across heterogeneous backends. The objection's premise that simplicity favours snapshot is honest engineering; the construct's reply is that the simpler artifact carries less information, and the choice between holding state and holding program is the choice the substrate condition makes available.
 
 ### 9.4 "Append does not scale beyond N writes/sec"
 
@@ -678,7 +686,7 @@ The cost is honest. A continuously consuming destination, even one whose role is
 
 The objection. Every persistent store has a write-throughput ceiling. A substrate that records every operation as a journal append inherits whatever ceiling the underlying store imposes; production systems that exceed that ceiling are constrained either to batched-write modes or to relaxed-durability commits. The substrate condition therefore does not generalise to high-throughput workloads, and the four equivalences hold only for systems that fit within the per-actor write rate the journal can absorb.
 
-What is valid. A local-journal substrate, like any persistent store, has a per-entry append latency that bounds its write throughput. §5.5's measurement (L6) reports **347 µs p50 on the local FileSystem backend** under one-entry one-durable-commit semantics, corresponding to roughly three thousand entries per second of single-writer append rate. A workload that exceeds that rate on a single actor cannot be absorbed by single-writer append at the same durability guarantee.
+What is valid. A local-journal substrate, like any persistent store, has a per-entry append latency that bounds its write throughput. §5.5's measurement (L6) reports **328 µs p50 on the local FileSystem backend** under one-entry one-durable-commit semantics, corresponding to roughly three thousand entries per second of single-writer append rate. A workload that exceeds that rate on a single actor cannot be absorbed by single-writer append at the same durability guarantee.
 
 What does not follow. The single-actor ceiling is not a ceiling on the construct; it is a property of the configuration in which one actor handles one event stream. The substrate condition is preserved under sharding (one actor per shard, each with its own journal — the per-actor invariant of [Paper 3](03-reactions-and-partition.md), §6.2 and §6.8) and under local buffering with asynchronous replication to a canonical backend (§5.4's offline equivalence applies to the steady-state régime, not only to outage absorption). Neither sharding nor buffering is foreign to the construct; both fall out of the substrate's locality property — the journal is the actor's, not the system's.
 
@@ -736,7 +744,7 @@ The constructs named in §7 are publicly available in the Puppeteer codebase. Th
 | `Performance.Start(asFollower: true)` | `Choreography/Theater/Performance.cs` | 100, 118 | Alternate startup mode; `SuppressReactionJournaling` flag |
 | `Reaction.MaterializeFromMetadata(destination)` | `Puppeteer/EventSourcing/Follower/Reaction.cs` | 669 | DSL marker plumbing: records destination on action |
 | `actor.Materialization` sub-namespace | `Puppeteer/Materialization.cs` | (whole file) | Register / Deregister / List / ReadRecordsAfter / ConfirmUntil / ReadReactions / ReadElidedRange |
-| `MaterializeMirror` fluent client | `Puppeteer/MaterializeMirror.cs` | (whole file) | `Sync()` (Capa 1); `AsProgramMirror().Sync()` (Capa 2) |
+| `MaterializeMirror` fluent client | `Puppeteer/MaterializeMirror.cs` | (whole file) | `Sync()` (Layer 1); `AsProgramMirror().Sync()` (Layer 2) |
 | `MirrorSyncResult` immutable struct | `Puppeteer/MaterializeMirror.cs` | 170-202 | Records / ReactionsSnapshot / ElisionMarkers + watermark advance |
 | Diary backend polymorphism | `Puppeteer/EventSourcing/DB/Diary.cs` | 53-78 | `(DatabaseType, connectionString)` → InMemory / FileSystem / MySQL / SQLServer |
 | Local-buffer (offline régime) | `Puppeteer/EventSourcing/DB/Diary.cs` | 28, 34, 80-135 | `IsBuffered`; `ReplicationAgent` async drain to canonical storage |
@@ -747,14 +755,14 @@ The constructs named in §7 are publicly available in the Puppeteer codebase. Th
 
 Source-code references in this paper resolve against the public
 Puppeteer repository at commit
-[`2f31f96`](https://github.com/alvaroNCubo/puppeteer/tree/2f31f9674a5de816bdf1bf9d8360ff218a02e4da)
-(2026-05-18). The snapshot is archived in Software Heritage under
+[`99e8202`](https://github.com/alvaroNCubo/puppeteer/tree/99e8202c808c3d79ca7b1dfbdae0ffb7872c940e)
+(2026-07-13). The snapshot is archived in Software Heritage under
 the following persistent identifier:
 
 ```
-swh:1:dir:10e7e6bad7eb77b6c2e406762026177f95c3ae92;
+swh:1:dir:c55af9b6466302ed402cb579440ceec870e449c8;
   origin=https://github.com/alvaroNCubo/puppeteer;
-  anchor=swh:1:rev:2f31f9674a5de816bdf1bf9d8360ff218a02e4da
+  anchor=swh:1:rev:99e8202c808c3d79ca7b1dfbdae0ffb7872c940e
 ```
 
 Inline references of the form `file.cs:NN` (e.g.,
@@ -765,6 +773,13 @@ commits to the repository may renumber lines; the SWHID preserves
 the cited state independently of any future change to the repository
 or its hosting.
 
+The six laboratories' source and datasets accompany this paper as
+`paper05-data.zip`. The aggregated results each lab reports — the headline and
+summary tables this paper cites — are included in full. To keep the archive
+light, Lab 6's raw per-event sample log (`samples.csv`, ≈ 60 MB / ~500 000 rows)
+is omitted and replaced by a note giving the lab source and the runtime commit
+needed to regenerate it.
+
 ## Acknowledgments
 
 The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
@@ -773,35 +788,58 @@ The author used large language models (including Claude and ChatGPT) as editoria
 
 ## Appendix B. Bibliography
 
-*Online sources accessed at the moment of drafting; dates updated at release.*
+Ambler, S. W., & Sadalage, P. J. (2006). *Refactoring databases: Evolutionary database design*. Addison-Wesley.
 
-- Ambler, S. W., & Sadalage, P. J. (2006). *Refactoring Databases: Evolutionary Database Design.* Addison-Wesley. ISBN 978-0-321-29353-5.
-- AWS documentation. *Managing your storage lifecycle.* https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html (accessed 2026-05-14).
-- Azure documentation. *Overview of operational backup for Azure Blobs.* https://learn.microsoft.com/en-us/azure/backup/blob-backup-overview (accessed 2026-05-14).
-- Bacula project. https://www.bacula.org/ (accessed 2026-05-14).
-- Burns, B., Grant, B., Oppenheimer, D., Brewer, E., & Wilkes, J. (2016). *Borg, Omega, and Kubernetes.* Communications of the ACM, 59(5), 50–57.
-- Debezium project. https://debezium.io/ (accessed 2026-05-14).
-- DeCandia, G., Hastorun, D., Jampani, M., Kakulapati, G., Lakshman, A., Pilchin, A., Sivasubramanian, S., Vosshall, P., & Vogels, W. (2007). *Dynamo: Amazon's Highly Available Key-value Store.* Proceedings of the 21st ACM SIGOPS Symposium on Operating Systems Principles (SOSP '07), 205–220.
-- Flyway project. https://flywaydb.org/ (accessed 2026-05-14).
-- Fowler, M. (2010). *BlueGreenDeployment.* martinfowler.com/bliki. https://martinfowler.com/bliki/BlueGreenDeployment.html (accessed 2026-05-14).
-- Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). *Design science in information systems research.* MIS Quarterly, 28(1), 75–105.
-- Hitz, D., Lau, J., & Malcolm, M. (1994). *File System Design for an NFS File Server Appliance.* Proceedings of the USENIX Winter Technical Conference, San Francisco, January 1994.
-- Humble, J., & Farley, D. (2010). *Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation.* Addison-Wesley. ISBN 978-0-321-60191-9.
-- Kreps, J., Narkhede, N., & Rao, J. (2011). *Kafka: a Distributed Messaging System for Log Processing.* Proceedings of the NetDB Workshop, 6th International Workshop on Networking Meets Databases (co-located with SIGMOD 2011).
-- Kubernetes documentation. *Deployments — Rolling Update Deployment Strategy.* https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment (accessed 2026-05-14).
-- Lakshman, A., & Malik, P. (2010). *Cassandra: A Decentralized Structured Storage System.* ACM SIGOPS Operating Systems Review, 44(2), 35–40.
-- Liquibase project. https://www.liquibase.org/ (accessed 2026-05-14).
-- Maxwell project. *Maxwell's Daemon.* https://maxwells-daemon.io/ (accessed 2026-05-14).
-- MySQL Reference Manual. *Chapter 17: Replication.* https://dev.mysql.com/doc/refman/8.0/en/replication.html (accessed 2026-05-14).
-- PostgreSQL documentation. *Continuous Archiving and Point-in-Time Recovery (PITR).* https://www.postgresql.org/docs/current/continuous-archiving.html (accessed 2026-05-14).
-- RabbitMQ documentation. *Dead Letter Exchanges.* https://www.rabbitmq.com/dlx.html (accessed 2026-05-14).
-- Redis documentation. *Redis replication.* https://redis.io/docs/management/replication/ (accessed 2026-05-14).
-- Sato, D. (2014). *CanaryRelease.* martinfowler.com/bliki. https://martinfowler.com/bliki/CanaryRelease.html (accessed 2026-05-14).
-- Veeam documentation. *Veeam Backup & Replication User Guide.* https://helpcenter.veeam.com/docs/backup/vsphere/overview.html (accessed 2026-05-14).
+AWS. (n.d.). Managing your storage lifecycle. Retrieved from https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
 
----
+Azure. (n.d.). Overview of operational backup for Azure Blobs. Retrieved from https://learn.microsoft.com/en-us/azure/backup/blob-backup-overview
 
-- Rivera, A. (2026). *Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems.* Paper 1 of this series. [01-anti-porosity.md](01-anti-porosity.md)
-- Rivera, A. (2026). *Program-value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime.* Paper 2 of this series. [02-program-value-separability.md](02-program-value-separability.md)
-- Rivera, A. (2026). *Reactions and the partition: opt-in eventual consistency in actor-native systems.* Paper 3 of this series. [03-reactions-and-partition.md](03-reactions-and-partition.md)
-- Rivera, A. (2026). *Preserving semantic continuity across actors: a tell-based approach without orchestration.* Paper 4 of this series. [04-cross-actor-continuity.md](04-cross-actor-continuity.md)
+Bacula. (n.d.). Bacula backup software. Retrieved from https://www.bacula.org/
+
+Burns, B., Grant, B., Oppenheimer, D., Brewer, E., & Wilkes, J. (2016). Borg, Omega, and Kubernetes. *Communications of the ACM*, *59*(5), 50–57.
+
+Debezium. (n.d.). Debezium. Retrieved from https://debezium.io/
+
+DeCandia, G., Hastorun, D., Jampani, M., Kakulapati, G., Lakshman, A., Pilchin, A., Sivasubramanian, S., Vosshall, P., & Vogels, W. (2007). Dynamo: Amazon's highly available key-value store. In *Proceedings of the 21st ACM SIGOPS Symposium on Operating Systems Principles (SOSP '07)* (pp. 205–220).
+
+Flyway. (n.d.). Flyway database migrations. Retrieved from https://flywaydb.org/
+
+Fowler, M. (2010). BlueGreenDeployment. *martinfowler.com*. Retrieved from https://martinfowler.com/bliki/BlueGreenDeployment.html
+
+Gregor, S. (2006). The nature of theory in information systems. *MIS Quarterly*, *30*(3), 611–642.
+
+Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems research. *MIS Quarterly*, *28*(1), 75–105.
+
+Hitz, D., Lau, J., & Malcolm, M. (1994). File system design for an NFS file server appliance. In *Proceedings of the USENIX Winter Technical Conference*.
+
+Humble, J., & Farley, D. (2010). *Continuous delivery: Reliable software releases through build, test, and deployment automation*. Addison-Wesley.
+
+Kreps, J., Narkhede, N., & Rao, J. (2011). Kafka: A distributed messaging system for log processing. In *Proceedings of the NetDB Workshop, 6th International Workshop on Networking Meets Databases* (co-located with SIGMOD 2011).
+
+Kubernetes. (n.d.). Deployments: Rolling update deployment strategy. Retrieved from https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+
+Lakshman, A., & Malik, P. (2010). Cassandra: A decentralized structured storage system. *ACM SIGOPS Operating Systems Review*, *44*(2), 35–40.
+
+Liquibase. (n.d.). Liquibase. Retrieved from https://www.liquibase.org/
+
+Maxwell. (n.d.). Maxwell's daemon. Retrieved from https://maxwells-daemon.io/
+
+MySQL. (n.d.). MySQL 8.0 reference manual: Replication (Chapter 17). Retrieved from https://dev.mysql.com/doc/refman/8.0/en/replication.html
+
+PostgreSQL. (n.d.). Continuous archiving and point-in-time recovery (PITR). Retrieved from https://www.postgresql.org/docs/current/continuous-archiving.html
+
+RabbitMQ. (n.d.). Dead letter exchanges. Retrieved from https://www.rabbitmq.com/dlx.html
+
+Redis. (n.d.). Redis replication. Retrieved from https://redis.io/docs/management/replication/
+
+Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20404863
+
+Rivera, A. (2026b). Program–value separability: the structural precondition for compilation, caching, and dense journaling in a DSL runtime. *Puppeteer Papers Series*, Paper 2 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20740697
+
+Rivera, A. (2026c). Reactions and the partition: opt-in eventual consistency in actor-native systems. *Puppeteer Papers Series*, Paper 3 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20792156
+
+Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based approach without orchestration. *Puppeteer Papers Series*, Paper 4 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21207062
+
+Sato, D. (2014). CanaryRelease. *martinfowler.com*. Retrieved from https://martinfowler.com/bliki/CanaryRelease.html
+
+Veeam. (n.d.). Veeam backup & replication user guide. Retrieved from https://helpcenter.veeam.com/docs/backup/vsphere/overview.html

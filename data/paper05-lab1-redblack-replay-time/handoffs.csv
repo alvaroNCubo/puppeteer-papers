@@ -1,0 +1,11 @@
+git_sha,host,N_events,repetition,compile_mode,deploy_total_ms,bulk_replay_ms,handover_tail_ms,replay_events_per_sec,journal_bytes,cross_check_ok
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,1000,0,AlwaysCompiled,105.0255,104.9582,0.0673,9527.60,40085,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,1000,1,AlwaysCompiled,9.4457,9.4278,0.0179,106069.28,40085,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,1000,2,AlwaysCompiled,9.7003,9.6916,0.0087,103182.14,40085,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,10000,0,AlwaysCompiled,34.3559,34.2495,0.1064,291975.07,409086,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,10000,1,AlwaysCompiled,25.7407,25.7297,0.0110,388655.91,409086,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,10000,2,AlwaysCompiled,24.3324,24.3240,0.0084,411116.59,409086,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,100000,0,AlwaysCompiled,187.8676,187.8490,0.0186,532342.47,4189087,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,100000,1,AlwaysCompiled,187.4966,187.2710,0.2256,533985.51,4189087,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,100000,2,AlwaysCompiled,191.2077,190.9276,0.2801,523758.74,4189087,1
+99e8202,Microsoft Windows NT 10.0.26200.0 / 32cores / .NET 9.0.14,1000000,0,AlwaysCompiled,567.2472,567.1774,0.0698,1763116.80,42889608,1

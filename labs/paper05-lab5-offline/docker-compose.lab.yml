@@ -1,0 +1,60 @@
+# Paper 5 / Lab 5 — offline operation (claim 5 / E4).
+#
+# The harness STOPS and STARTS these containers from C# to simulate the
+# partition phase (a real driver-level connection failure). NAMED VOLUMES
+# (not tmpfs) so the actor's table survives docker stop / start — partition
+# recovery needs the remote table to still exist on restart.
+#
+# Ports 3307 / 1434 to avoid L4 / L6 collisions.
+#
+# Usage:
+#   docker compose -f docker-compose.lab.yml up -d
+#   docker compose -f docker-compose.lab.yml ps    # both must be healthy
+#   dotnet run -c Release -- <outDir> <runTag>
+#   docker compose -f docker-compose.lab.yml down
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: paper05_lab5_mysql
+    restart: "no"
+    environment:
+      MYSQL_ROOT_PASSWORD: puppeteer
+      MYSQL_DATABASE: lab5_mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --max_allowed_packet=64M
+      --innodb_flush_log_at_trx_commit=1
+      --sync_binlog=1
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-ppuppeteer"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: paper05_lab5_mssql
+    restart: "no"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Puppeteer123!"
+    ports:
+      - "1434:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Puppeteer123!' -Q 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  mysql_data:
+  mssql_data:

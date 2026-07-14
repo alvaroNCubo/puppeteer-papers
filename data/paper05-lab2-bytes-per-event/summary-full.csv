@@ -1,19 +1,19 @@
-run_id,git_sha,host,tier,tier_label,n,format,compression,sum_bytes,mean_bytes_per_event,p50_bytes,p95_bytes,definition_bytes_once
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,1,arithmetic-shallow,100,compact,none,3600,36.00,36,36,147
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,1,arithmetic-shallow,100,literal,gzip,10927,109.27,110,110,147
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,1,arithmetic-shallow,100,literal,none,12100,121.00,121,121,147
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,2,branching-arith-medium,100,compact,none,3600,36.00,36,36,179
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,2,branching-arith-medium,100,literal,gzip,13252,132.52,133,134,179
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,2,branching-arith-medium,100,literal,none,15300,153.00,153,153,179
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,3,production-verb-synthetic,100,compact,none,9773,97.73,98,98,912
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,3,production-verb-synthetic,100,literal,gzip,38917,389.17,389,391,912
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,3,production-verb-synthetic,100,literal,none,91173,911.73,912,912,912
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,1,arithmetic-shallow,1000,compact,none,36000,36.00,36,36,147
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,1,arithmetic-shallow,1000,literal,gzip,109267,109.27,110,110,147
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,1,arithmetic-shallow,1000,literal,none,121000,121.00,121,121,147
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,2,branching-arith-medium,1000,compact,none,36000,36.00,36,36,179
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,2,branching-arith-medium,1000,literal,gzip,132535,132.53,133,134,179
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,2,branching-arith-medium,1000,literal,none,153000,153.00,153,153,179
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,3,production-verb-synthetic,1000,compact,none,99675,99.67,100,100,912
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,3,production-verb-synthetic,1000,literal,gzip,390246,390.25,390,392,912
-run-20260514-163854-c68b2f4,c68b2f4,Microsoft Windows NT 10.0.26200 / 32cores / .NET 9.0.14,3,production-verb-synthetic,1000,literal,none,913675,913.67,914,914,912
+tier,tier_label,n,format,compression,sum_bytes,mean_bytes_per_event,p50_bytes,p95_bytes,definition_bytes_once
+1,arithmetic-shallow,100,compact,none,3300,33.00,33,33,144
+1,arithmetic-shallow,100,literal,gzip,10627,106.27,107,107,144
+1,arithmetic-shallow,100,literal,none,11800,118.00,118,118,144
+2,branching-arith-medium,100,compact,none,3300,33.00,33,33,176
+2,branching-arith-medium,100,literal,gzip,12952,129.52,130,131,176
+2,branching-arith-medium,100,literal,none,15000,150.00,150,150,176
+3,production-verb-synthetic,100,compact,none,9473,94.73,95,95,909
+3,production-verb-synthetic,100,literal,gzip,38617,386.17,386,388,909
+3,production-verb-synthetic,100,literal,none,90873,908.73,909,909,909
+1,arithmetic-shallow,1000,compact,none,33000,33.00,33,33,144
+1,arithmetic-shallow,1000,literal,gzip,106267,106.27,107,107,144
+1,arithmetic-shallow,1000,literal,none,118000,118.00,118,118,144
+2,branching-arith-medium,1000,compact,none,33000,33.00,33,33,176
+2,branching-arith-medium,1000,literal,gzip,129535,129.53,130,131,176
+2,branching-arith-medium,1000,literal,none,150000,150.00,150,150,176
+3,production-verb-synthetic,1000,compact,none,96675,96.67,97,97,909
+3,production-verb-synthetic,1000,literal,gzip,387246,387.25,387,389,909
+3,production-verb-synthetic,1000,literal,none,910675,910.67,911,911,909

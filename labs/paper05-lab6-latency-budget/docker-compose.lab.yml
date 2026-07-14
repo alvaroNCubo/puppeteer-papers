@@ -1,0 +1,63 @@
+# Paper 5 / Lab 6 — latency budget: local journal vs co-located RDBMS.
+#
+# MySQL durability TIGHTENED to apples-to-apples vs FileSystem
+# Flush(flushToDisk:true) per append:
+#   innodb_flush_log_at_trx_commit = 1   (fsync per commit)
+#   sync_binlog                    = 1   (fsync binlog per commit)
+# SQL Edge uses its default durable-log-flush per commit.
+#
+# Usage:
+#   docker compose -f docker-compose.lab.yml up -d
+#   docker compose -f docker-compose.lab.yml ps    # both must be healthy
+#   dotnet run -c Release -- <outDir> <runTag>
+#   docker compose -f docker-compose.lab.yml down
+#
+# Ports map to localhost — change if 3306 or 1433 are taken. Run ONE
+# Paper-5 RDBMS lab at a time (L4/L5/L6 ports collide by design).
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: paper05_lab6_mysql
+    restart: "no"
+    environment:
+      MYSQL_ROOT_PASSWORD: puppeteer
+      MYSQL_DATABASE: lab6_mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --max_allowed_packet=64M
+      --innodb_flush_log_at_trx_commit=1
+      --sync_binlog=1
+    ports:
+      - "3306:3306"
+    tmpfs:
+      - /var/lib/mysql:rw,size=2g
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-ppuppeteer"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  # Azure SQL Edge — drop-in for the operations Lab 6 exercises
+  # (CREATE TABLE, INSERT, SELECT, BIGINT identity).
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: paper05_lab6_mssql
+    restart: "no"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Puppeteer123!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Puppeteer123!' -Q 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  mssql_data:

@@ -76,9 +76,7 @@ internal static class Program
 			string defineStatement = $"define action {tier.Id} ({tier.ParamsDeclaration}) as {tier.ScriptBody} end;";
 			byte[] defineRecord = BinaryEventCodec.EncodeDefineEvent(
 				entryId: 0,
-				fechaHora: DateTime.UnixEpoch,
-				ip: IpAddress.DEFAULT.Ip,
-				user: UserInLog.ANONYMOUS.Id,
+				occurredAt: DateTime.UnixEpoch,
 				actionId: tier.Id,
 				defineStatementText: defineStatement);
 
@@ -102,9 +100,7 @@ internal static class Program
 
 					byte[] compactRecord = BinaryEventCodec.EncodeActionEvent(
 						entryId: i,
-						fechaHora: DateTime.UnixEpoch,
-						ip: IpAddress.DEFAULT.Ip,
-						user: UserInLog.ANONYMOUS.Id,
+						occurredAt: DateTime.UnixEpoch,
 						actionId: tier.Id,
 						arguments: compactArgs);
 					int compactBody = compactRecord.Length - FILESYSTEM_FRAMING_BYTES;
@@ -126,9 +122,7 @@ internal static class Program
 
 					byte[] literalRecord = BinaryEventCodec.EncodeScriptEvent(
 						entryId: i,
-						fechaHora: DateTime.UnixEpoch,
-						ip: IpAddress.DEFAULT.Ip,
-						user: UserInLog.ANONYMOUS.Id,
+						occurredAt: DateTime.UnixEpoch,
 						script: literalScript);
 					int literalBody = literalRecord.Length - FILESYSTEM_FRAMING_BYTES;
 					int literalPayload = literalScriptBytes.Length;
@@ -146,9 +140,7 @@ internal static class Program
 
 					byte[] literalGzRecord = BinaryEventCodec.EncodeScriptEvent(
 						entryId: i,
-						fechaHora: DateTime.UnixEpoch,
-						ip: IpAddress.DEFAULT.Ip,
-						user: UserInLog.ANONYMOUS.Id,
+						occurredAt: DateTime.UnixEpoch,
 						script: literalScript,
 						compression: PayloadCompression.GZip);
 					int literalGzBody = literalGzRecord.Length - FILESYSTEM_FRAMING_BYTES;

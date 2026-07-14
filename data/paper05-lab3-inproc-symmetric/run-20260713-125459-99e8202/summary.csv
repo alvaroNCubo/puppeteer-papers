@@ -1,0 +1,4 @@
+run_tag,N,reps,callback_diff_max,segment_diff_max,elide_diff_max,emit_a_total
+99e8202,100,2,0,0,0,90
+99e8202,500,2,0,0,0,450
+99e8202,1000,2,0,0,0,900

@@ -1,0 +1,4 @@
+run_tag,backend,gap_size,catchup_ms,records_replayed,events_per_sec
+99e8202,FileSystem,1000,636.131,1000,1572.0
+99e8202,MySQL,1000,1133.792,1000,882.0
+99e8202,SQLServer,1000,1446.316,1000,691.4

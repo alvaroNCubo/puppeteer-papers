@@ -1,0 +1,5 @@
+run_tag,cell,backend,backlog_events,drain_sec,drain_events_per_sec,primary_value,replica_value,zero_loss
+99e8202,MySQL_buffered,MySQL,10000,33.727,296,20999,20999,1
+99e8202,MySQL_buffered,MySQL,10000,33.809,296,20999,20999,1
+99e8202,SQLServer_buffered,SQLServer,10000,20.093,498,20999,20999,1
+99e8202,SQLServer_buffered,SQLServer,10000,19.321,518,20999,20999,1

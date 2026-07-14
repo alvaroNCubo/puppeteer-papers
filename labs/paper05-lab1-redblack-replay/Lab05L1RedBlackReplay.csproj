@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>Lab05L1RedBlackReplay</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Sibling clone of https://github.com/alvaroNCubo/puppeteer at the cited
+         provenance commit (see README) — same convention as lab01-04.
+         Choreography supplies the PerformanceV2 host + follower handoff. -->
+    <ProjectReference Include="..\..\..\puppeteer\Puppeteer\Puppeteer.csproj" />
+    <ProjectReference Include="..\..\..\puppeteer\Choreography\Choreography.csproj" />
+  </ItemGroup>
+
+</Project>
