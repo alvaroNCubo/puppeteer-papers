@@ -3,7 +3,7 @@ title: "Anti-porous architecture: a unified design principle for CQRS + Actor + 
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
 date: 2026-05-26
-version: 0.1-draft
+version: 0.2-draft
 status: draft
 keywords:
   - porosity
@@ -108,7 +108,7 @@ Microsoft Orleans makes this granularity choice explicit in the very name of its
 
 In typical production deployments, the cost of locality failure is partly amortized. Continuous-running datacenters confine rehydration to rare events — process restart, hardware failover — rather than steady-state operation; zero-downtime release patterns (developed in Paper 3) hide cold-start latency behind warm replicas during deployment; and journal storage is operationally cheap: it is economically negligible at relevant scales, and its access pattern — sequential append, with occasional sequential reads at rehydration — does not impose the random-I/O performance demands that drive RDBMS disk specifications. A Puppeteer deployment is largely indifferent to disk speed, where a comparable RDBMS workload is bound by it. Locality is therefore best understood as a structural assumption of the model rather than a property whose violation is immediately catastrophic. The "when not to use" case bites when locality fails **and** the amortizing properties above do not hold — for instance, single-instance systems with frequent restarts, or workloads where actor cardinality is so high that eviction-and-reload occurs as part of normal operation.
 
-The mechanism by which Puppeteer evicts journal events — the *skip* — is treated in detail in a companion paper (Paper 4, on zero-downtime deployment via journal-based state handoff). For present purposes it suffices to note that skips presuppose locality: the framework can implement skips, but it cannot manufacture locality where the actor's responsibility is unbounded. Locality is a property of the design, not of the framework.
+The mechanism by which Puppeteer evicts journal events — the *skip* — presupposes locality: the framework can implement skips, but it cannot manufacture locality where the actor's responsibility is unbounded. Locality is a property of the design, not of the framework.
 
 ### B. Domains where the actor's verbs cannot be kept fast
 
