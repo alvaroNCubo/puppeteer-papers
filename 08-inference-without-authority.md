@@ -253,11 +253,14 @@ The three authorities of §4 are exhibited here on the running framework. These 
 
 **Lab C — the direction (the observer's authority: how).** The same fact reaches an observer by two routes: it is *told* — a reaction carries it across a `tell` to the observing role — or the observer *polls* it with a query. Both deliver the identical observation, and the producer's domain holds no method for either direction: being told is a reaction, polling is a query, and neither is the domain's to name.
 
+**Lab D — testability (the hard boundary is observable).** The separation of §4 is not only argued; it can be tested for. A domain projection is exercised end to end — an order recorded, its total read back — with no destination bound at all: no sink, no port, no test double for output. That the test needs none is the operational proof that the sink was never in the domain; were it the producer's, the test could not run without it. Against a hexagonal (ports-and-adapters) baseline the difference is a count: an output test of the ported domain must stand up at least one double — the port's — while the separated domain stands up zero, because there is no port to double.
+
 | Lab | Separation | Separated cost | Fused baseline |
 |---|---|---|---|
 | A | destination bound outside the actor (real SQL Server, MySQL) | 0 producer edits per destination | 1 producer edit per destination |
 | B | N views over one fact | 0 new domain methods for 3 views | 3 domain methods |
 | C | told vs polls | 0 domain methods for the direction | no fused analog |
+| D | domain output tested with no destination | 0 test doubles for output | >= 1 (hexagonal port) |
 
 The labs live in the framework's test suite; the real-backend case runs against containers and self-excludes from the default run. They show the separation is not only arguable but built, and that its mechanical benefit against a fused baseline is a set of edits not made — leaving the economic question, whether those unmade edits are worth the apparatus, to §6 and to future work.
 
