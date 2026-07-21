@@ -215,7 +215,7 @@ The third line is the sharpest test, and the paper's novelty stands or falls on 
 
 Two structural gaps confirm the boundary is not the same one. Effects split an operation from its interpretation — a binary — where this paper finds three authorities; and the finest of the three, the domain's inability to author the projection (the self-rendering object of §4), has no counterpart in an effect, whose handled value the producer computes with no sense that its *shape* answers to a different competence than the *material* it is drawn from. And effects are producer-side throughout: they say nothing of how an *observer* comes to know a state, and so leave untouched the second half of the argument — the snapshot-versus-narration symptom of §5, where the same defect returns with no operation to handle. The split, the inversion, the authority: each neighbouring line holds one, none holds all three, and none reads output as an epistemic act.
 
-Closest, and worth separating out, is the revised Single Responsibility Principle, which asks that a module answer to a single *actor* — a stakeholder with the authority to request change (Martin, 2017). This is separation by authority, the very criterion argued here — but its authority is organizational: who may *ask* for a change. The authority of this paper is epistemic: who is in a position to *know*. The producer does not withhold the destination out of good manners toward another team; it cannot supply it, because the knowledge is not in the projection. That distinction is what separates the present claim from the ordinary counsel of layered architecture. Controllers and views, services and DTOs, records — these divide technologies and structure, not authorities. When a controller returns a view, a DTO, a file, the same code that chose what to show has also fixed that it is HTTP, and JSON, and synchronous; the DTO does not defer the destination but freezes the projection into a value, and changing the sink recompiles the producer.
+Closest, and worth separating out, is the revised Single Responsibility Principle, which asks that a module answer to a single *actor* — a stakeholder with the authority to request change (Martin, 2017, ch. 7). This is separation by authority, the very criterion argued here — but its authority is organizational: who may *ask* for a change. The authority of this paper is epistemic: who is in a position to *know*. The producer does not withhold the destination out of good manners toward another team; it cannot supply it, because the knowledge is not in the projection. That distinction is what separates the present claim from the ordinary counsel of layered architecture. Controllers and views, services and DTOs, records — these divide technologies and structure, not authorities. When a controller returns a view, a DTO, a file, the same code that chose what to show has also fixed that it is HTTP, and JSON, and synchronous; the DTO does not defer the destination but freezes the projection into a value, and changing the sink recompiles the producer.
 
 A contemporary preprint approaches the same vocabulary from the opposite direction, arguing that tool boundaries do not confer epistemic warrant on what an agent takes *in* as observation (Romanchuk & Bondar, 2026). Where it asks what an agent is entitled to believe from its inputs, this paper asks what a producer is entitled to decide about its outputs; the shared words — warrant, epistemic — mark an adjacency, not an overlap. The intuition beneath that adjacency is not itself new: information-flow control has long held that a value's classification is not laundered by crossing a boundary — a label follows the data through whatever module it passes (Denning, 1976; Sabelfeld & Myers, 2003) — and the same instinct animates data provenance. What the neighbouring preprint adds is the agent-era statement of it; what steadies the positioning here is the older observation, so the neighbourhood does not rest on a single recent source.
 
@@ -259,15 +259,15 @@ The labs live in the framework's test suite; the real-backend case runs against 
 
 ## References
 
-Denning, D. E. (1976). A lattice model of secure information flow. *Communications of the ACM*, 19(5), 236–243.
+Denning, D. E. (1976). A lattice model of secure information flow. *Communications of the ACM*, 19(5), 236–243. https://doi.org/10.1145/360051.360056
 
-Gelernter, D., & Carriero, N. (1992). Coordination languages and their significance. *Communications of the ACM*, 35(2), 97–107.
+Gelernter, D., & Carriero, N. (1992). Coordination languages and their significance. *Communications of the ACM*, 35(2), 96–107. https://doi.org/10.1145/129630.129635
 
 Hewitt, C., Bishop, P., & Steiger, R. (1973). A universal modular ACTOR formalism for artificial intelligence. *Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI)*, 235–245.
 
-Hoare, C. A. R. (1978). Communicating sequential processes. *Communications of the ACM*, 21(8), 666–677.
+Hoare, C. A. R. (1978). Communicating sequential processes. *Communications of the ACM*, 21(8), 666–677. https://doi.org/10.1145/359576.359585
 
-Kahn, G. (1974). The semantics of a simple language for parallel programming. *Information Processing 74: Proceedings of the IFIP Congress*, 471–475. North-Holland.
+Kahn, G. (1974). The semantics of a simple language for parallel programming. In J. L. Rosenfeld (Ed.), *Information Processing 74: Proceedings of the IFIP Congress* (pp. 471–475). North-Holland.
 
 Martin, R. C. (2017). *Clean architecture: A craftsman's guide to software structure and design*. Prentice Hall.
 
@@ -275,18 +275,18 @@ Miller, M. S. (2006). *Robust composition: Towards a unified approach to access 
 
 Morrison, J. P. (1994). *Flow-based programming: A new approach to application development*. Van Nostrand Reinhold.
 
-Pike, R., Presotto, D., Thompson, K., Trickey, H., & Winterbottom, P. (1992). The use of name spaces in Plan 9. *Proceedings of the 5th ACM SIGOPS European Workshop*, 1–5.
+Pike, R., Presotto, D., Thompson, K., Trickey, H., & Winterbottom, P. (1992). The use of name spaces in Plan 9. *Proceedings of the 5th ACM SIGOPS European Workshop*, 72–76.
 
-Plotkin, G., & Pretnar, M. (2009). Handlers of algebraic effects. In G. Castagna (Ed.), *Programming Languages and Systems (ESOP 2009)*, Lecture Notes in Computer Science (Vol. 5502, pp. 80–94). Springer.
+Plotkin, G., & Pretnar, M. (2009). Handlers of algebraic effects. In G. Castagna (Ed.), *Programming Languages and Systems (ESOP 2009)*, Lecture Notes in Computer Science (Vol. 5502, pp. 80–94). Springer. https://doi.org/10.1007/978-3-642-00590-9_7
 
-Ritchie, D. M., & Thompson, K. (1974). The UNIX time-sharing system. *Communications of the ACM*, 17(7), 365–375.
+Ritchie, D. M., & Thompson, K. (1974). The UNIX time-sharing system. *Communications of the ACM*, 17(7), 365–375. https://doi.org/10.1145/361011.361061
 
-Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based approach without orchestration. *Puppeteer Papers Series*, Paper 4. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/04-cross-actor-continuity.md
+Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based approach without orchestration. *Puppeteer Papers Series*, Paper 4. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/04-cross-actor-continuity.md Preprint; not peer-reviewed.
 
-Rivera, A. (2026e). The journal as substrate: unifying deployment, replication, backup, and offline operation in distributed systems. *Puppeteer Papers Series*, Paper 5. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/05-substrate-operations.md
+Rivera, A. (2026e). The journal as substrate: unifying deployment, replication, backup, and offline operation in distributed systems. *Puppeteer Papers Series*, Paper 5. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/05-substrate-operations.md Preprint; not peer-reviewed.
 
-Rivera, A. (2026f). Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks. *Puppeteer Papers Series*, Paper 6. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/06-infrastructural-symptom.md
+Rivera, A. (2026f). Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks. *Puppeteer Papers Series*, Paper 6. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/06-infrastructural-symptom.md Preprint; not peer-reviewed.
 
 Romanchuk, O., & Bondar, R. (2026). Semantic laundering in AI agent architectures: Why tool boundaries do not confer epistemic warrant. *arXiv preprint* arXiv:2601.08333.
 
-Sabelfeld, A., & Myers, A. C. (2003). Language-based information-flow security. *IEEE Journal on Selected Areas in Communications*, 21(1), 5–19.
+Sabelfeld, A., & Myers, A. C. (2003). Language-based information-flow security. *IEEE Journal on Selected Areas in Communications*, 21(1), 5–19. https://doi.org/10.1109/JSAC.2002.806121
