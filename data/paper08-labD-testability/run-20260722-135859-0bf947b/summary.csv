@@ -1,0 +1,3 @@
+approach,domain_names_an_output_port,doubles_a_domain_output_test_stands_up
+separated (this paper),no,0
+hexagonal / ports-and-adapters,yes,>=1 (the port)

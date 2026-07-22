@@ -49,10 +49,12 @@ abstract: >
 
   A journaled actor system serves as a worked instantiation in which the three
   authorities are kept apart — a demonstration that the separation is buildable,
-  not a measurement of its cost or benefit. The contribution is analytic: a
-  criterion by which any architecture may be read — sound not by how it divides
-  code, but by whether the authorities within it match the decisions each part
-  has the standing to make.
+  not a measurement of its cost or benefit. The contribution is analytic — a
+  *theory for analyzing* in the sense of Gregor's (2006, Type I): a criterion by
+  which any architecture may be read, sound not by how it divides code, but by
+  whether the authorities within it match the decisions each part has the
+  standing to make. The labs are an existence proof of realizability, not a
+  design-science evaluation of cost or benefit.
 ---
 
 # Inference without Authority: the three authorities that govern an output
@@ -61,7 +63,7 @@ abstract: >
 
 Every program has a `print`, and it is taken for granted that the code deciding *what* to emit also decides *where* it goes. These are distinct authorities. Pulled apart, they reveal a third: what an output *is* — its projection — is the actor's to author, not the domain's. An output is governed by three competences: the domain (what exists), the actor (what becomes observable), and the assembler (where observation occurs). Collapsing any two forces one authority to pronounce a decision it cannot know — an *assertion beyond warrant*, the paper's construct, which sits at both ends of an output: a producer stipulates a *where* it cannot know; an observer given only snapshots *infers* a *how* it was never told (the genuine inference the title names). Restoring the authorities dissolves both. The contribution is analytic: an architecture is sound not by how it divides code, but by whether the authorities within it match the decisions each part has the standing to make.
 
-*Dependencies. This paper is part of the Puppeteer Papers, a series of self-deposited preprints, and rests on two of them: the actor's speech and `tell` (Paper 4) and the journal as substrate (Paper 5), constructions established there rather than re-argued. Its symptom criterion is stated and justified here (§3), echoing — but not depending on — the one Paper 6 applied to infrastructure.*
+*Dependencies. This paper is part of the Puppeteer Papers, a series of self-deposited preprints, and rests on two of them: the actor's speech and `tell` (Paper 4) and the journal as substrate (Paper 5), constructions established there rather than re-argued. Its symptom criterion is stated and justified here (§3), echoing — but not depending on — the one Paper 6 applied to infrastructure. Methodologically, it is an analytic theory contribution in the sense of Gregor's (2006) theory for analyzing (Type I): the three authorities and the assertion beyond warrant are constructs by which an architecture is described and judged, while the labs of Appendix A are an existence proof of realizability, not a design-science evaluation of cost or benefit.*
 
 ## 1. `print`
 
@@ -177,7 +179,7 @@ Puppeteer is offered as *a* realization, not *the* realization. The paper does n
 
 ## 5. The Observer
 
-Every section so far has stood beside the producer. Turn now to the party on the other end — the one that receives what was made observable. Call it the observer: a dashboard, a report, a downstream service, a screen. There is a question about the observer this paper does not take up — how it *interprets* what it receives, reading a sequence of acts for the routines they compose; that is the next paper's. The question here is narrower, and prior: how does the observer come to *know* the state at all, and does the symptom of §3 reach it too? It does — and its situation turns out to mirror the producer's exactly.
+Every section so far has stood beside the producer. Turn now to the party on the other end — the one that receives what was made observable. Call it the observer: a dashboard, a report, a downstream service, a screen. There is a question about the observer this paper does not take up — how it *interprets* what it receives, reading a sequence of acts for the routines they compose. The question here is narrower, and prior: how does the observer come to *know* the state at all, and does the symptom of §3 reach it too? It does — and its situation turns out to mirror the producer's exactly.
 
 An observer comes to know the state by one of two means. It can read a *snapshot* — the configuration as it stands right now: this invoice, this total, this set of open orders. Or it can receive a *narration* — the sequence of operations that brought the state about: the order placed, the line added, the discount applied, the invoice settled. The two are not interchangeable. Both yield the same configuration; only the narration preserves how the configuration came to be. A snapshot is an answer with its reasons erased.
 
@@ -193,7 +195,7 @@ What the observer has then is *testimony*: it comes to know the state the way an
 
 This resolution has a boundary, and in distributed practice not a small one. Testimony is knowledge on another's word, and only as strong as the standing of the one who gives it. Within a trust boundary — producer and observer under one authority, no adversary between them — the account can be taken as given, and the observer is spared its reconstruction. Across a trust boundary, which for anything leaving its own trust domain is the ordinary condition rather than the exception, the observer cannot simply believe what it is told: it must verify, and verification is a need this paper names but does not meet (§6). The dissolution just reached is therefore real but scoped — it frees the observer from rebuilding a *withheld* history, not from checking an *untrusted* one.
 
-Paper 4 gave the actor speech; this paper lets the observer receive it as testimony. But a narration received is not yet a narrative recognized — what the observer makes of the account it is told, reading a sequence of acts as the routines the actor performed, is the work of the paper that follows.
+Paper 4 gave the actor speech; this paper lets the observer receive it as testimony. But a narration received is not yet a narrative recognized — what the observer makes of the account it is told, reading a sequence of acts as the routines the actor performed, is a further question, beyond the scope of this paper.
 
 ## 6. Limits
 
@@ -241,7 +243,7 @@ What dissolves both is not a mechanism but a restoration of authority. Give the 
 
 None of this is a fact about `print`, or about any one system. The three authorities are a way of reading any architecture. The usual measure — how many layers, how clean the separation of code — misses what matters. The measure that holds is the one this paper has applied throughout: an architecture is sound not by its divisions of code but by whether the authorities within it match the decisions each part has the standing to make. That is a test a reader can carry back to a system already built and run against it — as Paper 6 offered a test for infrastructure, this offers one for the authorship of output.
 
-Set against the series, the result is a mirror, and it has a spine of three words, one to a paper. Paper 4 showed that the actor *speaks*. This paper shows that it does not speak alone, and that what it speaks reaches the far end as *testimony* — received, where that word can be trusted, on the word of the one who lived it, not reconstructed by the one who did not. What testimony becomes when it is finally read — its *narrative* — is the paper that follows. Each of these makes one fundamental artifact explicit, and together they are the material of a synthesis this series is working toward, not the business of any single paper. Here it is enough to have shown that an output has authorities, that they can be kept apart, and that when they are, no one at either end of the voice is left to infer what someone else was in a position to say — within the trust domain where that voice can be believed, the observer, at the last, is simply told. Where it cannot, verification remains, and that frontier is the paper's edge, not its undoing.
+Set against the series, the result is a mirror, and it has a spine of three words, one to a paper. Paper 4 showed that the actor *speaks*. This paper shows that it does not speak alone, and that what it speaks reaches the far end as *testimony* — received, where that word can be trusted, on the word of the one who lived it, not reconstructed by the one who did not. What testimony becomes when it is finally read — its *narrative* — the series has still to take up. Each of these makes one fundamental artifact explicit, and together they are the material of a synthesis this series is working toward, not the business of any single paper. Here it is enough to have shown that an output has authorities, that they can be kept apart, and that when they are, no one at either end of the voice is left to infer what someone else was in a position to say — within the trust domain where that voice can be believed, the observer, at the last, is simply told. Where it cannot, verification remains, and that frontier is the paper's edge, not its undoing.
 
 ## Appendix A. Labs
 
@@ -264,6 +266,37 @@ The three authorities of §4 are exhibited here on the running framework. These 
 
 The labs live in the framework's test suite; the real-backend case runs against containers and self-excludes from the default run. They show the separation is not only arguable but built, and that its mechanical benefit against a fused baseline is a set of edits not made — leaving the economic question, whether those unmade edits are worth the apparatus, to §6 and to future work.
 
+## Code provenance
+
+Source-code references in this paper resolve against the public
+Puppeteer repository at commit
+[`0bf947b`](https://github.com/alvaroNCubo/puppeteer/tree/0bf947bd6563e34cb141e3b5ba6cd13b4a811023)
+(2026-07-22). The snapshot is archived in Software Heritage under
+the following persistent identifier:
+
+```
+swh:1:dir:4cce51c877c0836f5a561ce2d25bca9f7800ee71;
+  origin=https://github.com/alvaroNCubo/puppeteer;
+  anchor=swh:1:rev:0bf947bd6563e34cb141e3b5ba6cd13b4a811023
+```
+
+The three source files this paper names — `Puppeteer/IOutputSink.cs`,
+`Puppeteer/EventSourcing/Follower/Planes.cs`, and
+`PuppeteerCli/AttachCommand.cs` — resolve against this snapshot. A reader can
+construct a per-file SWHID by adding the qualifier `;path=<path>` to the
+directory SWHID above. Future commits to the repository may move these files;
+the SWHID preserves the cited state independently of any future change to the
+repository or its hosting.
+
+The four laboratories' source and datasets accompany this paper as
+`paper08-data.zip`. Each lab's result table — the counts this paper cites in
+Appendix A — is included in full; the labs are count-based, so no large raw
+sample log is produced or omitted.
+
+## Acknowledgments
+
+The author used large language models (including Claude and ChatGPT) as editorial assistants for language refinement, structural feedback, and literature navigation. All original ideas, terminology, theoretical constructs, and technical content presented in this work are solely the author's.
+
 ## Notes
 
 ¹ `Puppeteer/IOutputSink.cs` (interface `IOutputSink`, struct `PushDocument`). Its documentation comment states the separation directly: *"Pull vs push is a property of the destination, never of `print`. The DSL script is identical either way… the sink is assembly-agnostic: it is set via `OutputTarget(sink)`… because the mechanism lives at the `ActorHandler`, not in any one topology."* The four output planes an actor's reaction can address — `Program.Emit` (ephemeral projection), `Causation.Continue` (`tell`), `Outbox` (durable, exactly-once-recorded), `Metadata` (elide / materialize) — are defined in `Puppeteer/EventSourcing/Follower/Planes.cs`. The console binding referenced in §4 is `puppeteer attach`, whose REPL runs the actor with its output on `Console.Out` (`PuppeteerCli/AttachCommand.cs`), pipeable into ordinary shell tools.
@@ -273,6 +306,8 @@ The labs live in the framework's test suite; the real-backend case runs against 
 Denning, D. E. (1976). A lattice model of secure information flow. *Communications of the ACM*, 19(5), 236–243. https://doi.org/10.1145/360051.360056
 
 Gelernter, D., & Carriero, N. (1992). Coordination languages and their significance. *Communications of the ACM*, 35(2), 96–107. https://doi.org/10.1145/129630.129635
+
+Gregor, S. (2006). The nature of theory in information systems. *MIS Quarterly*, 30(3), 611–642.
 
 Hewitt, C., Bishop, P., & Steiger, R. (1973). A universal modular ACTOR formalism for artificial intelligence. *Proceedings of the 3rd International Joint Conference on Artificial Intelligence (IJCAI)*, 235–245.
 
@@ -292,11 +327,11 @@ Plotkin, G., & Pretnar, M. (2009). Handlers of algebraic effects. In G. Castagna
 
 Ritchie, D. M., & Thompson, K. (1974). The UNIX time-sharing system. *Communications of the ACM*, 17(7), 365–375. https://doi.org/10.1145/361011.361061
 
-Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based approach without orchestration. *Puppeteer Papers Series*, Paper 4. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/04-cross-actor-continuity.md Preprint; not peer-reviewed.
+Rivera, A. (2026d). Preserving semantic continuity across actors: a tell-based approach without orchestration. *Puppeteer Papers Series*, Paper 4 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21207062
 
-Rivera, A. (2026e). The journal as substrate: unifying deployment, replication, backup, and offline operation in distributed systems. *Puppeteer Papers Series*, Paper 5. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/05-substrate-operations.md Preprint; not peer-reviewed.
+Rivera, A. (2026e). The journal as substrate: unifying deployment, replication, backup, and offline operation in distributed systems. *Puppeteer Papers Series*, Paper 5 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21349146
 
-Rivera, A. (2026f). Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks. *Puppeteer Papers Series*, Paper 6. https://github.com/alvaroNCubo/puppeteer-papers/blob/main/06-infrastructural-symptom.md Preprint; not peer-reviewed.
+Rivera, A. (2026f). Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks. *Puppeteer Papers Series*, Paper 6 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20317450
 
 Romanchuk, O., & Bondar, R. (2026). Semantic laundering in AI agent architectures: Why tool boundaries do not confer epistemic warrant. *arXiv preprint* arXiv:2601.08333.
 

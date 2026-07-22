@@ -1,0 +1,5 @@
+destination,real_backend,producer_edits_to_bind,projection_delivered
+SQL Server,yes (Docker),0,identical rows
+MySQL,yes (Docker),0,identical rows
+in-process sink,n/a,0,yes
+fused baseline,-,>=1 per sink,-

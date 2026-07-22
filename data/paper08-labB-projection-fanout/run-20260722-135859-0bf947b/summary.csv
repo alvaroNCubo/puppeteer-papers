@@ -1,0 +1,5 @@
+view,projection,domain_methods_added_separated,domain_methods_added_fused
+fulfillment,@product;@units,0,1
+finance (derived),@product;@price*@units,0,1
+catalog,@product;@price,0,1
+total,-,0,3

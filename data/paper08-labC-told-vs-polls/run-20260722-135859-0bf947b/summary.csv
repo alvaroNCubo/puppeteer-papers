@@ -1,0 +1,3 @@
+direction,mechanism,producer_domain_methods_for_delivery
+polls (pull),PerformQuery on the producer,0
+told (push),a Reaction's Causation.Continue(tell),0
