@@ -55,6 +55,8 @@ abstract: >
   whether the authorities within it match the decisions each part has the
   standing to make. The labs are an existence proof of realizability, not a
   design-science evaluation of cost or benefit.
+canonical_url: https://doi.org/10.5281/zenodo.21499637
+doi: 10.5281/zenodo.21499637
 ---
 
 # Inference without Authority: the three authorities that govern an output
