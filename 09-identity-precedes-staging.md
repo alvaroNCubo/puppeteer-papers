@@ -102,32 +102,26 @@ The claim of §1 is checkable, and this section checks it against a running exam
 The domain's independence has a concrete form before anything runs — the shape of the build. Every executable host in the example reaches the domain through a single actor, and the domain reaches back to nothing but the language's own library:
 
 ```
-TetrisActor        -> TetrisDomain, Puppeteer, Choreography
-TetrisAi           -> TetrisActor
-TetrisConsole      -> TetrisActor
-TetrisDomain       -> (none)
-TetrisDomain.Tests -> TetrisDomain
-TetrisObserver     -> TetrisActor
-TetrisSend         -> (none)
-TetrisServer       -> TetrisActor
-TetrisStage        -> TetrisActor
-TetrisStageDuo     -> TetrisActor
-TetrisStageDuoTls  -> TetrisActor
-TetrisStageServer  -> TetrisActor
-TetrisWatch        -> TetrisActor
-TetrisWeb          -> TetrisActor
-TetrisWebRest      -> TetrisActor
+  11 hosts           -> TetrisActor
+     TetrisAi, TetrisConsole, TetrisObserver, TetrisServer, TetrisStage,
+     TetrisStageDuo, TetrisStageDuoTls, TetrisStageServer, TetrisWatch,
+     TetrisWeb, TetrisWebRest
+
+  TetrisActor        -> TetrisDomain, Puppeteer, Choreography
+  TetrisDomain.Tests -> TetrisDomain
+
+  TetrisDomain       -> (none)
 ```
 
-**Figure 1.** Every declared project reference in the example, read out of the project files on the example's main branch rather than drawn — each line is one project and what it references. Fifteen projects, every one of them merged into that branch. One row wants a word: `TetrisSend` is the pipe writer and references nothing by design, since it only writes bytes. The row that matters most is the first: **the actor carries the framework** (`Puppeteer`, `Choreography`) as well as the domain, which is what makes it the staging-facing shell — and `TetrisDomain` is the row with nothing to its right.
+**Figure 1.** Every declared dependency between the example's projects, read out of the project files on its main branch rather than drawn, and grouped so that the direction is visible: an arrow means *this project is built against that one*. Every staging depends on the same domain; the domain depends on none. Fourteen of the fifteen projects appear — `TetrisSend`, the pipe writer, is omitted because it references nothing and is referenced by nothing, being a separate executable that only writes bytes. Read downward, every arrow leads toward `TetrisDomain` and none leads away from it.
 
-The only *declared* edge from the running system into the domain is `TetrisActor.csproj → TetrisDomain.csproj` (`actor/TetrisActor.csproj:11`); no host declares one of its own, and the domain names no host. Its one other reference is its own test project, as expected.
+The figure answers one question, *who depends on whom*, and it is worth saying what it does not answer. It does not show that the domain leaves nothing open — no port declared, no contract, no persistence or transport requested. That is a different property, it is the stronger of the two, and it is measured separately against a built alternative in §9. A reader unfamiliar with this language's build files needs only the arrow: a project that names another cannot be compiled without it, and a project that names none can be compiled alone.
 
-Declaring no reference is not the same as naming nothing. Three of the hosts — the StageManager ones — do name a domain type, reaching it through the actor's reference, which in this language is transitive: each writes `typeof(TetrisDomain).Assembly` in order to hand the assembly to the framework (`sm-duo-tls/Program.cs:33`, and the same line in `sm-server` and `sm-duo`). What they name is an empty public anchor and nothing else, every verb-bearing type in the domain being `internal` and so unreachable from outside it. A staging therefore holds a name and not a handle, and the only party that invokes the domain is the framework, reflectively. The fence is raised against the *host language* and the compiler keeps it; the member-level reading that establishes this, including the two authored exceptions to it, is Lab E.
+Declaring no reference is not the same as naming nothing, and one qualification belongs with the figure rather than after it. Three hosts do name a domain type, reaching it through the actor's reference, which in this language is transitive: each writes `typeof(TetrisDomain).Assembly` to hand the assembly to the framework (`sm-duo-tls/Program.cs:33`, and the same line in `sm-server` and `sm-duo`). What they name is an empty public anchor and nothing else, so a staging holds a name and not a handle. Lab E reads that fence at the level of members and reports its two authored exceptions.
 
-What the domain does instead is *satisfy conventions*, and that is a different relation from declaring a dependency. The framework finds the domain by reflection, so its operations must be ordinary methods with coercible parameters, and it carries one concession to being found at all — the empty public anchor, which exists so a host can hand over the assembly. What separates conformance from dependency is not interpretive: the domain compiles and its own tests run with the framework absent from the build graph entirely (Lab E). A dependency cannot be absent from the build and still be met; a convention can.
+What the domain does instead is *satisfy conventions*, which is a different relation from declaring a dependency and the difference is load-bearing. The framework finds the domain by reflection, so its operations must be ordinary methods with coercible parameters, and the empty public anchor exists so that a host can hand the assembly over. What separates conformance from dependency is not interpretive: the domain compiles and its own tests run with the framework absent from the build graph entirely (Lab E). A dependency cannot be absent from the build and still be met; a convention can.
 
-That is the dependency direction §1 called *precede*, read off the project graph, and it wants stating in one orientation at a time. With edges running from a dependent to what it depends on, every staging's references lead to the domain and none leads out of it: the domain is a *sink*. Reverse the edges and it is the *root*, every staging reachable from it and none from another. Where later sections call the domain the stagings' common ancestor, that reversed orientation is what is meant, *ancestor* being genealogical shorthand for the root. Section 5 says what the property does and does not establish.
+That direction is what §1 called *precede*, and one note on vocabulary avoids confusion later. With arrows running from a dependent to what it depends on, the domain is a *sink*: every staging's references lead to it and none leads out. Reverse the arrows and it is the *root*, every staging reachable from it and none from another. Where later sections call the domain the stagings' common ancestor, that reversed orientation is what is meant; §5 says what the property does and does not establish.
 
 **Experiment A — change the stage.** The same `Well` is run on a console; in a browser, with input and output carried over a real WebSocket connection, and in a second browser variant over HTTP with server-sent events; across two co-hosted actors coordinated by a StageManager, once in memory and once over a real TLS channel; and across three separate Docker containers, each a peer joined to the others over real container-to-container TLS. These are genuinely different deployments — different processes, machines, transports, and wire formats. The domain source is identical across all of them: a diff of the domain directory between the first staging and the last comes back empty (Appendix A). What changes from one staging to the next is host code — the shell that binds an input source and an output sink to the actor. The example's own name for that shell is exact: the host is "an accidental shell" (`actor/IGameHost.cs:19`), and the same `Well` runs on `PerformanceV2` or on `StageV2` without knowing which. The example builds clean and its domain tests pass, unchanged, in every staging.
 
