@@ -52,7 +52,9 @@ abstract: >
   unchanged — measured as an empty diff over the domain's source. Every client
   reaches the domain through an adapter, and none is privileged: the on-screen
   grid a human reads is as much an adapter as the vector the automated player
-  computes; the domain emits raw facts and each client projects them.
+  computes. What the domain emits, it emits in its own vocabulary — the test being
+  whether a rule of the domain depends on the notion — and each client projects
+  that into whatever form it needs.
 
 
   Because the domain's identity is independent of its staging, the sequence of
