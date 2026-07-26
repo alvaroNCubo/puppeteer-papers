@@ -19,114 +19,58 @@ keywords:
   - puppeteer framework
 abstract: >
   In most systems the code that defines what a system does is entangled with the
-  code that defines where it runs and which clients it serves. Moving a domain
-  from a console to a web server, adding a new kind of client, or splitting one
-  process into several typically requires editing the domain itself. Throughout
-  this paper a deployment is called a *staging*, by analogy with theatre: one
-  script, many productions. What is reported here is a domain built without one.
-  A game's rules, holding no input or output of any kind, naming no framework in
-  its build graph, and exposing a public surface of exactly one type with no
-  members: closed, in the sense that nothing in it reaches outward and nothing
-  outside it may reach in except by the substrate calling operations the domain
-  never declared. Because its acts are recorded as it performs them, durability
-  and presence on a second machine arrive as properties of a staging rather than
-  as requirements the domain must grow to satisfy.
+  code that defines where it runs and which clients it serves, so a new place to
+  run or a new kind of client means editing the domain. Throughout this paper a
+  deployment is called a *staging*, by analogy with theatre: one script, many
+  productions. Reported here is a domain built without one — a game's rules
+  holding no input or output, naming no framework in its build graph, and exposing
+  a public surface of one type with no members. Five stagings and six clients were
+  built against it, the last spread across three machines, and the number of edits
+  they forced on it is zero, as is the number of stand-ins its own tests require.
 
 
-  Two experiments hold one domain — a Tetris board — fixed while changing, in
-  turn, the two things a deployment is made of. The first changes the stage: the
-  same domain runs on a console, in a browser over a real network, across
-  co-hosted actors over TLS, and across three machines in containers. The second
-  changes the client: a person at a keyboard, an automated player that reads the
-  board through an adapter it builds for itself, and a browser drawing the board
-  in JavaScript. Across all of them the domain is unchanged — measured as an empty
-  diff over the domain's source — and the number of stand-ins its own tests
-  require is zero. The direction of dependence is readable in the build: every
-  staging refers to the domain, the domain refers to none of them, and it declares
-  no interface for what drives it or for what it emits, so the contract that would
-  be a port is provided by the substrate and bound in the staging. Every client
-  reaches the domain through an adapter, and none is privileged: the on-screen
-  grid a person reads is as much an adapter as the vector the automated player
-  computes. What the domain emits, it emits in its own vocabulary — the test being
-  whether a rule of the domain depends on the notion — and each client projects
-  that into whatever form it needs.
-
-
-  The mechanisms that allow it are not new and none is claimed here. A component
-  that announces facts and names no recipient is implicit invocation; a component
-  driven by a framework it does not call is inversion of control; a
-  dependency-free core inside a shell that owns all input and output is a known
-  practitioner pattern. What is claimed is the assembly rather than any part of
-  it, and it was tested as such rather than asserted: an orthodox
-  ports-and-adapters version of the same game was built and counted, four stagings
-  added to it one commit at a time. That baseline holds two of this arrangement's
-  three constituents — a rule model free of dependencies, and a domain entered by
-  calls rather than calling outward — and lacks only the third, declaring nothing
-  about what becomes of what it emits. It corrects this paper more than it
-  confirms it. It matches the zero per staging, two new transports costing its rule model nothing
-  either, and its build graph is as free of references and packages, so neither
-  count separates the arrangements. Two differences survive. History and
-  durability are not among this domain's requirements — the capability that moved
-  the ported rule model by 61 lines cost this one nothing, because a record of its
-  acts already existed. And a port must be visible outside the domain that
-  declares it, so a ported domain has a publicly callable surface of at least one
-  operation per port, where this one's is empty. A third result, distribution
-  across three machines at zero domain edits, stands uncontested rather than
-  confirmed: a hexagon has no distribution story to port, so building one would
-  mean inventing an architecture rather than measuring one. That baseline is the
-  author's own, written to be as clean as the pattern permits, and it is therefore
-  evidence about what ports and adapters allow rather than about what practice
+  The mechanisms that allow this are old and none is claimed: announcing facts
+  without naming a recipient is implicit invocation, being driven by a framework
+  one does not call is inversion of control, and a dependency-free core inside a
+  shell that owns input and output is a known pattern. What is claimed is the
+  assembly, and it was tested rather than asserted. An orthodox ports-and-adapters
+  version of the same game was built and counted; it holds two of this
+  arrangement's three constituents and matches the zero per staging, two new
+  transports costing its rule model nothing either. Two differences survive.
+  History and durability are not among this domain's requirements — the capability
+  that moved the ported rule model by 61 lines cost this one nothing, because a
+  record of its acts already existed — and a ported domain has a publicly callable
+  surface of at least one operation per port where this one's is empty. A third
+  result, three machines at zero domain edits, stands uncontested rather than
+  confirmed, a hexagon having no distribution story to port. That baseline is the
+  author's own, so it reports what ports and adapters permit, not what practice
   looks like.
 
 
-  Two results came out of the labs that nobody set out to find, and both are more
-  transferable than the invariance. An incomplete record does not fail loudly but
-  answers plausibly: three labs met this independently, by three routes, each
-  taking it for a local incident — a routine correlated to the wrong closing entry
-  with the count still right, a truncated replay returning a board that was
-  internally consistent, a rehydration silently dropping every zero-argument act.
-  Because every reader reads the same consistent record, no second view exists to
-  disagree, so the mitigation is a ground truth rather than another observer, and
-  it is cheap enough to state as a rule for anyone measuring a journaled system:
-  carry the state recorded at play time and assert a replay against it. The second
-  is a constraint. A fact a domain emits must be derivable within a single actor's
-  state, so emitting a joint fact bounds how that domain may be decomposed — the
-  one respect in which the substrate shapes the domain rather than the reverse.
+  Two findings came out of the labs unsought, and both travel further than the
+  invariance. An incomplete record answers plausibly instead of failing loudly —
+  three labs met it independently — so a replay measurement must carry the state
+  recorded at play time and assert against it, or pass while being wrong. And a
+  fact a domain emits must be derivable within a single actor's state, which bounds
+  how a domain may be decomposed.
 
 
-  Two consequences follow with no further machinery. Watching and acting are
-  distinct roles, and a live read taken *in order to act* belongs to the party
-  acting — so a view served from a command's response can serve no client that
-  issued none, and what constitutes an audience is the record rather than a state
-  read off the moment; and the account of what the domain did keeps its identity
-  too, so the routine those acts compose is recognizable from any stage, which is
-  recognition in the sense of Paper 3 reached as a consequence rather than as a
-  separate result. That a domain unchanged under every staging of it has an
-  *identity* prior to them is a reading of these measurements and not one of them,
-  and the paper keeps the two apart. It is analytic in Gregor's (2006, Type I)
-  sense: identity and staging are constructs by which an architecture can be read,
-  and what it offers is a question that can be put to a system already built —
-  does the domain inside it hold an identity independent of where it is staged and
-  to whom — rather than a prescription for building one. A journaled actor system
-  serves as a worked instantiation, and the labs of Appendix A are an existence
-  proof that the separation is buildable, not a design-science evaluation of its
-  cost or benefit. Two limits bound all of it and are stated here rather than left
-  to §8. The demonstrated domain is a pure computational core: it keeps no
-  external store, causes no effect in the world, and reads no clock, which is
-  exactly the case in which emitting facts for clients to project suffices —
-  whether the separation survives a domain that must bring about an external
-  effect and then reason about its outcome is not shown. And the author
-  commissioned the work, so the arrangement is not tested against a domain
-  designed by someone who did not have it in mind; the compiler keeps the fence
-  rather than anyone's discipline, but no property of a build graph rules out a
-  domain whose surface was chosen with its known stagings in view.
+  That a domain unchanged under every staging has an *identity* prior to them is a
+  reading of these measurements rather than one of them. The paper is analytic in
+  Gregor's (2006, Type I) sense and offers a question to put to a system already
+  built, not a prescription: does its domain hold an identity independent of where
+  it is staged and to whom? Two limits bound all of it. The domain is a pure
+  computational core that causes no external effect and reads no clock, so whether
+  the separation survives a domain that must act on the world and reason about the
+  outcome is not shown; and the author commissioned the work, so no domain designed
+  without this arrangement in mind has been tested.
 ---
 
 # Identity Precedes Staging: one play, many stages
 
 ## TL;DR
 
-A domain and its deployment are usually written together, so a new place to run, or a new kind of client, means editing the domain. They can be separated completely. One domain — a Tetris board — was held fixed while five stagings and six clients changed around it, and the number of edits it needed was zero; so was the number of stand-ins its own tests require. The direction of dependence is readable in the build: every staging refers to the domain, the domain refers to none of them, and it declares no interface for what drives it or for what it emits, so the contract that would be a port is *provided* by the substrate and *bound* in the staging rather than declared by the domain. None of that is new — announcing facts without naming a recipient is implicit invocation, being driven by a framework one does not call is inversion of control — and a ports-and-adapters version of the same game, built and counted, matches the zero per staging and is as free of references and packages. Two differences survive that comparison. **History and durability are not among this domain's requirements**: a game outlives its process because a record of its acts already exists, so nothing had to be added to the rules, where the ported rule model paid 56 lines added and 5 removed for the same capability. And a port must be visible outside the domain that declares it, so the ported domain has at least one publicly callable operation per port where this one has none. A third result — three machines, zero domain edits — stands uncontested rather than confirmed, since a hexagon has no distribution story to port. That baseline is the author's own and written to be as clean as the pattern permits, so it reports what ports and adapters allow rather than what practice looks like. Two findings nobody was looking for came out of the same labs, and both travel further than the invariance does. An incomplete record answers plausibly rather than failing loudly — three labs met it independently — so a replay measurement must carry the state recorded at play time and assert against it, or it will pass while being wrong. And a fact a domain emits must be derivable within a single actor's state, which bounds how a domain may be cut. That the domain holding still across all of it has an *identity* prior to its stagings is this paper's reading of those measurements, not a further measurement.
+A domain and its deployment are usually written together, so a new place to run means editing the domain. They can be separated completely, and this paper measures one that is. A Tetris board was held fixed while five stagings and six clients changed around it: zero domain edits, zero test doubles. The domain declares no interface for what drives it or for what it emits, so the contract that would be a port is provided by the substrate and bound in the staging. None of that geometry is new. What the paper adds is a measurement of it, against a ports-and-adapters version of the same game built for the comparison — which matches the zero per staging, and does not match two things: letting a game outlive its process cost its rule model 56 lines and cost this one nothing, and its domain must expose an operation per port where this one exposes none. Two findings arrived unsought and travel further: an incomplete record answers plausibly rather than failing loudly, so carry the recorded state and assert a replay against it; and a fact a domain emits must be derivable inside one actor, which bounds how a domain may be cut.
 
 *Dependencies. This paper is part of the Puppeteer Papers, a series of self-deposited preprints, and rests on four of them: the actor's speech and `tell` (Paper 4), `Reaction` read as the recognition of a routine (Paper 3), the server treated as an accidental category rather than a place a domain lives (Paper 7), and testimony (Paper 8), whose observer receives an account it is told. Paper 8 noted, without pursuing it, that a narration received is not yet a narrative recognized; this paper takes up the recognition, and reaches it not as its subject but as a consequence of the identity it argues. Methodologically it is an analytic theory contribution in the sense of Gregor's (2006) theory for analyzing (Type I): identity and staging are constructs by which an architecture may be described and compared, and the paper offers no prescription for building one — its instrument is a question that can be asked of a system already built (§10), not a rule for making one. The labs of Appendix A are accordingly an existence proof of realizability, not a design-science evaluation of cost or benefit, and where the text has slipped into evaluative language the slip is corrected rather than defended. Stated in the vocabulary of software-engineering research method rather than of information systems: the contribution is a descriptive model whose validation is by example — a system built and measured — in Shaw's (2003) classification of contribution and validation types. And in the terms of Stol and Fitzgerald's (2018) framework, it trades generalizability over actors and realism of context away entirely, being one domain on one framework, in exchange for a precise and reproducible measurement of a single quantity.*
 
@@ -344,9 +288,9 @@ This connects to the one row of Table 1 marked as not addressed. Partial failure
 
 The separation of a domain from the machinery that runs it is not a new aspiration; reading it as a *measured invariance* rather than a design prescription is where this paper sits among its neighbours.
 
-What follows concedes each of this arrangement's mechanisms to prior work, and every concession is meant literally. But the kind of claim they are concessions against should be clear before they begin, because prior art on the parts of a configuration is not prior art on the configuration. An architecture in the foundational account is three things and not one — its elements, the *form* that constrains them, and the rationale for that form — where form is the properties of and the relationships among the elements (Perry & Wolf, 1992). Two arrangements built from the same elements under a different form are different architectures, and it is a form that is claimed here: a domain that declares nothing on either side, whose acts are recorded by a substrate it does not name, staged by parties that name it. Each element of that is old, and this section says where each comes from.
+What follows concedes each of this arrangement's mechanisms to prior work, and every concession is meant literally. But prior art on the parts of a configuration is not prior art on the configuration, and that should be clear before the concessions begin. An architecture in the foundational account is three things and not one — its elements, the *form* that constrains them, and the rationale for that form — where form is the properties of and relationships among the elements (Perry & Wolf, 1992). Same elements under a different form, different architecture. A form is what is claimed here: a domain that declares nothing on either side, whose acts are recorded by a substrate it does not name, staged by parties that name it. Each element of that is old and this section says where each comes from.
 
-Whether the *form* is old is a separate question, and the honest way to settle it is not by assertion in a related-work section. It was measured. An arrangement holding two of this one's three constituents was built and counted (Appendix A, Lab F): an orthodox ports-and-adapters version of the same game, whose rule model is as dependency-free as this one's, and which is likewise entered by calls on its own operations rather than by calling outward. What it lacks is the third — where this domain declares nothing about what becomes of what it emits, a hexagon declares ports for what it needs of the world, and something must then implement them. Holding two of the three, it still had to grow 61 lines inside its rule model in order to let a game outlive its process, and it still exposes at least one publicly callable operation per port. The two differences that survive the comparison are precisely what the third constituent buys. That is the strongest form of evidence a configuration claim admits: not that no part of it is old — every part is — but that an arrangement assembled from the standard parts, built in good faith and counted, does not yield the result.
+Whether the *form* is old is a separate question, and it was settled by measurement rather than by assertion in a related-work section. An arrangement holding two of this one's three constituents was built and counted (Appendix A, Lab F): a ports-and-adapters version of the same game, its rule model as dependency-free as this one's and likewise entered by calls rather than by calling outward. It lacks the third — where this domain declares nothing about what becomes of what it emits, a hexagon declares ports for what it needs of the world. Holding two of three, it still grew 61 lines inside its rule model to let a game outlive its process, and it still exposes an operation per port. The two surviving differences are what the third constituent buys. That is the strongest evidence a configuration claim admits: not that no part is old — every part is — but that an arrangement assembled from the standard parts, in good faith and counted, does not yield the result.
 
 The oldest of them is information hiding: a module should encapsulate the decisions most likely to change, so that a change to one is not a change to all (Parnas, 1972). Where a system is deployed, and to which clients, are such decisions; but Parnas's concern is the internal decomposition of a program into modules, and the counsel is a principle to follow, not a property to check. This paper's difference from all of the work below is of that kind — it does not prescribe a decomposition but measures whether one holds.
 
@@ -394,7 +338,7 @@ It is fair to press the point: if the substrate provides the mechanism, has the 
         domain asks for)
 ```
 
-The contract has not been inverted; it has moved off the domain's boundary, and it is worth being exact about where to, since two places are involved and not one. The *contract* is the substrate's: it defines what an output is, what may command the domain, and how either is carried. The *binding* is the staging's — which sink, which client, which transport — and it happens later than a reader is likely to assume. A destination is attached to a live actor rather than configured at build time or fixed at deployment: it can be replaced while the actor runs, and attaching none leaves that actor pull-only (`Choreography/Theater/PerformanceV2.cs:386`, `Puppeteer/StageHook.cs:186`). One destination is bound at a time; what coexists is *renderings*. A second wrapper is not a second actor: it shares the same actor handle, the same journal and the same hook, and differs only in keeping a formatter of its own. So one act, written once by one actor, is read back and rendered in as many formats as there are wrappers — the substrate's own name for that constructor is the N-projection one (`Choreography/Theater/PerformanceV2.cs:62`), and it is the mechanism Lab D measures. The same provided-not-declared shape holds for the transport that carries an actor's messages to another — the domain never names the wire either — though with a stricter binding lifetime, since a live transport cannot be swapped without stranding messages already in flight. That belongs to the axis this paper sets aside (§8) and to Paper 4, and is noted here only so that the output side is not read as a special case. So the formulation used throughout is that the contract is provided by the substrate and bound in the staging — never that it moved into the staging, which would credit the staging with a mechanism it only wires up. That move is what lets the domain be the common ancestor of §5: a port is a thread from the domain back to the shape of its clients, a fragment of a staging lodged inside the domain, and while it is there the identity is not clean. What the move costs, and what it does not, is measured rather than reasoned (Appendix A, Lab F). A ported arrangement pays no domain edit per staging either, and its driving side needs no double, a hexagon implementing its driving port rather than depending on it. Where it pays is on the driven side — three ports without stand-ins for which twenty of its sixty-four tests do not run — and in its publicly callable surface, at least one operation per port against none here. Those two are the observable trace of the move, not the point of it. The point is that the boundary the contract sits on is no longer inside the domain.
+The contract has not been inverted; it has moved off the domain's boundary, and two places are involved rather than one. The *contract* is the substrate's: it defines what an output is, what may command the domain, and how either is carried. The *binding* is the staging's — which sink, which client, which transport — and it happens later than a reader is likely to assume, a destination being attached to a live actor rather than fixed at build or deployment (`Choreography/Theater/PerformanceV2.cs:386`). So the formulation used throughout is that the contract is provided by the substrate and bound in the staging, never that it moved into the staging, which would credit the staging with a mechanism it only wires up. The same shape holds for the transport carrying an actor's messages to another, the domain naming no wire there either; that belongs to the axis this paper sets aside (§8) and to Paper 4, and is mentioned so the output side is not read as a special case. What the move costs is measured rather than reasoned (Appendix A, Lab F): a ported arrangement pays no domain edit per staging either, and its driving side needs no double, a hexagon implementing its driving port rather than depending on it. Where it pays is on the driven side — three ports without stand-ins for which twenty of its sixty-four tests do not run — and in its publicly callable surface, at least one operation per port against none here. That is the observable trace of the move and not the point of it. The point is that the boundary the contract sits on is no longer inside the domain, which is what lets the domain be the common ancestor of §5: a port is a thread from the domain back to the shape of its clients, a fragment of a staging lodged inside it, and while it is there the identity is not clean.
 
 The geometry itself has a prior claimant, and it is the nearest neighbour this paper has. Implicit invocation — a component announces an event, components registered elsewhere are invoked, and the announcer names no recipient and declares no interface for one — was formalized as a design space three decades ago (Garlan & Notkin, 1991) and studied as the means by which independently built tools are integrated and independently evolved (Sullivan & Notkin, 1992); its later forms are surveyed as publish/subscribe (Eugster et al., 2003). A domain that emits facts under logical names and says nothing about who receives them is doing that, and the coupling that remains — agreement on the names — is what that literature calls nominal coupling. The geometry of §2 is therefore implicit invocation's geometry, and the honest statement is that this paper did not discover it.
 
