@@ -73,7 +73,7 @@ abstract: >
 
 ## TL;DR
 
-Most systems entangle *what* a program does with *where* it runs and *which clients* it serves, so a new deployment or a new client means editing the domain. It need not. A deployment is one *staging* of a domain — one script, many productions — not a program in its own right, and the domain can be held completely fixed while its staging changes. The dependency is one-directional and visible in the build graph: the domain references no staging; every staging references the domain. The domain declares no interface for what drives it or for what it emits, so adding a staging costs it no edit and its own tests need no stand-in. Against ports-and-adapters that is no saving on the driving side, whose port is the domain's own API; what differs is that state outliving a process and reaching a peer comes from the substrate here, rather than from a port the domain declares (§9). Two experiments demonstrate it on one domain — a Tetris board — by changing the *stage* (console → browser over a network → co-hosted actors) and the *client* (a human, an automated player with its own view adapter, a browser in a second runtime), measuring the domain unchanged in every case. Every client, the human UI included, sees the domain through an adapter; none is privileged. Because the domain's identity is independent of its staging, the sequence of what it did is available directly and recognizable across all of them (Paper 3). The contribution is analytic: a domain is not its deployment, and the separation is buildable.
+A domain and its deployment are usually written together, so a new place to run, or a new kind of client, means editing the domain. They can be separated completely. One domain — a Tetris board — was held fixed while five stagings and six clients changed around it, and the number of edits it needed was zero. The direction of dependence is readable in the build: every staging refers to the domain, the domain refers to none of them. That is all this paper means by a domain's identity being prior to its staging. A ports-and-adapters version of the same game, built and counted, matches that zero per staging; what it does not match is a new *capability* — a game outliving its process — which cost the ported domain a change and cost this one nothing.
 
 *Dependencies. This paper is part of the Puppeteer Papers, a series of self-deposited preprints, and rests on four of them: the actor's speech and `tell` (Paper 4), `Reaction` read as the recognition of a routine (Paper 3), the server treated as an accidental category rather than a place a domain lives (Paper 7), and testimony (Paper 8), whose observer receives an account it is told. Paper 8 noted, without pursuing it, that a narration received is not yet a narrative recognized; this paper takes up the recognition, and reaches it not as its subject but as a consequence of the identity it argues. Methodologically it is an analytic theory contribution in the sense of Gregor's (2006) theory for analyzing (Type I): identity and staging are constructs by which an architecture may be described and compared, and the paper offers no prescription for building one — its instrument is a question that can be asked of a system already built (§10), not a rule for making one. The labs of Appendix A are accordingly an existence proof of realizability, not a design-science evaluation of cost or benefit, and where the text has slipped into evaluative language the slip is corrected rather than defended. Stated in the vocabulary of software-engineering research method rather than of information systems: the contribution is a descriptive model whose validation is by example — a system built and measured — in Shaw's (2003) classification of contribution and validation types; and in the terms of Stol and Fitzgerald's (2018) framework it trades generalizability over actors and realism of context away entirely, being one domain on one framework, in exchange for a precise and reproducible measurement of a single quantity.*
 
@@ -98,14 +98,25 @@ The claim of §1 is checkable, and this section checks it against a running exam
 The domain's independence has a concrete form before anything runs — the shape of the build. Every executable host in the example reaches the domain through a single actor, and the domain reaches back to nothing but the language's own library:
 
 ```
-  console, web, web-rest, server, StageManager hosts, ...
-      |
-      v
-  TetrisActor  -->  TetrisDomain  -->  (base class library only)
-
-  declared project references only; the StageManager hosts additionally
-  NAME one domain type, the empty anchor, to pass the assembly along
+F7EnsembleConsume      -> TetrisActor
+TetrisActor            -> TetrisDomain, Puppeteer, Choreography
+TetrisAi               -> TetrisActor
+TetrisConsole          -> TetrisActor
+TetrisDomain           -> (none)
+TetrisDomain.Tests     -> TetrisDomain
+TetrisObserver         -> TetrisActor
+TetrisSend             -> (none)
+TetrisServer           -> TetrisActor
+TetrisStage            -> TetrisActor
+TetrisStageDuo         -> TetrisActor
+TetrisStageDuoTls      -> TetrisActor
+TetrisStageServer      -> TetrisActor
+TetrisWatch            -> TetrisActor
+TetrisWeb              -> TetrisActor
+TetrisWebRest          -> TetrisActor
 ```
+
+**Figure 1.** Every declared project reference in the example, read out of the project files rather than drawn — each line is one project and what it references. Two rows want a word. `TetrisSend` is the pipe writer and references nothing by design, since it only writes bytes; `F7EnsembleConsume` is a test project from work not yet merged, and references the actor as the hosts do. The row that matters most is the second: **the actor carries the framework** (`Puppeteer`, `Choreography`) as well as the domain, which is what makes it the staging-facing shell — and `TetrisDomain` is the row with nothing to its right.
 
 The only *declared* edge from the running system into the domain is `TetrisActor.csproj → TetrisDomain.csproj` (`actor/TetrisActor.csproj:11`); no host declares one of its own, and the domain names no host. Its one other reference is its own test project, as expected.
 
@@ -343,7 +354,18 @@ The weight this lab can carry is small, and saying so is more useful than dressi
 
 **Lab C — the client.** With the stage held fixed, the client varies: a person at a keyboard reading an on-screen grid; an automated player sending moves over a pipe and reading a view it computes for itself; two passive observers, one pulling the board and one receiving it pushed; and a browser in which a player and a spectator are both written in JavaScript and reach the game over the network. Six clients over one `Well` — some in C#, one a PowerShell script, two in a browser — and the domain directory does not change for any of them. Each adds an input adapter, an output adapter, or both.
 
-Two counts belong here rather than one, because they answer different questions and the larger flatters the smaller. Six is the number of clients added, and it is the number that bears on the domain's diff: each was a separate addition, and none of the six cost the domain an edit. But six overstates how *differently* the board was read. Three of them — the person at the keyboard, the observer that pulls, the observer that receives a push — read the same grid over three different transports, and the browser's grid is that grid once more, computed independently in JavaScript. Counted by representation instead of by client, these labs hold **two**: a grid of cells, and a vector of column heights. Counted by implementation, three: a C# renderer, a JavaScript one that mirrors it, and a PowerShell height profile. The six is what supports the invariance claim; the two is the honest measure of representational distance, and §3's argument that no view is privileged rests on the two and not on the six.
+Two counts belong here rather than one, because they answer different questions and the larger flatters the smaller. Six is the number of clients added, and it is the number that bears on the domain's diff: each was a separate addition, and none of the six cost the domain an edit. But six overstates how *differently* the board was read. Three of them — the person at the keyboard, the observer that pulls, the observer that receives a push — read the same grid over three different transports, and the browser's grid is that grid once more, computed independently in JavaScript. Counted by representation instead of by client, these labs hold **two**: a grid of cells, and a vector of column heights. Counted by implementation, three: a C# renderer, a JavaScript one that mirrors it, and a PowerShell height profile. The six is what supports the invariance claim; the two is the honest measure of representational distance, and §3's argument that no view is privileged rests on the two and not on the six. Both are readable off one table, so a reader need not take either count on trust:
+
+| Client | Reaches the domain by | Representation it reads |
+|---|---|---|
+| console, driven by a person | keyboard, in process | grid of cells (C# renderer) |
+| automated player | a pipe to a warm server | vector of column heights (PowerShell) |
+| observer | a query it issues, pulling | grid of cells (C# renderer) |
+| watch | a pushed frame | grid of cells (C# renderer) |
+| browser player | WebSocket | grid of cells (JavaScript) |
+| browser spectator | server-sent events | grid of cells (JavaScript) |
+
+**Table 1.** The six clients of Lab C. Reading down the last column gives the count that matters: two representations, one of them implemented twice in different languages. Reading down the middle column gives six distinct ways in, which is what the domain's empty diff was measured against.
 
 **Lab D — the adapter.** One emitted frame reaches three different projections, none of them the domain's. The board emits its occupied cells — a set it computes, in its own vocabulary (`domain/Well.cs:322`, and §3 on why that is a fact it holds rather than a view); a renderer lays that out as a terminal grid (`actor/BoardRenderer.cs:19-48`); the browser produces the same grid independently in JavaScript, its code commented as mirroring that renderer (`web/Program.cs:169-178`); and the automated player lifts the same frame into a column-height profile with its gaps, wells, and aggregate figures (`tools/pile-scan.ps1:39-68`). Three implementations over one fact, and no domain method for any of them — but two representations, not three, since the browser's grid mirrors the terminal's; the height profile is the one that differs in kind.
 
@@ -373,7 +395,7 @@ This lab's comparative claim did not survive being measured, and the correction 
 | E | domain built and tested with the framework absent from its build graph | 0 references, 0 packages, 0 doubles; the suite passes |
 | G | the domain's own internal boundary — one role cut into two, stagings held still | 11 of 12 hosts unchanged (the 12th, one line); 0 divergences over 47,783 steps; record 2.44× |
 
-**Table 1.** What each lab measured. Every entry is a count taken from the example's own history or build; no comparison system was constructed, so nothing in this table is a comparison.
+**Table 2.** What each lab measured. Every entry is a count taken from the example's own history or build; no comparison system was constructed, so nothing in this table is a comparison.
 
 **Lab F — the ported baseline, built and counted.** The comparison this paper's §9 rests on was, in an earlier draft, an estimate. It has since been built. An orthodox ports-and-adapters arrangement of the same game was written — its eleven rule files differ from the journaled domain's by one line each, the namespace, so the comparison is not rigged by writing a worse domain — and four stagings were added to it one commit at a time so that each could be counted: a console, a WebSocket host, a REST-and-server-sent-events host, and an automated player. All four run. Adding the baseline changed nothing on the journaled side: the diff of the domain, the actor, the solution file, and all fifteen existing hosts is empty, and the journaled side's tests still pass.
 
@@ -388,7 +410,7 @@ The result complicates this paper's estimate rather than confirming it, and the 
 | a distinguishing build graph | **tie** — both rule models: zero project references, zero packages, no framework named |
 | cost of a new *capability* | cross-process persistence moved the ported arrangement by 204 lines added and 9 removed, of which 61 changed lines — 56 added, 5 removed — fall inside the rule model itself; the journaled side gained the same capability, for the same client, at nothing |
 
-**Table 2.** The ported estimate, measured. Two of the four estimated claims are refuted, one ties, and the difference that survives is not the one the paper had been claiming.
+**Table 3.** The ported estimate, measured. Two of the four estimated claims are refuted, one ties, and the difference that survives is not the one the paper had been claiming.
 
 **What the baseline actually shows: the unit of account was wrong.** A port costs a domain nothing per *staging* and everything per *capability its ports do not already carry*. Two new transports moved the hexagon not at all — the same zero this paper reports, reached by a different arrangement — so invariance across transports is not distinctive, and §2's counts should not be read as if it were. What moved the hexagon was persistence: to let a game outlive its process, the ported rule model had to grow a restore constructor and a way to rebuild a pile from cells — 61 changed lines, added and removed, not added alone. The journaled arrangement acquired the same capability, for the same client, at no cost to the domain, because a record of the acts already existed. The measured difference is therefore not *per staging* but *per capability of the kind a record supplies for free*.
 
