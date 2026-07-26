@@ -20,27 +20,27 @@ keywords:
 abstract: >
   A program's domain is usually written together with the code that deploys it, so
   a new place to run, or a new kind of client, means editing the domain. This paper
-  reports one that was not. A game's rules, holding no input or output and naming
-  no framework in its build graph, were run on five deployment configurations and
-  read by six clients — the last of them across three machines — at zero edits to
-  the domain and zero test doubles in its own tests. Throughout, a deployment is
-  called a *staging*, by analogy with theatre: one script, many productions.
+  reports one that was not. A game's rules — holding no input or output, naming no
+  framework in its build graph — ran on five deployment configurations and were
+  read by six clients, the last of them across three machines, at zero edits to the
+  domain and zero test doubles in its own tests. A deployment is called a *staging*
+  throughout, after theatre: one script, many productions.
 
 
   The mechanisms that allow this are old and none is claimed. What is claimed is a
-  property of the domain, and an orthodox ports-and-adapters version of the same
-  game was built to measure it against. That baseline matches the zero per staging.
-  What separates them is that it *decouples* a domain where this arrangement
-  *closes* one, on two independent measurements: the domain declares no obligation
-  outward, where the baseline declares three driven ports — from which its
-  stand-ins, its public surface, and the state it admits from outside all follow —
-  and its reconstitution needs no surface of its own, where the baseline grew one
-  at 56 lines added and 5 removed. Calling those two *closure* is a reading of them
-  and not a third measurement, as is reading the invariance as an *identity* prior
-  to any staging of it. The paper is analytic in Gregor's (2006, Type I) sense and
-  offers a question to put to a system already built rather than a prescription.
-  Two limits bound all of it: the domain is a pure computational core that causes
-  no external effect, and its author commissioned the work.
+  property of the domain, measured against an orthodox ports-and-adapters version
+  of the same game built for the comparison. That baseline matches the zero per
+  staging. It *decouples* a domain where this arrangement *closes* one, on two
+  independent measurements: the domain declares no obligation outward, where the
+  baseline declares three driven ports — whence its stand-ins, its public surface,
+  and the state it admits from outside — and its reconstitution needs no surface of
+  its own, where the baseline grew one at 56 lines added and 5 removed. Calling
+  those two *closure*, and reading the invariance as an *identity* prior to any
+  staging, are readings and not further measurements. The paper is analytic in
+  Gregor's (2006, Type I) sense, and offers a question to put to a system already
+  built rather than a prescription. Two limits bound it: the domain is a pure
+  computational core that causes no external effect, and its author commissioned
+  the work.
 ---
 
 # Identity Precedes Staging: one play, many stages
