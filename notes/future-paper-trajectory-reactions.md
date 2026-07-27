@@ -87,18 +87,14 @@ run together:
 Worth noting too that *trajectory* already exists in the substrate's own vocabulary, in the elision
 criterion: observable → elide, trajectory/audit → retain. The word arrived before the concept did.
 
-## What this inherits from Paper 8 — the boundary it sits on
+## What this still owes Paper 8
 
-Paper 8 is *inference without authority*. An anticipatory reaction **produces inference**: a
-confidence, a predicted continuation. So the question Paper 8 answered for outputs returns one level
-up, and it is the sharpest question this idea faces:
+With the axis corrected, only one half is owed, and it is the record. Is `90% dancing` an **act**?
+If it is journaled, the record holds inferences alongside acts and the series' distinction between
+what was done and what is projected over it is compromised. If it is not, the cursor is ephemeral and
+rebuilt on every replay — coherent, probably right, and to be argued rather than assumed.
 
-- Is `90% dancing` an **act**? If it is journaled, the record now contains inferences alongside acts,
-  and the series' distinction between what was done and what is projected over it is compromised.
-- If it is not journaled, the cursor is ephemeral and rebuilt on every replay — which is coherent, and
-  probably right, and should be argued rather than assumed.
-
-**The division the reader draws is the sound one and it is Paper 8's**: the model proposes
+**The division of labour the reader draws is sound and it is Paper 8's own**: the model proposes
 probabilistically, the Puppet validates operationally — does the verb exist, is it executable now, by
 whom, with what parameters, does it violate a rule. Probability without authority to execute,
 followed by validation by the party that holds the authority. That is worth stating in exactly those
