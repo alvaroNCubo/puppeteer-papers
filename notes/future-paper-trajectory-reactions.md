@@ -45,11 +45,22 @@ becomes the evidence from which a Puppet locates itself among partially realized
   trajectory stalls. So the distance from what exists to a trajectory cursor is, at the aggregate
   level, **a change of reading rather than of machinery**, which is the move this series makes
   everywhere else.
-- **What does not exist is per-candidate identity.** The counters are aggregates over the actor's
-  life. *17 active candidates, best cursor 4/5* needs to know that seventeen trajectories are open and
-  which is at which step, and nothing carries that. Branching, abandonment, expiry and absorption are
-  all properties of a *candidate*, not of a stage, so they are downstream of that missing piece. That
-  is the real work, and it is larger than the DSL suggests.
+- **The position is not only public — it is journaled.** `DiaryStorage` declares
+  `GetReactionCheckpoint(reactionId, seekLevel)` returning a `(detected, confirmed)` pair, with
+  `SaveReactionConfirmedCheckpoint(reactionId, seekLevel, entryId)` beside it
+  (`Puppeteer/EventSourcing/DB/DiaryStorage.cs:249`, `:253`), and every backend implements them. So
+  the substrate keeps a **durable per-stage position in the trajectory** that survives a restart. The
+  outbox's deterministic idempotency key is built from the same material —
+  `(reactionId : anchorEntryId : seekLevel)` (`notes/reactions-outbox-emit.md`) — so a stage's
+  position already travels stamped on every message it causes.
+- **What does not exist is plurality.** The checkpoint is *one* position per (reaction, level), not N
+  concurrent candidates. So *best cursor 4/5* is close to what the checkpoint set already is, while
+  *17 active candidates* is the missing piece — and branching, abandonment, expiry and absorption are
+  all properties of a **candidate**, so they are downstream of it. That is the real work.
+- **And this cleans up the Paper 8 question below.** A durable cursor is substrate bookkeeping, not a
+  domain act, and nobody has ever called it one — so whether *position* may be recorded is already
+  settled in practice. The new thing would be a **probability**, and only that needs the argument.
+  Position: recorded, uncontroversial. Inference: new, and owes a defence.
 
 So the instrument is built and the concept is not. That is a good position to write from, and it must
 be stated that way rather than blurred.
