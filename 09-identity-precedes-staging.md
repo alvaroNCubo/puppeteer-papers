@@ -384,7 +384,7 @@ Two things came out of those labs that nobody set out to find. Neither is the re
 
 Four questions the argument opened are left standing, each larger than this paper. If an entitlement must be attributed to something that holds still, then identity is prior to authority, and the series' earlier questions about who may speak rest on this one. Who is *entitled* to read a routine, §6 reaches without settling — though whether a reading of one can be wrong it does settle, and the answer is that it can, and silently, when a moment that mattered was never an act. Which is the third question, and the one this paper is most exposed on: what must be an act at all. A criterion is offered here for a record's vocabulary and none for its granularity, and it is granularity that an account's fidelity rests on (§6). And because a domain that declares no dependency cannot reach for another, whatever composes two domains is neither of them — the question that anything treating a set of domains as a repertoire would have to answer first. Closure is what this paper hands to that question. A domain that still declares obligations is a *part* of a system, completed by whatever supplies them; one that declares none is a whole, and a whole is the only kind of thing a repertoire can hold. Whether closure is sufficient for that, or merely necessary, is not settled here.
 
-The audience changes. The stage changes. The play does not.
+The audience changes. The stage changes. The play asks nothing of either.
 
 ## Appendix A. Labs
 
