@@ -60,6 +60,33 @@ reaction can hold a cursor over it, for the same reason. So trajectories bound h
 cut, exactly as joint facts do — or the recognizer has to live outside both, which is an ordinary
 adapter and a different design.
 
+## The axis: a subsystem of the entity, not an AI looking in
+
+Alvaro's correction, and it changes what this is. The first framing had an AI outside — peering in,
+whispering to the entity, proposing rules. Under that framing the anticipation is an external
+inference and Paper 8's question reopens: who is entitled to say this happened?
+
+It is not that. **Anticipation is a subsystem of the entity itself.** The Puppet recognizes its own
+trajectory and anticipates its own continuation; the AI is a way of building and sharpening that
+subsystem, and the phenomenon exists whether or not an AI is involved — a Puppet that has seen
+*Jump, Jump, Flex* many times and observed that *Turn* usually follows is already anticipating.
+
+That resolves half of the Paper 8 problem and sharpens the other half, and the halves should not be
+run together:
+
+- **Resolved: authority.** Paper 8 established that the actor has authority over what constitutes its
+  output. If the party inferring is the entity, the authority question is answered in advance rather
+  than reopened.
+- **Not resolved, and sharper: the record.** The entity would be journaling something it **inferred**
+  rather than something it **did**. That is the one boundary the change of axis does not cross, and
+  it is the good question. The substrate already has a knob adjacent to it — `ShadowConfig.CarryPlaybill`
+  is off by default, journal-only replay, and opted into for a *forensic* shadow as against a
+  *behavioural* experiment — so the distinction between rehearsing and recording is already
+  something the machinery can express.
+
+Worth noting too that *trajectory* already exists in the substrate's own vocabulary, in the elision
+criterion: observable → elide, trajectory/audit → retain. The word arrived before the concept did.
+
 ## What this inherits from Paper 8 — the boundary it sits on
 
 Paper 8 is *inference without authority*. An anticipatory reaction **produces inference**: a

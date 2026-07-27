@@ -51,6 +51,22 @@ Closure answers: obligations the thing declares outward, and whether reconstitut
 surface of its own. Both counted, both zero. *Faculties* answers nothing, which is why the
 ontological framing is the weaker one even though it reads bigger.
 
+## The open question is the count, and it is the minimality question
+
+Alvaro's framing, and it is better than "give a membership test": what is not yet known is whether the
+entity has **three ontological properties or five**. Those are the same question from two sides — a
+membership test says what counts as a property, and the count says how many survive being counted.
+
+The value of putting it as a count is that it exposes the real work. **"How many?" is minimality
+wearing different clothes** ([[series-minimal-algebra-direction]]): if it cannot be said whether there
+are three or five, orthogonality has not been established. And it has a method, the same one Lab F
+used — **two properties are distinct if one can be absent while the other holds**, which is shown by
+building the case, not by arguing it. That turns an ontological question into a constructive one, and
+keeps it inside the register the series can defend.
+
+So the aglutinador's job is not to assert a list of faculties. It is to establish how many properties
+there are, by exhibiting for each pair a construction where one is present and the other is not.
+
 ## The brake — three things to keep out
 
 1. **"Faculty", "cognitive capacity".** The series measures mechanisms. A faculty is not measurable
