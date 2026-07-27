@@ -102,3 +102,44 @@ open work without resting on it.
 
 Related: [[paper9-distributed-observation-brief]], [[concession-must-not-become-thesis]],
 [[feedback-papers-engineer-register-positive-symptom]].
+
+## A candidate line, and the two words that make it Galileo
+
+Alvaro, 2026-07-26: *"La autoridad se acumuló accidentalmente alrededor de los datos."*
+
+The observation is not an intuition — it is the generalization of two things the corpus already
+measured:
+
+- **Paper 8**, in almost the same words: *"the symptom there is not that the object prints. It is
+  that **the material spoke as though it held the projection's authority**."* Its three authorities
+  are the domain (knows what exists), the actor (pronounces the projection), and the assembler
+  (pronounces the destination). Data is not a fourth authority; it is the *material* the actor
+  projects over, and the symptom is the material taking an authority that is not its own.
+- **Paper 9**: the ported baseline's public surface admits `GameState` through a host-implemented
+  port, so the authority to say what the board *is* sits with whoever supplies it rather than with the
+  entity that performed the acts. A host can present a board no sequence of acts produced.
+
+Two measured instances. What makes the sentence Galileo is two separable words:
+
+- **"accumulated"** — a historical process about how the field arrived here. Nothing measured it, and
+  a reader can only believe it or dispute it.
+- **"accidentally"** — an explanation of that process. It also *collides*: in this series *accidental*
+  is Brooks's term and means **not essential to the thing** (Paper 6, Paper 7, Paper 9's "accidental
+  shell"). Using it in the historical sense would overload a load-bearing word.
+
+### The sayable versions
+
+Short, for the aglutinador:
+
+> **Where state can be supplied, the authority to say what happened follows the supplier.**
+
+Long, with its anchors:
+
+> Authority over what happened belongs to the party that acted. Two arrangements measured here put it
+> elsewhere: a domain object that renders itself takes the projection (Paper 8), and a port that
+> admits a state lets an outside party assert what no act produced (Paper 9). In both, the material
+> speaks as though it held an authority it does not.
+
+Both are structural rather than historical, both cite measurements, and both are falsifiable — build
+an arrangement where state is supplied and the authority does *not* follow the supplier. That is the
+difference between a claim a reader can check and one they can only accept.
