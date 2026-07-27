@@ -33,9 +33,23 @@ becomes the evidence from which a Puppet locates itself among partially realized
   narration it can continue*, not a film to watch.
 - **`--live` is future and the code says so**: *"only mode supported today; --live arrives later"*
   (`AttachCommand.cs:292`, `DescribeCommand.cs:142`, `Program.cs:117`).
-- **Nothing of the cursor exists.** No progress state, no confidence, no partial match anywhere in
-  the reaction machinery. The `Candidate`/`Advancing` names in the tree are StageManager's Raft
-  election roles and are unrelated.
+- **The trajectory DSL is entirely real.** `Seek` / `ThenSeek` / `ThenFinalSeek`
+  (`Puppeteer/EventSourcing/Follower/Reaction.cs:649`, `:664`, `:682`), with `Many`, `One`, `Exactly`
+  and `Where` (`ReactionEngine.cs:164`, `:272`, `:278`, `:87`), and `Cue` / `Job`
+  (`Reaction.cs:44`, `:49`). Order, cardinality, filters, finalization and a performative conclusion
+  are all there.
+- **An aggregate cursor already exists, and is already public.** Each `ReactionEngine` — one per Seek
+  stage — keeps `seekEntered` and `seekMatched`, exposed as `SeekEntered` / `SeekMatched`
+  (`ReactionEngine.cs:335-339`, Interlocked, with a `ResetSeekCounters`). Their stated purpose is to
+  *"diagnose drop-off per stage when a multi-Seek Reaction underfires"* — that is, to see where a
+  trajectory stalls. So the distance from what exists to a trajectory cursor is, at the aggregate
+  level, **a change of reading rather than of machinery**, which is the move this series makes
+  everywhere else.
+- **What does not exist is per-candidate identity.** The counters are aggregates over the actor's
+  life. *17 active candidates, best cursor 4/5* needs to know that seventeen trajectories are open and
+  which is at which step, and nothing carries that. Branching, abandonment, expiry and absorption are
+  all properties of a *candidate*, not of a stage, so they are downstream of that missing piece. That
+  is the real work, and it is larger than the DSL suggests.
 
 So the instrument is built and the concept is not. That is a good position to write from, and it must
 be stated that way rather than blurred.
@@ -111,8 +125,14 @@ keeps the immediate continuity of a trajectory — prepare the turn, reserve the
 observer — cheap, local, near. A `Job` carries recognition that exceeds the present local: compare
 many trajectories, consult other Puppets, look for long-range anomalies, propose new trajectories.
 So an entity can hold *distributed reflection about its own history* while its computation happens in
-many places, which makes the many-machine result a realizability proof for an ontological capacity
-rather than an infrastructure detail. Worth keeping; also worth measuring before claiming.
+many places.
+
+Stated carefully, because it is easy to get wrong: `Cue` and `Job` are **temporal and distributive
+strategies**, not an ontological classification. They say *when* and *where* a consequence runs, not
+*what kind of thing* it is. Reading them as two categories of recognition would be the same error as
+reading relation properties as kinds of trajectory. What is true is narrower — a trajectory's
+consequences can be near and cheap or deferred and distributed — and whether that supports anything
+about a capacity is a question for a measurement, not for the classification.
 
 ## A register warning
 
@@ -125,9 +145,20 @@ aglutinador if anywhere, and keep it out of a title.
 
 ## The first thing to build
 
-One trajectory over the Tetris journal — a placement is already recognized retrospectively in Lab H —
-carrying a cursor and a next-act distribution, and measured against what actually happened next.
-Everything else is downstream of whether that number means anything.
+The first number needs no new engine. `SeekEntered` and `SeekMatched` are public and per stage, so a
+base rate is already computable: if stage 4 was entered a hundred times and matched seventy-eight,
+then *given the trajectory is at stage 3, the next act is stage 4's with about 0.78* is a statement
+the substrate can already make about itself. Compute it over the Tetris journal — Lab H already
+recognizes a placement retrospectively — and check it against what actually happened next.
+
+If that number means nothing, the rest is not worth building. If it means something, the next piece is
+per-candidate identity, and only then cursors, branching and abandonment.
+
+And the three organs the DSL currently ties in one knot are worth separating before any of that, since
+it invents nothing: the `Seek` chain is the **trajectory**, the action of `Continue(check, action)` is
+the **reaction**, and that `check` together with the `Where` clauses is the **admissibility**. Splitting
+`DefineTrajectory` from `ReactTo` is what turns *Bailar* from the name of a rule into an entity of the
+repertoire.
 
 Related: [[future-paper-a-fact-must-belong-to-one-actor]],
 [[future-paper-incomplete-records-answer-plausibly]], [[paper9-distributed-observation-brief]],
