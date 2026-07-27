@@ -40,6 +40,23 @@ places. §2 worked (2,414 → 1,295) **because it had genuine redundancy** — e
 one thing. Where the detail *is* the content, a pointer costs what it saves. Cut or keep; do not
 relocate.
 
+## The subtitle stays: "one play, many stages"
+
+A reader will notice that the subtitle names the axis Lab F showed is **not** distinctive — a
+competent hexagon also runs on many stages without touching its rule model — and will propose
+replacing it with something naming closure. Decided against, 2026-07-26, after the closing line was
+corrected.
+
+The reason: a subtitle's job is the **frame**, not the claim. The theatre frame is what makes the
+whole paper legible, and the claim is carried where it belongs — the abstract's second paragraph says
+*decouples* versus *closes*. A subtitle like "a domain that asks nothing" would be more exact and
+considerably worse to read, and readability comes first here.
+
+What made this safe was fixing the aftertaste rather than the title. The paper's last line had said
+*"The play does not"* — the domain frozen — which §8.2 explicitly denies. It now reads **"The play
+asks nothing of either,"** which is the closure claim in the same register and true alongside a domain
+that grows. With that line correct, the subtitle no longer promises anything the body retracts.
+
 ## The abstract stays at ~270 words, not 200
 
 Reaching 200 means deleting one of three things each of which an earlier round asked for in writing:
