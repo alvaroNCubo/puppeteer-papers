@@ -10,25 +10,97 @@ the domain, the actor, the twelve hosts — but every lab and every note lives o
 never merged. That is a reproducibility defect in its own right, and it has to be fixed before the
 paper is deposited, because Code provenance promises these notes as `paper09-data.zip`.
 
-| Lab | Branch | What is there |
-|---|---|---|
-| A stagings, C clients, D projections | `main` | the 12 hosts and `tools/pile-scan.ps1`; no notes |
-| B three machines | `p9/labg-rerun` | `Tetris/docker/`, `notes/experiment-a-crossmachine.md` + its `.log` |
-| E fence / no references | `main` | the `domain/` project itself; assertions are read off the code |
-| F ported baseline | `claude/confident-satoshi-7ed985` | `Tetris/baseline-hex/` (54 files), `notes/baseline-hexagonal.md` |
-| G re-decomposition | `p9/labg-rerun` | `Tetris/redecomp/`, `notes/redecomposition-pile-and-piece.md`, `notes/redecomposition-rerun-on-master.md` |
-| G (first run) | `claude/agitated-brattain-e35650` | the earlier, pre-correction state — useful only for comparison |
-| I domain growth | `claude/trusting-tereshkova-f48ab6` | `notes/domain-growth-score-and-difficulty.md`, plus `notes/data/` with the pre-growth journals, replay logs and smoke transcripts |
-| H recognition | `claude/jovial-goldstine-a03293` | `notes/recognition-across-stagings.md` |
-| A stagings (write-up) | `claude/vibrant-tesla-c7d897` | `notes/experiment-a-topology.md` |
-| C clients (write-up) | `claude/upbeat-pare-d0594f` | `notes/experiment-b-audience.md`, and `notes/mirilla-and-tetris.md` — the viewer's own write-up |
+### Full paths — every lab already has a worktree mounted
 
-Use a **worktree per lab** rather than switching branches in the shared checkout, which sits on
-`f7-ensemble-consume` and belongs to other work:
+You do not need to create these. They exist. **Warning: the worktree directory names do not match the
+branches they hold** — the directory called `friendly-pare-7ffa3f` holds Lab F's branch, while
+`compassionate-poitras-b77281` holds the branch called `friendly-pare-7ffa3f`. Go by this table, not by
+the folder name.
+
+| Lab | Full path to the worktree | Branch it holds |
+|---|---|---|
+| **G** re-decomposition, **B** three machines | `C:\Users\alvar\source\repos\_p9\labg` | `p9/labg-rerun` |
+| **F** ported baseline | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\friendly-pare-7ffa3f` | `claude/confident-satoshi-7ed985` |
+| **I** domain growth | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\trusting-tereshkova-f48ab6` | `claude/trusting-tereshkova-f48ab6` |
+| **H** recognition | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\jovial-goldstine-a03293` | `claude/jovial-goldstine-a03293` |
+| **C** clients write-up, and the mirilla's own | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\upbeat-pare-d0594f` | `claude/upbeat-pare-d0594f` |
+| **G** first run, pre-correction | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\agitated-brattain-e35650` | `claude/agitated-brattain-e35650` |
+| **A** stagings write-up | *not mounted* — see below | `claude/vibrant-tesla-c7d897` |
+| **A/C/D/E** the example itself, and the mirilla | `C:\Users\alvar\source\repos\puppeteer-examples` | `f7-ensemble-consume` (someone else's; has uncommitted work) |
+
+The engine Lab G builds against, required because its csproj reaches for `..\..\..\eng\`:
+
+    C:\Users\alvar\source\repos\_p9\eng          (Puppeteer, detached at dd67047)
+
+That is why Lab G's worktree lives at `_p9\labg` and not beside the others — it has to be a sibling of
+`eng`. `C:\Users\alvar\source\repos\_p9\run` holds output from the last run I did.
+
+The one that is missing, if you want the Experiment A write-up:
 
 ```bash
-git -C C:/Users/alvar/source/repos/puppeteer-examples worktree add C:/Users/alvar/source/repos/_labs/labF claude/confident-satoshi-7ed985
+git -C C:/Users/alvar/source/repos/puppeteer-examples worktree add C:/Users/alvar/source/repos/_labs/notesA claude/vibrant-tesla-c7d897
 ```
+
+### Full paths — the files to inspect
+
+**Lab G** — `C:\Users\alvar\source\repos\_p9\labg\`
+
+    Tetris\redecomp\                                     the harness (play / redecompose / dump / equivalence)
+    Tetris\notes\redecomposition-rerun-on-master.md      the run the paper cites — 135, 219+90, 2.29x
+    Tetris\notes\redecomposition-pile-and-piece.md       the original write-up
+    Tetris\actor\TetrisActor.csproj                      line 41: the engine reference to ..\..\..\eng\
+
+**Lab B** — same worktree
+
+    Tetris\docker\run-demo.sh                            publish, compose up, wait for convergence
+    Tetris\notes\experiment-a-crossmachine.md            the write-up
+    Tetris\notes\experiment-a-crossmachine.log           the captured run
+
+**Lab F** — `...\Tetris\.claude\worktrees\friendly-pare-7ffa3f\`
+
+    Tetris\baseline-hex\TetrisHex.sln                    build this
+    Tetris\baseline-hex\domain\model\Well.cs           line 75: the restore constructor — Table 3 row II
+    Tetris\baseline-hex\domain\model\Pile.cs           line 51: the pile factory, and its comment
+    Tetris\baseline-hex\domain\ports\                  the four ports: three driven, one driving
+    Tetris\baseline-hex\domain\AssemblyInfo.cs          the grant, to the test suite only
+    Tetris\baseline-hex\domain.tests\                   the 64 tests; the 20 that need stand-ins are here
+    Tetris\baseline-hex\domain.tests\doubles\          the three stand-ins themselves
+    Tetris\notes\baseline-hexagonal.md                   the write-up, with the per-staging counts
+
+**Lab I** — `...\Tetris\.claude\worktrees\trusting-tereshkova-f48ab6\`
+
+    Tetris\domain\Scoring.cs                             39 lines, new
+    Tetris\domain\Difficulty.cs                          38 lines, new
+    Tetris\domain\Well.cs                                +21 -3 — the third file the +98 spans
+    Tetris\notes\domain-growth-score-and-difficulty.md   the write-up
+    Tetris\notes\data\replay.sh                         replays the pre-growth journals
+    Tetris\notes\data\smoke.sh                          the twelve hosts, before and after
+    Tetris\notes\data\journals-pre-growth\             records written before the domain grew
+    Tetris\notes\data\replay-pre-change.log             and the two post-experiment logs beside it
+
+**Lab H** — `...\Tetris\.claude\worktrees\jovial-goldstine-a03293\`
+
+    Tetris\notes\recognition-across-stagings.md          the write-up
+    Tetris\notes\recognition-across-stagings.log         the captured run
+
+**Labs A, C, D, E and the mirilla** — `C:\Users\alvar\source\repos\puppeteer-examples\`
+
+    Tetris\domain\                                       the domain — Lab E is read off this directory
+    Tetris\domain\TetrisDomain.csproj                    four properties, no references
+    Tetris\domain\AssemblyInfo.cs                        lines 8-9: the two grants
+    Tetris\domain\Well.cs                                line 322: OccupiedInterior, the in-domain join
+    Tetris\actor\TetrisActor.csproj                      line 11: the one declared edge into the domain
+    Tetris\watch\                                        the mirilla — receives pushed frames
+    Tetris\observer\                                     the poll fallback — reconstructs by re-reading
+    Tetris\ai\                                           the automated player, one act per process
+    Tetris\tools\pile-scan.ps1                           the view the LLM client wrote for itself
+    Tetris\console\ web\ web-rest\ sm-duo\ sm-duo-tls\ sm-server\ stage\ send\   the other hosts
+
+The write-ups for Experiment A and B, once that worktree exists:
+
+    C:\Users\alvar\source\repos\_labs\notesA\Tetris\notes\experiment-a-topology.md
+    ...\worktrees\upbeat-pare-d0594f\Tetris\notes\experiment-b-audience.md
+    ...\worktrees\upbeat-pare-d0594f\Tetris\notes\mirilla-and-tetris.md
 
 ## The mirilla: watch a game while it is played
 
