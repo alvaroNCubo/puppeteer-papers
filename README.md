@@ -1,4 +1,10 @@
-# Research Program Overview
+# Characterizing the Puppet
+
+### A Unifying Explanation for the Architectural Observations Developed Throughout the Puppeteer Papers
+
+Across these papers, independent architectural observations gradually accumulate: performative verbs, durable history, reactions, authority, staging, and repertoire. This series proposes that treating them as the faculties of a single computational entity provides a coherent explanation for those observations. Whether viewed as a design abstraction or as a computational characterization, the resulting software speaks more directly about its domain.
+
+When software is modeled as if the Puppet were its fundamental modeling unit, the software speaks more directly about its domain.
 
 ## What this is
 
