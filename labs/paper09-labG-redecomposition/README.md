@@ -14,20 +14,47 @@ built a complete frame by unioning the pile's cells with the falling piece's *in
 and a projection on the emitting plane reaches only its own actor's state — so after the cut neither
 role can push a whole frame.
 
-## Run
 
-Its engine reference reaches for `..\..\..\eng\`, so a Puppeteer worktree pinned at or after
-`dd67047` must sit beside it. `<run>` is any fresh directory.
+## Order, consoles, and what each shows
 
-    dotnet build redecomp/TetrisRedecomp.csproj
-    dotnet run --project redecomp/TetrisRedecomp.csproj -- play <run>/orig 1 400
-    dotnet run --project redecomp/TetrisRedecomp.csproj -- redecompose <run>/orig <run>/split
-    dotnet run --project redecomp/TetrisRedecomp.csproj -- dump played <run>/orig       # check the 135
-    dotnet run --project redecomp/TetrisRedecomp.csproj -- equivalence random 20 2000   # 2,614 steps
-    dotnet run --project redecomp/TetrisRedecomp.csproj -- equivalence flat 20 2000     # 5,169
-    dotnet run --project redecomp/TetrisRedecomp.csproj -- equivalence clears 20 2000   # 40,000
+One console throughout, and **the order is strict** — steps 2 to 4 each consume what the one before
+it wrote. `<run>` is any fresh empty directory.
 
-Expect 0 divergences in all three.
+An engine worktree pinned at or after `dd67047` must sit beside this one: the csproj reaches for
+`..` + BS + `..` + BS + `..` + BS + `eng` + BS + `.
+
+| # | Run this | What you see in it | Who operates it |
+|---|---|---|---|
+| 0 | `dotnet run --project redecomp/TetrisRedecomp.csproj` | **The harness lists its own seven sub-commands.** Ask it rather than this file. | You, first, to see what is available. |
+| 1 | `dotnet build redecomp/TetrisRedecomp.csproj` | It builds. | You. |
+| 2 | `… -- play <run>/orig 1 400` | A whole game played on the **undivided** board: 129 acts to game over. | You. Writes the original journal. |
+| 3 | `… -- redecompose <run>/orig <run>/split` | The cut, **in a fresh process**: the original's acts are read and re-performed into two roles. | You. Writes two new journals; never edits the first. |
+| 4 | `… -- dump played <run>/orig` | **The entry counts.** `135` for the original is the figure the paper's 2.29× divides by. | You. Read-only. |
+| 5 | `… -- equivalence random 20 2000` | 2,614 steps, **0 divergences**. | You. |
+| 6 | `… -- equivalence flat 20 2000` | 5,169 steps, **0 divergences**. | You. |
+| 7 | `… -- equivalence clears 20 2000` | 40,000 steps, **0 divergences**. | You. |
+
+**Output on disk — this lab's output is journals, not text.** After step 3 you have three:
+
+    <run>/orig      the original record, 135 entries
+    <run>/split     the two roles' records, 219 and 90 entries, 309 together
+
+`dump` is how you read any of them in a fresh process, which is the point: they are ordinary records
+and the harness takes nothing special out of them. Capture the counts:
+
+```powershell
+Start-Transcript -Path labG-session.log
+# steps 2 through 7
+Stop-Transcript
+```
+
+Then `labG-session.log` holds every count the paper cites from this lab: 135, 219, 90, 309, 2.29×,
+and three zeros for divergence.
+
+**Read, do not run, for §8.4's premises.** They were checked here, and both are one line each: the
+undivided board built a complete frame by unioning the pile's cells with the falling piece's *inside*
+the domain, and a projection on the emitting plane reaches only its own actor's state. So after the
+cut, neither role can push a whole frame.
 
 ## Contents
 

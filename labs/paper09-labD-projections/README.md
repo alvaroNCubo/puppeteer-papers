@@ -34,10 +34,10 @@ is typed into them again.
 
 | # | Start this | What you see in it | Who operates it |
 |---|---|---|---|
-| 3 | `dotnet run --project Tetris\input\TetrisStage.csproj -- juego1 --sources pipe,clock --clock-ms 5000` | **One line at startup, then nothing, ever.** It renders no board, so it looks frozen and is not. Confirm it is alive by that line: `TetrisStage: session 'juego1', merged sources [pipe, clock], clock 5000ms…` | Nobody. It is the **only writer** — it turns each arriving command into a journaled act. |
-| 1 | `dotnet run --project Tetris\watch\TetrisWatch.csproj -- juego1` | **The board, repainted the instant an act lands**, with `[falling: S]` and `Lines cleared: N` above it. Silent between acts — that silence is the point. | Nobody. The substrate pushes each frame; this console *receives* it. |
-| 2 | `dotnet run --project Tetris\observer\TetrisObserver.csproj -- juego1` | **Replay progress filling the screen** — `1%2%3%…` — and the board rebuilt up to 350 ms late. It re-opens the journal and rehydrates on *every* poll. | Nobody. This console *reconstructs*; the noise is the cost of doing so. |
-| 4 | `dotnet run --project Tetris\send\TetrisSend.csproj -- juego1 left` | **Your prompt back after each command.** The commands you typed are the record of what you did — which the keyboard alternative does not leave. | **You.** One move per invocation. Run it with no arguments to have it list the operations it accepts. It carries the verb over a pipe and exits; it writes no journal. |
+| 3 | `dotnet run --project Tetris\input\TetrisStage.csproj -- game1 --sources pipe,clock --clock-ms 5000` | **One line at startup, then nothing, ever.** It renders no board, so it looks frozen and is not. Confirm it is alive by that line: `TetrisStage: session 'game1', merged sources [pipe, clock], clock 5000ms…` | Nobody. It is the **only writer** — it turns each arriving command into a journaled act. |
+| 1 | `dotnet run --project Tetris\watch\TetrisWatch.csproj -- game1` | **The board, repainted the instant an act lands**, with `[falling: S]` and `Lines cleared: N` above it. Silent between acts — that silence is the point. | Nobody. The substrate pushes each frame; this console *receives* it. |
+| 2 | `dotnet run --project Tetris\observer\TetrisObserver.csproj -- game1` | **Replay progress filling the screen** — `1%2%3%…` — and the board rebuilt up to 350 ms late. It re-opens the journal and rehydrates on *every* poll. | Nobody. This console *reconstructs*; the noise is the cost of doing so. |
+| 4 | `dotnet run --project Tetris\send\TetrisSend.csproj -- game1 left` | **Your prompt back after each command.** The commands you typed are the record of what you did — which the keyboard alternative does not leave. | **You.** One move per invocation. Run it with no arguments to have it list the operations it accepts. It carries the verb over a pipe and exits; it writes no journal. |
 
 Every host here prints its own usage when run with no arguments, or with too few — `TetrisSend`,
 `TetrisStage` and `TetrisAi` all do. Ask the program rather than this file: it cannot go stale.
@@ -50,18 +50,44 @@ was told; the other prints later, after rebuilding from the record. That contras
 A whole sequence at once, from console 4:
 
 ```powershell
-'left','left','rotate','drop','right','rotate','drop','left','drop' | ForEach-Object { dotnet run --project Tetris\send\TetrisSend.csproj -- juego1 $_; Start-Sleep -Milliseconds 400 }
+'left','left','rotate','drop','right','rotate','drop','left','drop' | ForEach-Object { dotnet run --project Tetris\send\TetrisSend.csproj -- game1 $_; Start-Sleep -Milliseconds 400 }
 ```
 
 The third projection, whenever you want it:
 
 ```powershell
-.\pile-scan.ps1 -Example <path to the example> -Session juego1
+.\pile-scan.ps1 -Example <path to the example> -Session game1
 ```
 
 Prefer the keyboard to the pipe? Console 3 takes `--sources keyboard,clock --clock-ms 500` instead,
 and then console 4 is unnecessary — but console 3 still shows nothing, and you press arrow keys into
 a window that looks dead.
+
+### Output on disk
+
+Nothing above needs to be trusted from a screen. The emitted fact is a file, and the three
+projections are all computed from it:
+
+    <example>/Tetris/.sessions/game1.frame        one line of JSON — the fact itself
+    <example>/Tetris/.sessions/game1/             the journal: the acts that produced it
+
+Open the `.frame` and you are looking at exactly what console 1 rendered as a grid, console 2
+rebuilt by replay, and `pile-scan.ps1` read as a vector. Nothing else is consulted by any of them.
+
+To keep the whole run rather than watching it go by, start a transcript in console 4 before the
+first move and stop it after the last:
+
+```powershell
+Start-Transcript -Path labD-session.log
+Stop-Transcript
+```
+
+And `verify.ps1` prints all three projections in sequence in one console, which is the form to
+capture if you want a single artifact:
+
+```powershell
+.erify.ps1 -Example <path to the example> | Tee-Object -FilePath labD-verify.log
+```
 
 ### Two rules, both learned the hard way
 
