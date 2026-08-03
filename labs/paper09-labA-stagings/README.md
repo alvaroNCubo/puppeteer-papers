@@ -34,16 +34,24 @@ and no other lab to run first.
 
 ## Run it between the other labs, too
 
-Used that way it is the suite's standing check that the domain has not moved, and its value is that it
-is *not* always silent:
+Used that way it is the suite's standing check that the domain has not moved — and its value is that
+it is **not** always silent. Two of the nine labs are *expected* to move the date, and they move it
+for different reasons:
 
-- on `main` or any staging branch, the domain's date stays put;
-- on **Lab G**'s tree the domain's last change is Lab G's own commit, because a re-decomposition
-  changes the domain on purpose — `Well.cs` should still be absent from it;
-- on **Lab I**'s tree likewise, and that lab's README gives the exact size of the change.
+| Lab | Expected to change the domain? | What it reports | Why |
+|---|---|---|---|
+| A, B, C, D, E, F, H | **no** | the domain's date stays put | none of them touches the domain; that is what they measure |
+| **I** growth | **yes** | **+98 −3** over three files — `Scoring.cs`, `Difficulty.cs`, `Well.cs` | it **adds concepts**. A score and a difficulty level are things the domain did not know before |
+| **G** re-decomposition | **yes** | **+643 −4** over five files — four new, plus `Pile.cs` | it **redraws a boundary**. No new concept: the same rules split across two roles |
 
-A moved date is information, not a failure: it says the only thing which changed the domain was the
-lab that says it changed it.
+Telling the two apart matters, and the file list does it. **Lab I adds to what the domain knows; Lab G
+re-cuts what it already knew.** The signature of Lab G is that `Well.cs` is **absent** from its
+change — the original rules are untouched while a new decomposition is written beside them. If
+`Well.cs` ever appears there, the claim that a re-cut leaves the original rules alone has failed, and
+that is the one thing this check can catch that nothing else does.
+
+Anywhere else, a moved date means the domain was touched by something that is not one of those two
+labs — which is the only reading of this check that should worry anyone.
 
 ## Output on disk
 
