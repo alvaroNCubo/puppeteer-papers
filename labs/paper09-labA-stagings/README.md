@@ -24,22 +24,45 @@ So the domain was finished, and then a WebSocket host, an SSE host and two Stage
 built against it without it being touched again. That is `Identity Precedes Staging` as a chronology
 rather than as a reading.
 
+## This lab is also the suite's measurement mechanism
+
+It has two uses, and the second is the more useful one.
+
+**Used once, on `main`, it is the chronology above.** Two commands, and neither is worth anything
+alone.
+
+**Used repeatedly, anywhere, it is the standing check that the domain has not moved.** Run it whenever
+you like — between labs, during one, before and after. It reads history and touches nothing, so it
+cannot disturb anything it measures. **The point is not that it always reports nothing.** The point is
+that it reports nothing everywhere *except* the two labs that change the domain on purpose, and there
+it reports a known amount:
+
+| Where you run it | What it should report |
+|---|---|
+| `main`, or any staging branch | **empty** — no files, no insertions, no deletions |
+| Lab G's tree (re-decomposition) | **+643 −4** over five files, of which 294 added lines are code. `Well.cs` **must not appear** |
+| Lab I's tree (domain growth) | **+98 −3** over three files, of which 30 added lines are code |
+
+Read that table as the mechanism's calibration. An empty diff on `main` says the stagings cost the
+domain nothing. A diff of exactly +98 −3 on Lab I's tree says the *only* thing that changed the domain
+was the thing the paper says changed it — which is a stronger statement than either alone. And if
+`Well.cs` ever appears in Lab G's list, the claim that a re-cut leaves the original rules untouched has
+failed.
+
 ## It takes two commands, and one alone proves nothing
 
-This is worth being exact about, because either half on its own is worthless.
+**When:** any time, as often as you like. There is no session to create, no process to start, and no
+other lab to run first. **Where:** any clone or worktree of the examples repository — and note which
+one, because the expected result depends on it, per the table above.
 
-**When:** any time. There is no session to create, no process to start, and no other lab to run
-first — both commands read history and touch nothing. **Where:** any clone or worktree of the
-examples repository, on `main`.
-
-| # | Run this | What you see | What it establishes |
+| # | Run this | What you see on `main` | What it establishes |
 |---|---|---|---|
 | 1 | `git log --format="%h %ad" --date=short --diff-filter=A -1 -- Tetris/web Tetris/web-rest Tetris/sm-duo Tetris/sm-duo-tls` | The dates those four hosts **first appeared**. | That the stagings came *after*. Without this, step 2 is trivially true. |
-| 2 | `git diff --stat fd8d94b..HEAD -- Tetris/domain/` | **Nothing.** No files, no insertions, no deletions. | That the domain did not move while they arrived. Without step 1, this only says the domain has not changed lately. |
+| 2 | `git diff --stat fd8d94b..HEAD -- Tetris/domain/` | **Nothing.** | That the domain did not move while they arrived. Without step 1, this only says the domain has not changed lately. |
 
 Step 2 alone is tautological: `fd8d94b` *is* the last commit that touched the domain, so of course the
-diff after it is empty. It becomes evidence only once step 1 has shown that four stagings were built
-in that same span. The conjunction is the result; neither half is.
+diff after it is empty. It becomes evidence only once step 1 has shown that four stagings were built in
+that same span. The conjunction is the result; neither half is.
 
 Confirm the premise the whole thing rests on:
 
@@ -47,8 +70,9 @@ Confirm the premise the whole thing rests on:
 git log --oneline -1 -- Tetris/domain/
 ```
 
-That should print `fd8d94b`. If it prints something later, the domain has been touched since and this
-lab needs re-measuring rather than re-reading.
+That should print `fd8d94b` on `main`. If it prints something later, the domain has been touched since
+and this lab needs re-measuring rather than re-reading. On Lab G's or Lab I's tree it will print their
+commit instead, which is correct and expected.
 
 **Output on disk:**
 
@@ -57,11 +81,8 @@ Start-Transcript -Path labA-chronology.log
 Stop-Transcript
 ```
 
-`labA-chronology.log` then holds four dates and one empty diff — which is the whole lab.
-
-The endpoint of step 2 is `HEAD` on purpose. Since `fd8d94b` was the last domain commit, the diff is
-empty against **any** later commit, so which one is chosen cannot matter. The write-up verified it at
-`485b766`; the paper pins `4b473ea`; today's tip works too.
+The endpoint of step 2 is `HEAD` on purpose. Since `fd8d94b` was the last domain commit on `main`, the
+diff is empty against **any** later commit there, so which one is chosen cannot matter.
 
 If you also want to watch the five stagings run, they are hosts of the example — one console each, in
 any order, no sequence between them. That is a demonstration, not the check.
