@@ -13,17 +13,32 @@
 # NB: variable names are deliberately distinct in more than case - PowerShell
 # variables are case-INSENSITIVE, so a counter "$h" would alias the height "$H".
 #
-# Usage:  pile-scan.ps1 -Session live5
+# Usage:  pile-scan.ps1 -Session live5 [-Example <example root>]
 #         pile-scan.ps1 -FramePath C:\...\some.frame
 
 param(
   [string]$Session,
-  [string]$FramePath
+  [string]$FramePath,
+  [string]$Example
 )
 
 if (-not $FramePath) {
   if (-not $Session) { Write-Error "give -Session <name> or -FramePath <path>"; exit 2 }
-  $FramePath = "C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.sessions\$Session.frame"
+  # The example root: pass -Example, or set TETRIS_EXAMPLE, or run this from inside the
+  # example, in which case the script walks up to the directory that holds Tetris.sln.
+  if (-not $Example) { $Example = $env:TETRIS_EXAMPLE }
+  if (-not $Example) {
+    $d = (Get-Location).Path
+    while ($d -and -not (Test-Path (Join-Path $d "Tetris\Tetris.sln")) `
+               -and -not (Test-Path (Join-Path $d "Tetris.sln"))) { $d = Split-Path $d -Parent }
+    if ($d) { $Example = $d }
+  }
+  if (-not $Example) {
+    Write-Error "give -Example <example root>, or -FramePath, or set TETRIS_EXAMPLE"; exit 2
+  }
+  $root = Join-Path $Example "Tetris\.sessions"
+  if (-not (Test-Path $root)) { $root = Join-Path $Example ".sessions" }
+  $FramePath = Join-Path $root "$Session.frame"
 }
 if (-not (Test-Path $FramePath)) { Write-Error "no frame file at $FramePath"; exit 1 }
 

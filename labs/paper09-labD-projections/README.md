@@ -14,7 +14,7 @@ there is `OccupiedInterior()`, the union of the pile and the active piece clippe
 Then, to see three renderings of one frame with nobody at a keyboard:
 
 ```powershell
-.\verify.ps1 -Example C:\Users\alvar\source\repos\_p9\labg
+.\verify.ps1 -Example <path to the example>
 ```
 
 Twelve fixed acts through `TetrisAi`, one short-lived process per act, then the frame rendered three
@@ -42,7 +42,7 @@ A whole sequence at once, from console 4:
 The third projection, whenever you want it:
 
 ```powershell
-.\pile-scan.ps1 -FramePath C:\Users\alvar\source\repos\_p9\labg\Tetris\.sessions\juego1.frame
+.\pile-scan.ps1 -Example <path to the example> -Session juego1
 ```
 
 Prefer the keyboard to the pipe? Console 3 takes `--sources keyboard,clock --clock-ms 500` instead,
