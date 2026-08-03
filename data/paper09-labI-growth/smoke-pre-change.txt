@@ -1,0 +1,16 @@
+# tree: C:/Users/alvar/source/repos/puppeteer-examples/Tetris/.claude/worktrees/growth-pre-baseline/Tetris
+console      PASS
+ai           PASS
+watch        PASS
+watch-frame  FAIL (no pushed frame)
+observer     PASS
+server       PASS
+send         PASS
+input        PASS
+web          PASS
+web-rest     PASS
+rest-frame   FAIL — C:/Users/alvar/AppData/Local/Temp/claude/C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-trusting-tereshkova-f48ab6/46ad7df4-01f4-4cc7-941d-1119fd1b3dfd/scratchpad/smoke-pre-change/rest-frame.log
+sm-server    PASS
+sm-duo       PASS
+sm-duo-tls   PASS
+logs: C:/Users/alvar/AppData/Local/Temp/claude/C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-trusting-tereshkova-f48ab6/46ad7df4-01f4-4cc7-941d-1119fd1b3dfd/scratchpad/smoke-pre-change

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Tetris.Hex.Adapters</RootNamespace>
+    <AssemblyName>TetrisHexAdapters</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Driven adapters that every staging needs. This project exists because
+         staging 2 arrived: with one staging the piece-selection adapter lived in
+         the console host, and a second host would have duplicated it. -->
+    <ProjectReference Include="..\domain\TetrisHexDomain.csproj" />
+  </ItemGroup>
+
+</Project>

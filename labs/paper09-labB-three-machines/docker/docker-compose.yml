@@ -1,0 +1,87 @@
+# Tetris Increment C2 — a genuine THREE-node, cross-container deployment of the
+# clean Well domain over real Kestrel TLS. Three containers = three machines
+# (Paper 7 §5.2 fixes the count at THREE: the minimum peer count at which the
+# no-privileged-node claim is unambiguous). Mirrors Paper 7's docker-compose.yml
+# pattern (service-name rendezvous, per-node data volume, peer port 5443 internal)
+# with ONE StageV2 node per service.
+#
+#   tetris-a  Director — promotes, plays a short scripted Well sequence
+#   tetris-b  Cast     — replicates the Well live over TLS, emits its own frame
+#   tetris-c  Cast     — replicates the Well live over TLS, emits its own frame
+#
+# Bring it up (from Tetris/): docker/run-demo.sh   (publishes, then compose up).
+# Or manually, after publishing to docker/build/host:
+#   cd docker && docker compose up --build
+#
+# The peer transport (5443) is NOT exposed to the host: replication,
+# coordination, and command traffic all stay on the tetris-net bridge, dialled by
+# service name. Only the initial rendezvous bootstrap (TLS fingerprints +
+# invitation addresses) crosses out of band, over the shared `bootstrap` volume —
+# Paper 7's analog to the out-of-band Usher/QR hop.
+
+services:
+
+  tetris-a:
+    image: tetris-cluster:c2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tetris-a
+    hostname: tetris-a
+    environment:
+      TETRIS_NODE_ID:          a
+      PUPPETEER_LISTEN_URL:    https://0.0.0.0:5443/
+      PUPPETEER_ADVERTISE_URL: https://tetris-a:5443/
+      TETRIS_PEERS:            https://tetris-b:5443/,https://tetris-c:5443/
+      TETRIS_SESSION:          ${TETRIS_SESSION:-tetris}
+      TETRIS_DIRECTOR_ID:      a
+    networks: [tetris-net]
+    volumes:
+      - bootstrap:/bootstrap
+      - tetris-a-data:/data
+
+  tetris-b:
+    image: tetris-cluster:c2
+    container_name: tetris-b
+    hostname: tetris-b
+    environment:
+      TETRIS_NODE_ID:          b
+      PUPPETEER_LISTEN_URL:    https://0.0.0.0:5443/
+      PUPPETEER_ADVERTISE_URL: https://tetris-b:5443/
+      TETRIS_PEERS:            https://tetris-a:5443/,https://tetris-c:5443/
+      TETRIS_SESSION:          ${TETRIS_SESSION:-tetris}
+      TETRIS_DIRECTOR_ID:      a
+    networks: [tetris-net]
+    volumes:
+      - bootstrap:/bootstrap
+      - tetris-b-data:/data
+    depends_on:
+      - tetris-a
+
+  tetris-c:
+    image: tetris-cluster:c2
+    container_name: tetris-c
+    hostname: tetris-c
+    environment:
+      TETRIS_NODE_ID:          c
+      PUPPETEER_LISTEN_URL:    https://0.0.0.0:5443/
+      PUPPETEER_ADVERTISE_URL: https://tetris-c:5443/
+      TETRIS_PEERS:            https://tetris-a:5443/,https://tetris-b:5443/
+      TETRIS_SESSION:          ${TETRIS_SESSION:-tetris}
+      TETRIS_DIRECTOR_ID:      a
+    networks: [tetris-net]
+    volumes:
+      - bootstrap:/bootstrap
+      - tetris-c-data:/data
+    depends_on:
+      - tetris-a
+
+networks:
+  tetris-net:
+    driver: bridge
+
+volumes:
+  bootstrap:
+  tetris-a-data:
+  tetris-b-data:
+  tetris-c-data:

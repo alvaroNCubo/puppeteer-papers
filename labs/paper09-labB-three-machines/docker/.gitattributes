@@ -1,0 +1,3 @@
+# run-demo.sh is a bash script; keep LF endings on every checkout so the
+# shebang and `set -euo pipefail` are not broken by CRLF on Windows.
+*.sh text eol=lf

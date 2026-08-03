@@ -1,0 +1,182 @@
+
+===== BUILD =====
+    0 Error(s)
+
+Time Elapsed 00:00:01.13
+    0 Error(s)
+
+Time Elapsed 00:00:01.17
+    0 Error(s)
+
+Time Elapsed 00:00:00.67
+
+===== S1a  single-process PerformanceV2 (TetrisActor.Persistent) — scripted, hard drops =====
+[play] session 'tetris' journal 'C:\Users\alvar\AppData\Local\Temp\claude\C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-jovial-goldstine-a03293\fa64da78-579e-4d18-831a-795e45c505e1\scratchpad\lab3\warm' cleared=0 awaiting=True over=False cells=8
+=== tetris @ C:\Users\alvar\AppData\Local\Temp\claude\C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-jovial-goldstine-a03293\fa64da78-579e-4d18-831a-795e45c505e1\scratchpad\lab3\warm ===
+ACTS (10) — the record as it stands
+  entry    3  Spawn     type=I
+  entry    5  MoveLeft  
+  entry    7  Rotate    
+  entry    9  Tick      
+  entry   10  Tick      
+  entry   12  Drop      
+  entry   13  Spawn     type=L
+  entry   15  MoveRight 
+  entry   16  MoveRight 
+  entry   17  Drop      
+ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
+  #1  type=I  closes at entry 12
+  #2  type=L  closes at entry 17
+CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [1 recognized]
+  #1  type=I  closes at entry 13
+SIGNATURE placements=2 closes=[12,17] pieces=[type=I,type=L]
+
+===== S1b  CONTROL — the first piece lands under gravity (no Drop closes it) =====
+[play] piece 1 landed under gravity after 18 Tick()s (no Drop)
+[play] session 'tetris' journal 'C:\Users\alvar\AppData\Local\Temp\claude\C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-jovial-goldstine-a03293\fa64da78-579e-4d18-831a-795e45c505e1\scratchpad\lab3\gravity' cleared=0 awaiting=True over=False cells=8
+=== tetris @ C:\Users\alvar\AppData\Local\Temp\claude\C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-jovial-goldstine-a03293\fa64da78-579e-4d18-831a-795e45c505e1\scratchpad\lab3\gravity ===
+ACTS (25) — the record as it stands
+  entry    3  Spawn     type=L
+  entry    5  MoveLeft  
+  entry    7  Rotate    
+  entry    9  Tick      
+  entry   10  Tick      
+  entry   11  Tick      
+  entry   12  Tick      
+  entry   13  Tick      
+  entry   14  Tick      
+  entry   15  Tick      
+  entry   16  Tick      
+  entry   17  Tick      
+  entry   18  Tick      
+  entry   19  Tick      
+  entry   20  Tick      
+  entry   21  Tick      
+  entry   22  Tick      
+  entry   23  Tick      
+  entry   24  Tick      
+  entry   25  Tick      
+  entry   26  Tick      
+  entry   27  Spawn     type=T
+  entry   29  MoveRight 
+  entry   30  MoveRight 
+  entry   32  Drop      
+ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
+  #1  type=L  closes at entry 32
+  #2  type=T  closes at entry 32
+CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [1 recognized]
+  #1  type=L  closes at entry 27
+SIGNATURE placements=2 closes=[32,32] pieces=[type=L,type=T]
+
+===== S1c  the real warm server (TetrisServer + TetrisSend over a named pipe) =====
+applied: left -> type=Z cleared=0 awaiting=False over=False
+applied: rotate -> type=Z cleared=0 awaiting=False over=False
+applied: tick -> type=Z cleared=0 awaiting=False over=False
+applied: tick -> type=Z cleared=0 awaiting=False over=False
+applied: drop -> type=L cleared=0 awaiting=False over=False
+applied: right -> type=L cleared=0 awaiting=False over=False
+applied: right -> type=L cleared=0 awaiting=False over=False
+applied: drop -> type=O cleared=0 awaiting=False over=False
+applied: quit -> shutting down
+=== recog-warm @ C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\jovial-goldstine-a03293\Tetris\.sessions\recog-warm ===
+ACTS (11) — the record as it stands
+  entry    3  Spawn     type=Z
+  entry    5  MoveLeft  
+  entry    7  Rotate    
+  entry    9  Tick      
+  entry   10  Tick      
+  entry   12  Drop      
+  entry   13  Spawn     type=L
+  entry   15  MoveRight 
+  entry   16  MoveRight 
+  entry   17  Drop      
+  entry   18  Spawn     type=O
+ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
+  #1  type=Z  closes at entry 12
+  #2  type=L  closes at entry 17
+CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [2 recognized]
+  #1  type=Z  closes at entry 13
+  #2  type=L  closes at entry 18
+SIGNATURE placements=2 closes=[12,17] pieces=[type=Z,type=L]
+
+===== S2  three-container sm-cluster over TLS — bring it up =====
+[demo] Tetris C2 (3-node cross-container Well over TLS) — CONVERGED
+[demo]   tetris-a  | [tetris-a] convergence checkpoint reached: role=DIRECTOR entry=19 snapshot=type=- cleared=0 awaiting=True over=False cells=8
+[demo]   tetris-b  | [tetris-b] convergence checkpoint reached: role=cast entry=19 snapshot=type=- cleared=0 awaiting=True over=False cells=8
+[demo]   tetris-c  | [tetris-c] convergence checkpoint reached: role=cast entry=19 snapshot=type=- cleared=0 awaiting=True over=False cells=8
+[demo]   tetris-a:/data/tetris-a.frame
+
+===== S2  publish the recognizer and run it INSIDE each node's container =====
+
+===== S2  node tetris-a  (reaction runs in-container against its own /data) =====
+=== tetris @ /data ===
+ACTS (10) — the record as it stands
+  entry    5  Spawn     type=J
+  entry    7  MoveLeft  
+  entry    9  Rotate    
+  entry   11  Tick      
+  entry   12  Tick      
+  entry   14  Drop      
+  entry   15  Spawn     type=L
+  entry   17  MoveRight 
+  entry   18  MoveRight 
+  entry   19  Drop      
+ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
+  #1  type=J  closes at entry 14
+  #2  type=L  closes at entry 19
+CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [1 recognized]
+  #1  type=J  closes at entry 15
+SIGNATURE placements=2 closes=[14,19] pieces=[type=J,type=L]
+
+===== S2  node tetris-b  (reaction runs in-container against its own /data) =====
+=== tetris @ /data ===
+ACTS (10) — the record as it stands
+  entry    5  Spawn     type=J
+  entry    7  MoveLeft  
+  entry    9  Rotate    
+  entry   11  Tick      
+  entry   12  Tick      
+  entry   14  Drop      
+  entry   15  Spawn     type=L
+  entry   17  MoveRight 
+  entry   18  MoveRight 
+  entry   19  Drop      
+ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
+  #1  type=J  closes at entry 14
+  #2  type=L  closes at entry 19
+CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [1 recognized]
+  #1  type=J  closes at entry 15
+SIGNATURE placements=2 closes=[14,19] pieces=[type=J,type=L]
+
+===== S2  node tetris-c  (reaction runs in-container against its own /data) =====
+=== tetris @ /data ===
+ACTS (10) — the record as it stands
+  entry    5  Spawn     type=J
+  entry    7  MoveLeft  
+  entry    9  Rotate    
+  entry   11  Tick      
+  entry   12  Tick      
+  entry   14  Drop      
+  entry   15  Spawn     type=L
+  entry   17  MoveRight 
+  entry   18  MoveRight 
+  entry   19  Drop      
+ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
+  #1  type=J  closes at entry 14
+  #2  type=L  closes at entry 19
+CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [1 recognized]
+  #1  type=J  closes at entry 15
+SIGNATURE placements=2 closes=[14,19] pieces=[type=J,type=L]
+
+===== S2  the three nodes' journal bytes =====
+990fa6a85a7743a85e1ddeaf26cdb9f54bda9d4f54316ed236b2fb1a1d67edcc  /data/tetris/journal/journal_000001.bin
+990fa6a85a7743a85e1ddeaf26cdb9f54bda9d4f54316ed236b2fb1a1d67edcc  /data/tetris/journal/journal_000001.bin
+990fa6a85a7743a85e1ddeaf26cdb9f54bda9d4f54316ed236b2fb1a1d67edcc  /data/tetris/journal/journal_000001.bin
+
+===== DOMAIN COST — git diff over Tetris/domain (expected: empty) =====
+(no output above = the domain did not move)
+
+===== WHAT THIS BRANCH ADDED =====
+?? Tetris/recognize/
+
+===== DONE — lab artifacts under /c/Users/alvar/AppData/Local/Temp/claude/C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-jovial-goldstine-a03293/fa64da78-579e-4d18-831a-795e45c505e1/scratchpad/lab3 =====

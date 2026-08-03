@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Tetris.HexConsole</RootNamespace>
+    <AssemblyName>TetrisHexConsole</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Staging 1 of the ports-and-adapters baseline. The console is outside the
+         hexagon and points inward: it consumes the driving port, implements the
+         board output port itself, and takes the shared piece-selection adapter
+         from ..\adapters (which staging 2 forced out of this project). -->
+    <ProjectReference Include="..\domain\TetrisHexDomain.csproj" />
+    <ProjectReference Include="..\adapters\TetrisHexAdapters.csproj" />
+  </ItemGroup>
+
+</Project>

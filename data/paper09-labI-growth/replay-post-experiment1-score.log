@@ -1,0 +1,58 @@
+# probe: C:/Users/alvar/source/repos/puppeteer-examples/Tetris/.claude/worktrees/trusting-tereshkova-f48ab6/Tetris/tools/growth-probe/bin/Debug/net9.0/TetrisGrowthProbe.exe
+# domain dll: 56f35769a51488a2345f4bc26cf9e5bd
+===== stepped-level2 (actor=level2) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: {"w":4,"h":40,"cleared":18,"over":true} 
+  Q: print well.Score score;
+  A: {"score":1900} 
+  Q: print well.Level level;
+  A: Unhandled exception. Puppeteer.LanguageException: Unknown property or method 'Level' on type 'Well'.    at Puppeteer.EventSourcing.Interpreter.Libraries.DotAccess.ComputeCallExpressionType(Type instanceClass) in C:\Users\alvar\source\repos\puppeteer-examples\T
+===== stepped-w4h40 (actor=stepped) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: {"w":4,"h":40,"cleared":6,"over":true} 
+  Q: print well.Score score;
+  A: {"score":600} 
+  Q: print well.Level level;
+  A: Unhandled exception. Puppeteer.LanguageException: Unknown property or method 'Level' on type 'Well'.    at Puppeteer.EventSourcing.Interpreter.Libraries.DotAccess.ComputeCallExpressionType(Type instanceClass) in C:\Users\alvar\source\repos\puppeteer-examples\T
+===== old-2026-07-01-rest-t1 (actor=t1) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: {"w":10,"h":20,"cleared":0,"over":false} 
+  Q: print well.Score score;
+  A: {"score":0} 
+  Q: print well.Level level;
+  A: Unhandled exception. Puppeteer.LanguageException: Unknown property or method 'Level' on type 'Well'.    at Puppeteer.EventSourcing.Interpreter.Libraries.DotAccess.ComputeCallExpressionType(Type instanceClass) in C:\Users\alvar\source\repos\puppeteer-examples\T
+===== old-2026-07-01-rest-t2 (actor=t2) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: {"w":10,"h":20,"cleared":0,"over":false} 
+  Q: print well.Score score;
+  A: {"score":0} 
+  Q: print well.Level level;
+  A: Unhandled exception. Puppeteer.LanguageException: Unknown property or method 'Level' on type 'Well'.    at Puppeteer.EventSourcing.Interpreter.Libraries.DotAccess.ComputeCallExpressionType(Type instanceClass) in C:\Users\alvar\source\repos\puppeteer-examples\T
+===== old-2026-07-01-rest-s1 (actor=s1) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: {"w":10,"h":20,"cleared":0,"over":false} 
+  Q: print well.Score score;
+  A: {"score":0} 
+  Q: print well.Level level;
+  A: Unhandled exception. Puppeteer.LanguageException: Unknown property or method 'Level' on type 'Well'.    at Puppeteer.EventSourcing.Interpreter.Libraries.DotAccess.ComputeCallExpressionType(Type instanceClass) in C:\Users\alvar\source\repos\puppeteer-examples\T
+===== deep-w4h40 (actor=deep) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=42, OccurredAt=2026-07-25T20:57:26.2973621-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+  Q: print well.Score score;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=42, OccurredAt=2026-07-25T20:57:26.2973621-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+  Q: print well.Level level;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=42, OccurredAt=2026-07-25T20:57:26.2973621-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+===== mid-w4h20 (actor=mid) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=34, OccurredAt=2026-07-25T20:58:40.7048720-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+  Q: print well.Score score;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=34, OccurredAt=2026-07-25T20:58:40.7048720-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+  Q: print well.Level level;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=34, OccurredAt=2026-07-25T20:58:40.7048720-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+===== console-w10h20 (actor=console) =====
+  Q: print well.Frame.Width w, well.Frame.Height h, well.ClearedLines cleared, well.IsGameOver over;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=41, OccurredAt=2026-07-25T20:58:41.0039425-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+  Q: print well.Score score;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=41, OccurredAt=2026-07-25T20:58:41.0039425-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em
+  Q: print well.Level level;
+  A: [Puppeteer ERROR] Rehydration parser failed. EntryId=41, OccurredAt=2026-07-25T20:58:41.0039425-06:00, Cause=Puppeteer.LanguageException: Arguments cannot be null or empty, Script: <action invocation> Puppeteer.LanguageException: Arguments cannot be null or em

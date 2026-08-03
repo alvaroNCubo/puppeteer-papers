@@ -1,0 +1,58 @@
+### docker compose ps
+NAME       STATUS         PORTS
+tetris-a   Up 4 minutes   5443/tcp
+tetris-b   Up 4 minutes   5443/tcp
+tetris-c   Up 4 minutes   5443/tcp
+
+### tetris-a  ([tetris] host lines, heartbeat noise removed)
+tetris-a  | [tetris] node=a role=DIRECTOR listen=https://0.0.0.0:5443/ advertise=https://tetris-a:5443/ peers=[https://tetris-b:5443/,https://tetris-c:5443/] session=tetris
+tetris-a  | [tetris] Stage started; local TLS fingerprint b2c28efa33f2d8d4…
+tetris-a  | [tetris] pinned peer https://tetris-b:5443/ → fp d2438db164b5b472…
+tetris-a  | [tetris] pinned peer https://tetris-c:5443/ → fp 5f75087dc8dbb78c…
+tetris-a  | [tetris] coordination up with tetris-b
+tetris-a  | [tetris] coordination up with tetris-c
+tetris-a  | [tetris] promoted to Director (IsDirector=True) over real TLS
+tetris-a  | [tetris] data star up with tetris-b (replication+command)
+tetris-a  | [tetris] data star up with tetris-c (replication+command)
+tetris-a  | [tetris] handshake complete over HTTPS: coordination + replication + command channels up.
+tetris-a  | [tetris] scripted sequence done; final journal entry = 19
+tetris-a  | [tetris] director frame pushed → /data/tetris-a.frame
+tetris-a  | [tetris]   director sees: type=- cleared=0 awaiting=True over=False cells=8
+tetris-a  | [tetris] catch-up sent to 2 cast(s) up to entry 19
+tetris-a  | [tetris] holding the Stage alive (Ctrl+C / docker stop to exit).
+
+### tetris-a  frame file (/data/tetris-a.frame) — pushed via FrameFileSink
+{"width":10,"height":20,"cleared":0,"over":false,"awaiting":true,"cell":[{"r":18,"c":3},{"r":18,"c":7},{"r":17,"c":3},{"r":19,"c":3},{"r":19,"c":4},{"r":19,"c":5},{"r":19,"c":6},{"r":19,"c":7}]}
+
+### tetris-b  ([tetris] host lines, heartbeat noise removed)
+tetris-b  | [tetris] node=b role=cast listen=https://0.0.0.0:5443/ advertise=https://tetris-b:5443/ peers=[https://tetris-a:5443/,https://tetris-c:5443/] session=tetris
+tetris-b  | [tetris] Stage started; local TLS fingerprint d2438db164b5b472…
+tetris-b  | [tetris] pinned peer https://tetris-a:5443/ → fp b2c28efa33f2d8d4…
+tetris-b  | [tetris] pinned peer https://tetris-c:5443/ → fp 5f75087dc8dbb78c…
+tetris-b  | [tetris] coordination up with director
+tetris-b  | [Puppeteer DEBUG] [Stage cc3ba8ee225e4f12b0d281a2f20a63b5] DirectorAnnounce from dda4964347174b0392f8f925d10026a2 (peerMax=0)
+tetris-b  | [tetris] data star up with director (replication+command); director announced.
+tetris-b  | [tetris] caught up to entry 19 (target 19)
+tetris-b  | [tetris] cast frame pushed → /data/tetris-b.frame
+tetris-b  | [tetris]   cast sees: type=- cleared=0 awaiting=True over=False cells=8   <- REPLICATED over TLS
+tetris-b  | [tetris] holding the Stage alive (Ctrl+C / docker stop to exit).
+
+### tetris-b  frame file (/data/tetris-b.frame) — pushed via FrameFileSink
+{"width":10,"height":20,"cleared":0,"over":false,"awaiting":true,"cell":[{"r":18,"c":3},{"r":18,"c":7},{"r":17,"c":3},{"r":19,"c":3},{"r":19,"c":4},{"r":19,"c":5},{"r":19,"c":6},{"r":19,"c":7}]}
+
+### tetris-c  ([tetris] host lines, heartbeat noise removed)
+tetris-c  | [tetris] node=c role=cast listen=https://0.0.0.0:5443/ advertise=https://tetris-c:5443/ peers=[https://tetris-a:5443/,https://tetris-b:5443/] session=tetris
+tetris-c  | [tetris] Stage started; local TLS fingerprint 5f75087dc8dbb78c…
+tetris-c  | [tetris] pinned peer https://tetris-a:5443/ → fp b2c28efa33f2d8d4…
+tetris-c  | [tetris] pinned peer https://tetris-b:5443/ → fp d2438db164b5b472…
+tetris-c  | [tetris] coordination up with director
+tetris-c  | [Puppeteer DEBUG] [Stage b66f2613c27a4db080509e96a65ab99f] DirectorAnnounce from dda4964347174b0392f8f925d10026a2 (peerMax=0)
+tetris-c  | [tetris] data star up with director (replication+command); director announced.
+tetris-c  | [tetris] caught up to entry 19 (target 19)
+tetris-c  | [tetris] cast frame pushed → /data/tetris-c.frame
+tetris-c  | [tetris]   cast sees: type=- cleared=0 awaiting=True over=False cells=8   <- REPLICATED over TLS
+tetris-c  | [tetris] holding the Stage alive (Ctrl+C / docker stop to exit).
+
+### tetris-c  frame file (/data/tetris-c.frame) — pushed via FrameFileSink
+{"width":10,"height":20,"cleared":0,"over":false,"awaiting":true,"cell":[{"r":18,"c":3},{"r":18,"c":7},{"r":17,"c":3},{"r":19,"c":3},{"r":19,"c":4},{"r":19,"c":5},{"r":19,"c":6},{"r":19,"c":7}]}
+

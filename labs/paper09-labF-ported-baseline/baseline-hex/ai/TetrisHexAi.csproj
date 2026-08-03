@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Tetris.HexAi</RootNamespace>
+    <AssemblyName>TetrisHexAi</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Staging 4: the automated player. A CLI driving adapter (one op per
+         process) plus TWO new driven adapters — the frame file a scanner reads,
+         and the state file that exists only because this client keeps nothing in
+         memory between operations. -->
+    <ProjectReference Include="..\domain\TetrisHexDomain.csproj" />
+    <ProjectReference Include="..\adapters\TetrisHexAdapters.csproj" />
+  </ItemGroup>
+
+</Project>
