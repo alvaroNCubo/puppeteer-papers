@@ -1,51 +1,67 @@
 # Paper 9 — Lab D: three projections of one emitted frame
 
 One frame is emitted by the domain and rendered three ways without the domain knowing of any of
-them: a character grid, a column-height vector, and a browser drawing. None of the three is
-privileged, and the domain produces neither — it produces the fact all three are made from.
+them: a character grid, a column-height vector, and a browser drawing. None is privileged, and the
+domain produces neither — it produces the fact all three are made from.
 
-Headline → §3 and Appendix A (Lab D). **0 domain methods for any view.**
+**Headline → §3 and Appendix A (Lab D): 0 domain methods for any view.**
 
-The two viewers here also demonstrate §4's distinction directly, and running both at once is the
-clearest way to see it: `watch` **receives** each frame over the substrate's push channel and
-prints it as it arrives, while `observer` **reconstructs** the board by re-reading the journal on a
-poll. Told, against rebuilt from stills.
+## Verify the claim — by reading, not by running
 
-## Verify — deterministic, and nobody plays by hand
+Open `Tetris/domain/Well.cs` and look for a method shaped like a rendering. There is none. What is
+there is `OccupiedInterior()`, the union of the pile and the active piece clipped to the interior.
 
-The claim is **read**, not run: the domain has no method for any of the three views. Open
-`Tetris/domain/Well.cs` and look for one. What is there is `OccupiedInterior()` — the union of the
-pile and the active piece, clipped to the interior — and nothing shaped like a rendering.
+Then, to see three renderings of one frame with nobody at a keyboard:
 
-The run is the *demonstration*, and it should not depend on who is at the keyboard. `verify.ps1`
-plays a fixed sequence of twelve acts with `TetrisAi` — one short-lived process per act, so one
-writer at a time — then renders the resulting frame three ways and re-checks the reading:
+```powershell
+.\verify.ps1 -Example C:\Users\alvar\source\repos\_p9\labg
+```
 
-    .erify.ps1 -Example C:\path	o	he\example
+Twelve fixed acts through `TetrisAi`, one short-lived process per act, then the frame rendered three
+ways and the reading re-checked mechanically. Deterministic: piece selection is the domain's own and
+replays identically, so the same acts give the same frame.
 
-Deterministic because piece selection is the domain's own and replays identically, so the same acts
-in the same order produce the same frame.
+## Watch it happen — four consoles
 
-## Watch it happen, if you want to
+Optional, and for seeing the mechanism rather than checking it. Same session name in all four, and
+start them top to bottom.
 
-Optional, and for seeing the mechanism rather than checking it. Three consoles: `watch` and
-`observer` on the same session, then a writer. **One writer only** — mixing `TetrisAi` with a warm
-`TetrisStage` on one session produces a record that cannot be replayed, because a check-then-command
-journals the command and not the check, and a warm actor's stale view will pass a check the
-journal's true sequence contradicts. Replay then logs the violation and carries on, so the polling
-viewer reconstructs a board that is wrong and looks fine.
+| # | Runs | Who does what |
+|---|---|---|
+| 1 | `dotnet run --project Tetris\watch\TetrisWatch.csproj -- juego1` | **The substrate pushes; this console receives.** Prints the board the instant an act lands. |
+| 2 | `dotnet run --project Tetris\observer\TetrisObserver.csproj -- juego1` | **This console rebuilds.** Polls every 350 ms, re-reads the journal, rehydrates. Late, and noisy with replay progress. |
+| 3 | `dotnet run --project Tetris\input\TetrisStage.csproj -- juego1 --sources pipe,clock --clock-ms 5000` | **The only writer.** Turns each arriving command into a journaled act. Prints one line at startup and nothing after — it renders nothing, so it *looks* frozen and is not. |
+| 4 | `dotnet run --project Tetris\send\TetrisSend.csproj -- juego1 left` | **You.** One move per invocation: `left`, `right`, `rotate`, `tick`, `drop`, `view`, `quit`. Carries the verb over a pipe and exits; writes no journal. |
 
-    dotnet run --project <example>/Tetris/watch/TetrisWatch.csproj -- juego1        # console 1: receives
-    dotnet run --project <example>/Tetris/observer/TetrisObserver.csproj -- juego1  # console 2: reconstructs
-    dotnet run --project <example>/Tetris/input/TetrisStage.csproj -- juego1 --sources keyboard,clock --clock-ms 500
+A whole sequence at once, from console 4:
 
-Console 1 prints the instant an act lands, because it receives the frame. Console 2 prints up to
-350 ms later and fills its screen with replay progress, because it re-opens the journal and
-rehydrates on every poll. The silence of the one and the noise of the other are the same
-measurement seen from both sides.
+```powershell
+'left','left','rotate','drop','right','rotate','drop','left','drop' | ForEach-Object { dotnet run --project Tetris\send\TetrisSend.csproj -- juego1 $_; Start-Sleep -Milliseconds 400 }
+```
+
+The third projection, whenever you want it:
+
+```powershell
+.\pile-scan.ps1 -FramePath C:\Users\alvar\source\repos\_p9\labg\Tetris\.sessions\juego1.frame
+```
+
+Prefer the keyboard to the pipe? Console 3 takes `--sources keyboard,clock --clock-ms 500` instead,
+and then console 4 is unnecessary — but console 3 still shows nothing, and you press arrow keys into
+a window that looks dead.
+
+### Two rules, both learned the hard way
+
+**One writer per session.** Never mix `TetrisAi` with a warm `TetrisStage` on one session. A
+check-then-command journals the *command* and not the *check*, so a warm actor's stale view passes a
+check the journal's true sequence contradicts; replay then hits the violation, logs it, and carries
+on — and console 2 reconstructs a board that is wrong and looks fine. `TetrisSend` is safe because it
+writes no journal: it is a *source*, not a writer.
+
+**Console 3 shows nothing on purpose.** The board is in console 1. The window you type into is not
+the window that renders.
 
 ## Contents
 
 The three projections' source as it stood on `main`: `pile-scan.ps1` (the vector),
 `watch-Program.cs` (the push receiver) and `observer-Program.cs` (the poll fallback, whose own
-comment explains why it re-opens the journal per poll).
+comment explains why it re-opens the journal per poll). Plus `verify.ps1`, the deterministic path.
