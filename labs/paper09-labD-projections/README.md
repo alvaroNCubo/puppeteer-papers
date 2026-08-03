@@ -24,7 +24,9 @@ replays identically, so the same acts give the same frame.
 ## Watch it happen — four consoles
 
 Optional, and for seeing the mechanism rather than checking it. Same session name in all four, and
-start them top to bottom.
+**start console 3 first** — the actor seeds the well with an `upgrade` on startup, so console 3 is
+what creates the journal, and console 2 refuses to start without one. Order: **3, then 1, then 2,
+then 4.**
 
 | # | Runs | Who does what |
 |---|---|---|
