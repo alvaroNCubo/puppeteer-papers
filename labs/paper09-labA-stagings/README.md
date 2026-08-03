@@ -1,89 +1,61 @@
-# Paper 9 — Lab A: five stagings
+# Paper 9 — Lab A: five stagings, no change to the domain
 
-The same `Well` runs on a console; in a browser with input and output over a WebSocket; in a browser
-over HTTP with server-sent events; and across two StageManager actors joined once in memory and once
-over a real Kestrel TLS channel. Five stagings differing in process, transport and wire format.
+**Headline → §2 (Experiment A) and Appendix A (Lab A): 0 domain edits across five stagings.**
 
-## What this lab proves
+## What it proves, and how to see it in two commands
 
-**That the domain reached its final form before four of its five stagings existed.**
+The domain stopped changing, and the repository did not. That is the whole lab.
 
-Not "the domain looks decoupled", and not "no edits were needed" as an impression — a dated fact
-about the repository. The last commit that touched the domain is `fd8d94b` (30 June 2026, *"add
-TetrisActor facade over PerformanceV2"*). Four of the five stagings were first added **after** it:
-
-| Staging | First added | Relative to the domain's last commit |
-|---|---|---|
-| console | `a32b57c`, 29 Jun | contemporaneous — it came with the example itself |
-| browser over WebSocket | `6868249`, 30 Jun | **after** |
-| browser over server-sent events | `f093e20`, 1 Jul | **after** |
-| StageManager in memory | `e311e58`, 30 Jun | **after** |
-| StageManager over TLS | `68635c3`, 30 Jun | **after** |
-
-So the domain was finished, and then a WebSocket host, an SSE host and two StageManager hosts were
-built against it without it being touched again. That is `Identity Precedes Staging` as a chronology
-rather than as a reading.
-
-## This lab is also the suite's measurement mechanism
-
-It has two uses, and the second is the more useful one.
-
-**Used once, on `main`, it is the chronology above.** Two commands, and neither is worth anything
-alone.
-
-**Used repeatedly, anywhere, it is the standing check that the domain has not moved.** Run it whenever
-you like — between labs, during one, before and after. It reads history and touches nothing, so it
-cannot disturb anything it measures. **The point is not that it always reports nothing.** The point is
-that it reports nothing everywhere *except* the two labs that change the domain on purpose, and there
-it reports a known amount:
-
-| Where you run it | What it should report |
-|---|---|
-| `main`, or any staging branch | **empty** — no files, no insertions, no deletions |
-| Lab G's tree (re-decomposition) | **+643 −4** over five files, of which 294 added lines are code. `Well.cs` **must not appear** |
-| Lab I's tree (domain growth) | **+98 −3** over three files, of which 30 added lines are code |
-
-Read that table as the mechanism's calibration. An empty diff on `main` says the stagings cost the
-domain nothing. A diff of exactly +98 −3 on Lab I's tree says the *only* thing that changed the domain
-was the thing the paper says changed it — which is a stronger statement than either alone. And if
-`Well.cs` ever appears in Lab G's list, the claim that a re-cut leaves the original rules untouched has
-failed.
-
-## It takes two commands, and one alone proves nothing
-
-**When:** any time, as often as you like. There is no session to create, no process to start, and no
-other lab to run first. **Where:** any clone or worktree of the examples repository — and note which
-one, because the expected result depends on it, per the table above.
-
-| # | Run this | What you see on `main` | What it establishes |
-|---|---|---|---|
-| 1 | `git log --format="%h %ad" --date=short --diff-filter=A -1 -- Tetris/web Tetris/web-rest Tetris/sm-duo Tetris/sm-duo-tls` | The dates those four hosts **first appeared**. | That the stagings came *after*. Without this, step 2 is trivially true. |
-| 2 | `git diff --stat fd8d94b..HEAD -- Tetris/domain/` | **Nothing.** | That the domain did not move while they arrived. Without step 1, this only says the domain has not changed lately. |
-
-Step 2 alone is tautological: `fd8d94b` *is* the last commit that touched the domain, so of course the
-diff after it is empty. It becomes evidence only once step 1 has shown that four stagings were built in
-that same span. The conjunction is the result; neither half is.
-
-Confirm the premise the whole thing rests on:
-
-```powershell
-git log --oneline -1 -- Tetris/domain/
+```
+git log -1 --date=short --format="%ad  %s" -- Tetris/domain/
 ```
 
-That should print `fd8d94b` on `main`. If it prints something later, the domain has been touched since
-and this lab needs re-measuring rather than re-reading. On Lab G's or Lab I's tree it will print their
-commit instead, which is correct and expected.
-
-**Output on disk:**
-
-```powershell
-Start-Transcript -Path labA-chronology.log
-Stop-Transcript
+```
+git log -1 --date=short --format="%ad  %s"
 ```
 
-The endpoint of step 2 is `HEAD` on purpose. Since `fd8d94b` was the last domain commit on `main`, the
-diff is empty against **any** later commit there, so which one is chosen cannot matter.
+The first date is older than the second. Everything between them — including four of the five
+stagings — was built without the domain being touched.
 
-If you also want to watch the five stagings run, they are hosts of the example — one console each, in
-any order, no sequence between them. That is a demonstration, not the check.
+No commit hashes to copy and nothing to pin: both commands find their own answer, so they keep
+working after you pull and after anyone commits again. If you want the size of the gap:
 
+```
+git rev-list --count "$(git log -1 --format=%H -- Tetris/domain/)..HEAD"
+```
+
+That prints how many commits happened after the domain's last change.
+
+## Where and when
+
+Any clone or worktree of the examples repository, on `main`. **Any time, as often as you like** —
+these commands read history and touch nothing, so there is no session to create, nothing to clean up,
+and no other lab to run first.
+
+## Run it between the other labs, too
+
+Used that way it is the suite's standing check that the domain has not moved, and its value is that it
+is *not* always silent:
+
+- on `main` or any staging branch, the domain's date stays put;
+- on **Lab G**'s tree the domain's last change is Lab G's own commit, because a re-decomposition
+  changes the domain on purpose — `Well.cs` should still be absent from it;
+- on **Lab I**'s tree likewise, and that lab's README gives the exact size of the change.
+
+A moved date is information, not a failure: it says the only thing which changed the domain was the
+lab that says it changed it.
+
+## Output on disk
+
+```
+git log -1 --date=short --format="%ad  %s" -- Tetris/domain/ > labA.txt
+git log -1 --date=short --format="%ad  %s" >> labA.txt
+```
+
+Two lines, two dates, and the older one is the domain's.
+
+## Contents
+
+Nothing to build. This lab's five stagings *are* hosts of the example — `console/`, `web/`,
+`web-rest/`, `sm-duo/`, `sm-duo-tls/` — and its evidence is that the domain's history stops while
+theirs continues. The write-up is in `data/paper09-labA-stagings/`.
