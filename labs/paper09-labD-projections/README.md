@@ -23,17 +23,29 @@ replays identically, so the same acts give the same frame.
 
 ## Watch it happen — four consoles
 
-Optional, and for seeing the mechanism rather than checking it. Same session name in all four, and
-**start console 3 first** — the actor seeds the well with an `upgrade` on startup, so console 3 is
-what creates the journal, and console 2 refuses to start without one. Order: **3, then 1, then 2,
-then 4.**
+Optional, and for seeing the mechanism rather than checking it.
 
-| # | Runs | Who does what |
-|---|---|---|
-| 1 | `dotnet run --project Tetris\watch\TetrisWatch.csproj -- juego1` | **The substrate pushes; this console receives.** Prints the board the instant an act lands. |
-| 2 | `dotnet run --project Tetris\observer\TetrisObserver.csproj -- juego1` | **This console rebuilds.** Polls every 350 ms, re-reads the journal, rehydrates. Late, and noisy with replay progress. |
-| 3 | `dotnet run --project Tetris\input\TetrisStage.csproj -- juego1 --sources pipe,clock --clock-ms 5000` | **The only writer.** Turns each arriving command into a journaled act. Prints one line at startup and nothing after — it renders nothing, so it *looks* frozen and is not. |
-| 4 | `dotnet run --project Tetris\send\TetrisSend.csproj -- juego1 left` | **You.** One move per invocation: `left`, `right`, `rotate`, `tick`, `drop`, `view`, `quit`. Carries the verb over a pipe and exits; writes no journal. |
+**Order matters: 3, then 1, then 2, then 4.** Console 3 is the writer, and the actor seeds the well
+with a once-applied `upgrade` on startup, so console 3 is what creates the journal — console 2
+rehydrates and refuses to start without one. Same session name in all four.
+
+**Only console 4 is operated by a person.** The other three are started once and left alone; nothing
+is typed into them again.
+
+| # | Start this | What you see in it | Who operates it |
+|---|---|---|---|
+| 3 | `dotnet run --project Tetris\input\TetrisStage.csproj -- juego1 --sources pipe,clock --clock-ms 5000` | **One line at startup, then nothing, ever.** It renders no board, so it looks frozen and is not. Confirm it is alive by that line: `TetrisStage: session 'juego1', merged sources [pipe, clock], clock 5000ms…` | Nobody. It is the **only writer** — it turns each arriving command into a journaled act. |
+| 1 | `dotnet run --project Tetris\watch\TetrisWatch.csproj -- juego1` | **The board, repainted the instant an act lands**, with `[falling: S]` and `Lines cleared: N` above it. Silent between acts — that silence is the point. | Nobody. The substrate pushes each frame; this console *receives* it. |
+| 2 | `dotnet run --project Tetris\observer\TetrisObserver.csproj -- juego1` | **Replay progress filling the screen** — `1%2%3%…` — and the board rebuilt up to 350 ms late. It re-opens the journal and rehydrates on *every* poll. | Nobody. This console *reconstructs*; the noise is the cost of doing so. |
+| 4 | `dotnet run --project Tetris\send\TetrisSend.csproj -- juego1 left` | **Your prompt back after each command.** The commands you typed are the record of what you did — which the keyboard alternative does not leave. | **You.** One move per invocation. Run it with no arguments to have it list the operations it accepts. It carries the verb over a pipe and exits; it writes no journal. |
+
+Every host here prints its own usage when run with no arguments, or with too few — `TetrisSend`,
+`TetrisStage` and `TetrisAi` all do. Ask the program rather than this file: it cannot go stale.
+
+    dotnet run --project Tetris\send\TetrisSend.csproj
+
+Watch consoles 1 and 2 side by side after a single move in console 4. One prints at once because it
+was told; the other prints later, after rebuilding from the record. That contrast is §4.
 
 A whole sequence at once, from console 4:
 
