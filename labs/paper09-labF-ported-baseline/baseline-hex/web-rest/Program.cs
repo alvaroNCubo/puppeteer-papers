@@ -107,12 +107,32 @@ app.MapGet("/observer/events", async (HttpContext ctx) =>
 
 var url = "http://localhost:5091";
 app.Urls.Add(url);
-Console.WriteLine($"Tetris HEX REST+SSE host running at {url}");
-Console.WriteLine($"  player   : {url}/");
-Console.WriteLine($"  observer : {url}/observer");
-Console.WriteLine($"  input    : POST {url}/games/<id>/moves   body {{\"move\":\"left|right|rotate|tick|drop\"}}");
-Console.WriteLine($"  push     : GET  {url}/games/<id>/events   (text/event-stream)");
-Console.WriteLine($"  pull     : GET  {url}/games/<id>/frame    (application/json)");
+Console.WriteLine($"Tetris HEX REST+SSE host (staging 3 of 4) running at {url}");
+Console.WriteLine();
+Console.WriteLine($"  PLAY HERE  {url}/");
+Console.WriteLine( "             Open in a browser. Arrow keys move the piece — this is how you play.");
+Console.WriteLine( "             Uses session 'hexrest1' unless you add ?session=game1 to the URL.");
+Console.WriteLine();
+Console.WriteLine($"  observer   {url}/observer");
+Console.WriteLine( "             Open in a browser. Read-only, and shows EVERY session at once, each");
+Console.WriteLine( "             labelled by its id. It creates nothing and cannot move a piece.");
+Console.WriteLine();
+Console.WriteLine( "  input      For scripting, not for playing. Copy this line as it stands:");
+Console.WriteLine($"             Invoke-RestMethod -Method Post -Uri {url}/games/game1/moves -ContentType application/json -Body '{{\"move\":\"left\"}}'");
+Console.WriteLine( "             move is one of left|right|rotate|tick|drop. It returns {\"accepted\":...}");
+Console.WriteLine( "             and NOT the board — the frame goes out over /events instead.");
+Console.WriteLine( "             Posting to a name that does not exist CREATES that game.");
+Console.WriteLine();
+Console.WriteLine( "  push       Stays open and prints one 'data: {...}' line per frame. Copy this:");
+Console.WriteLine($"             curl.exe -N {url}/games/game1/events");
+Console.WriteLine( "             Do not open it in a browser tab you plan to reuse; it never ends.");
+Console.WriteLine();
+Console.WriteLine( "  pull       The SAME document /events pushes, fetched once. Copy this:");
+Console.WriteLine($"             Invoke-RestMethod {url}/games/game1/frame");
+Console.WriteLine( "             Empty until a move has been applied: it is served from the output");
+Console.WriteLine( "             adapter's cache, because this hexagon has no query port to ask.");
+Console.WriteLine();
+Console.WriteLine( "  'game1' above is an example. Any name works — use the same one everywhere.");
 app.Run();
 
 // Keep an SSE response open until the client disconnects.

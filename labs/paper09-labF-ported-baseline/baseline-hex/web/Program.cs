@@ -63,9 +63,25 @@ app.Map("/ws", async context =>
 var url = "http://localhost:5090";
 app.Urls.Add(url);
 Console.WriteLine($"Tetris HEX web host running at {url}");
-Console.WriteLine($"  player   : {url}/");
-Console.WriteLine($"  observer : {url}/observer");
-Console.WriteLine($"  socket   : {url.Replace("http", "ws")}/ws?session=<id>&role=player|observer");
+Console.WriteLine();
+Console.WriteLine($"  PLAY HERE  {url}/");
+Console.WriteLine( "             Open in a browser. Arrow keys move the piece — this is how you play.");
+Console.WriteLine( "             Uses session 'default' unless you add ?session=game1 to the URL.");
+Console.WriteLine();
+Console.WriteLine($"  observer   {url}/observer");
+Console.WriteLine( "             Open in a browser. Read-only, and shows EVERY session at once, each");
+Console.WriteLine( "             labelled by its id. It creates nothing and cannot move a piece.");
+Console.WriteLine();
+Console.WriteLine( "  socket     The transport underneath both pages. You do not need to open it —");
+Console.WriteLine( "             the two pages above are its clients. To watch the traffic instead:");
+Console.WriteLine( "             open a page, press F12, reload, then Network > WS > click the row >");
+Console.WriteLine( "             Messages. Or paste this into the Console tab:");
+Console.WriteLine( "               ws.addEventListener('message', e => console.log(e.data))");
+Console.WriteLine($"             The URL itself is {url.Replace("http", "ws")}/ws?session=game1&role=player");
+Console.WriteLine( "             role=player sends moves in and gets its own frames; role=observer");
+Console.WriteLine( "             only receives, and gets every session's, each wrapped with its id.");
+Console.WriteLine();
+Console.WriteLine( "  'game1' above is an example. Any name works — use the same one everywhere.");
 app.Run();
 
 // ── The DRIVING adapter: a socket message becomes a driving-port call. The room's
