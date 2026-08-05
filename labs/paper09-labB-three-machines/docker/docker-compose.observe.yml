@@ -1,0 +1,27 @@
+# OPTIONAL OVERRIDE — makes each node's journal visible on the host, so a host
+# process can watch a container's domain live instead of copying its journal out
+# after the fact.
+#
+# The default compose file uses NAMED volumes, and that is the configuration the
+# paper's measurements were taken in; this override changes nothing about the
+# domain, the actor or the replication — only where each node's /data lands. Use
+# it when you want to observe, and the plain file when you want to reproduce.
+#
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.observe.yml up --build -d
+#
+# Then each node's journal is on the host at docker/data/<id>/tetris/, and a host
+# viewer can read it — see the README section "Watch a container's domain live".
+
+services:
+  tetris-a:
+    volumes:
+      - bootstrap:/bootstrap
+      - ./data/a:/data
+  tetris-b:
+    volumes:
+      - bootstrap:/bootstrap
+      - ./data/b:/data
+  tetris-c:
+    volumes:
+      - bootstrap:/bootstrap
+      - ./data/c:/data

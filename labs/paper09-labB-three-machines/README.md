@@ -1,139 +1,108 @@
 # Paper 9 — Lab B: three machines
 
-One domain runs as three StageManager peers in three Docker containers on a private bridge
-network — one Director, two casts, joined over Kestrel TLS on a port never exposed to the host, so
-the coordination and replication between them is genuine container-to-container TLS. A scripted
-driver on the Director plays the game to a non-trivial board and that play replicates to the casts.
+One domain runs as three peers in three Docker containers, joined over container-to-container TLS. The
+Director plays a scripted game; the two casts receive it. **The claim: 0 domain edits, 0 actor edits,
+and three byte-identical journals.**
 
-Headline → §2 (Experiment A) and Appendix A (Lab B). The claim is two zeros and one convergence:
-**0 domain edits and 0 actor edits**, and the three nodes reaching a **byte-identical** board.
+Needs Docker Desktop running, and `$env:PuppeteerEngine` pointing at a Puppeteer checkout.
 
-What is *not* claimed: any test of resilience. No peer was killed and no partition induced, so
-partial failure is untouched — the paper says so at the one row of its Waldo table marked as not
-addressed.
+## Four consoles, in this order
 
+Open four PowerShell windows and `cd` all of them here:
 
-## How many consoles, and which of them block
+```powershell
+cd <this directory>
+```
 
-Docker Desktop must be running, and `$env:PuppeteerEngine` must be set for the publish step. **Nobody
-plays anything in this lab** — `tetris-a` is the Director and plays a short scripted sequence itself,
-so there is no input console.
+Then type the command into each, and press Enter **in this order**:
 
-**One console is enough.** `run-demo.sh` goes quiet while it polls, then prints the convergence line
-each node logged and returns, leaving the containers up. Those three lines are the result. Everything
-below is for watching it happen, which is optional.
-
-**Before opening anything: every `logs -f` takes its console and does not give it back until Ctrl+C.**
-Drop the `-f` and the same command prints what exists and returns. Four blocked consoles is what
-happens if you open every command in this file at once, and none of them needed to block.
-
-| Consoles | Run this | Blocks? |
+| | Console | Command |
 |---|---|---|
-| **1** | `& "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh` | until convergence, **then frees itself** |
-| **2** (optional) | `docker compose -f docker/docker-compose.yml logs -f` | yes, until Ctrl+C — all three nodes interleaved |
-| **2 and 3** *instead of* the above | `… logs -f tetris-a` and `… logs -f tetris-b` | yes, both — the **Director** beside a **cast**, one acting and the other arriving at the same board without acting |
+| **1st** | #1 | `& "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh` |
+| **2nd** | #2 | `docker compose -f docker/docker-compose.yml logs -f tetris-a` |
+| **3rd** | #3 | `docker compose -f docker/docker-compose.yml logs -f tetris-b` |
+| **4th** | #4 | *nothing yet — leave it free for the checks below* |
 
-Following all three interleaved and following two separately are two ways of watching one run, so
-**rows 2 and 3 replace row 2, they do not add to it.** You never need a fourth console: console 1 frees
-itself once convergence happens, and every check below runs there.
+Console #1 must go first: it is what builds the image and starts the containers, so #2 and #3 have
+nothing to attach to until it has.
 
-Any console must be in this lab's directory, since `-f docker/docker-compose.yml` is relative. Only
-console 1 needs `$env:PuppeteerEngine`; that variable is for building.
+## What you will see in each
 
-## The check, and where the output lands
-
-Each node keeps its own journal in its own volume — `tetris-a-data`, `tetris-b-data`, `tetris-c-data`,
-mounted at `/data`. **The byte-identity of those journals is the result.** In console 1, which is free:
-
-```powershell
-$env:MSYS_NO_PATHCONV=1
-```
-
-```powershell
-foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" md5sum /data/tetris/journal/journal_000001.bin }
-```
-
-Three identical hashes. The same holds for `/data/tetris/meta.bin`.
-
-The convergence line each node logs carries the same fact in readable form, and is what `run-demo.sh`
-prints:
+**#1** — publish, image build, three containers starting. Then it **goes quiet and stays quiet** while
+it polls; it looks stalled and is not. When all three have converged it prints three lines and returns:
 
 ```
-tetris-a: convergence checkpoint reached: role=DIRECTOR entry=13 snapshot=type=- cleared=0 awaiting=True over=False cells=8
+tetris-a: convergence checkpoint reached: role=DIRECTOR entry=13 ... cells=8
 tetris-b: convergence checkpoint reached: role=cast     entry=13 ... cells=8
 tetris-c: convergence checkpoint reached: role=cast     entry=13 ... cells=8
 ```
 
-Same journal entry, same cell count, same board, on three machines. To keep the journals as files
-rather than trust three hashes:
+Same entry, same cell count, on three machines. **That is the result.**
 
-```powershell
-foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" cat /data/tetris/journal/journal_000001.bin > "labB-$id.bin" }
-```
+**#2** — the Director: promotion, the TLS connections to its peers, the scripted game, its checkpoint.
 
-Then compare them on the host — `fc /b labB-a.bin labB-b.bin` should report no differences.
+**#3** — a cast: it plays nothing and receives everything, and arrives at the same board.
 
-Tear down when finished:
+Consoles #2 and #3 stay blocked until you press **Ctrl+C**. That is normal; they are log followers.
 
-```powershell
-& "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh --down
-```
+## Then, in console #4
 
-## See the board — the part that makes this a Tetris lab
-
-Everything above is logs and hashes. To actually *see* the Well that was replicated, copy one node's
-journal out and render it with a host that knows nothing about Docker. From this lab's directory:
-
-```powershell
-$env:MSYS_NO_PATHCONV=1
-```
+**See the board** — the part that makes this a Tetris lab. Copy one node's journal out and render it
+with a host that knows nothing about Docker:
 
 ```powershell
 docker cp tetris-a:/data/tetris ..\paper09-example\.sessions\nodeA\nodeA
 ```
 
 ```powershell
-cd ..\paper09-example
+dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- nodeA view
 ```
 
-```powershell
-dotnet run --project ai\TetrisAi.csproj -- nodeA view
 ```
-
-You get the board:
-
-```
-|    [][]  []        |
-|    [][]  [][][]    |
+|      []            |
+|      [][][][]      |
+|        [][][]      |
 +====================+
 META type=- cleared=0 awaiting=True over=False active=[]
 ```
 
-Eight cells, `awaiting=True`, `cleared=0` — the same figures the convergence line reported as
-`cells=8 awaiting=True`. Repeat with `tetris-b` and `tetris-c` into `nodeB` and `nodeC` and you get the
-same board three times, drawn from three separate machines' records.
+Eight cells and `awaiting=True` — the figures console #1 reported. Repeat with `tetris-b` into `nodeB`
+for the same board from another machine's record.
 
-**This shows more than the hash does.** The three hashes prove the files are identical; this proves the
-files are *ordinary journals*. A host that has never heard of containers, TLS or replication reads one
-and reconstructs the board — the same `TetrisAi` used in Lab D, with no special tooling and nothing
-exported. The node ran in a container; its record is just a record.
+**Check the byte-identity** — the claim itself:
 
-The extra `nodeA\nodeA` in the copy target is the session layout the hosts expect —
-`.sessions\<session>\<session>\journal\`. And `MSYS_NO_PATHCONV` keeps Git Bash from rewriting the
-container's leading-slash path if you are in a bash shell; in PowerShell it is harmless.
+```powershell
+foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" md5sum /data/tetris/journal/journal_000001.bin }
+```
 
-Clean up afterwards:
+Three identical hashes.
+
+**Tear down:**
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh --down
+```
 
 ```powershell
 Remove-Item -Recurse -Force ..\paper09-example\.sessions\node*
 ```
 
+## Two things worth knowing
+
+**What is not claimed: any test of resilience.** No peer is killed and no partition induced, so partial
+failure is untouched — the row of the paper's Waldo table marked *not addressed*. Killing `tetris-b`
+mid-run is the experiment this lab deliberately does not perform.
+
+**Watching a node live** is possible but off by default, because the named volumes the paper measured
+in hide the journals from the host. `docker/docker-compose.observe.yml` bind-mounts them instead and
+explains itself in its header; add it with a second `-f` and each node's journal appears under
+`docker/data/`.
+
 ## Contents
 
-`docker/` — the compose file, the Dockerfile and `run-demo.sh` — and `sm-cluster/`, the cluster host
-that `run-demo.sh` publishes into the image. Both as they stood on branch `p9/labg-rerun` of the
-examples repository; `sm-cluster` is a lab artifact and was never on that repository's `main`, which
-is why it lives here rather than in the vendored example. Its actor reference points at
-`labs/paper09-example`, so building it needs `$env:PuppeteerEngine` set.
+`docker/` — compose file, the observe override, Dockerfile, `run-demo.sh` — and `sm-cluster/`, the
+cluster host `run-demo.sh` publishes. Both from branch `p9/labg-rerun` of the examples repository;
+`sm-cluster` was never on its `main`, which is why it lives here and not in the vendored example. Its
+actor reference points at `labs/paper09-example`, so building it needs `$env:PuppeteerEngine`.
 
-The write-up and the captured run are in `data/paper09-labB-three-machines/`.
+Write-up and captured run: `data/paper09-labB-three-machines/`.
