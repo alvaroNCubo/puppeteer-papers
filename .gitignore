@@ -3,3 +3,17 @@ bin/
 obj/
 BenchmarkDotNet.Artifacts/
 .vs/
+
+# Paper 9 lab output — produced by running the labs, never part of the archive.
+labs/paper09-labB-three-machines/labB-*.bin
+labs/paper09-labB-three-machines/docker/data/
+labs/paper09-labB-three-machines/docker/build/
+labs/paper09-example/.sessions/
+data/paper09-labI-growth/out/
+labA*.txt
+labA*.log
+labB*.log
+labD*.log
+labE*.log
+labF*.log
+labG*.log
