@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Tetris.Acting</RootNamespace>
+    <AssemblyName>TetrisActor</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\domain\TetrisDomain.csproj" />
+
+    <!--
+      Engine reference — the Puppeteer Pacifico MAIN checkout (master). As of
+      2026-07-01 the OutputTarget push API (IOutputSink / PushDocument /
+      PerformanceV2.OutputTarget) AND the InputSource seam are merged to master,
+      so the earlier `feature/outputtarget-push` worktree reference is retired
+      (that worktree has been removed). The example assemblies stay unsigned; an
+      unsigned assembly may reference the signed engine assemblies, so this builds.
+
+      Next progression step: once synced to the public clone (and Choreography
+      de-signed there), point at the HelloWorld convention:
+        ..\..\..\puppeteer\Puppeteer|Choreography\*.csproj
+    -->
+    <!--
+      THE ONE EXTERNAL SEAM. Everything else in this example is vendored into the
+      papers repository, so the labs are self-contained in a single git history.
+      The engine is not: Papers 1 to 8 cite framework source against the public
+      Puppeteer repository with a Software Heritage identifier, and vendoring it
+      here would duplicate a codebase that is not this paper's contribution and
+      would contradict that provenance model.
+
+      So point PuppeteerEngine at a checkout of Puppeteer at or after commit
+      dd67047 — three substrate fixes these labs depend on land at or before it.
+      Either set it once for the session:
+
+          $env:PuppeteerEngine = "C:\path\to\Puppeteer"
+
+      or pass it per build:
+
+          dotnet build -p:PuppeteerEngine=C:\path\to\Puppeteer
+    -->
+    <ProjectReference Include="$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj" />
+    <ProjectReference Include="$(PuppeteerEngine)\Choreography\Choreography.csproj" />
+  </ItemGroup>
+
+  <Target Name="RequirePuppeteerEngine" BeforeTargets="CollectPackageReferences;ResolveProjectReferences">
+    <Error Condition="'$(PuppeteerEngine)' == ''"
+           Text="PuppeteerEngine is not set. This example needs a Puppeteer checkout at or after commit dd67047. Set $env:PuppeteerEngine, or pass -p:PuppeteerEngine=&lt;path&gt;. See labs/paper09-README.md." />
+    <Error Condition="'$(PuppeteerEngine)' != '' And !Exists('$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj')"
+           Text="PuppeteerEngine=$(PuppeteerEngine) does not contain Puppeteer\Puppeteer.csproj. Point it at the root of a Puppeteer checkout." />
+  </Target>
+
+</Project>

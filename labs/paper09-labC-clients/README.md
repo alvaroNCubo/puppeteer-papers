@@ -20,15 +20,15 @@ the lab, to suit the form in which it reasons. Disclosed in the paper's acknowle
 
 | # | Run this | What you see in it | Who operates it |
 |---|---|---|---|
-| 1 | `dotnet run --project <example>/Tetris/ai/TetrisAi.csproj -- game1 new` | One act applied, then the process **exits**. Repeat with `left`, `right`, `rotate`, `tick`, `drop`. Run it with no arguments and it lists the operations it accepts. | **You.** Each invocation is a separate short-lived process — one writer at a time. |
-| 2 | `.` + BS + `pile-scan.ps1 -Example <example> -Session game1` | **The client-authored view**: `skyline`, `diffs`, `zeros`, `wells`, `metrics` — heights and gaps, not a grid. | **You**, whenever you want a reading. It only reads the frame file. |
+| 1 | `dotnet run --project ../paper09-example/ai/TetrisAi.csproj -- game1 new` | One act applied, then the process **exits**. Repeat with `left`, `right`, `rotate`, `tick`, `drop`. Run it with no arguments and it lists the operations it accepts. | **You.** Each invocation is a separate short-lived process — one writer at a time. |
+| 2 | `.` + BS + `pile-scan.ps1 -Example ..\paper09-example -Session game1` | **The client-authored view**: `skyline`, `diffs`, `zeros`, `wells`, `metrics` — heights and gaps, not a grid. | **You**, whenever you want a reading. It only reads the frame file. |
 
-**Output on disk:** the emitted fact itself is at `<example>/Tetris/.sessions/game1.frame` — one line
+**Output on disk:** the emitted fact itself is at `../paper09-example/.sessions/game1.frame` — one line
 of JSON. Open it. The view in console 2 is computed *from that file* and nothing else, which is the
 point: the client derives what it needs from a fact it did not shape.
 
 ```powershell
-.\pile-scan.ps1 -Example <example> -Session game1 | Tee-Object -FilePath labC-view.txt
+.\pile-scan.ps1 -Example ..\paper09-example -Session game1 | Tee-Object -FilePath labC-view.txt
 ```
 
 **The row that matters.** One of the six clients wrote its own adapter: the automated player is an

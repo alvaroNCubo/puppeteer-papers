@@ -1,0 +1,21 @@
+# Lab A — the captured chronology, taken from the examples repository
+
+Run against github.com/alvaroNCubo/puppeteer-examples, branch main.
+Reproduce it live there; the vendored copy in labs/paper09-example/ has no history of its own.
+
+$ git log -1 --date=short --format="%ad  %h  %s" -- Tetris/domain/
+2026-06-29  fd8d94b  Tetris: add TetrisActor facade over PerformanceV2; console drives the actor
+
+$ git log -1 --date=short --format="%ad  %h  %s"
+2026-07-02  485b766  Tetris: point engine reference at Pacifico master
+
+$ git rev-list --count "$(git log -1 --format=%H -- Tetris/domain/)..main"
+9
+
+$ git log --date=short --format="%ad  %h  %s" --diff-filter=A -1 -- Tetris/web Tetris/web-rest Tetris/sm-duo Tetris/sm-duo-tls
+web          2026-06-30  6868249  Tetris web host: same Well over WebSockets (W1+W2+W3), zero domain changes
+web-rest     2026-07-01  f093e20  Tetris web host #2: same Well over REST + SSE (input=POST, output=SSE), zero domain changes
+sm-duo       2026-06-30  e311e58  Tetris: distributed StageManager host (increment A+B) — polymorphic TetrisActor over StageV2
+sm-duo-tls   2026-06-30  68635c3  Tetris C1: 2-node StageManager over real Kestrel TLS (HTTPS transport)
+
+# The domain's date is older than the repository's, and the four hosts above postdate it.

@@ -19,9 +19,9 @@ rather than this arrangement from that one. What does not tie is the driven side
 
 | # | Run this | What you see in it | Who operates it |
 |---|---|---|---|
-| 1 | `dotnet list package --project <example>/Tetris/domain/TetrisDomain.csproj` | **"No packages were found"** — literally nothing to list. | You. |
-| 2 | `dotnet build <example>/Tetris/domain/TetrisDomain.csproj` | **It builds** with the framework absent from its build graph entirely. | You. |
-| 3 | `dotnet test <example>/Tetris/domain.tests/TetrisDomain.Tests.csproj` | **The suite passes** with no host, no transport, no sink and **no test double** — not for what drives the domain and not for what it emits. | You. |
+| 1 | `dotnet list package --project ../paper09-example/domain/TetrisDomain.csproj` | **"No packages were found"** — literally nothing to list. | You. |
+| 2 | `dotnet build ../paper09-example/domain/TetrisDomain.csproj` | **It builds** with the framework absent from its build graph entirely. | You. |
+| 3 | `dotnet test ../paper09-example/domain.tests/TetrisDomain.Tests.csproj` | **The suite passes** with no host, no transport, no sink and **no test double** — not for what drives the domain and not for what it emits. | You. |
 
 Keep all three in one transcript, since it is the *sequence* that is the argument:
 

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Tetris.Web</RootNamespace>
+    <AssemblyName>TetrisWeb</AssemblyName>
+    <!-- The VS threading analyzer (shipped with the engine's package graph) flags
+         idiomatic ASP.NET/await patterns in this host shell — the dispose-pump
+         await and a non-Async helper name. Quiet them here; the host is correct. -->
+    <NoWarn>$(NoWarn);VSTHRD002;VSTHRD003;VSTHRD200</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The web host is a shell over the same TetrisActor: a WebSocket InputSource
+         (socket message -> command) + an OutputTarget (WebSocketSink -> browser).
+         The clean Well domain is untouched. -->
+    <ProjectReference Include="..\actor\TetrisActor.csproj" />
+  </ItemGroup>
+
+</Project>

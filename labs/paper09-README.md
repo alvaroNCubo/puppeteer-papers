@@ -19,8 +19,11 @@ as a diff over the main line's history. **Lab I and Lab G change the domain on p
 it by 98 lines, Lab G cuts one role into two. So running Lab A's diff on either of their branches will
 correctly report a non-empty diff, and that is not a failure of Lab A: it is a different measurement.
 
-Lab A is a one-time historical read. Run it once, on a clone of the examples repository, and it is
-done.
+Lab A is a one-time historical read, and it is the **one lab that cannot be self-contained**: its claim
+is about a *history*, and the vendored copy in `labs/paper09-example/` has none of its own — it is a
+copy, so its only commit is the one that placed it here. To check Lab A live you need the examples
+repository, which the paper names. Its output is captured in
+`data/paper09-labA-stagings/chronology.txt` for a reader who does not want to clone anything.
 
 The between-runs check you are reaching for does exist, and it is inside Lab I rather than beside it:
 `smoke.sh` runs the twelve host projects **before and after** the domain grows and shows all twelve
@@ -34,14 +37,14 @@ dependency chain.
 
 | | Lab | Why here | Needs |
 |---|---|---|---|
-| 1 | **A** stagings | seconds, reads git history, nothing to build | a clone of the examples repo |
-| 2 | **E** the fence | seconds, three commands, no processes | the examples repo |
-| 3 | **F** ported baseline | **the number to check hardest** — Table 3 rests on it | nothing beyond .NET; the baseline is copied here in full |
-| 4 | **G** re-decomposition | the most figures in the paper: 135, 309, 2.29×, three zeros | the examples repo **and** an engine worktree at or after `dd67047` |
-| 5 | **H** recognition | read-only; a write-up and its captured log | nothing |
-| 6 | **C**, **D** clients and projections | demonstrations; need a session played first | the examples repo |
-| 7 | **B** three machines | slowest, and the only one needing containers | Docker Desktop |
-| 8 | **I** domain growth | **last**, because it is the one that changes the domain | the examples repo |
+| 1 | **A** stagings | seconds; reads history, builds nothing | the **examples repository** — the one lab a copy cannot carry. Captured output in `data/` |
+| 2 | **E** the fence | seconds, three commands, no processes | `labs/paper09-example/` + the engine variable |
+| 3 | **F** ported baseline | **the number to check hardest** — Table 3 rests on it | **nothing but .NET.** Fully self-contained |
+| 4 | **G** re-decomposition | the most figures in the paper: 135, 309, 2.29×, three zeros | `labs/paper09-example/` + the engine variable |
+| 5 | **H** recognition | read-only; a write-up and its captured log | **nothing** |
+| 6 | **C**, **D** clients and projections | demonstrations; need a session played first | `labs/paper09-example/` + the engine variable |
+| 7 | **B** three machines | slowest, and the only one needing containers | Docker Desktop + `labs/paper09-example/` |
+| 8 | **I** domain growth | **last**, because it is the one that changes the domain | `labs/paper09-example/` + the engine variable |
 
 Lab I is last for a reason worth stating: after it, the domain in that tree is no longer the domain
 Labs A through H measured. It is on its own branch, so nothing is spoiled — but if you are working in
@@ -49,14 +52,30 @@ one tree, do it at the end.
 
 ## What every lab assumes
 
-**A clone or worktree of the Puppeteer examples repository**, except Labs F and H. Lab F is
-self-contained — `baseline-hex/` is copied here whole. Lab H has nothing to run. Everything else
-reaches into the example for the domain, the actor and the twelve hosts, and the per-lab README says
-where with an `<example>` placeholder.
+**The example is vendored here**, at `labs/paper09-example/` — the domain, the actor and the twelve
+hosts, 66 files, in this repository's own history. So the labs and the paper are one git history and
+publication is one commit mark, not two. Labs F and H need nothing at all beyond that: Lab F carries
+`baseline-hex/` whole, and Lab H has nothing to run.
 
-**Lab G additionally needs an engine worktree** pinned at or after commit `dd67047`, sitting beside
-its own tree, because its project reaches for `..\..\..\eng\`. Three substrate fixes its measurements
-depend on land at or before that commit.
+**One external remains, and only one: the engine.** The vendored example's actor is the single project
+that reaches outside, and it now does so through a variable rather than a hardcoded path. Set it once
+per session:
+
+```powershell
+$env:PuppeteerEngine = "C:\path\to\a\Puppeteer\checkout"
+```
+
+or pass `-p:PuppeteerEngine=<path>` per build. It must be a checkout at or after commit `dd67047` —
+three substrate fixes these measurements depend on land at or before it. If it is unset the build stops
+with that sentence rather than a mysterious path error.
+
+The engine stays external deliberately. Papers 1 to 8 cite framework source against the public
+Puppeteer repository under a Software Heritage identifier, and vendoring it here would duplicate a
+codebase that is not this paper's contribution while contradicting that provenance model. What is
+vendored is the paper's own artifact; what is cited is the framework.
+
+**Lab A is the exception to self-containment**, and unavoidably: its claim is about a history, and a
+copy has none. See above.
 
 **One writer per session, always.** Several labs write journals. Never point two writers at one
 session name — a check-then-command journals the *command* and not the *check*, so a warm actor's

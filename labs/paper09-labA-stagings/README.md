@@ -28,9 +28,16 @@ That prints how many commits happened after the domain's last change.
 
 ## Where and when
 
-Any clone or worktree of the examples repository, on `main`. **Any time, as often as you like** —
-these commands read history and touch nothing, so there is no session to create, nothing to clean up,
-and no other lab to run first.
+**Not in the vendored example.** This is the one lab a copy cannot carry: its claim is about a
+*history*, and `labs/paper09-example/` is a copy whose only commit is the one that placed it here. Run
+these two commands in a clone of the examples repository the paper names, on `main`.
+
+If you would rather not clone anything, the same two commands are already captured in
+`../../data/paper09-labA-stagings/chronology.txt`, together with the dates of the four hosts that
+postdate the domain's last change.
+
+**Any time, as often as you like** — they read history and touch nothing, so there is no session to
+create, nothing to clean up, and no other lab to run first.
 
 ## Run it between the other labs, too
 

@@ -25,8 +25,8 @@ smoke test then establishes that the stagings still run.
 
 | # | Run this | What you see in it | Who operates it |
 |---|---|---|---|
-| 1 | `bash ../../data/paper09-labI-growth/replay.sh <example>` | **Journals written *before* the domain grew, rehydrating against the grown domain.** Old records, new code. | **You.** Read-only against the fixtures. |
-| 2 | `bash ../../data/paper09-labI-growth/smoke.sh <example>` | **Twelve host projects, before and after.** All twelve run with no edit — that is the converse the paper had never measured. | You. |
+| 1 | `bash ../../data/paper09-labI-growth/replay.sh ../paper09-example` | **Journals written *before* the domain grew, rehydrating against the grown domain.** Old records, new code. | **You.** Read-only against the fixtures. |
+| 2 | `bash ../../data/paper09-labI-growth/smoke.sh ../paper09-example` | **Twelve host projects, before and after.** All twelve run with no edit — that is the converse the paper had never measured. | You. |
 
 Both scripts take the example's root as an argument, so neither needs a path edited to be usable.
 

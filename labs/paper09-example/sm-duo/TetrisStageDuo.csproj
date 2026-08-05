@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Tetris.StageDuo</RootNamespace>
+    <AssemblyName>TetrisStageDuo</AssemblyName>
+    <!-- VSTHRD003: the 2-node handshake awaits a connection Task created a few
+         lines earlier (the verbatim EndToEndTests pattern); intentional here. -->
+    <NoWarn>$(NoWarn);VSTHRD003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\actor\TetrisActor.csproj" />
+  </ItemGroup>
+
+</Project>

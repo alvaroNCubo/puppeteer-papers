@@ -14,7 +14,7 @@ there is `OccupiedInterior()`, the union of the pile and the active piece clippe
 Then, to see three renderings of one frame with nobody at a keyboard:
 
 ```powershell
-.\verify.ps1 -Example <path to the example>
+.\verify.ps1 -Example ..\paper09-example
 ```
 
 Twelve fixed acts through `TetrisAi`, one short-lived process per act, then the frame rendered three
@@ -56,7 +56,7 @@ A whole sequence at once, from console 4:
 The third projection, whenever you want it:
 
 ```powershell
-.\pile-scan.ps1 -Example <path to the example> -Session game1
+.\pile-scan.ps1 -Example ..\paper09-example -Session game1
 ```
 
 Prefer the keyboard to the pipe? Console 3 takes `--sources keyboard,clock --clock-ms 500` instead,
@@ -68,8 +68,8 @@ a window that looks dead.
 Nothing above needs to be trusted from a screen. The emitted fact is a file, and the three
 projections are all computed from it:
 
-    <example>/Tetris/.sessions/game1.frame        one line of JSON — the fact itself
-    <example>/Tetris/.sessions/game1/             the journal: the acts that produced it
+    ../paper09-example/.sessions/game1.frame        one line of JSON — the fact itself
+    ../paper09-example/.sessions/game1/             the journal: the acts that produced it
 
 Open the `.frame` and you are looking at exactly what console 1 rendered as a grid, console 2
 rebuilt by replay, and `pile-scan.ps1` read as a vector. Nothing else is consulted by any of them.
@@ -86,7 +86,7 @@ And `verify.ps1` prints all three projections in sequence in one console, which 
 capture if you want a single artifact:
 
 ```powershell
-.erify.ps1 -Example <path to the example> | Tee-Object -FilePath labD-verify.log
+.erify.ps1 -Example ..\paper09-example | Tee-Object -FilePath labD-verify.log
 ```
 
 ### Two rules, both learned the hard way
