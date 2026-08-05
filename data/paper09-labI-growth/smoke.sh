@@ -6,8 +6,21 @@
 # treeRoot defaults to this branch's Tetris dir; pass the pre-change worktree's
 # Tetris dir to get the before column from an identical run.
 set -u
-T="${2:-C:/Users/alvar/source/repos/puppeteer-examples/Tetris/.claude/worktrees/trusting-tereshkova-f48ab6/Tetris}"
-SCRATCH="C:/Users/alvar/AppData/Local/Temp/claude/C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-trusting-tereshkova-f48ab6/46ad7df4-01f4-4cc7-941d-1119fd1b3dfd/scratchpad"
+
+# The example's Tetris directory. Pass it as $2, or set TETRIS_EXAMPLE, or leave
+# both unset and this resolves to the vendored example two directories up:
+#   <papers>/labs/paper09-example
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TETRIS="${2:-${TETRIS_EXAMPLE:-$HERE/../../labs/paper09-example}}"
+if [ ! -f "$TETRIS/Tetris.sln" ]; then
+  echo "no Tetris.sln under '$TETRIS'." >&2
+  echo "pass the example's root as the second argument, or set TETRIS_EXAMPLE." >&2
+  exit 2
+fi
+# Output lands beside this script, not in a temp directory from the original run.
+SCRATCH="$HERE/out"
+mkdir -p "$SCRATCH"
+T="$TETRIS"
 LABEL="${1:-run}"
 OUT="$SCRATCH/smoke-$LABEL"
 rm -rf "$OUT"; mkdir -p "$OUT"

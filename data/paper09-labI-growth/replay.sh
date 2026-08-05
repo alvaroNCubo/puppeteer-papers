@@ -1,16 +1,28 @@
 #!/usr/bin/env bash
 # Replays every pre-change journal fixture with a chosen build of the domain and
 # runs the same queries against each.
-#   usage: replay.sh <label> [probeDir]
+#   usage: replay.sh <label> [exampleRoot] [probeDir]
 # probeDir defaults to the live build; pass $SCRATCH/probe-pre for the FROZEN
 # pre-change build (same binaries that recorded the fixtures).
 set -u
-TETRIS="C:/Users/alvar/source/repos/puppeteer-examples/Tetris/.claude/worktrees/trusting-tereshkova-f48ab6/Tetris"
-SCRATCH="C:/Users/alvar/AppData/Local/Temp/claude/C--Users-alvar-source-repos-puppeteer-examples-Tetris--claude-worktrees-trusting-tereshkova-f48ab6/46ad7df4-01f4-4cc7-941d-1119fd1b3dfd/scratchpad"
+
+# The example's Tetris directory. Pass it as $2, or set TETRIS_EXAMPLE, or leave
+# both unset and this resolves to the vendored example two directories up:
+#   <papers>/labs/paper09-example
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TETRIS="${2:-${TETRIS_EXAMPLE:-$HERE/../../labs/paper09-example}}"
+if [ ! -f "$TETRIS/Tetris.sln" ]; then
+  echo "no Tetris.sln under '$TETRIS'." >&2
+  echo "pass the example's root as the second argument, or set TETRIS_EXAMPLE." >&2
+  exit 2
+fi
+# Output lands beside this script, not in a temp directory from the original run.
+SCRATCH="$HERE/out"
+mkdir -p "$SCRATCH"
 LABEL="${1:-run}"
 PROBEDIR="${2:-$TETRIS/tools/growth-probe/bin/Debug/net9.0}"
 PROBE="$PROBEDIR/TetrisGrowthProbe.exe"
-FIX="$TETRIS/notes/data/journals-pre-growth"
+FIX="$HERE/journals-pre-growth"
 WORK="$SCRATCH/replay-$LABEL"
 rm -rf "$WORK"; mkdir -p "$WORK"
 
