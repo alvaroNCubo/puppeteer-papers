@@ -11,18 +11,6 @@
     <ProjectReference Include="..\domain\TetrisDomain.csproj" />
 
     <!--
-      Engine reference — the Puppeteer Pacifico MAIN checkout (master). As of
-      2026-07-01 the OutputTarget push API (IOutputSink / PushDocument /
-      PerformanceV2.OutputTarget) AND the InputSource seam are merged to master,
-      so the earlier `feature/outputtarget-push` worktree reference is retired
-      (that worktree has been removed). The example assemblies stay unsigned; an
-      unsigned assembly may reference the signed engine assemblies, so this builds.
-
-      Next progression step: once synced to the public clone (and Choreography
-      de-signed there), point at the HelloWorld convention:
-        ..\..\..\puppeteer\Puppeteer|Choreography\*.csproj
-    -->
-    <!--
       THE ONE EXTERNAL SEAM. Everything else in this example is vendored into the
       papers repository, so the labs are self-contained in a single git history.
       The engine is not: Papers 1 to 8 cite framework source against the public

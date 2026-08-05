@@ -2,7 +2,7 @@
 #
 # Tetris Increment C2 — runtime image for TetrisStageCluster (one StageV2 node
 # per container). Mirrors Paper 7's Dockerfile.host: the container does NOT
-# compile inside Docker. The engine (Puppeteer Pacifico) lives on the host by an
+# compile inside Docker. The engine (a Puppeteer checkout, $env:PuppeteerEngine) lives on the host by an
 # absolute/relative project path, so the operator pre-publishes on the host and
 # the image just copies the framework-dependent artifacts in:
 #

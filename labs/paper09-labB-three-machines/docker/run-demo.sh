@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Tetris Increment C2 — end-to-end 3-container demo orchestrator.
 #
-# Publishes TetrisStageCluster on the host (the engine, Puppeteer Pacifico, lives
+# Publishes TetrisStageCluster on the host (the engine, a Puppeteer checkout named by $env:PuppeteerEngine, lives
 # on the host by project path — it is not compiled inside Docker), then brings up
 # three containers (tetris-a Director, tetris-b/-c casts) on the tetris-net bridge
 # and waits until all three report convergence — the same Well, replicated over
