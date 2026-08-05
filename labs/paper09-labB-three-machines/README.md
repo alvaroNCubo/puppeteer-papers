@@ -89,9 +89,7 @@ $env:MSYS_NO_PATHCONV=1
 ```
 
 ```powershell
-docker cp tetris-a:/data/tetris ..\paper09-example\.sessions
-odeA
-odeA
+docker cp tetris-a:/data/tetris ..\paper09-example\.sessions\nodeA\nodeA
 ```
 
 ```powershell
@@ -120,30 +118,22 @@ files are *ordinary journals*. A host that has never heard of containers, TLS or
 and reconstructs the board — the same `TetrisAi` used in Lab D, with no special tooling and nothing
 exported. The node ran in a container; its record is just a record.
 
-The extra `nodeA
-odeA` in the copy target is the session layout the hosts expect —
+The extra `nodeA\nodeA` in the copy target is the session layout the hosts expect —
 `.sessions\<session>\<session>\journal\`. And `MSYS_NO_PATHCONV` keeps Git Bash from rewriting the
 container's leading-slash path if you are in a bash shell; in PowerShell it is harmless.
 
 Clean up afterwards:
 
 ```powershell
-Remove-Item -Recurse -Force ..\paper09-example\.sessions
-ode*
+Remove-Item -Recurse -Force ..\paper09-example\.sessions\node*
 ```
-
-## Headline, and what is not claimed
-
-**→ §2 (Experiment A) and Appendix A (Lab B): 0 domain edits and 0 actor edits**, and the three nodes
-reaching a byte-identical board. Adding this staging left the diff of both the domain and the actor
-directories empty.
-
-**Not claimed: any test of resilience.** No peer is killed and no partition induced, so partial failure
-is untouched — which the paper says at the one row of its Waldo table marked *not addressed*. If you
-want to press the arrangement where it is weakest, killing `tetris-b` mid-run is the experiment this
-lab deliberately does not perform.
 
 ## Contents
 
-`docker/` as it stood on branch `p9/labg-rerun` of the examples repository. The write-up and the
-captured run are in `data/paper09-labB-three-machines/`.
+`docker/` — the compose file, the Dockerfile and `run-demo.sh` — and `sm-cluster/`, the cluster host
+that `run-demo.sh` publishes into the image. Both as they stood on branch `p9/labg-rerun` of the
+examples repository; `sm-cluster` is a lab artifact and was never on that repository's `main`, which
+is why it lives here rather than in the vendored example. Its actor reference points at
+`labs/paper09-example`, so building it needs `$env:PuppeteerEngine` set.
+
+The write-up and the captured run are in `data/paper09-labB-three-machines/`.
