@@ -92,11 +92,17 @@ SESSION="${TETRIS_SESSION:-tetris}"
 # MSYS_NO_PATHCONV: on Git Bash (Windows) the leading-slash container path would
 # otherwise be rewritten to a host path; disable that just for these exec calls.
 export MSYS_NO_PATHCONV=1
+# Each node's evidence is its JOURNAL, not a frame file: no .frame is written to
+# /data. An earlier version of this step printed a header for
+# /data/$SESSION-$id.frame and cat'd it with 2>/dev/null, so it announced a file
+# that does not exist and silently printed nothing.
 for id in a b c; do
-    printf '[demo]   tetris-%s:/data/%s-%s.frame\n' "$id" "$SESSION" "$id"
-    docker compose exec -T "tetris-$id" cat "/data/${SESSION}-${id}.frame" 2>/dev/null \
+    printf '[demo]   tetris-%s:/data/%s/journal/journal_000001.bin\n' "$id" "$SESSION"
+    docker compose exec -T "tetris-$id" \
+        md5sum "/data/${SESSION}/journal/journal_000001.bin" 2>/dev/null \
         | sed 's/^/[demo]     /' || true
 done
+printf '[demo]   the three hashes above must match — that identity is the result\n'
 LOG "====================================================================="
 LOG "Containers left running. Inspect / tear down with:"
 LOG "  docker compose -f $DOCKER_DIR/docker-compose.yml logs tetris-a"

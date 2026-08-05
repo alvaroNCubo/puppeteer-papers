@@ -13,59 +13,70 @@ partial failure is untouched — the paper says so at the one row of its Waldo t
 addressed.
 
 
-## Order, consoles, and what each shows
+## How many consoles, and which of them block
 
-Docker Desktop must be running. **Nobody plays anything in this lab** — `tetris-a` is the Director and
-plays a short scripted sequence itself, which is why there is no input console.
+Docker Desktop must be running, and `$env:PuppeteerEngine` must be set for the publish step. **Nobody
+plays anything in this lab** — `tetris-a` is the Director and plays a short scripted sequence itself,
+so there is no input console.
 
-**Order: 1 first, always.** Console 1 is what brings the containers up, so the observing consoles have
-nothing to attach to until it has started. Run everything from this lab's directory.
+**One console is enough.** `run-demo.sh` goes quiet while it polls, then prints the convergence line
+each node logged and returns, leaving the containers up. Those three lines are the result. Everything
+below is for watching it happen, which is optional.
 
-| # | Run this | What you see in it | Who operates it |
-|---|---|---|---|
-| 1 | `bash docker/run-demo.sh` | Publish, image build, three containers coming up — then it **goes quiet and stays quiet**, polling the three logs for the line `convergence checkpoint reached`. **It looks stalled and is not**; it does not return until all three have converged, then prints the checkpoint line and each node's frame. | **You**, once. Then leave it. |
-| 2 | `docker compose -f docker/docker-compose.yml logs -f` | All three nodes interleaved: promotion, the TLS peer connections, the Director's scripted play, and three `convergence checkpoint reached` lines. This is where the run is actually visible. | Nobody. Attach after console 1 has started. |
-| 3 | `docker compose -f docker/docker-compose.yml logs -f tetris-a` | The **Director** alone — the node that plays. Useful beside console 4. | Nobody. |
-| 4 | `docker compose -f docker/docker-compose.yml logs -f tetris-b` | A **cast** alone — it plays nothing and receives everything. Watching 3 and 4 side by side is the clearest thing in this lab: one acts, the other arrives at the same board over TLS. | Nobody. |
+**Before opening anything: every `logs -f` takes its console and does not give it back until Ctrl+C.**
+Drop the `-f` and the same command prints what exists and returns. Four blocked consoles is what
+happens if you open every command in this file at once, and none of them needed to block.
 
-Two consoles are enough (1 and 2). Four make the point better, because the Director and a cast side by
-side show one node acting and another converging without acting.
+| Consoles | Run this | Blocks? |
+|---|---|---|
+| **1** | `& "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh` | until convergence, **then frees itself** |
+| **2** (optional) | `docker compose -f docker/docker-compose.yml logs -f` | yes, until Ctrl+C — all three nodes interleaved |
+| **2 and 3** *instead of* the above | `… logs -f tetris-a` and `… logs -f tetris-b` | yes, both — the **Director** beside a **cast**, one acting and the other arriving at the same board without acting |
 
-If you want to see the three containers exist before any of that:
+Following all three interleaved and following two separately are two ways of watching one run, so
+**rows 2 and 3 replace row 2, they do not add to it.** You never need a fourth console: console 1 frees
+itself once convergence happens, and every check below runs there.
 
-```bash
-docker compose -f docker/docker-compose.yml ps
-```
+Any console must be in this lab's directory, since `-f docker/docker-compose.yml` is relative. Only
+console 1 needs `$env:PuppeteerEngine`; that variable is for building.
 
 ## The check, and where the output lands
 
-Each node writes its own frame into its own volume — `tetris-a-data`, `tetris-b-data`, `tetris-c-data`,
-mounted at `/data` inside each container. **Their byte-identity is the result.** Console 1 prints them
-when it finishes; to compare them yourself, in any free console:
+Each node keeps its own journal in its own volume — `tetris-a-data`, `tetris-b-data`, `tetris-c-data`,
+mounted at `/data`. **The byte-identity of those journals is the result.** In console 1, which is free:
 
-```bash
-for f in a b c; do docker compose -f docker/docker-compose.yml exec -T tetris-$f md5sum /data/tetris-$f.frame; done
+```powershell
+$env:MSYS_NO_PATHCONV=1
 ```
 
-Three identical hashes. To keep the frames as files rather than trust three hashes:
-
-```bash
-for f in a b c; do docker compose -f docker/docker-compose.yml exec -T tetris-$f cat /data/tetris-$f.frame > labB-$f.frame; done
+```powershell
+foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" md5sum /data/tetris/journal/journal_000001.bin }
 ```
 
-Then `diff labB-a.frame labB-b.frame` should print nothing, and likewise for `c`. **Byte-identical is
-the claim**, and three files on disk are better evidence than three matching hashes on a screen.
+Three identical hashes. The same holds for `/data/tetris/meta.bin`.
 
-Capture the whole run while you are at it:
+The convergence line each node logs carries the same fact in readable form, and is what `run-demo.sh`
+prints:
 
-```bash
-bash docker/run-demo.sh 2>&1 | tee labB-run.log
+```
+tetris-a: convergence checkpoint reached: role=DIRECTOR entry=13 snapshot=type=- cleared=0 awaiting=True over=False cells=8
+tetris-b: convergence checkpoint reached: role=cast     entry=13 ... cells=8
+tetris-c: convergence checkpoint reached: role=cast     entry=13 ... cells=8
 ```
 
-Tear down when finished, from any console:
+Same journal entry, same cell count, same board, on three machines. To keep the journals as files
+rather than trust three hashes:
 
-```bash
-bash docker/run-demo.sh --down
+```powershell
+foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" cat /data/tetris/journal/journal_000001.bin > "labB-$id.bin" }
+```
+
+Then compare them on the host — `fc /b labB-a.bin labB-b.bin` should report no differences.
+
+Tear down when finished:
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh --down
 ```
 
 ## Headline, and what is not claimed

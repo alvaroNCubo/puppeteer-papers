@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Tetris.StageCluster</RootNamespace>
+    <AssemblyName>TetrisStageCluster</AssemblyName>
+    <!-- VSTHRD003: the handshake awaits a connection Task created a few lines
+         earlier (the verbatim EndToEndTests / sm-duo-tls pattern); intentional. -->
+    <NoWarn>$(NoWarn);VSTHRD003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The actor lives in the vendored example, one level up and across. It is
+         that project which carries the $(PuppeteerEngine) reference, so building
+         this host needs that variable set too. -->
+    <ProjectReference Include="..\..\paper09-example\actor\TetrisActor.csproj" />
+  </ItemGroup>
+
+</Project>
