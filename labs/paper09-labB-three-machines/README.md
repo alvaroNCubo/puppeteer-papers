@@ -72,6 +72,21 @@ dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- nodeA view
 META type=- cleared=0 awaiting=True over=False active=[]
 ```
 
+**Two pieces, and only two, on purpose.** The Director plays a fixed twelve-act sequence
+(`sm-cluster/Program.cs`, `PlayScriptedSequence`):
+
+```
+SpawnNext  MoveLeft  Rotate  Tick  Tick  Drop      piece 1 lands
+SpawnNext  MoveRight MoveRight      Drop           piece 2 lands
+```
+
+Eight cells is exactly those two tetrominoes, and twelve acts plus the seeding `upgrade` is the
+`entry=13` console #1 reported. The sequence is short and deterministic because this lab measures
+*three machines reaching the same record*, not playing Tetris: enough acts for replication to have work
+to do, few enough that the run finishes fast and the journals compare byte for byte every time. Lengthen
+it and the three will still agree with each other — but the hash will no longer be the one the paper
+cites.
+
 The name appears twice because a session is `.sessions\<name>\<name>\journal`. And no `cd` is
 needed for the render: the host finds `.sessions` by walking up from its own executable, not from where
 you are standing.
