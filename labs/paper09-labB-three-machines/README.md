@@ -79,6 +79,59 @@ Tear down when finished:
 & "C:\Program Files\Git\bin\bash.exe" docker/run-demo.sh --down
 ```
 
+## See the board — the part that makes this a Tetris lab
+
+Everything above is logs and hashes. To actually *see* the Well that was replicated, copy one node's
+journal out and render it with a host that knows nothing about Docker. From this lab's directory:
+
+```powershell
+$env:MSYS_NO_PATHCONV=1
+```
+
+```powershell
+docker cp tetris-a:/data/tetris ..\paper09-example\.sessions
+odeA
+odeA
+```
+
+```powershell
+cd ..\paper09-example
+```
+
+```powershell
+dotnet run --project ai\TetrisAi.csproj -- nodeA view
+```
+
+You get the board:
+
+```
+|    [][]  []        |
+|    [][]  [][][]    |
++====================+
+META type=- cleared=0 awaiting=True over=False active=[]
+```
+
+Eight cells, `awaiting=True`, `cleared=0` — the same figures the convergence line reported as
+`cells=8 awaiting=True`. Repeat with `tetris-b` and `tetris-c` into `nodeB` and `nodeC` and you get the
+same board three times, drawn from three separate machines' records.
+
+**This shows more than the hash does.** The three hashes prove the files are identical; this proves the
+files are *ordinary journals*. A host that has never heard of containers, TLS or replication reads one
+and reconstructs the board — the same `TetrisAi` used in Lab D, with no special tooling and nothing
+exported. The node ran in a container; its record is just a record.
+
+The extra `nodeA
+odeA` in the copy target is the session layout the hosts expect —
+`.sessions\<session>\<session>\journal\`. And `MSYS_NO_PATHCONV` keeps Git Bash from rewriting the
+container's leading-slash path if you are in a bash shell; in PowerShell it is harmless.
+
+Clean up afterwards:
+
+```powershell
+Remove-Item -Recurse -Force ..\paper09-example\.sessions
+ode*
+```
+
 ## Headline, and what is not claimed
 
 **→ §2 (Experiment A) and Appendix A (Lab B): 0 domain edits and 0 actor edits**, and the three nodes
