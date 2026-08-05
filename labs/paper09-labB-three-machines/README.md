@@ -50,6 +50,12 @@ Consoles #2 and #3 stay blocked until you press **Ctrl+C**. That is normal; they
 **See the board** — the part that makes this a Tetris lab. Copy one node's journal out and render it
 with a host that knows nothing about Docker:
 
+`docker cp` will not create the path for you, so make it first:
+
+```powershell
+mkdir ..\paper09-example\.sessions\nodeA -Force
+```
+
 ```powershell
 docker cp tetris-a:/data/tetris ..\paper09-example\.sessions\nodeA\nodeA
 ```
@@ -65,6 +71,10 @@ dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- nodeA view
 +====================+
 META type=- cleared=0 awaiting=True over=False active=[]
 ```
+
+The name appears twice because a session is `.sessions\<name>\<name>\journal`. And no `cd` is
+needed for the render: the host finds `.sessions` by walking up from its own executable, not from where
+you are standing.
 
 Eight cells and `awaiting=True` — the figures console #1 reported. Repeat with `tetris-b` into `nodeB`
 for the same board from another machine's record.
