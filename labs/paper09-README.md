@@ -41,7 +41,7 @@ dependency chain.
 | 2 | **E** the fence | seconds, three commands, no processes | `labs/paper09-example/` + the engine variable |
 | 3 | **F** ported baseline | **the number to check hardest** — Table 3 rests on it | **nothing but .NET.** Fully self-contained |
 | 4 | **G** re-decomposition | the most figures in the paper: 136, 316, 2.32×, three zeros | **nothing but the engine variable.** Carries its own re-cut in `split/` and compiles it |
-| 5 | **H** recognition | read-only; a write-up and its captured log | **nothing** |
+| 5 | **H** recognition | three commands: build, play, recognize | `labs/paper09-example/` + the engine variable |
 | 6 | **C**, **D** clients and projections | demonstrations; need a session played first | `labs/paper09-example/` + the engine variable |
 | 7 | **B** three machines | slowest, and the only one needing containers | Docker Desktop + `labs/paper09-example/` |
 | 8 | **I** domain growth | **last**, because it is the one that changes the domain | `labs/paper09-example/` + the engine variable |
@@ -54,8 +54,8 @@ one tree, do it at the end.
 
 **The example is vendored here**, at `labs/paper09-example/` — the domain, the actor and the twelve
 hosts, 66 files, in this repository's own history. So the labs and the paper are one git history and
-publication is one commit mark, not two. Labs F and H need nothing at all beyond that: Lab F carries
-`baseline-hex/` whole, and Lab H has nothing to run.
+publication is one commit mark, not two. **Lab F is the one that needs nothing at all** beyond .NET — it
+carries `baseline-hex/` whole and builds standalone.
 
 **One external remains, and only one: the engine.** The vendored example's actor is the single project
 that reaches outside, and it now does so through a variable rather than a hardcoded path. Set it once
