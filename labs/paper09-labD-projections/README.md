@@ -8,8 +8,8 @@ domain produces neither — it produces the fact all three are made from.
 
 ## Verify the claim — by reading, not by running
 
-Open `Tetris/domain/Well.cs` and look for a method shaped like a rendering. There is none. What is
-there is `OccupiedInterior()`, the union of the pile and the active piece clipped to the interior.
+Open `..\paper09-example\domain\Well.cs` and look for a method shaped like a rendering. There is none.
+What is there is `OccupiedInterior()`, the union of the pile and the active piece clipped to the interior.
 
 Then, to see three renderings of one frame with nobody at a keyboard:
 
@@ -102,6 +102,14 @@ the window that renders.
 
 ## Contents
 
-The three projections' source as it stood on `main`: `pile-scan.ps1` (the vector),
-`watch-Program.cs` (the push receiver) and `observer-Program.cs` (the poll fallback, whose own
-comment explains why it re-opens the journal per poll). Plus `verify.ps1`, the deterministic path.
+`verify.ps1`, the deterministic path, is the only file here. **The three projections are not copied into
+this directory** — they are hosts and a tool of the vendored example, and they are read in place:
+
+    ..\paper09-example\watch\Program.cs        the push receiver
+    ..\paper09-example\observer\Program.cs     the poll fallback, whose own comment explains why it
+                                               re-opens the journal on every poll
+    ..\paper09-example\tools\pile-scan.ps1     the height vector
+
+An earlier version of this section listed them as `watch-Program.cs`, `observer-Program.cs` and
+`pile-scan.ps1`, as though flattened copies sat beside this README. No such files were ever created, and
+copies would drift from the hosts they describe. Found in QA.
