@@ -1,12 +1,26 @@
 # Paper 9 — Lab H: one routine, recognized on three stagings
 
-One reaction is defined outside the domain: it seeks a spawn, then the drop that ends the piece's
-descent, and what it matches between them is a placement. It is then run against three stagings — the
-journal of a single process, the journal a warm server keeps while driven over a named pipe, and the
-journals of the three containers, read inside each node against its own store.
+## What this settles, and it is one step in one argument
 
-Headline → §6 and Appendix A (Lab H). **The same two placements, in the same order, on every staging**,
-with an empty domain diff throughout.
+§6 argues a chain: the domain keeps its identity across stagings, therefore its *acts* are the same on
+every stage, therefore **the routine those acts compose is recognizable from any of them**. The first two
+links are Labs A through E. This lab measures the third, and only the third.
+
+The measurement takes a **pair** of results, and the paper's sentence is the one to read the lab against:
+
+> what held still across the three stagings was not the record's representation, which shifted, but what
+> the act was and what performing it left behind.
+
+So there are two things to look for here, not one:
+
+| | | |
+|---|---|---|
+| **the acts held still** | two placements, same order, every staging | the routine is recognizable |
+| **the bookkeeping moved** | closing entry ids differ by a constant | which is a fact about *where* the domain ran |
+
+Neither half is the interesting one alone. Together they say what a staging is: it changes who is present
+when a domain acts, and changes nothing about what the acting does. If both had held still the lab would
+prove less — it would be consistent with the stagings being the same thing under different names.
 
 ## The routine, which is the whole artifact
 
@@ -40,12 +54,8 @@ Run it with no arguments and it prints its own two verbs, `play` and `read`.
 dotnet run --project recognize\TetrisRecognize.csproj --no-build -- play out\s1 labH
 ```
 
-```
-[play] session 'labH' journal '…\out\s1' cleared=0 awaiting=True over=False cells=8
-```
-
 `play` drives the same `TetrisActor.Persistent` host the warm server uses, so the journal is what a real
-staging records rather than one written by hand. The act sequence is the same one the containers play:
+staging records rather than one written by hand. The acts are the sequence the containers play:
 `spawn, left, rotate, tick, tick, drop, spawn, right, right, drop`.
 
 ### 3 — Recognize the routine in that record
@@ -56,65 +66,62 @@ dotnet run --project recognize\TetrisRecognize.csproj --no-build -- read out\s1 
 
 ```
 ROUTINE 'placement of one piece'  Spawn($type) -> Drop()   [2 recognized]
-  #1  type=S  closes at entry 13
-  #2  type=Z  closes at entry 18
+  #1  type=O  closes at entry 13
+  #2  type=L  closes at entry 18
 CONTROL 'spawn to next spawn'     Spawn($type) -> Spawn(_) [1 recognized]
-  #1  type=S  closes at entry 14
-SIGNATURE placements=2 closes=[13,18] pieces=[type=S,type=Z]
+SIGNATURE placements=2 closes=[13,18] pieces=[type=O,type=L]
 ```
 
-**Two placements, in order, each opened by a `Spawn` and closed by the `Drop` that ends that piece's
-descent.** The piece letters differ from run to run because the domain chooses them; the count and the
-order are the claim. The `CONTROL` line is the fallback pattern and is there to be *rejected* — it
-recognizes the gap between spawns, not a placement, and §5.2 of the write-up says why.
+**`placements=2`, in order, each opened by a `Spawn` and closed by the `Drop` that ends that piece's
+descent.** That is the left column of the table above. The piece letters vary run to run because the
+domain chooses them. The `CONTROL` line is a rival pattern, there to be *rejected*: it matches the gap
+between two spawns, which is not a placement.
 
-## The two stagings you cannot re-run here, and what stands in for them
+## The other half: what moved
 
-The warm-server staging and the three containers were recognized the same way, and the captured run is
-the evidence: `../../data/paper09-labH-recognition/recognition-across-stagings.log`. The container
-readings in particular ran **in-container** on each node, against that node's own volume while its Stage
-was live — `docker exec tetris-<id> dotnet /recognize/TetrisRecognize.dll read /data tetris` — which
-needs the recognizer inside the image and so is not one of the three steps above. Reproducing it means
-adding this project to Lab B's Dockerfile.
-
-What those runs found, in one table — six recognitions over four records:
+The same routine was recognized on the two stagings you cannot re-run here — a warm server driven over a
+named pipe, and the three containers, read **in-container** on each node against its own live volume
+(`docker exec tetris-<id> dotnet /recognize/TetrisRecognize.dll read /data tetris`, which needs this
+project inside Lab B's image). The captured evidence is
+`../../data/paper09-labH-recognition/recognition-across-stagings.log`.
 
 | staging | acts | placements | closing entries |
 |---|---|---|---|
 | single process | 10 | **2** | 12, 17 |
-| same, gravity control | 25 | 2 *(wrong — see below)* | 32, 32 |
 | warm server over a pipe | 11 | **2** | 12, 17 |
-| container `tetris-a`, `-b`, `-c` | 10 each | **2** each | 14, 19 each |
+| container `tetris-a`, `-b`, `-c` | 10 each | **2** each | **14, 19** each |
+| *same, gravity control* | 25 | *2 — and wrong, see below* | 32, 32 |
 
-Each container's `journal_000001.bin` hashed to the same 64 hex digits, so this is one record replicated
-over TLS and read three times, not three readings that happen to agree.
+**+2 on the containers**, because the cluster writes three idempotent seeding acts where one process
+writes one, and everything after shifts. And your step 3 above closes at **13 and 18** rather than 12 and
+17 — a third displacement, from a fourth direction: every command in this example now journals as an
+ActorV2 Action, which writes one template row per distinct act. Representation moved again; the two
+placements did not. The lab's central pair, replicated by accident.
 
-**The distinction to hold on to.** Within the container staging the three records are **byte-identical**.
-*Across* stagings the acts match **verb for verb** — same count, order and shape — while the **entry
-identifiers differ by a constant**, because the cluster writes three idempotent seeding acts where one
-process writes one. What held still is the acts; what moved is the bookkeeping. Do not read the first
-sentence as the second.
+Within the container staging the three records are **byte-identical** — the same 64 hex digits on the
+Director and both casts — so that row is one record replicated over TLS and read three times, not three
+readings that happen to agree. Do not read that sentence as the row above it: byte-identity holds *within*
+one staging, and *across* stagings what matches is the acts while the identifiers do not.
 
-Step 3 above closes at 13 and 18 rather than the table's 12 and 17, for the same kind of reason: every
-command in this example now journals as an ActorV2 Action, which writes a template row per distinct act.
-That shifts ids and leaves the placements alone — which is the finding, again, from a direction nobody
-was aiming at.
+## What the lab bounds, which §6 is narrower for
 
-## Three findings narrower than the confirmation
+- **There is no handle to correlate on.** A spawn names a piece type; a drop names nothing. The
+  trajectory between them is tied by order alone, not by any identity the acts carry.
+- **Entry ids are not staging-invariant** — the table — and the closing identifier is the only handle a
+  match hands its reader.
+- **A reading can be wrong, and silently.** This is the one that answers a question §6 leaves standing.
+  Landing is not an act: the board lands a piece privately, inside a tick or a drop. So a piece that comes
+  to rest under gravity leaves its opening unclosed and the *next* piece's drop closes it — two
+  placements matched at one closing entry, count right, correlation wrong, nothing to signal it. That is
+  the gravity control row, and why it is a control rather than a comparison.
 
-All three are argued in the write-up, and the third is the one that matters most:
-
-- **there is no handle to correlate on** — a spawn names a piece type, a drop names nothing;
-- **entry ids are not staging-invariant**, as the table shows;
-- **a reading can be wrong, silently.** Landing is not an act, so a piece coming to rest under gravity
-  leaves its opening unclosed and the *next* piece's drop closes it. The count comes out right and the
-  correlation comes out wrong — which is the gravity control row above, and why it is a control.
+And the scope: the trajectory is **two placements long**. This is an existence result about
+recognizability, not a measurement of it at scale.
 
 ## Contents
 
     recognize\    the reaction and the two verbs that run it — 349 lines, buildable here
 
-The write-up and its captured log are in `data/paper09-labH-recognition/`: the full argument, the
-per-staging detail, §5's five sub-findings, and the log as evidence the comparison was performed rather
-than asserted. That log carries the author's absolute paths deliberately — it is a record of a run, and
-rewriting them would make it tidier and less true.
+`data/paper09-labH-recognition/` holds the write-up and the captured log: the full argument, the
+per-staging detail, and five sub-findings this file does not repeat. The log carries the author's absolute
+paths deliberately — it is a record of a run, and rewriting them would make it tidier and less true.
