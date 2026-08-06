@@ -51,8 +51,22 @@ file, since a program's usage cannot go stale.
 
 ## Seeing it, not just counting it
 
-`0 divergences over 47,783 steps` is a number a reader has to take. `boards` renders both records
-instead:
+`0 divergences over 47,783 steps` is a number a reader has to take. Both records can be looked at
+instead, and it is worth doing in this order.
+
+**First the original, which needs no harness at all** — the same move Lab B uses on a container's
+journal:
+
+```powershell
+New-Item -ItemType Directory -Force ..\paper09-example\.sessions\labG\labG | Out-Null
+Copy-Item -Recurse -Force out\orig\played\* ..\paper09-example\.sessions\labG\labG\
+dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labG view
+```
+
+A host that knows nothing about this lab reads its record and draws the board, game over included. That
+is the whole thesis in miniature, and it is the baseline for what follows.
+
+**Then both together**, which is what `boards` is for:
 
 ```
 THE UNDIVIDED WELL                 THE PILE ROLE + THE PIECE ROLE
@@ -64,26 +78,17 @@ THE UNDIVIDED WELL                 THE PILE ROLE + THE PIECE ROLE
             G A M E   O V E R                  G A M E   O V E R
 ```
 
-The left board is **one** actor's record; the right one is **two** actors' records, joined by the staging
-that holds them — which is where a whole board can be assembled and, per §8.4, the only place it can be.
+The left board is the one you just rendered by hand — **one** actor's record. The right one is **two**
+actors' records, joined by the staging that holds them, which per §8.4 is the only place a whole board
+can be assembled.
 
 Two things about that view are the section's argument rather than conveniences of it. No renderer was
 written for it: both decompositions answer `Snapshot()` with the same `WellSnapshot`, so the example's
 own `BoardRenderer` draws either without knowing which it holds. And the re-cut side can be seen **only**
-this way — copy the split record where a host of the example can reach it and the engine refuses it by
-name, `Class 'PileWell' is not registered in the actor's library`, because that host carries `Well` and
+this way. Try the recipe above on `out\split\pile\recut-pile` instead and the engine refuses it by
+name — `Class 'PileWell' is not registered in the actor's library` — because that host carries `Well` and
 this record asks for a different domain. Worth noticing next to §8's finding that an incomplete record
 answers *plausibly*: a wrong-domain record does not, it says what is missing.
-
-The **original** needs no harness at all, which is the same move Lab B uses on a container's journal:
-
-```powershell
-New-Item -ItemType Directory -Force ..\paper09-example\.sessions\labG\labG | Out-Null
-Copy-Item -Recurse -Force out\orig\played\* ..\paper09-example\.sessions\labG\labG\
-dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labG view
-```
-
-A host that knows nothing about this lab reads its record and draws the board.
 
 **This lab's output is journals, not text.** After `redecompose` you have three: `out\orig`, the original
 at 136 entries, and `out\split`, the two roles' records at 225 and 91, 316 together. `dump` reads any of
