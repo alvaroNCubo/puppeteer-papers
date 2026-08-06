@@ -90,10 +90,12 @@ obligations** from one which **leaves none open**.
 
 ## Order, consoles, and what each shows
 
-**Order: 1 and 2 first, in one console; then 3 to 6, each in its own.** Steps 1 and 2 verify. Steps 3
-to 6 demonstrate.
+**Order: 1 and 2 first, in one console; then 3 to 7, each in its own.** Steps 1 and 2 verify. Steps 3
+to 7 demonstrate — one per staging, and then the view the fourth one's output feeds.
 
-    cd <this directory>/baseline-hex
+```powershell
+cd baseline-hex
+```
 
 | # | Run this | What you see in it | Who operates it |
 |---|---|---|---|
@@ -102,7 +104,12 @@ to 6 demonstrate.
 | 3 | `dotnet run --project console\TetrisHexConsole.csproj -- --auto` | Staging 1 self-plays and renders, non-interactively. | You, once. |
 | 4 | `dotnet run --project web\TetrisHexWeb.csproj` | Staging 2 on **:5090**. Its banner tells you where to play and what each URL shows. | Nobody after launch. |
 | 5 | `dotnet run --project web-rest\TetrisHexWebRest.csproj` | Staging 3 on **:5091**, SSE. Its banner carries pasteable lines for the POST, the stream and the pull. | Nobody after launch. |
-| 6 | `.\tools\hex-pile-scan.ps1 -Session play1` | Staging 4's computed view. | You, whenever. |
+| 6 | `dotnet run --project ai\TetrisHexAi.csproj -- play1 new`, then `left`, `drop`, `right`, `drop` in place of `new` | **Staging 4.** One op per process, each printing the frame it wrote. Land at least one piece. | **You**, several times. |
+| 7 | `.\tools\hex-pile-scan.ps1 -Session play1` | Staging 4's computed view, read off the frame step 6 left behind. | You, whenever. |
+
+**Step 6 is not optional if you want step 7**, and it used to be missing: the table ran stagings 1, 2 and
+3 and then asked the scan tool for staging 4's output, which from a clean tree does not exist yet — the
+tool answers `no frame file at …\.sessions\play1.frame` and is right to. Found in QA.
 
 Both web hosts print a self-documenting banner: open the page marked **PLAY HERE** to move pieces, and
 use the `input` line only for scripting.

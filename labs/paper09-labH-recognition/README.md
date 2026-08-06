@@ -98,10 +98,26 @@ writes one, and everything after shifts. And your step 3 above closes at **13 an
 ActorV2 Action, which writes one template row per distinct act. Representation moved again; the two
 placements did not. The lab's central pair, replicated by accident.
 
-Within the container staging the three records are **byte-identical** — the same 64 hex digits on the
-Director and both casts — so that row is one record replicated over TLS and read three times, not three
-readings that happen to agree. Do not read that sentence as the row above it: byte-identity holds *within*
-one staging, and *across* stagings what matches is the acts while the identifiers do not.
+Within the container staging the three records are **byte-identical**. The digits, so that the claim does
+not depend on having the log to hand:
+
+```
+990fa6a85a7743a85e1ddeaf26cdb9f54bda9d4f54316ed236b2fb1a1d67edcc  tetris-a:/data/tetris/journal/journal_000001.bin
+990fa6a85a7743a85e1ddeaf26cdb9f54bda9d4f54316ed236b2fb1a1d67edcc  tetris-b:  "
+990fa6a85a7743a85e1ddeaf26cdb9f54bda9d4f54316ed236b2fb1a1d67edcc  tetris-c:  "
+```
+
+So that row is one record replicated over TLS and read three times, not three readings that happen to
+agree. Do not read that sentence as the row above it: byte-identity holds *within* one staging, and
+*across* stagings what matches is the acts while the identifiers do not.
+
+**A note on where the evidence lives, because it caught a reviewer.** Everything above the line
+`## The other half` you can produce yourself in three commands. Everything below it happened on stagings
+this lab cannot re-run, and the corroboration is the captured log **in `data/`, outside this
+directory** — so a copy of `labs/paper09-labH-recognition/` alone carries the claim and not the evidence
+for its second half. The hashes are quoted here for that reason. Lab B is where the container staging is
+reproducible; running its `run-demo.sh` gets you three journals of your own to hash, though of a different
+game.
 
 ## What the lab bounds, which §6 is narrower for
 
