@@ -19,3 +19,8 @@ labF*.log
 labs/paper09-labG-redecomposition/out/
 labs/paper09-labH-recognition/out/
 labG*.log
+
+# Per-lab zips: a reviewer bundle is built by paper09-package.ps1, which packages
+# labs/ AND data/ from git's file list. A zip of a lab directory carries bin/ and
+# obj/ (one such came to 246 MB) and cannot carry data/ at all.
+labs/*.zip
