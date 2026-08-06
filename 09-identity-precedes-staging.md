@@ -2,7 +2,7 @@
 title: "Identity Precedes Staging: one play, many stages"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
-date: 2026-07-23
+date: 2026-08-07
 version: 0.1-draft
 status: v0.1-draft — complete draft, unpublished; not yet deposited. Working revision history in notes/paper09-status-log.md.
 keywords:
