@@ -23,24 +23,34 @@ the lab, to suit the form in which it reasons. Disclosed in the paper's acknowle
 | 1 | `dotnet run --project ../paper09-example/ai/TetrisAi.csproj -- game1 new` | One act applied, then the process **exits**. Repeat with `left`, `right`, `rotate`, `tick`, `drop`. Run it with no arguments and it lists the operations it accepts. | **You.** Each invocation is a separate short-lived process — one writer at a time. |
 | 2 | `..\paper09-example\tools\pile-scan.ps1 -Example ..\paper09-example -Session game1` | **The client-authored view**: `skyline`, `diffs`, `zeros`, `wells`, `metrics` — heights and gaps, not a grid. | **You**, whenever you want a reading. It only reads the frame file. |
 
-Play a few acts in console 1 before reading, so there is a pile to see. Console 2 then prints this —
-one run's figures; yours differ, since the domain chooses the pieces:
+**Neither console acts.** `view` in console 1 reads; `pile-scan.ps1` in console 2 reads. Running either
+one changes nothing, and the board being in the same place afterwards is the correct behaviour — if it
+moved, one of the two observers would be writing, and this lab's claim is that an observer does not act.
+The board moves only when you issue `left`, `right`, `rotate`, `tick` or `drop`. So **play several acts
+and land at least one piece before reading**, or console 2 has nothing to describe: a well with one
+falling piece and nothing under it prints `skyline` all zeros and `maxH=0`, which is a correct reading of
+an empty pile and a useless illustration of the lab.
+
+**Read the two consoles side by side.** That is the whole lab, and it is checkable rather than merely
+illustrative. After `new left left drop right drop` one run showed this — yours differs, since the
+domain chooses the pieces:
 
 ```
-== MIRILLA  frame=game1.frame ==
-state     : piece=I  cleared=0  over=False  awaiting=False
-cols      : 0 1 2 3 4 5 6 7 8 9
-skyline   : 0 0 0 3 0 0 0 0 0 0
-diffs     :  +0 +0 +3 -3 +0 +0 +0 +0 +0
-zeros     : 0,1,2,4,5,6,7,8,9   (lowest = fill priority)
-wells     : none
-metrics   : maxH=3  agg=3  bumpiness=6  floating=9
-active    : type=I  (1,3) (1,4) (1,5) (1,6) (17,4) (17,5) (18,4) (18,5) (18,6)
+CONSOLA 1 — the grid                CONSOLA 2 — the height profile
+|      []    []      |              skyline : 0 1 1 2 1 1 2 0 0 0
+|  [][][][][][]      |              wells   : col0(d1)
++====================+              zeros   : 0,7,8,9
+                                    metrics : maxH=2  agg=8  bumpiness=6  floating=4
 ```
 
-No grid anywhere in it. Column 3 stands three high and the rest are at zero, so `zeros` names the nine
-columns worth filling and `bumpiness=6` prices the unevenness. `floating` counts what sits above the
-first gap — the falling `I` plus the overhang of what already landed.
+Go column by column and the two say the same thing. Column 3 has two cells stacked and the skyline reads
+`2`; columns 7, 8 and 9 are empty and `zeros` names them; the one-cell notch at the far left is
+`col0(d1)`. `agg=8` is exactly the eight landed cells the grid draws, and `floating=4` is the piece still
+in the air, which the grid puts at the top of the board and the profile refuses to count as pile.
+
+Same fact, two vocabularies, and **neither of them the domain's**. There is no renderer in the domain,
+and no operation of the `Well` mentions a skyline, a well or bumpiness — those words exist only in the
+client that needed them.
 
 **Output on disk:** the emitted fact itself is at `../paper09-example/.sessions/game1.frame` — one line
 of JSON. Open it. The view in console 2 is computed *from that file* and nothing else, which is the
