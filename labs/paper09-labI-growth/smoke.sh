@@ -103,4 +103,17 @@ check sm-duo-tls "$OUT/sm-duo-tls.log" "cast\|CAST\|replicat"
 for p in TetrisWeb TetrisWebRest TetrisServer TetrisStage; do
   taskkill //IM "$p.exe" //F > /dev/null 2>&1
 done
+
+# ── remove the sessions this run created ───────────────────────────────────
+# Every host above is driven against a session named for this run's $S, so the
+# journals are throwaway: the PASS/FAIL lines are the result and the logs are in
+# $OUT. Left behind they accumulate nine directories plus their frame files per
+# run, in the same .sessions the other labs use by name — so a reader who ran
+# this twice found eighteen strangers next to his own game1.
+SESSIONS="$T/.sessions"
+if [ -d "$SESSIONS" ]; then
+  rm -rf "$SESSIONS/$S"-* "$SESSIONS/rest-$S"-* 2>/dev/null || true
+  rm -f  "$SESSIONS/$S"-*.frame "$SESSIONS/rest-$S"-*.frame 2>/dev/null || true
+fi
+
 echo "logs: $OUT"

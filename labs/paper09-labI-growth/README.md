@@ -4,63 +4,60 @@ A score and a difficulty level are added to the board: the first the *authority*
 client could compute, and which therefore has to be single-valued — and the second a rule over lines
 already recorded.
 
-Headline → §8.2 and Appendix A (Lab I). The change is **+98 lines and −3** across three files, of
-which **30 lines are code**. And the converse the paper had never measured: when the domain grew,
-**all twelve host projects kept running with no edit** — verified by running them, not by compiling
-them.
+Headline → §8.2 and Appendix A (Lab I). The change is **+98 lines and −3** across three files, of which
+**30 lines are code**. And the converse the paper had never measured: when the domain grew, **all twelve
+host projects kept running with no edit** — verified by running them, not by compiling them.
 
-**This is the one lab that changes the domain of the vendored example, so it is the one lab you apply
-and then revert.** Lab G also re-cuts the domain but carries its own copy in `split/` and needs no
-apply step; this one cannot, because its claim is precisely that *the twelve hosts* keep working, and
-those hosts reference the example's domain project. The growth has to land where they look.
+**This is the one lab that changes the domain of the vendored example, so it is the one lab you apply and
+then revert.** Lab G also re-cuts the domain but carries its own copy in `split/` and needs no apply
+step; this one cannot, because its claim is precisely that *the twelve hosts* keep working, and those
+hosts reference the example's domain project. The growth has to land where they look.
 
-## The whole lab, in one console
+## Eight steps, one console
 
-Set `$env:PuppeteerEngine` first, as every lab in this suite does, `cd` to this directory, and run this
-block. It is the entire lab, revert included — nothing below it is another step.
+Set `$env:PuppeteerEngine` as every lab in this suite does, `cd` to this directory, and define these two
+once — the rest of the steps use them:
 
 ```powershell
-$bash = "C:\Program Files\Git\bin\bash.exe"
-& $bash smoke.sh pre-growth
-Copy-Item Scoring.cs, Difficulty.cs, Well.cs ..\paper09-example\domain\ -Force
-dotnet build ..\paper09-example\Tetris.sln
-& $bash smoke.sh post-growth
-& $bash replay.sh post-growth
-git checkout -- ..\paper09-example\domain\Well.cs
-git reset -q -- ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs
-Remove-Item ..\paper09-example\domain\Scoring.cs, ..\paper09-example\domain\Difficulty.cs -Force
+$bash  = "C:\Program Files\Git\bin\bash.exe"
+$probe = "..\paper09-example\tools\growth-probe\bin\Debug\net9.0\TetrisGrowthProbe.exe"
 ```
 
-**Why the explicit path to `bash`.** In PowerShell a bare `bash` resolves to WSL's, which cannot see your
-Windows paths and fails with `execvpe /bin/bash failed 2`. Git Bash is the one that works. From a Git Bash
-prompt instead, drop the `& $bash` and run `./smoke.sh pre-growth`.
+`$bash` is spelled out because in PowerShell a bare `bash` resolves to WSL's, which cannot see your
+Windows paths and dies with `execvpe /bin/bash failed 2`. From a Git Bash prompt instead, drop the
+`& $bash` and run `./smoke.sh pre-growth`.
 
-What each line of it should do, in order:
-
-| Line | |
-|---|---|
-| `& $bash smoke.sh pre-growth` | **14 PASS** — the before column: twelve hosts, plus two assertions that a pushed frame arrived |
-| `Copy-Item` | nothing. **This is the apply step**: the three files go into the domain the twelve hosts reference |
-| `dotnet build` then `& $bash smoke.sh post-growth` | **14 PASS again, with no host edited.** That is the result |
-| `& $bash replay.sh post-growth` | journals written *before* the growth, answering `score` and `level`. The stronger half — see below |
-| the last three | **the revert**, and it is not optional. Afterwards `git status --short ..\paper09-example\` prints nothing and the diff over the domain is empty. Rebuild the solution so the other labs run against the ungrown domain again |
-
-Both scripts take a **label** and nothing else; the example's root is an optional second argument that
-already defaults to `..\paper09-example`. Output lands in `out/` beside them.
-
-## Seeing the score, which nothing in the example shows
-
-**No host prints a score, and that is the measurement rather than an omission**: the point of the block
-above is that none of the twelve *had* to change, so none of them adopted the new concepts. Which leaves
-the growth true and invisible. To see it, ask the domain directly. The probe's `query` takes its DSL as a
-command-line argument, so the same binary — unedited between the two runs — can ask for a fact the
-domain did not have when the journal was written.
-
-While the growth is applied, play a game that clears a line and ask it for the score:
+### 1 — Measure the twelve hosts, before anything changes
 
 ```powershell
-$probe = "..\paper09-example\tools\growth-probe\bin\Debug\net9.0\TetrisGrowthProbe.exe"
+& $bash smoke.sh pre-growth
+```
+
+**14 PASS**: twelve host projects run, plus two assertions that a pushed frame arrived. The before column.
+
+### 2 — Add the new classes to the domain
+
+```powershell
+Copy-Item Scoring.cs, Difficulty.cs, Well.cs ..\paper09-example\domain\ -Force
+```
+
+Prints nothing. `Scoring.cs` and `Difficulty.cs` are new; `Well.cs` replaces the one already there, by
++21/−3. Step 8 puts all three back.
+
+### 3 — Compile, and run the twelve again
+
+```powershell
+dotnet build ..\paper09-example\Tetris.sln
 dotnet build ..\paper09-example\tools\growth-probe\GrowthProbe.csproj
+& $bash smoke.sh post-growth
+```
+
+**14 PASS again, and not one host was edited.** That is the result: the domain grew by 98 lines and every
+staging kept working. Nothing in this step touches a host project.
+
+### 4 — Observe the score, which nothing in the example shows
+
+```powershell
 & $probe play ..\paper09-example\.sessions\labIdemo labIdemo 10 20 600 7 flat
 & $probe query ..\paper09-example\.sessions\labIdemo labIdemo "print well.ClearedLines cleared, well.Score score, well.Level level;"
 ```
@@ -69,8 +66,15 @@ dotnet build ..\paper09-example\tools\growth-probe\GrowthProbe.csproj
 {"cleared":1,"score":100,"level":1}
 ```
 
-`flat` steers each piece over the lowest column so the game actually completes a row — a score stays at
-zero until one collapses. Then read the **same journal** through an ordinary host:
+No host prints a score, and that is the measurement rather than an omission — none of the twelve *had* to
+change, so none adopted the new concepts, which leaves the growth true and invisible. So ask the domain
+directly. The probe's `query` takes its DSL as a command-line argument, which is what it was built for:
+the same binary, unedited, asking for a fact the domain did not have when the journal was written.
+
+`flat` steers each piece over the lowest column so the game actually completes a row. A score stays at
+zero until one collapses, so a blindly shuffled game would show nothing.
+
+### 5 — Read the same journal through a host that never adopted it
 
 ```powershell
 dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labIdemo view
@@ -80,27 +84,31 @@ dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labIdemo view
 META type=- cleared=1 awaiting=False over=True active=[]
 ```
 
-The board, the cleared count, and no score — because that host never adopted it and never had to. And
-after the revert, the same query on the same journal answers:
+The board and the cleared count, as always, and no score. Same record as step 4, read by a program that
+was never told the concept exists.
+
+### 6 — Replay journals recorded *before* the growth
+
+```powershell
+& $bash replay.sh post-growth
+```
 
 ```
-LanguageException: Unknown property or method 'Score' on type 'Well'.
+===== deep-w4h40 (actor=deep) =====
+  A: {"w":4,"h":40,"cleared":20,"over":true}
+  A: {"score":2100}
+  A: {"level":3}
 ```
 
-Three readings of one record: the concept present, the concept ignored by a host that predates it, and
-the concept gone. Nothing about the record changed between them.
+The eight fixtures in `journals-pre-growth/` were recorded by a build of the domain that had never heard
+of a score. They answer both new concepts now — not merely *compatible* with an old record, **derived
+from one**: the level is a function of lines the record already counted, and the score accumulates as the
+same recorded acts collapse the same rows. Nothing was migrated and no fixture was rewritten.
 
-## What the measurement mechanism reports while the lab is applied
-
-Between the `Copy-Item` and the revert the domain is modified, and the check that says so is a diff over
-the vendored domain directory. Run these two while the block is paused there — the two new files are
-untracked, so git has to be told to count them:
+### 7 — Measure the change itself
 
 ```powershell
 git add --intent-to-add ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs
-```
-
-```powershell
 git diff --stat -- ..\paper09-example\domain\
 ```
 
@@ -111,38 +119,40 @@ git diff --stat -- ..\paper09-example\domain\
  3 files changed, 98 insertions(+), 3 deletions(-)
 ```
 
-**That is the +98 and −3**, reproduced rather than quoted. `Well.cs` reads +21/−3, and its code delta
-is exactly three lines: a `Score` property, a `Level` property derived from `ClearedLines`, and one
-`Score +=` where rows collapse. Everything else added is the domain's own doc-comment convention.
+**That is the +98 and −3**, reproduced rather than quoted. The `--intent-to-add` is needed because the two
+new files are untracked and git would otherwise leave them out of the count. `Well.cs`'s code delta is
+exactly three lines: a `Score` property, a `Level` derived from `ClearedLines`, and one `Score +=` where
+rows collapse. Everything else added is the domain's own doc-comment convention.
 
 Anywhere outside this lab a non-empty diff there means the domain was touched by something that is not
 this lab, which is the only reading of that check that should worry anyone.
 
-## What `replay.sh` shows, and why it is the stronger half
+### 8 — Revert, and this step is not optional
 
-The fixtures in `journals-pre-growth/` were recorded by a build of the domain that had never heard of a
-score or a level. Replayed against the grown domain they answer both:
-
-```
-===== deep-w4h40 (actor=deep) =====
-  A: {"w":4,"h":40,"cleared":20,"over":true}
-  A: {"score":2100}
-  A: {"level":3}
+```powershell
+git checkout -- ..\paper09-example\domain\Well.cs
+git reset -q -- ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs
+Remove-Item ..\paper09-example\domain\Scoring.cs, ..\paper09-example\domain\Difficulty.cs -Force
+Remove-Item -Recurse -Force ..\paper09-example\.sessions\labIdemo
+dotnet build ..\paper09-example\Tetris.sln
 ```
 
-Not merely *compatible* with an old record — **derived from one**. The level is a function of the lines
-the record already counted, and the score accumulates as the same recorded acts collapse the same rows.
-Nothing was migrated and no fixture was rewritten. That is what "additive in the strict sense" buys.
+Afterwards `git status --short ..\paper09-example\` prints nothing and step 7's diff is empty. The rebuild
+matters: without it the other eight labs run against binaries carrying the growth.
+
+Run step 4's `query` again now and it fails by name — `Unknown property or method 'Score' on type 'Well'`.
+That is not a broken command but the third reading of one unchanged record: the concept present (step 4),
+the concept ignored (step 5), the concept gone.
 
 ## The adoption cost, which divides exactly over twelve hosts
 
 **0 for four, 1 for five, 4 for each of the two browser hosts, 32 for the input host** — the only place
-where the level changes what happens. Those figures are the sum over **both** growth commits *and*
-**both** adoption commits; taking only the first two understates the input host, which is how an earlier
-count came to sum to thirteen.
+where the level changes what happens. Those figures are the sum over **both** growth commits *and* **both**
+adoption commits; taking only the first two understates the input host, which is how an earlier count came
+to sum to thirteen.
 
-Adoption is not part of the block above. Those steps measure that nothing *had* to change; these figures
-measure what it cost the hosts that *wanted* the new concepts.
+Adoption is not one of the eight steps. Those measure that nothing *had* to change; these figures measure
+what it cost the hosts that *wanted* the new concepts.
 
 ## Contents
 
@@ -154,12 +164,16 @@ Everything this lab needs to run is here:
     replay.sh                             the pre-growth journals against the grown domain
     journals-pre-growth/                  the eight fixtures replay.sh reads
 
-One thing it needs lives in the example instead, because that is where the script looks for it and
-because it is built like any other project there: `../paper09-example/tools/growth-probe/`, the apparatus
-that records a journal with one build of the domain and replays it with another. It is deliberately
-**outside `Tetris.sln`**, so it never enters the twelve-host count — it is measurement, not a staging.
+Both scripts take a **label** and nothing else; the example's root is an optional second argument that
+already defaults to `..\paper09-example`. Their output lands in `out/` beside them, and `smoke.sh` deletes
+the throwaway sessions it created before it exits.
+
+One thing lives in the example instead, because that is where the script looks for it:
+`../paper09-example/tools/growth-probe/`, the apparatus that records a journal with one build of the domain
+and replays it with another. It is deliberately **outside `Tetris.sln`**, so it never enters the twelve-host
+count — it is measurement, not a staging.
 
 What is in `data/paper09-labI-growth/` is only the record of the original run: the replay logs before the
-change and after each of the two growth steps, and the three smoke transcripts. Those carry absolute
-paths from the machine that produced them, because a log is evidence of a run and the path a binary was
-invoked from is a fact of that run. Read them as transcripts, never as instructions.
+change and after each of the two growth steps, and the three smoke transcripts. Those carry absolute paths
+from the machine that produced them, because a log is evidence of a run and the path a binary was invoked
+from is a fact of that run. Read them as transcripts, never as instructions.
