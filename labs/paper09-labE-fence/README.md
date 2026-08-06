@@ -8,47 +8,57 @@ build graph altogether.**
 Headline → §2 and Appendix A (Lab E). **0 project references, 0 packages, 0 test doubles**, and the
 suite passes on that graph.
 
-What this count does *not* separate is settled by Lab F: a ported rule model has the same clean
-graph, so "zero references, zero packages" distinguishes a clean domain from an entangled one
-rather than this arrangement from that one. What does not tie is the driven side.
+## Four commands, one console, in this order
 
+The order is what makes the last one mean anything: nothing to list, then it builds, then it passes.
 
-## Order, consoles, and what each shows
+```powershell
+dotnet list ..\paper09-example\domain\TetrisDomain.csproj package
+```
 
-**Order: 1, then 2, then 3.** One console is enough; the order is what makes the third meaningful.
+```powershell
+dotnet build ..\paper09-example\domain\TetrisDomain.csproj
+```
 
-| # | Run this | What you see in it | Who operates it |
-|---|---|---|---|
-| 1 | `dotnet list package --project ../paper09-example/domain/TetrisDomain.csproj` | **"No packages were found"** — literally nothing to list. | You. |
-| 2 | `dotnet build ../paper09-example/domain/TetrisDomain.csproj` | **It builds** with the framework absent from its build graph entirely. | You. |
-| 3 | `dotnet test ../paper09-example/domain.tests/TetrisDomain.Tests.csproj` | **The suite passes** with no host, no transport, no sink and **no test double** — not for what drives the domain and not for what it emits. | You. |
+```powershell
+dotnet test ..\paper09-example\domain.tests\TetrisDomain.Tests.csproj
+```
 
-Keep all three in one transcript, since it is the *sequence* that is the argument:
+```powershell
+Get-ChildItem ..\paper09-labF-ported-baseline\baseline-hex\domain.tests\doubles\
+```
+
+What each should print:
+
+| | |
+|---|---|
+| 1 | `No packages were found for this framework.` — literally nothing to list |
+| 2 | `Build succeeded. 0 Warning(s) 0 Error(s)`, with the framework absent from the graph entirely |
+| 3 | `Passed! — Failed: 0, Passed: 44` |
+| 4 | three stand-ins — `RecordingBoardOutput`, `ScriptedPieceSelection`, `InMemoryGameState`. **The domain's own tests have no such directory**, which is the third zero of the headline made into a comparison you can run rather than a claim you have to take |
+
+Keep all four in one transcript, since it is the sequence that is the argument:
 
 ```powershell
 Start-Transcript -Path labE-fence.log
-# the three commands above
+# the four commands above
 Stop-Transcript
 ```
 
-**Output on disk:** `labE-fence.log`. What a reviewer looks for in it is three absences — no packages,
-no framework in the graph, no doubles — and one presence: a passing suite.
+## Read, do not run — three files, all in the example
 
-**Read, do not run, for the rest.** The four files in this directory are the claim: the domain project
-is four properties and no references; `AssemblyInfo.cs` lines 8–9 are the two authored grants, one of
-them to a console host that no longer exercises it; and `TetrisActor.csproj` line 11 is the single
-declared edge from the running system into the domain.
+Nothing is copied into this directory; these are the files the claim is read off, in place:
 
-**What this count does not separate** is settled by Lab F: a ported rule model has the same clean
-graph, so "zero references, zero packages" distinguishes a clean domain from an entangled one rather
-than this arrangement from that one. What does not tie is the driven side — three ports there, and
-twenty of sixty-four tests that cannot run without stand-ins for them.
+    ..\paper09-example\domain\TetrisDomain.csproj      four properties and no references at all
+    ..\paper09-example\domain\AssemblyInfo.cs          lines 8-9: the two authored grants — one to the
+                                                      test project, one to a console host that no
+                                                      longer exercises it
+    ..\paper09-example\actor\TetrisActor.csproj        line 11: the single declared edge from the
+                                                      running system into the domain
 
-## Contents
+## What this lab does not settle
 
-The three files the claim is read off:
-
-    TetrisDomain.csproj      four properties, no references
-    AssemblyInfo.cs          the two authored grants — one to the test project, one to a console
-                             host which no longer exercises it
-    TetrisActor.csproj       line 11: the single declared edge from the running system into the domain
+A ported rule model has the same clean graph — Lab F built one and counted it — so "zero references,
+zero packages" separates a clean domain from an entangled one, not this arrangement from that one. The
+side that does **not** tie is the driven one: three ports there, and twenty of its sixty-four tests
+cannot run without stand-ins for them. Which is what command 4 above puts in front of you.
