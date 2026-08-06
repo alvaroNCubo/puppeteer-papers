@@ -48,6 +48,48 @@ What each line of it should do, in order:
 Both scripts take a **label** and nothing else; the example's root is an optional second argument that
 already defaults to `..\paper09-example`. Output lands in `out/` beside them.
 
+## Seeing the score, which nothing in the example shows
+
+**No host prints a score, and that is the measurement rather than an omission**: the point of the block
+above is that none of the twelve *had* to change, so none of them adopted the new concepts. Which leaves
+the growth true and invisible. To see it, ask the domain directly. The probe's `query` takes its DSL as a
+command-line argument, so the same binary — unedited between the two runs — can ask for a fact the
+domain did not have when the journal was written.
+
+While the growth is applied, play a game that clears a line and ask it for the score:
+
+```powershell
+$probe = "..\paper09-example\tools\growth-probe\bin\Debug\net9.0\TetrisGrowthProbe.exe"
+dotnet build ..\paper09-example\tools\growth-probe\GrowthProbe.csproj
+& $probe play ..\paper09-example\.sessions\labIdemo labIdemo 10 20 600 7 flat
+& $probe query ..\paper09-example\.sessions\labIdemo labIdemo "print well.ClearedLines cleared, well.Score score, well.Level level;"
+```
+
+```
+{"cleared":1,"score":100,"level":1}
+```
+
+`flat` steers each piece over the lowest column so the game actually completes a row — a score stays at
+zero until one collapses. Then read the **same journal** through an ordinary host:
+
+```powershell
+dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labIdemo view
+```
+
+```
+META type=- cleared=1 awaiting=False over=True active=[]
+```
+
+The board, the cleared count, and no score — because that host never adopted it and never had to. And
+after the revert, the same query on the same journal answers:
+
+```
+LanguageException: Unknown property or method 'Score' on type 'Well'.
+```
+
+Three readings of one record: the concept present, the concept ignored by a host that predates it, and
+the concept gone. Nothing about the record changed between them.
+
 ## What the measurement mechanism reports while the lab is applied
 
 Between the `Copy-Item` and the revert the domain is modified, and the check that says so is a diff over
