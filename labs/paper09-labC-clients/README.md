@@ -43,6 +43,9 @@ CONSOLA 1 — the grid                CONSOLA 2 — the height profile
                                     metrics : maxH=2  agg=8  bumpiness=6  floating=4
 ```
 
+Both consoles name the session they read — `TETRIS (AI) — session demo1` above the grid, `frame=demo1.frame`
+above the profile — which is what lets you claim the two are readings of one game rather than two.
+
 Go column by column and the two say the same thing. Column 3 has two cells stacked and the skyline reads
 `2`; columns 7, 8 and 9 are empty and `zeros` names them; the one-cell notch at the far left is
 `col0(d1)`. `agg=8` is exactly the eight landed cells the grid draws, and `floating=4` is the piece still
