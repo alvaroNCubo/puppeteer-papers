@@ -14,10 +14,10 @@ and then revert.** Lab G also re-cuts the domain but carries its own copy in `sp
 apply step; this one cannot, because its claim is precisely that *the twelve hosts* keep working, and
 those hosts reference the example's domain project. The growth has to land where they look.
 
-## Order — and step 4 is not optional
+## The whole lab, in one console
 
-Set `$env:PuppeteerEngine` first, as every lab in this suite does. Run all five in one console, from
-this directory.
+Set `$env:PuppeteerEngine` first, as every lab in this suite does, `cd` to this directory, and run this
+block. It is the entire lab, revert included — nothing below it is another step.
 
 ```powershell
 $bash = "C:\Program Files\Git\bin\bash.exe"
@@ -35,23 +35,24 @@ Remove-Item ..\paper09-example\domain\Scoring.cs, ..\paper09-example\domain\Diff
 Windows paths and fails with `execvpe /bin/bash failed 2`. Git Bash is the one that works. From a Git Bash
 prompt instead, drop the `& $bash` and run `./smoke.sh pre-growth`.
 
-What each should do:
+What each line of it should do, in order:
 
-| | |
+| Line | |
 |---|---|
-| `smoke.sh pre-growth` | **14 PASS** — the before column: twelve hosts, plus two assertions that a pushed frame arrived |
+| `& $bash smoke.sh pre-growth` | **14 PASS** — the before column: twelve hosts, plus two assertions that a pushed frame arrived |
 | `Copy-Item` | nothing. **This is the apply step**: the three files go into the domain the twelve hosts reference |
-| `dotnet build` + `smoke.sh post-growth` | **14 PASS again, with no host edited.** That is the result |
-| `replay.sh post-growth` | journals written *before* the growth, answering `score` and `level`. The stronger half — see below |
-| the last three lines | **the revert**, and it is not optional. Afterwards `git status --short ..\paper09-example\` prints nothing and the diff over the domain is empty. Rebuild the solution so the other labs run against the ungrown domain again |
+| `dotnet build` then `& $bash smoke.sh post-growth` | **14 PASS again, with no host edited.** That is the result |
+| `& $bash replay.sh post-growth` | journals written *before* the growth, answering `score` and `level`. The stronger half — see below |
+| the last three | **the revert**, and it is not optional. Afterwards `git status --short ..\paper09-example\` prints nothing and the diff over the domain is empty. Rebuild the solution so the other labs run against the ungrown domain again |
 
 Both scripts take a **label** and nothing else; the example's root is an optional second argument that
 already defaults to `..\paper09-example`. Output lands in `out/` beside them.
 
 ## What the measurement mechanism reports while the lab is applied
 
-Between steps 2 and 5 the domain is modified, and the check that says so is a diff over the vendored
-domain directory. The two new files are untracked, so tell git to count them:
+Between the `Copy-Item` and the revert the domain is modified, and the check that says so is a diff over
+the vendored domain directory. Run these two while the block is paused there — the two new files are
+untracked, so git has to be told to count them:
 
 ```powershell
 git add --intent-to-add ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs

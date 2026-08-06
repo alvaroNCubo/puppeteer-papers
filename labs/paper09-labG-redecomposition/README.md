@@ -18,7 +18,8 @@ role can push a whole frame.
 ## The whole lab, in one console
 
 Set `$env:PuppeteerEngine` to a Puppeteer checkout at or after `dd67047`, `cd` to this directory, and
-run these in order. **The order is strict** — steps 4 and 5 each consume what the one before wrote.
+run these in order. **The order is strict** — `redecompose` reads what `play` wrote, and `dump` and
+`boards` read what both of them wrote.
 
 ```powershell
 Start-Transcript -Path labG-session.log
