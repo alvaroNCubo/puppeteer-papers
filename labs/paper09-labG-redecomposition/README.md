@@ -20,8 +20,10 @@ role can push a whole frame.
 One console throughout, and **the order is strict** — steps 2 to 4 each consume what the one before
 it wrote. `<run>` is any fresh empty directory.
 
-An engine worktree pinned at or after `dd67047` must sit beside this one: the csproj reaches for
-`..` + BS + `..` + BS + `..` + BS + `eng` + BS + `.
+Set `$env:PuppeteerEngine` to a Puppeteer checkout at or after `dd67047`, as every other lab in this
+suite does. (This paragraph used to say the csproj reaches for a sibling `eng` directory by relative
+path. It does not: the actor resolves the engine through that variable, and no worktree has to sit
+anywhere in particular.)
 
 | # | Run this | What you see in it | Who operates it |
 |---|---|---|---|

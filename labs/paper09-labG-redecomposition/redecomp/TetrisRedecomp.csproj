@@ -10,7 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\actor\TetrisActor.csproj" />
+    <!-- The actor lives in the vendored example, two levels up. This reference read
+         ..\actor\TetrisActor.csproj until the example was vendored into labs/, which
+         left it pointing at a directory that does not exist here — so this harness
+         did not build in this repository at all. -->
+    <ProjectReference Include="..\..\paper09-example\actor\TetrisActor.csproj" />
   </ItemGroup>
 
 </Project>

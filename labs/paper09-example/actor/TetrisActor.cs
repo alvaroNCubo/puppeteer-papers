@@ -137,7 +137,15 @@ public sealed class TetrisActor : IDisposable
         // Seed the aggregate into actor state. 'upgrade' runs its body once and is
         // recognised as already-applied on every later rehydration — so a persistent
         // (or replicated) session that already has a 'seed' entry keeps its well.
-        host.Command($"upgrade('seed') {{ well = Well({width}, {height}); }}");
+        // The dimensions travel as @params, never interpolated into the text: an
+        // Action is a template plus args, and 'seed' stays a literal because it is
+        // the upgrade's GUARD NAME, not a value.
+        host.Command("upgrade('seed') { well = Well(@width, @height); }",
+            p =>
+            {
+                p["width", typeof(int)] = width;
+                p["height", typeof(int)] = height;
+            });
     }
 
     /// <summary>
@@ -159,38 +167,51 @@ public sealed class TetrisActor : IDisposable
     /// <summary>
     /// Spawns the next piece. The piece is chosen by the DOMAIN — a query over
     /// <c>well.NextPieceLetter()</c> (transient RNG, never journaled) — and the
-    /// resolved letter is issued as a LITERAL command, so the journal records
-    /// <c>well.Spawn('T');</c> and a replay re-applies it deterministically. The
-    /// framework coerces the string letter to the domain's <c>PieceType</c> enum by
-    /// member name.
+    /// resolved letter is issued as an ACTION ARGUMENT, so the journal holds the
+    /// template <c>well.Spawn(@letter);</c> once and this call's letter as its args;
+    /// replay rebinds the same letter, which is what makes the transient RNG
+    /// deterministic on the way back. The framework coerces the string letter to the
+    /// domain's <c>PieceType</c> enum by member name.
     /// </summary>
     public void SpawnNext()
     {
         var letter = QueryString("print well.NextPieceLetter() letter;", "letter");
-        // Check-then-command: spawn only when the well is awaiting a piece.
-        host.CheckThenCommand(AwaitingPieceCheck, $"well.Spawn('{letter}');");
+        // Check-then-command: spawn only when the well is awaiting a piece. The letter
+        // travels as an @param, so the journal holds one Action template plus this
+        // invocation's argument — and replay re-applies the SAME letter, which is what
+        // makes a transient RNG deterministic on the way back.
+        host.CheckThenCommand(AwaitingPieceCheck, "well.Spawn(@letter);",
+            p => { p["letter", typeof(string)] = letter; });
     }
 
     /// <summary>Slides the active piece one column left (a blocked slide is a no-op).</summary>
-    public void MoveLeft() => GuardedVerb("well.MoveLeft();");
+    public void MoveLeft() => GuardedVerb("MoveLeft");
 
     /// <summary>Slides the active piece one column right (a blocked slide is a no-op).</summary>
-    public void MoveRight() => GuardedVerb("well.MoveRight();");
+    public void MoveRight() => GuardedVerb("MoveRight");
 
     /// <summary>Rotates the active piece one step (a blocked rotation is a no-op).</summary>
-    public void Rotate() => GuardedVerb("well.Rotate();");
+    public void Rotate() => GuardedVerb("Rotate");
 
     /// <summary>Advances the active piece one row; lands it if it cannot descend.</summary>
-    public void Tick() => GuardedVerb("well.Tick();");
+    public void Tick() => GuardedVerb("Tick");
 
     /// <summary>Hard-drops the active piece to its resting place and lands it.</summary>
-    public void Drop() => GuardedVerb("well.Drop();");
+    public void Drop() => GuardedVerb("Drop");
 
     // Every move verb is check-guarded by the active-piece precondition, so the
     // command runs only while a piece is falling; otherwise it is a clean no-op
     // (state untouched) and the domain's hard guard is never tripped.
-    private void GuardedVerb(string command) =>
-        host.CheckThenCommand(ActivePieceCheck, command);
+    //
+    // Each act travels with its own NAME as the invocation's argument. These five
+    // acts take no value — there is nothing about "move left" that varies — so the
+    // name is what the entry carries, and carrying it is what makes the entry an
+    // Action rather than a V1 Script. That distinction is not cosmetic: a Script is
+    // invisible to a domain reaction (Reaction.cs, Rule 1), so with a bare
+    // "well.MoveLeft();" nothing observes the act and no frame is ever pushed.
+    private void GuardedVerb(string act) =>
+        host.CheckThenCommand(ActivePieceCheck, $"well.{act}();",
+            p => { p["act", typeof(string)] = act; });
 
     // ── Typed read for rendering + control flow ────────────────────────────
 
