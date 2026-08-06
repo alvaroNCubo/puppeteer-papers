@@ -20,16 +20,12 @@ the lab, to suit the form in which it reasons. Disclosed in the paper's acknowle
 
 | # | Run this | What you see in it | Who operates it |
 |---|---|---|---|
-| 1 | `dotnet run --project ../paper09-example/ai/TetrisAi.csproj -- game1 new` | One act applied, then the process **exits**. Repeat with `left`, `right`, `rotate`, `tick`, `drop`. Run it with no arguments and it lists the operations it accepts. | **You.** Each invocation is a separate short-lived process — one writer at a time. |
+| 1 | `dotnet run --project ../paper09-example/ai/TetrisAi.csproj -- game1 new` | One act applied, then the process **exits**. Then play a real sequence before you read anything — `left left drop right drop` will do. Run it with no arguments and it lists the operations it accepts. | **You.** Each invocation is a separate short-lived process — one writer at a time. |
 | 2 | `..\paper09-example\tools\pile-scan.ps1 -Example ..\paper09-example -Session game1` | **The client-authored view**: `skyline`, `diffs`, `zeros`, `wells`, `metrics` — heights and gaps, not a grid. | **You**, whenever you want a reading. It only reads the frame file. |
 
-**Neither console acts.** `view` in console 1 reads; `pile-scan.ps1` in console 2 reads. Running either
-one changes nothing, and the board being in the same place afterwards is the correct behaviour — if it
-moved, one of the two observers would be writing, and this lab's claim is that an observer does not act.
-The board moves only when you issue `left`, `right`, `rotate`, `tick` or `drop`. So **play several acts
-and land at least one piece before reading**, or console 2 has nothing to describe: a well with one
-falling piece and nothing under it prints `skyline` all zeros and `maxH=0`, which is a correct reading of
-an empty pile and a useless illustration of the lab.
+**Land at least one piece before you read anything.** A well holding nothing but the piece that is
+falling prints `skyline` all zeros and `maxH=0` — a correct reading of an empty pile, and a useless
+illustration of the lab. `new` on its own leaves you exactly there.
 
 **Read the two consoles side by side.** That is the whole lab, and it is checkable rather than merely
 illustrative. After `new left left drop right drop` one run showed this — yours differs, since the
@@ -54,6 +50,34 @@ in the air, which the grid puts at the top of the board and the profile refuses 
 Same fact, two vocabularies, and **neither of them the domain's**. There is no renderer in the domain,
 and no operation of the `Well` mentions a skyline, a well or bumpiness — those words exist only in the
 client that needed them.
+
+## Then drive it yourself, one act at a time
+
+The pairing above is a snapshot. Convince yourself it is live: play moves **of your own choosing** in
+console 1 and re-run the same command in console 2 between them. What you should find is that the
+profile always describes the board as your last act left it.
+
+Note what that already tells you: **neither console acts.** `view` reads and `pile-scan.ps1` reads, so
+only the moves move the board. If a reading changed the game, one of the two observers would be writing,
+which is the opposite of what this lab claims.
+
+**Watch the right line.** While a piece is falling, `skyline` stays flat — a falling piece is not pile,
+which is the whole point of that reading — so watch `active`. Once you `drop`, `skyline` and `agg` move
+and `active` becomes the *next* piece.
+
+**Two acts look like a failure and are not**, and it is worth provoking both, because they are the
+sharpest thing this lab can show you about what a reading is:
+
+| What you do | What you see | Why |
+|---|---|---|
+| `left` until the piece meets the wall | the reading **stops changing**, identical to the one before | a blocked slide is a clean no-op; the domain's state did not change, so the frame did not, so neither did the profile |
+| `rotate` twice on an `S` or `Z` | the second reading is the **same as before the first** | those pieces have two orientations, not four; the second rotation returns the piece to where it was |
+
+Neither is the view failing to follow you. In both cases the board genuinely did not move, and the
+profile said so. Which is the precise form of the claim, and stronger than the loose one: the profile
+shows **the board as your last act left it** — it does not name the act. No verb travels in the frame at
+all, so a client reading it can tell you the state and cannot tell you what happened. If you want the
+acts themselves, they are in the journal, and Lab D is where that distinction gets measured.
 
 **Output on disk:** the emitted fact itself is at `../paper09-example/.sessions/game1.frame` — one line
 of JSON. Open it. The view in console 2 is computed *from that file* and nothing else, which is the
