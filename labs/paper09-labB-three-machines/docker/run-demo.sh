@@ -87,22 +87,40 @@ for id in a b c; do
     printf '[demo]   %s\n' "$line"
 done
 LOG "---------------------------------------------------------------------"
-LOG "Per-node frame files (each node painted its own from the state it holds):"
 SESSION="${TETRIS_SESSION:-tetris}"
 # MSYS_NO_PATHCONV: on Git Bash (Windows) the leading-slash container path would
 # otherwise be rewritten to a host path; disable that just for these exec calls.
 export MSYS_NO_PATHCONV=1
-# Each node's evidence is its JOURNAL, not a frame file: no .frame is written to
-# /data. An earlier version of this step printed a header for
-# /data/$SESSION-$id.frame and cat'd it with 2>/dev/null, so it announced a file
-# that does not exist and silently printed nothing.
+
+# THE RESULT: three records, byte for byte the same. Hash each node's journal.
+# (This block used to be headed "per-node frame files" while printing journal
+# hashes, and before that it announced /data/$SESSION-$id.frame and cat'd it with
+# 2>/dev/null — so it named a file that did not exist and printed nothing. The
+# frame did not exist then because every verb journaled as a V1 literal Script,
+# which a domain reaction skips by design, so the frame reaction never fired.)
+LOG "Per-node journals — byte-identity across the three is the result:"
 for id in a b c; do
     printf '[demo]   tetris-%s:/data/%s/journal/journal_000001.bin\n' "$id" "$SESSION"
     docker compose exec -T "tetris-$id" \
         md5sum "/data/${SESSION}/journal/journal_000001.bin" 2>/dev/null \
         | sed 's/^/[demo]     /' || true
 done
-printf '[demo]   the three hashes above must match — that identity is the result\n'
+LOG "  the three hashes above must match — that identity is the result"
+
+# And each node's own frame: the projection it pushed from the state it holds,
+# which is what makes the replicated board visible without asking any node for it.
+LOG ""
+LOG "Per-node frame files (each node painted its own from the state it holds):"
+for id in a b c; do
+    printf '[demo]   tetris-%s:/data/%s-%s.frame\n' "$id" "$SESSION" "$id"
+    # The frame file is written without a trailing newline (it is overwritten in
+    # place, so it carries no terminator), hence the explicit printf after it.
+    docker compose exec -T "tetris-$id" \
+        cat "/data/${SESSION}-${id}.frame" 2>/dev/null \
+        | sed 's/^/[demo]     /' || true
+    printf '\n'
+done
+LOG "  three identical documents, each painted locally — no node asked another"
 LOG "====================================================================="
 LOG "Containers left running. Inspect / tear down with:"
 LOG "  docker compose -f $DOCKER_DIR/docker-compose.yml logs tetris-a"

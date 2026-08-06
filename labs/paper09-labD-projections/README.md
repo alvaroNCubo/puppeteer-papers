@@ -34,15 +34,15 @@ is typed into them again.
 
 | # | Start this | What you see in it | Who operates it |
 |---|---|---|---|
-| 3 | `dotnet run --project Tetris\input\TetrisStage.csproj -- game1 --sources pipe,clock --clock-ms 5000` | **One line at startup, then nothing, ever.** It renders no board, so it looks frozen and is not. Confirm it is alive by that line: `TetrisStage: session 'game1', merged sources [pipe, clock], clock 5000ms…` | Nobody. It is the **only writer** — it turns each arriving command into a journaled act. |
-| 1 | `dotnet run --project Tetris\watch\TetrisWatch.csproj -- game1` | **The board, repainted the instant an act lands**, with `[falling: S]` and `Lines cleared: N` above it. Silent between acts — that silence is the point. | Nobody. The substrate pushes each frame; this console *receives* it. |
-| 2 | `dotnet run --project Tetris\observer\TetrisObserver.csproj -- game1` | **Replay progress filling the screen** — `1%2%3%…` — and the board rebuilt up to 350 ms late. It re-opens the journal and rehydrates on *every* poll. | Nobody. This console *reconstructs*; the noise is the cost of doing so. |
-| 4 | `dotnet run --project Tetris\send\TetrisSend.csproj -- game1 left` | **Your prompt back after each command.** The commands you typed are the record of what you did — which the keyboard alternative does not leave. | **You.** One move per invocation. Run it with no arguments to have it list the operations it accepts. It carries the verb over a pipe and exits; it writes no journal. |
+| 3 | `dotnet run --project ..\paper09-example\input\TetrisStage.csproj -- game1 --sources pipe,clock --clock-ms 5000` | **One line at startup, then nothing, ever.** It renders no board, so it looks frozen and is not. Confirm it is alive by that line: `TetrisStage: session 'game1', merged sources [pipe, clock], clock 5000ms…` | Nobody. It is the **only writer** — it turns each arriving command into a journaled act. |
+| 1 | `dotnet run --project ..\paper09-example\watch\TetrisWatch.csproj -- game1` | **The board, repainted the instant an act lands**, with `[falling: S]` and `Lines cleared: N` above it. Silent between acts — that silence is the point. | Nobody. The substrate pushes each frame; this console *receives* it. |
+| 2 | `dotnet run --project ..\paper09-example\observer\TetrisObserver.csproj -- game1` | **Replay progress filling the screen** — `1%2%3%…` — and the board rebuilt up to 350 ms late. It re-opens the journal and rehydrates on *every* poll. | Nobody. This console *reconstructs*; the noise is the cost of doing so. |
+| 4 | `dotnet run --project ..\paper09-example\send\TetrisSend.csproj -- game1 left` | **Your prompt back after each command.** The commands you typed are the record of what you did — which the keyboard alternative does not leave. | **You.** One move per invocation. Run it with no arguments to have it list the operations it accepts. It carries the verb over a pipe and exits; it writes no journal. |
 
 Every host here prints its own usage when run with no arguments, or with too few — `TetrisSend`,
 `TetrisStage` and `TetrisAi` all do. Ask the program rather than this file: it cannot go stale.
 
-    dotnet run --project Tetris\send\TetrisSend.csproj
+    dotnet run --project ..\paper09-example\send\TetrisSend.csproj
 
 Watch consoles 1 and 2 side by side after a single move in console 4. One prints at once because it
 was told; the other prints later, after rebuilding from the record. That contrast is §4.
@@ -50,7 +50,7 @@ was told; the other prints later, after rebuilding from the record. That contras
 A whole sequence at once, from console 4:
 
 ```powershell
-'left','left','rotate','drop','right','rotate','drop','left','drop' | ForEach-Object { dotnet run --project Tetris\send\TetrisSend.csproj -- game1 $_; Start-Sleep -Milliseconds 400 }
+'left','left','rotate','drop','right','rotate','drop','left','drop' | ForEach-Object { dotnet run --project ..\paper09-example\send\TetrisSend.csproj -- game1 $_; Start-Sleep -Milliseconds 400 }
 ```
 
 The third projection, whenever you want it:

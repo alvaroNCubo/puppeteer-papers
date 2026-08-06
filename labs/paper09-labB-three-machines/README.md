@@ -32,9 +32,9 @@ nothing to attach to until it has.
 it polls; it looks stalled and is not. When all three have converged it prints three lines and returns:
 
 ```
-tetris-a: convergence checkpoint reached: role=DIRECTOR entry=13 ... cells=8
-tetris-b: convergence checkpoint reached: role=cast     entry=13 ... cells=8
-tetris-c: convergence checkpoint reached: role=cast     entry=13 ... cells=8
+tetris-a: convergence checkpoint reached: role=DIRECTOR entry=20 ... cells=8
+tetris-b: convergence checkpoint reached: role=cast     entry=20 ... cells=8
+tetris-c: convergence checkpoint reached: role=cast     entry=20 ... cells=8
 ```
 
 Same entry, same cell count, on three machines. **That is the result.**
@@ -64,10 +64,13 @@ docker cp tetris-a:/data/tetris ..\paper09-example\.sessions\nodeA\nodeA
 dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- nodeA view
 ```
 
+One run printed this. Yours will print a board of its own — see the note below on which parts of it
+are fixed and which are not:
+
 ```
 |      []            |
-|      [][][][]      |
-|        [][][]      |
+|      []      []    |
+|      [][][][][]    |
 +====================+
 META type=- cleared=0 awaiting=True over=False active=[]
 ```
@@ -80,12 +83,20 @@ SpawnNext  MoveLeft  Rotate  Tick  Tick  Drop      piece 1 lands
 SpawnNext  MoveRight MoveRight      Drop           piece 2 lands
 ```
 
-Eight cells is exactly those two tetrominoes, and twelve acts plus the seeding `upgrade` is the
-`entry=13` console #1 reported. The sequence is short and deterministic because this lab measures
-*three machines reaching the same record*, not playing Tetris: enough acts for replication to have work
-to do, few enough that the run finishes fast and the journals compare byte for byte every time. Lengthen
-it and the three will still agree with each other — but the hash will no longer be the one the paper
-cites.
+**What is fixed, and what is not.** The acts are fixed; the *pieces* are not. `SpawnNext` asks the
+domain which tetromino comes next and the domain answers from a transient source that is never
+journaled, so each run lands two different shapes. So `cells=8` holds every time — two tetrominoes are
+eight cells whichever two they are — and `awaiting=True` holds, and **the three nodes agree with each
+other**, which is the claim. The arrangement of those eight cells, and therefore the hash, belong to
+the run you just made. That is why the check below asks you to compare your three hashes against each
+other and never against a number printed here.
+
+Twelve acts plus the seeding `upgrade` are thirteen invocations, and each distinct act also writes its
+template once — seven of them, the seed and the six verbs — which is the `entry=20` console #1
+reported. The sequence is kept short because this lab measures *three machines reaching the same
+record*, not playing Tetris: enough acts for replication to have work to do, few enough that the run
+finishes fast and the journals compare byte for byte every time. Lengthen it and the three will still
+agree.
 
 The name appears twice because a session is `.sessions\<name>\<name>\journal`. And no `cd` is
 needed for the render: the host finds `.sessions` by walking up from its own executable, not from where
@@ -100,7 +111,20 @@ for the same board from another machine's record.
 foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" md5sum /data/tetris/journal/journal_000001.bin }
 ```
 
-Three identical hashes.
+Three identical hashes. Compare them against **each other**, never against a number printed anywhere:
+the pieces differ per run, so the hash is this run's.
+
+**And each node's own frame**, which `run-demo.sh` now prints for all three:
+
+```powershell
+foreach ($id in 'a','b','c') { docker compose -f docker/docker-compose.yml exec -T "tetris-$id" cat "/data/tetris-$id.frame" }
+```
+
+Three identical documents. This is a different fact from the hashes and worth separating: the journals
+being equal says the three received the same record, while the frames being equal says **each node
+painted the board itself, from the state it holds** — the cast nodes played nothing and asked nobody.
+The projection is pushed by a reaction that runs on the node it belongs to, so there are three
+independent paintings that agree, not one copied twice.
 
 **Tear down:**
 
