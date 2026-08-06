@@ -12,6 +12,7 @@ if (args.Length == 0)
     Console.Error.WriteLine("  play <journalDir> [seed] [ops]                 exp 3a: play a game on the single Well");
     Console.Error.WriteLine("  redecompose <journalDir> <splitRoot> [--dump]  exp 3b: THE re-decomposition (fresh process)");
     Console.Error.WriteLine("  dump <actor> <journalDir> [--verbose]          read any journal, in a fresh process");
+    Console.Error.WriteLine("  boards <journalDir> <splitRoot>                SEE both decompositions, side by side");
     Console.Error.WriteLine("  probe-read <actor> <journalDir>                probe: read a journal read-only");
     return 2;
 }
@@ -45,6 +46,9 @@ switch (args[0])
 
     case "dump":
         return Dump.Run(args[1], args[2], args.Contains("--verbose"));
+
+    case "boards":
+        return Show.Run(args[1], args[2]);
 
     case "probe-read":
         Probe.ReadJournal(args[1], args[2]);

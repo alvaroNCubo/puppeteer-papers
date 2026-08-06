@@ -22,11 +22,11 @@ run these in order. **The order is strict** — steps 4 and 5 each consume what 
 
 ```powershell
 Start-Transcript -Path labG-session.log
-Remove-Item -Recurse -Force out -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Force out | Out-Null
 dotnet build redecomp\TetrisRedecomp.csproj
 dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- play out\orig 1 400
 dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- redecompose out\orig out\split
 dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- dump played out\orig
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- boards out\orig out\split
 dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- equivalence random 20 2000
 dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- equivalence flat 20 2000
 dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- equivalence clears 20 2000
@@ -40,15 +40,50 @@ What each should print:
 | `play` | `played 129 acts on the single Well: cleared=0 over=True` — a whole game on the **undivided** board, to game over |
 | `redecompose` | the cut, **in a fresh process**: the original's acts are read and re-performed into two roles, ending `RESULT: the re-decomposition reproduced the state, in two records, without touching the original`. It writes two new journals and never edits the first |
 | `dump` | `played: 136 entries` — the figure the paper's 2.32× divides by |
+| `boards` | **the two boards, side by side, and they are the same board.** See below |
 | `equivalence` ×3 | `2614`, `5169` and `40000` steps compared, **`divergences : 0`** each time |
 
-Run the harness with **no arguments** to have it list its own six sub-commands; ask it rather than this
+Any step is safe to re-run: `play` and `redecompose` each delete their output directory before writing,
+so the block is repeatable and no run can mix with a previous one.
+
+Run the harness with **no arguments** to have it list its own seven sub-commands; ask it rather than this
 file, since a program's usage cannot go stale.
 
-The `Remove-Item` is there so the block is repeatable. It matters more than it looks: `play` appends to
-whatever journal it finds, and only the fact that this game ends in game-over — every later act failing
-its check and journaling nothing — keeps a second run from doubling the count. Shorten the game and that
-protection is gone.
+## Seeing it, not just counting it
+
+`0 divergences over 47,783 steps` is a number a reader has to take. `boards` renders both records
+instead:
+
+```
+THE UNDIVIDED WELL                 THE PILE ROLE + THE PIECE ROLE
+|      []            |             |      []            |
+|      []    []      |             |      []    []      |
+|    [][][][][][][]  |             |    [][][][][][][]  |
+        …                                   …
++====================+             +====================+
+            G A M E   O V E R                  G A M E   O V E R
+```
+
+The left board is **one** actor's record; the right one is **two** actors' records, joined by the staging
+that holds them — which is where a whole board can be assembled and, per §8.4, the only place it can be.
+
+Two things about that view are the section's argument rather than conveniences of it. No renderer was
+written for it: both decompositions answer `Snapshot()` with the same `WellSnapshot`, so the example's
+own `BoardRenderer` draws either without knowing which it holds. And the re-cut side can be seen **only**
+this way — copy the split record where a host of the example can reach it and the engine refuses it by
+name, `Class 'PileWell' is not registered in the actor's library`, because that host carries `Well` and
+this record asks for a different domain. Worth noticing next to §8's finding that an incomplete record
+answers *plausibly*: a wrong-domain record does not, it says what is missing.
+
+The **original** needs no harness at all, which is the same move Lab B uses on a container's journal:
+
+```powershell
+New-Item -ItemType Directory -Force ..\paper09-example\.sessions\labG\labG | Out-Null
+Copy-Item -Recurse -Force out\orig\played\* ..\paper09-example\.sessions\labG\labG\
+dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labG view
+```
+
+A host that knows nothing about this lab reads its record and draws the board.
 
 **This lab's output is journals, not text.** After `redecompose` you have three: `out\orig`, the original
 at 136 entries, and `out\split`, the two roles' records at 225 and 91, 316 together. `dump` reads any of
