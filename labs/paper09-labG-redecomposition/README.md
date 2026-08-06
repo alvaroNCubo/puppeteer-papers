@@ -17,7 +17,7 @@ role can push a whole frame.
 
 ## The whole lab, in one console
 
-Set `$env:PuppeteerEngine` to a Puppeteer checkout at or after `dd67047`, `cd` to this directory, and
+Set `$env:PuppeteerEngine` to a Puppeteer checkout at or after `af3b9b0`, `cd` to this directory, and
 run these in order. **The order is strict** — `redecompose` reads what `play` wrote, and `dump` and
 `boards` read what both of them wrote.
 

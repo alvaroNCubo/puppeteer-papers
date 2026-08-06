@@ -65,7 +65,7 @@ per session:
 $env:PuppeteerEngine = "C:\path\to\a\Puppeteer\checkout"
 ```
 
-or pass `-p:PuppeteerEngine=<path>` per build. It must be a checkout at or after commit `dd67047` —
+or pass `-p:PuppeteerEngine=<path>` per build. It must be a checkout at or after commit `af3b9b0` —
 three substrate fixes these measurements depend on land at or before it. If it is unset the build stops
 with that sentence rather than a mysterious path error.
 
