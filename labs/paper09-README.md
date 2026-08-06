@@ -40,7 +40,7 @@ dependency chain.
 | 1 | **A** stagings | seconds; reads history, builds nothing | the **examples repository** — the one lab a copy cannot carry. Captured output in `data/` |
 | 2 | **E** the fence | seconds, three commands, no processes | `labs/paper09-example/` + the engine variable |
 | 3 | **F** ported baseline | **the number to check hardest** — Table 3 rests on it | **nothing but .NET.** Fully self-contained |
-| 4 | **G** re-decomposition | the most figures in the paper: 135, 309, 2.29×, three zeros | `labs/paper09-example/` + the engine variable |
+| 4 | **G** re-decomposition | the most figures in the paper: 136, 316, 2.32×, three zeros | **nothing but the engine variable.** Carries its own re-cut in `split/` and compiles it |
 | 5 | **H** recognition | read-only; a write-up and its captured log | **nothing** |
 | 6 | **C**, **D** clients and projections | demonstrations; need a session played first | `labs/paper09-example/` + the engine variable |
 | 7 | **B** three machines | slowest, and the only one needing containers | Docker Desktop + `labs/paper09-example/` |

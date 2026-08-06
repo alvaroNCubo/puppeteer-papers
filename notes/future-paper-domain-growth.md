@@ -16,7 +16,7 @@ or practised — it is simply in the wrong paper.
 | the converse direction — the domain grows, do the stagings break? | **measured**: 12 of 12 kept working at 0 edits; adoption cost 0 / 1 / 3 / 32 lines, only where wanted | Paper 9 Lab I |
 | obsolete verbs — mark, keep while any recorded act invokes it, delete when none does | practice in a production system, **not measured**; Tetris has retired no verb | Paper 9 §8.2, compressed to one paragraph and named as future work |
 | what governs a deletion — the domain's own record, not a client and not a staging | argued | Paper 9 §8.2 |
-| split a domain into two roles | **measured**: 11 of 12 hosts untouched, 12th one line; 0 divergences over 47,783 steps; record 2.29× (309 against 135) | Paper 9 Lab G |
+| split a domain into two roles | **measured**: 11 of 12 hosts untouched, 12th one line; 0 divergences over 47,783 steps; record 2.32× (316 against 136) | Paper 9 Lab G |
 | merge / roles born and joined | practice, **not measured** | Paper 9 §8.2, one sentence |
 | re-decomposition is *not* journal arithmetic — read the acts and re-perform | argued, and the asymmetry **measured** (one role inherits the voice, the other's record is generated) | Paper 9 §8.2 + Lab G |
 | replay as the reconstitution path | **measured** across labs | Paper 9 Lab G, Lab I, §9 |

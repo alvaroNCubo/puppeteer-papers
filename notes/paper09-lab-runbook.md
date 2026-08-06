@@ -177,8 +177,15 @@ dotnet run --project Tetris/redecomp/TetrisRedecomp.csproj -- redecompose <run>/
 dotnet run --project Tetris/redecomp/TetrisRedecomp.csproj -- dump played <run>/orig
 ```
 
-What the paper claims from this: **135 entries** in the original record, **219 + 90 = 309** across the
-two roles, ratio **2.29×**, and 129 acts to game over. The `dump` output is where you check the 135.
+What the paper claims from this: **136 entries** in the original record, **225 + 91 = 316** across the
+two roles, ratio **2.32×**, and 129 acts to game over. The `dump` output is where you check the 136.
+
+Those four figures were re-taken 2026-08-06, after every command in the example became a parametrized
+ActorV2 Action. Three of them moved and 129 did not, because the migration changed the record's
+*encoding* — a template written once plus a compact argument per act, where a V1 literal script wrote
+one full sentence per call — and not the behaviour. The paths in this file also predate the vendoring:
+the harness now lives at `labs/paper09-labG-redecomposition/redecomp/` in the papers repository, and it
+carries the re-cut itself in `../split/`. Read the lab's own README rather than this section.
 
 Then the equivalence runs, which are the 47,783 steps and 0 divergences:
 
