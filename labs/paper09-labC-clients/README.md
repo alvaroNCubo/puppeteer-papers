@@ -13,13 +13,22 @@ Disclosed in the paper's acknowledgments.
 
 ## Two consoles, console 1 first
 
-| # | Run this |
-|---|---|
-| 1 | `dotnet run --project ../paper09-example/ai/TetrisAi.csproj -- game1 new`, then `left left drop right drop` in place of `new` |
-| 2 | `..\paper09-example\tools\pile-scan.ps1 -Example ..\paper09-example -Session game1` |
+Console 1 — **you play**. One act per invocation, and the process exits each time:
 
-Play those five acts before reading anything: after `new` alone the well holds only the falling piece,
-so the profile correctly prints `skyline` all zeros and shows you nothing.
+```powershell
+dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- game1 new
+dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- game1 rotate
+```
+
+The same line with one verb at a time — `left`, `right`, `rotate`, `tick`, `drop`. Play five or so and
+land a piece before you read anything: after `new` alone the well holds only the falling piece, so the
+profile correctly prints `skyline` all zeros and shows nothing.
+
+Console 2 — **you read**, as often as you like:
+
+```powershell
+..\paper09-example\tools\pile-scan.ps1 -Example ..\paper09-example -Session game1
+```
 
 ## The lab is the comparison
 
@@ -53,7 +62,7 @@ happened. The acts are in the journal, and Lab D is where that distinction gets 
 
 ## Contents
 
-Nothing to build. The emitted fact is one line of JSON at
-`../paper09-example/.sessions/game1.frame`; open it, since the profile is computed from that file and
-nothing else. Both programs are the vendored example's own — `ai/` and `tools/pile-scan.ps1` — and the
-other four clients are hosts of it. Write-ups in `data/paper09-labC-clients/`.
+Nothing to build; both programs are the vendored example's own, `ai/` and `tools/pile-scan.ps1`, and the
+other four clients are hosts of it. The emitted fact is one line of JSON at
+`..\paper09-example\.sessions\game1.frame` — open it, since the profile is computed from that and nothing
+else. Write-ups in `data/paper09-labC-clients/`.
