@@ -24,7 +24,7 @@ namespace Tetris.Acting;
 /// records the command stream, so the game is replayable.
 /// </para>
 /// </summary>
-public sealed class TetrisActor : IDisposable
+public sealed class TetrisActor : IGameActor
 {
     // Check guards (the GENTLE preconditions). CheckThenCommand enacts the command
     // only when the Check condition is true and otherwise leaves state untouched —
@@ -180,9 +180,18 @@ public sealed class TetrisActor : IDisposable
         // travels as an @param, so the journal holds one Action template plus this
         // invocation's argument — and replay re-applies the SAME letter, which is what
         // makes a transient RNG deterministic on the way back.
+        Spawn(letter);
+    }
+
+    /// <summary>
+    /// Spawns the piece named by <paramref name="letter"/> — the deterministic spawn,
+    /// for a caller that has already resolved which piece comes next: a script, a
+    /// replay, or an experiment feeding two decompositions the same input.
+    /// <see cref="SpawnNext"/> is this verb with the domain's own choice.
+    /// </summary>
+    public void Spawn(string letter) =>
         host.CheckThenCommand(AwaitingPieceCheck, "well.Spawn(@letter);",
             p => { p["letter", typeof(string)] = letter; });
-    }
 
     /// <summary>Slides the active piece one column left (a blocked slide is a no-op).</summary>
     public void MoveLeft() => GuardedVerb("MoveLeft");

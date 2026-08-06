@@ -9,12 +9,47 @@
     <AssemblyName>TetrisRedecomp</AssemblyName>
   </PropertyGroup>
 
+  <!--
+    WHY THIS PROJECT COMPILES SOURCES INSTEAD OF REFERENCING THE EXAMPLE.
+
+    This lab RE-CUTS the domain: it adds a pile role and a piece role beside the
+    original Well, and it widens one method on Pile so a caller holding only the
+    landed cells can settle the pile the same way. Those are domain changes, and
+    the other eight labs measure a domain that does not change — so they must not
+    land in labs/paper09-example/.
+
+    They also cannot live in a separate assembly. The framework discovers the
+    domain by reflection over typeof(TetrisDomain).Assembly, so PileWell and
+    PieceWell have to sit in the SAME assembly as the anchor. Hence this project
+    builds its own variant of the domain: the example's domain sources, minus the
+    one file this lab replaces, plus this lab's own five.
+
+    The example is therefore untouched, this lab is self-contained the way Lab F's
+    baseline-hex is, and "apply" and "revert" are not steps a reader performs —
+    the two decompositions are simply two projects.
+  -->
   <ItemGroup>
-    <!-- The actor lives in the vendored example, two levels up. This reference read
-         ..\actor\TetrisActor.csproj until the example was vendored into labs/, which
-         left it pointing at a directory that does not exist here — so this harness
-         did not build in this repository at all. -->
-    <ProjectReference Include="..\..\paper09-example\actor\TetrisActor.csproj" />
+    <Compile Include="..\..\paper09-example\domain\**\*.cs"
+             Exclude="..\..\paper09-example\domain\Pile.cs;..\..\paper09-example\domain\bin\**;..\..\paper09-example\domain\obj\**" />
+    <Compile Include="..\split\*.cs" />
+    <Compile Include="..\..\paper09-example\actor\**\*.cs"
+             Exclude="..\..\paper09-example\actor\bin\**;..\..\paper09-example\actor\obj\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      THE ONE EXTERNAL SEAM, as in the example's own actor project: point
+      PuppeteerEngine at a Puppeteer checkout at or after commit dd67047.
+    -->
+    <ProjectReference Include="$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj" />
+    <ProjectReference Include="$(PuppeteerEngine)\Choreography\Choreography.csproj" />
+  </ItemGroup>
+
+  <Target Name="RequirePuppeteerEngine" BeforeTargets="CollectPackageReferences;ResolveProjectReferences">
+    <Error Condition="'$(PuppeteerEngine)' == ''"
+           Text="PuppeteerEngine is not set. This lab needs a Puppeteer checkout at or after commit dd67047. Set $env:PuppeteerEngine, or pass -p:PuppeteerEngine=&lt;path&gt;. See labs/paper09-README.md." />
+    <Error Condition="'$(PuppeteerEngine)' != '' And !Exists('$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj')"
+           Text="PuppeteerEngine=$(PuppeteerEngine) does not contain Puppeteer\Puppeteer.csproj. Point it at the root of a Puppeteer checkout." />
+  </Target>
 
 </Project>

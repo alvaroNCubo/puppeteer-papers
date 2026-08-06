@@ -5,8 +5,17 @@ using Puppeteer.EventSourcing.DB;
 namespace Tetris.Redecomp;
 
 /// <summary>
-/// Throwaway probes for the two engine behaviours the re-decomposition depends
-/// on. Kept out of the measurement path; run with `probe`.
+/// A read-only probe over an existing journal. Kept out of the measurement path.
+/// <para>
+/// A second probe used to live here, <c>ExposeOnLiteralScript</c>, asking whether an
+/// <c>expose</c> issued from a LITERAL V1 script produced a reaction-matchable entry.
+/// It has been removed along with its <c>probe-expose</c> sub-command: its question
+/// is settled — the engine's Rule 1 skips a ScriptEvent for a pure-domain reaction,
+/// and <c>expose</c> is rejected at the TOP LEVEL of a check-then-command's body
+/// while being legal nested inside a block, which is why this lab's landing expose
+/// sits inside an <c>if</c>. It was also the last V1 script in any Paper 9 lab, and
+/// V1 is for legacy code; these labs are not legacy.
+/// </para>
 /// </summary>
 internal static class Probe
 {
@@ -40,44 +49,4 @@ internal static class Probe
         }
     }
 
-    /// <summary>
-    /// Probe A — does an <c>expose</c> issued from a LITERAL script command produce
-    /// a reaction-matchable entry? (An expose pattern is not a pure-domain pattern,
-    /// so Rule 1's ScriptEvent skip should not apply.)
-    /// </summary>
-    internal static void ExposeOnLiteralScript()
-    {
-        using var perf = new PerformanceV2("probe_expose", typeof(TetrisDomain).Assembly)
-            .ConfigureStorage(DatabaseType.IN_MEMORY, "probe_expose")
-            .Start();
-
-        var hits = new List<string>();
-        perf.OutputTarget(new CollectingSink(hits));
-
-        perf.Actor.Reactions.DefineReaction("SeeExpose")
-            .Job().Company().WithSharedHydration()
-            .Seek("Exposed")
-                .OnMatch("expose $cells cells; expose $token token;")
-            .Program.Emit("print @cells 'cells', @token 'token';");
-
-        perf.Using("well = Well(10, 20);").PerformCommand();
-        perf.Using("well.Spawn('T');").PerformCommand();
-        perf.Using("expose well.ClearedLines cells, 'land-1' token;").PerformCommand();
-
-        perf.Actor.Reactions.Execute();
-        Console.WriteLine($"expose-match hits = {hits.Count}");
-        foreach (var hit in hits)
-        {
-            Console.WriteLine("  " + hit);
-        }
-    }
-
-    private sealed class CollectingSink : IOutputSink
-    {
-        private readonly List<string> hits;
-
-        internal CollectingSink(List<string> hits) => this.hits = hits;
-
-        public void Push(in PushDocument document) => hits.Add(document.Document);
-    }
 }

@@ -576,11 +576,7 @@ internal static class Replay
 
         if (verb == "upgrade")
         {
-            var match = SeedDimensions.Match(text);
-            var dimensions = match.Success
-                ? (int.Parse(match.Groups["w"].Value), int.Parse(match.Groups["h"].Value))
-                : ((int, int)?)null;
-            return new Reading(act, "seed", null, "both roles (opens them)", dimensions);
+            return new Reading(act, "seed", null, "both roles (opens them)", Dimensions(act, text));
         }
 
         return verb switch
@@ -593,6 +589,34 @@ internal static class Replay
             "well.Drop" => new Reading(act, "drop", null, "piece role: piece.Drop", null),
             _ => new Reading(act, null, null, "UNTRANSLATABLE", null),
         };
+    }
+
+    /// <summary>
+    /// How big the well was, read off the seed act. Same two places as
+    /// <see cref="Argument"/>: an Invocation carries the dimensions as its arguments
+    /// — <c>define action 1 (width:int, height:int) as … Well(width,height) … end;</c>
+    /// — and only a V1 literal Script would carry them inline as <c>Well(10, 20)</c>.
+    /// Reading the arguments first is what lets this harness read a record written by
+    /// a parametrized staging; reading only the text is what made it fail with "the
+    /// record does not say how big the well was" once the seed became an Action.
+    /// </summary>
+    private static (int Width, int Height)? Dimensions(Act act, string text)
+    {
+        if (act.Arguments.Length > 0)
+        {
+            var values = SplitArguments(act.Arguments).Select(v => Unquote(v).Trim()).ToArray();
+            if (values.Length >= 2
+                && int.TryParse(values[0], out var width)
+                && int.TryParse(values[1], out var height))
+            {
+                return (width, height);
+            }
+        }
+
+        var match = SeedDimensions.Match(text);
+        return match.Success
+            ? (int.Parse(match.Groups["w"].Value), int.Parse(match.Groups["h"].Value))
+            : null;
     }
 
     /// <summary>

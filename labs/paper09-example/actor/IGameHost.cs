@@ -18,16 +18,21 @@ namespace Tetris.Acting;
 /// </summary>
 internal interface IGameHost : IDisposable
 {
-    /// <summary>Perform a command; returns the rendered output.</summary>
-    string Command(string script);
-
-    /// <summary>Perform a parametrized command — journals an Action, not a V1 Script.</summary>
+    /// <summary>
+    /// Perform a command. Every command here is PARAMETRIZED, and the seam offers no
+    /// other form on purpose: a command without user parameters journals as a V1
+    /// literal Script (<c>HasAnyUserParameter</c>, ActorHandler.cs), and a V1 Script
+    /// is legacy — invisible to a domain reaction by design (Rule 1, Reaction.cs) and
+    /// written as one full sentence per call instead of a template plus args. Dropping
+    /// the unparametrized overload makes that mistake unrepresentable rather than
+    /// merely discouraged.
+    /// </summary>
     string Command(string script, Action<Parameters> configure);
 
-    /// <summary>Perform a check-then-command (the gentle guard); no-op if the check fails.</summary>
-    string CheckThenCommand(string check, string command);
-
-    /// <summary>PROBE: the same guard, parametrized — journals an Action, not a Script.</summary>
+    /// <summary>
+    /// Perform a check-then-command (the gentle guard); a no-op if the check fails.
+    /// Parametrized for the reason given on <see cref="Command"/>.
+    /// </summary>
     string CheckThenCommand(string check, string command, Action<Parameters> configure);
 
     /// <summary>Run a query; returns the rendered output (sync on every host).</summary>
@@ -50,14 +55,8 @@ internal sealed class PerformanceHost : IGameHost
 
     public PerformanceHost(PerformanceV2 performance) => this.performance = performance;
 
-    public string Command(string script) =>
-        performance.Using(script).PerformCommand();
-
     public string Command(string script, Action<Parameters> configure) =>
         performance.Using(script).WithParameters(configure).PerformCommand();
-
-    public string CheckThenCommand(string check, string command) =>
-        performance.Using(check, command).PerformCheckThenCommand();
 
     public string CheckThenCommand(string check, string command, Action<Parameters> configure) =>
         performance.Using(check, command).WithParameters(configure).PerformCheckThenCommand();
@@ -92,9 +91,6 @@ internal sealed class StageHost : IGameHost
     // verbs are synchronous and the runner serialises commands (one in flight), so
     // there is no sync-over-async re-entrancy. See the type doc above.
 #pragma warning disable VSTHRD002
-    public string Command(string script) =>
-        stage.PerformCmd(script).GetAwaiter().GetResult();
-
     public string Command(string script, Action<Parameters> configure)
     {
         var parameters = new Parameters();
@@ -102,10 +98,6 @@ internal sealed class StageHost : IGameHost
         return stage.PerformCmd(script, parameters, DateTime.Now, "0.0.0.0", "Anonymous")
             .GetAwaiter().GetResult();
     }
-
-    public string CheckThenCommand(string check, string command) =>
-        stage.PerformCheckThenCommand(check, command, DateTime.Now, "0.0.0.0", "Anonymous")
-            .GetAwaiter().GetResult();
 
     public string CheckThenCommand(string check, string command, Action<Parameters> configure)
     {
