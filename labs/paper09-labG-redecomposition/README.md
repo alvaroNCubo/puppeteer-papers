@@ -66,7 +66,11 @@ dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labG view
 A host that knows nothing about this lab reads its record and draws the board, game over included. That
 is the whole thesis in miniature, and it is the baseline for what follows.
 
-**Then both together**, which is what `boards` is for:
+**Then both together:**
+
+```powershell
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- boards out\orig out\split
+```
 
 ```
 THE UNDIVIDED WELL                 THE PILE ROLE + THE PIECE ROLE
