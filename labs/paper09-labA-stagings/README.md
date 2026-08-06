@@ -3,8 +3,11 @@
 **Headline → §2 (Experiment A) and Appendix A (Lab A): 0 domain edits across five stagings.**
 
 The paper's row for this lab carries a second half — *the domain suite passes unchanged, a regression
-check and not coverage* — and that half is **not** measured here. It is Lab E's third command, where the
-44 tests run with the framework absent from the build graph. This lab measures the diff and nothing else.
+check and not coverage* — and **these two commands do not show it.** They read history; nothing here runs
+a test. The claim is that the suite kept passing as the five stagings were added, which is a fact about
+the same history the diff is read from. Lab E is where a suite is actually run, and note that it
+establishes a *different* property: that the 44 tests pass with the framework absent from the build graph.
+Neither lab measures coverage, and the paper says so of both.
 
 ## What it proves, and how to see it in two commands
 
