@@ -60,6 +60,21 @@ that is the one thing this check can catch that nothing else does.
 Anywhere else, a moved date means the domain was touched by something that is not one of those two
 labs — which is the only reading of this check that should worry anyone.
 
+**But run it in the right repository, and only one of those two rows will ever appear.** The two
+commands above read the *examples* repository's history, so they see a change only if it was committed
+there. Neither of the two labs commits anything: Lab G carries its re-cut in its own `split/` directory
+and compiles it separately, so nothing in the example moves at all, and Lab I copies three files into
+the vendored example's domain and takes them out again. So in this repository the check that catches
+either is a diff over the vendored copy —
+
+```
+git diff --stat -- labs/paper09-example/domain/
+```
+
+— which is empty for seven of the nine labs, empty for Lab G too, and reports `3 files changed, 98
+insertions(+), 3 deletions(-)` while Lab I is applied. Lab I's own README gives the two commands that
+apply and revert it, and the `--intent-to-add` the two new files need in order to be counted.
+
 ## Output on disk
 
 ```
