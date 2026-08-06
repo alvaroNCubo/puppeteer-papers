@@ -2,6 +2,10 @@
 
 **Headline → §2 (Experiment A) and Appendix A (Lab A): 0 domain edits across five stagings.**
 
+The paper's row for this lab carries a second half — *the domain suite passes unchanged, a regression
+check and not coverage* — and that half is **not** measured here. It is Lab E's third command, where the
+44 tests run with the framework absent from the build graph. This lab measures the diff and nothing else.
+
 ## What it proves, and how to see it in two commands
 
 The domain stopped changing, and the repository did not. That is the whole lab.

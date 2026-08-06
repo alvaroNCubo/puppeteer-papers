@@ -5,11 +5,19 @@ automated player sending moves over a pipe and reading a view it computes for it
 observers, one pulling the board and one receiving it pushed; and a browser in which a player and a
 spectator are both written in JavaScript.
 
-Headline → §3 and Appendix A (Lab C). **0 domain edits** for any of the six; each adds an input
-adapter, an output adapter, or both. And the evidence the paper leans on hardest: **one of those
-adapters was written by the client that reads through it.** The automated player is an instance of a
-large language model and authored `pile-scan.ps1`, its column-height view of the board, during the lab.
-Disclosed in the paper's acknowledgments.
+Headline → §2 (Experiment B), §3 and Appendix A (Lab C). **0 domain edits** for any of the six; each adds
+an input adapter, an output adapter, or both.
+
+**Six is not the number that matters, and the paper says so.** Six clients is what the empty diff was
+measured against; the count that measures *representational distance* is **two** — the terminal grid, the
+pull observer and the push observer all read the same grid over different transports, and the browser's
+grid mirrors it, so only the height profile differs in kind. Each count is reported against the claim it
+supports, and this lab is where you see the two: the comparison below is the whole point of the file.
+
+And the evidence the paper leans on hardest is here: **one of those adapters was written by the client
+that reads through it.** The automated player is an instance of a large language model and authored
+`pile-scan.ps1`, its column-height view of the board, during the lab. Disclosed in the paper's
+acknowledgments.
 
 ## Two consoles, console 1 first
 
@@ -33,7 +41,7 @@ Console 2 — **you read**, as often as you like:
 ## The lab is the comparison
 
 ```
-CONSOLA 1 — the grid                CONSOLA 2 — the height profile
+CONSOLE 1 — the grid                CONSOLE 2 — the height profile
 |      []    []      |              skyline : 0 1 1 2 1 1 2 0 0 0
 |  [][][][][][]      |              wells   : col0(d1)
 +====================+              zeros   : 0,7,8,9

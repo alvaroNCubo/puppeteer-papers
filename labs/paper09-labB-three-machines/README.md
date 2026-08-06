@@ -1,8 +1,28 @@
 # Paper 9 — Lab B: three machines
 
 One domain runs as three peers in three Docker containers, joined over container-to-container TLS. The
-Director plays a scripted game; the two casts receive it. **The claim: 0 domain edits, 0 actor edits,
-and three byte-identical journals.**
+Director plays a scripted game; the two casts receive it.
+
+Headline → §2, §7, §9 (Table 1) and Appendix A (Lab B). **0 domain edits, 0 actor edits, and three
+byte-identical journals.**
+
+## What this lab is for, and it does two opposite jobs
+
+**It extends §2's axis to a machine boundary, and it is the only lab that holds the *actor* still too.**
+Every other staging lab measures an empty diff over the domain; here the diff over the actor directory is
+empty as well, which is what makes "the host is an accidental shell" a measurement rather than a reading.
+
+**And it is the lab that forced a claim to weaken.** §7 wanted to say the account of what happened is in
+one place. Three containers keep three journals, converging by replication and a catch-up path, so the
+narrative is in three places and reading it does depend on a mechanism — this lab contradicts the strong
+form. What survives, and what §7 now says, is *one logical narrative, replicated, with convergence the
+framework guarantees*: the three are copies **of one record**, each alone holding the whole game, so a
+reader at any node joins nothing to anything. That is weaker than "one place" and it is what the labs
+support. A lab that narrows the paper is worth more than one that flatters it.
+
+Two rows of §9's Waldo table are also this lab's, and they point in opposite directions: **concurrency**
+is present and its connect-readiness race is reported, and **partial failure is *not addressed*** — see
+the end of this file.
 
 Needs Docker Desktop running, and `$env:PuppeteerEngine` pointing at a Puppeteer checkout.
 
