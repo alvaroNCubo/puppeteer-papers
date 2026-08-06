@@ -19,17 +19,34 @@ those hosts reference the example's domain project. The growth has to land where
 Set `$env:PuppeteerEngine` first, as every lab in this suite does. Run all five in one console, from
 this directory.
 
-| # | Run this | What you should see |
-|---|---|---|
-| 1 | `bash ../../data/paper09-labI-growth/smoke.sh pre-growth` | **14 PASS.** The before column: twelve hosts, plus two assertions that a pushed frame arrived |
-| 2 | `Copy-Item Scoring.cs, Difficulty.cs, Well.cs ..\paper09-example\domain\ -Force` | nothing. **This is the apply step** |
-| 3 | `dotnet build ..\paper09-example\Tetris.sln` then `bash ../../data/paper09-labI-growth/smoke.sh post-growth` | **14 PASS again, with no host edited.** That is the result |
-| 4 | `bash ../../data/paper09-labI-growth/replay.sh post-growth` | journals written *before* the growth, answering `score` and `level` |
-| 5 | the two revert commands below | the domain back to byte-identical |
+```powershell
+$bash = "C:\Program Files\Git\bin\bash.exe"
+& $bash smoke.sh pre-growth
+Copy-Item Scoring.cs, Difficulty.cs, Well.cs ..\paper09-example\domain\ -Force
+dotnet build ..\paper09-example\Tetris.sln
+& $bash smoke.sh post-growth
+& $bash replay.sh post-growth
+git checkout -- ..\paper09-example\domain\Well.cs
+git reset -q -- ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs
+Remove-Item ..\paper09-example\domain\Scoring.cs, ..\paper09-example\domain\Difficulty.cs -Force
+```
 
-Both scripts take **`<label>` first** and the example's root only as an optional second argument,
-which defaults to the vendored example — so no path is needed at all. Output lands in
-`../../data/paper09-labI-growth/out/`.
+**Why the explicit path to `bash`.** In PowerShell a bare `bash` resolves to WSL's, which cannot see your
+Windows paths and fails with `execvpe /bin/bash failed 2`. Git Bash is the one that works. From a Git Bash
+prompt instead, drop the `& $bash` and run `./smoke.sh pre-growth`.
+
+What each should do:
+
+| | |
+|---|---|
+| `smoke.sh pre-growth` | **14 PASS** — the before column: twelve hosts, plus two assertions that a pushed frame arrived |
+| `Copy-Item` | nothing. **This is the apply step**: the three files go into the domain the twelve hosts reference |
+| `dotnet build` + `smoke.sh post-growth` | **14 PASS again, with no host edited.** That is the result |
+| `replay.sh post-growth` | journals written *before* the growth, answering `score` and `level`. The stronger half — see below |
+| the last three lines | **the revert**, and it is not optional. Afterwards `git status --short ..\paper09-example\` prints nothing and the diff over the domain is empty. Rebuild the solution so the other labs run against the ungrown domain again |
+
+Both scripts take a **label** and nothing else; the example's root is an optional second argument that
+already defaults to `..\paper09-example`. Output lands in `out/` beside them.
 
 ## What the measurement mechanism reports while the lab is applied
 
@@ -58,23 +75,10 @@ is exactly three lines: a `Score` property, a `Level` property derived from `Cle
 Anywhere outside this lab a non-empty diff there means the domain was touched by something that is not
 this lab, which is the only reading of that check that should worry anyone.
 
-## Revert
+## What `replay.sh` shows, and why it is the stronger half
 
-```powershell
-git checkout -- ..\paper09-example\domain\Well.cs
-```
-
-```powershell
-git reset -q -- ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs; Remove-Item ..\paper09-example\domain\Scoring.cs, ..\paper09-example\domain\Difficulty.cs -Force
-```
-
-Then `git status --short ..\paper09-example\` prints nothing, and `git diff --stat` over the domain is
-empty. Rebuild the solution afterwards so the other labs run against the ungrown domain again.
-
-## What step 4 actually shows, and why it is the stronger half
-
-The fixtures in `../../data/paper09-labI-growth/journals-pre-growth/` were recorded by a build of the
-domain that had never heard of a score or a level. Replayed against the grown domain they answer both:
+The fixtures in `journals-pre-growth/` were recorded by a build of the domain that had never heard of a
+score or a level. Replayed against the grown domain they answer both:
 
 ```
 ===== deep-w4h40 (actor=deep) =====
@@ -94,20 +98,25 @@ where the level changes what happens. Those figures are the sum over **both** gr
 **both** adoption commits; taking only the first two understates the input host, which is how an earlier
 count came to sum to thirteen.
 
-Adoption is not part of the five steps above. Steps 1 to 4 measure that nothing *had* to change; these
-figures measure what it cost the hosts that *wanted* the new concepts.
+Adoption is not part of the block above. Those steps measure that nothing *had* to change; these figures
+measure what it cost the hosts that *wanted* the new concepts.
 
 ## Contents
 
-`Scoring.cs` and `Difficulty.cs`, new, and `Well.cs` at +21/−3 — the three files the +98 spans, as they
-stood on branch `claude/trusting-tereshkova-f48ab6`.
+Everything this lab needs to run is here:
 
-`replay.sh` needs one more thing, which lives in the example rather than here:
-`../paper09-example/tools/growth-probe/`, the apparatus that records a journal with one build of the
-domain and replays it with another. It is deliberately **outside `Tetris.sln`**, so it never enters the
-twelve-host count — it is measurement, not a staging.
+    Scoring.cs  Difficulty.cs  Well.cs    the three files the +98 spans, as they stood on branch
+                                          claude/trusting-tereshkova-f48ab6
+    smoke.sh                              the twelve hosts, before and after
+    replay.sh                             the pre-growth journals against the grown domain
+    journals-pre-growth/                  the eight fixtures replay.sh reads
 
-Captured transcripts from the original run are in `data/paper09-labI-growth/`: the replay logs before
-the change and after each of the two growth steps, the three smoke transcripts, and the fixtures
-themselves. Those files carry absolute paths from the machine that produced them; they are transcripts,
-not instructions, and that directory's README says so.
+One thing it needs lives in the example instead, because that is where the script looks for it and
+because it is built like any other project there: `../paper09-example/tools/growth-probe/`, the apparatus
+that records a journal with one build of the domain and replays it with another. It is deliberately
+**outside `Tetris.sln`**, so it never enters the twelve-host count — it is measurement, not a staging.
+
+What is in `data/paper09-labI-growth/` is only the record of the original run: the replay logs before the
+change and after each of the two growth steps, and the three smoke transcripts. Those carry absolute
+paths from the machine that produced them, because a log is evidence of a run and the path a binary was
+invoked from is a fact of that run. Read them as transcripts, never as instructions.

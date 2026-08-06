@@ -7,10 +7,10 @@
 set -u
 
 # The example's Tetris directory. Pass it as $2, or set TETRIS_EXAMPLE, or leave
-# both unset and this resolves to the vendored example two directories up:
-#   <papers>/labs/paper09-example
+# both unset and this resolves to the vendored example beside this lab:
+#   labs/paper09-example
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TETRIS="${2:-${TETRIS_EXAMPLE:-$HERE/../../labs/paper09-example}}"
+TETRIS="${2:-${TETRIS_EXAMPLE:-$HERE/../paper09-example}}"
 if [ ! -f "$TETRIS/Tetris.sln" ]; then
   echo "no Tetris.sln under '$TETRIS'." >&2
   echo "pass the example's root as the second argument, or set TETRIS_EXAMPLE." >&2
