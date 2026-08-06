@@ -15,43 +15,46 @@ and a projection on the emitting plane reaches only its own actor's state — so
 role can push a whole frame.
 
 
-## Order, consoles, and what each shows
+## The whole lab, in one console
 
-One console throughout, and **the order is strict** — steps 2 to 4 each consume what the one before
-it wrote. `<run>` is any fresh empty directory.
-
-Set `$env:PuppeteerEngine` to a Puppeteer checkout at or after `dd67047`, as every other lab in this
-suite does. (This paragraph used to say the csproj reaches for a sibling `eng` directory by relative
-path. It does not: the actor resolves the engine through that variable, and no worktree has to sit
-anywhere in particular.)
-
-| # | Run this | What you see in it | Who operates it |
-|---|---|---|---|
-| 0 | `dotnet run --project redecomp/TetrisRedecomp.csproj` | **The harness lists its own six sub-commands.** Ask it rather than this file. | You, first, to see what is available. |
-| 1 | `dotnet build redecomp/TetrisRedecomp.csproj` | It builds. | You. |
-| 2 | `… -- play <run>/orig 1 400` | A whole game played on the **undivided** board: 129 acts to game over. | You. Writes the original journal. |
-| 3 | `… -- redecompose <run>/orig <run>/split` | The cut, **in a fresh process**: the original's acts are read and re-performed into two roles. | You. Writes two new journals; never edits the first. |
-| 4 | `… -- dump played <run>/orig` | **The entry counts.** `136` for the original is the figure the paper's 2.32× divides by. | You. Read-only. |
-| 5 | `… -- equivalence random 20 2000` | 2,614 steps, **0 divergences**. | You. |
-| 6 | `… -- equivalence flat 20 2000` | 5,169 steps, **0 divergences**. | You. |
-| 7 | `… -- equivalence clears 20 2000` | 40,000 steps, **0 divergences**. | You. |
-
-**Output on disk — this lab's output is journals, not text.** After step 3 you have three:
-
-    <run>/orig      the original record, 136 entries
-    <run>/split     the two roles' records, 225 and 91 entries, 316 together
-
-`dump` is how you read any of them in a fresh process, which is the point: they are ordinary records
-and the harness takes nothing special out of them. Capture the counts:
+Set `$env:PuppeteerEngine` to a Puppeteer checkout at or after `dd67047`, `cd` to this directory, and
+run these in order. **The order is strict** — steps 4 and 5 each consume what the one before wrote.
 
 ```powershell
 Start-Transcript -Path labG-session.log
-# steps 2 through 7
+Remove-Item -Recurse -Force out -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Force out | Out-Null
+dotnet build redecomp\TetrisRedecomp.csproj
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- play out\orig 1 400
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- redecompose out\orig out\split
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- dump played out\orig
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- equivalence random 20 2000
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- equivalence flat 20 2000
+dotnet run --project redecomp\TetrisRedecomp.csproj --no-build -- equivalence clears 20 2000
 Stop-Transcript
 ```
 
-Then `labG-session.log` holds every count the paper cites from this lab: 136, 225, 91, 316, 2.32×,
-and three zeros for divergence.
+What each should print:
+
+| | |
+|---|---|
+| `play` | `played 129 acts on the single Well: cleared=0 over=True` — a whole game on the **undivided** board, to game over |
+| `redecompose` | the cut, **in a fresh process**: the original's acts are read and re-performed into two roles, ending `RESULT: the re-decomposition reproduced the state, in two records, without touching the original`. It writes two new journals and never edits the first |
+| `dump` | `played: 136 entries` — the figure the paper's 2.32× divides by |
+| `equivalence` ×3 | `2614`, `5169` and `40000` steps compared, **`divergences : 0`** each time |
+
+Run the harness with **no arguments** to have it list its own six sub-commands; ask it rather than this
+file, since a program's usage cannot go stale.
+
+The `Remove-Item` is there so the block is repeatable. It matters more than it looks: `play` appends to
+whatever journal it finds, and only the fact that this game ends in game-over — every later act failing
+its check and journaling nothing — keeps a second run from doubling the count. Shorten the game and that
+protection is gone.
+
+**This lab's output is journals, not text.** After `redecompose` you have three: `out\orig`, the original
+at 136 entries, and `out\split`, the two roles' records at 225 and 91, 316 together. `dump` reads any of
+them in a fresh process, which is the point — they are ordinary records and the harness takes nothing
+special out of them. `labG-session.log` then holds every count the paper cites from this lab: 136, 225,
+91, 316, 2.32×, and three zeros for divergence.
 
 **Read, do not run, for §8.4's premises.** They were checked here, and both are one line each: the
 undivided board built a complete frame by unioning the pile's cells with the falling piece's *inside*
