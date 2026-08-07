@@ -1,21 +1,62 @@
 # Lab A — the captured chronology, taken from the examples repository
 
-Run against github.com/alvaroNCubo/puppeteer-examples, branch main.
-Reproduce it live there; the vendored copy in labs/paper09-example/ has no history of its own.
+Run against github.com/alvaroNCubo/puppeteer-examples, branch main, at ec9a2d4.
+Reproduce it live there; the vendored copy in labs/paper09-example/ has no history of
+its own, which is why this lab is the one a copy cannot carry.
+
+Everything below was re-captured on 2026-08-07, after the example and its history were
+pushed to that main. Until then the commits existed only on the author's machine and on
+unmerged branches, and the figures here could not be checked by anyone else.
+
+
+## The two commands the lab is
 
 $ git log -1 --date=short --format="%ad  %h  %s" -- Tetris/domain/
 2026-06-29  fd8d94b  Tetris: add TetrisActor facade over PerformanceV2; console drives the actor
 
 $ git log -1 --date=short --format="%ad  %h  %s"
-2026-07-02  485b766  Tetris: point engine reference at Pacifico master
+2026-08-07  ec9a2d4  Merge claude/friendly-pare-7ffa3f: the three-machine staging of 23 July, and the actor correction that revives the frame push channel
 
 $ git rev-list --count "$(git log -1 --format=%H -- Tetris/domain/)..main"
-9
+15
 
-$ git log --date=short --format="%ad  %h  %s" --diff-filter=A -1 -- Tetris/web Tetris/web-rest Tetris/sm-duo Tetris/sm-duo-tls
+Fifteen commits happened after the domain's last change. The older date is the
+domain's, and that is the whole reading: the domain stopped changing while the
+repository did not.
+
+
+## The five stagings the empty diff was measured against
+
+$ git log --date=short --format="%ad  %h  %s" --diff-filter=A -1 -- Tetris/console Tetris/web Tetris/web-rest Tetris/sm-duo Tetris/sm-duo-tls
+
+console      2026-06-29  a32b57c
 web          2026-06-30  6868249  Tetris web host: same Well over WebSockets (W1+W2+W3), zero domain changes
 web-rest     2026-07-01  f093e20  Tetris web host #2: same Well over REST + SSE (input=POST, output=SSE), zero domain changes
 sm-duo       2026-06-30  e311e58  Tetris: distributed StageManager host (increment A+B) — polymorphic TetrisActor over StageV2
 sm-duo-tls   2026-06-30  68635c3  Tetris C1: 2-node StageManager over real Kestrel TLS (HTTPS transport)
 
-# The domain's date is older than the repository's, and the four hosts above postdate it.
+Four of the five postdate the domain's last commit by a day or two. That is a short
+gap, and it is not the one §8.3 rests on.
+
+
+## What §8.3 rests on, which is a different and longer gap
+
+The author-confounder argument in §8.3 does not use the five stagings above. It uses
+three things added on 23 July, twenty-four days after the domain was last touched, in
+working sessions separate from the one that authored it:
+
+$ git log --date=short --format="%ad  %h  %s" --diff-filter=A -1 -- Tetris/gesture Tetris/scarce Tetris/sm-cluster
+
+gesture      2026-07-23  33f151c  Tetris gesture audience: webcam mirilla via new GestureSource, zero domain change
+scarce       2026-07-23  8d7536e  Tetris scarce audience: emulated ESP32-C6 (one-button in + tiny-frame out), zero domain change
+sm-cluster   2026-07-23  974f62a  Tetris C2: 3-node cross-container Well over real TLS (Docker), zero domain changes
+
+And the claim that matters about all three, checkable in one command:
+
+$ git diff --name-only fd8d94b..main -- Tetris/domain/
+(empty)
+
+The domain directory is untouched across every one of the fifteen commits that follow
+its last change. Two of the three clients above are not labs of Appendix A — the paper
+withdrew them for want of measured evidence about the clients themselves — and what is
+cited from them is only their effect on the domain, which is this: none.

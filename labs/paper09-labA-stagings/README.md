@@ -37,11 +37,37 @@ That prints how many commits happened after the domain's last change.
 
 **Not in the vendored example.** This is the one lab a copy cannot carry: its claim is about a
 *history*, and `labs/paper09-example/` is a copy whose only commit is the one that placed it here. Run
-these two commands in a clone of the examples repository the paper names, on `main`.
+these commands in a clone of `github.com/alvaroNCubo/puppeteer-examples`, on `main`.
 
-If you would rather not clone anything, the same two commands are already captured in
-`../../data/paper09-labA-stagings/chronology.txt`, together with the dates of the four hosts that
-postdate the domain's last change.
+That is worth one sentence of its own, because it was not true until 2026-08-07: the example and its
+whole history lived on unmerged branches and fifteen unpushed commits, so a reader following this
+instruction would have found a repository containing a HelloWorld and nothing else. They are on `main`
+now, at `ec9a2d4`.
+
+If you would rather not clone anything, all of it is captured in
+`../../data/paper09-labA-stagings/chronology.txt`.
+
+## The longer gap, which is the one §8.3 uses
+
+Four of the five stagings postdate the domain's last commit by a day or two. That is a short gap, and
+the author-confounder argument in §8.3 does not rest on it. It rests on three things added on
+**23 July, twenty-four days later**, in working sessions separate from the one that authored the domain:
+
+```
+git log --date=short --format="%ad  %h  %s" --diff-filter=A -1 -- Tetris/gesture Tetris/scarce Tetris/sm-cluster
+```
+
+A webcam gesture client, an emulated ESP32-C6, and the three-machine deployment — `33f151c`, `8d7536e`
+and `974f62a`, all dated `2026-07-23`. Two of the three are not labs of this appendix; what is cited
+from them is only their effect on the domain. And that effect is checkable in one command, which is the
+strongest form this lab has:
+
+```
+git diff --name-only fd8d94b..main -- Tetris/domain/
+```
+
+Empty. The domain directory is untouched across every one of the fifteen commits that follow its last
+change.
 
 **Any time, as often as you like** — they read history and touch nothing, so there is no session to
 create, nothing to clean up, and no other lab to run first.
