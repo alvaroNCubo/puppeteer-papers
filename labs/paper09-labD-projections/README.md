@@ -56,7 +56,7 @@ A whole sequence at once, from console 4:
 The third projection, whenever you want it:
 
 ```powershell
-.\pile-scan.ps1 -Example ..\paper09-example -Session game1
+..\paper09-example\tools\pile-scan.ps1 -Example ..\paper09-example -Session game1
 ```
 
 Prefer the keyboard to the pipe? Console 3 takes `--sources keyboard,clock --clock-ms 500` instead,
@@ -86,7 +86,7 @@ And `verify.ps1` prints all three projections in sequence in one console, which 
 capture if you want a single artifact:
 
 ```powershell
-.erify.ps1 -Example ..\paper09-example | Tee-Object -FilePath labD-verify.log
+.\verify.ps1 -Example ..\paper09-example | Tee-Object -FilePath labD-verify.log
 ```
 
 ### Two rules, both learned the hard way

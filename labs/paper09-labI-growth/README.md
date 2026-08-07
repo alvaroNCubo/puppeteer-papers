@@ -133,16 +133,26 @@ this lab, which is the only reading of that check that should worry anyone.
 git checkout -- ..\paper09-example\domain\Well.cs
 git reset -q -- ..\paper09-example\domain\Scoring.cs ..\paper09-example\domain\Difficulty.cs
 Remove-Item ..\paper09-example\domain\Scoring.cs, ..\paper09-example\domain\Difficulty.cs -Force
-Remove-Item -Recurse -Force ..\paper09-example\.sessions\labIdemo
 dotnet build ..\paper09-example\Tetris.sln
+dotnet build ..\paper09-example\tools\growth-probe\GrowthProbe.csproj
+& $probe query ..\paper09-example\.sessions\labIdemo labIdemo "print well.ClearedLines cleared, well.Score score, well.Level level;"
+Remove-Item -Recurse -Force ..\paper09-example\.sessions\labIdemo
 ```
 
-Afterwards `git status --short ..\paper09-example\` prints nothing and step 7's diff is empty. The rebuild
-matters: without it the other eight labs run against binaries carrying the growth.
+```
+LanguageException: Unknown property or method 'Score' on type 'Well'.
+```
 
-Run step 4's `query` again now and it fails by name — `Unknown property or method 'Score' on type 'Well'`.
-That is not a broken command but the third reading of one unchanged record: the concept present (step 4),
-the concept ignored (step 5), the concept gone.
+Afterwards `git status --short ..\paper09-example\` prints nothing and step 7's diff is empty. Both
+rebuilds matter and for different reasons: without the solution the other eight labs run against binaries
+carrying the growth, and without the probe the `query` above would still be linked against a domain that
+has a `Score` and would answer instead of refusing.
+
+**That refusal is the point of the line, not an accident of it.** It is the third reading of one unchanged
+record: the concept present (step 4), the concept ignored by a host that predates it (step 5), the concept
+gone. Which is why the session is removed on the line *after* the query and not before — an earlier
+version of this block deleted it first, and then the query failed for the boring reason that there was no
+session left to read. Found in QA.
 
 ## The adoption cost, which divides exactly over twelve hosts
 
