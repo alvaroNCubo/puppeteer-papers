@@ -33,55 +33,128 @@ check() { # check <name> <logfile> <signal>
   if grep -q "$3" "$2" 2>/dev/null; then report "$1" "PASS"; else report "$1" "FAIL — $2"; fi
 }
 
+# ── why this script does not use `timeout`, and does not sleep ──────────────
+#
+# Both were found by a reviewer running this on Windows, and both made the script
+# lie about working code.
+#
+# `timeout` sends SIGTERM. MSYS emulates signals between its OWN processes and
+# cannot deliver one to a native Windows binary, so a .exe never learns it was
+# asked to stop, keeps running, and `timeout` waits on it. One run sat thirteen
+# minutes on a `timeout 8`. Systematic, not intermittent. A budget therefore has
+# to be enforced from the Windows side with taskkill — and the pid taskkill needs
+# is the WINDOWS pid, which /proc/<pid>/winpid maps from the one bash reports.
+#
+# The fixed sleeps were worse, because they failed quietly. Six seconds for the
+# warm server to open its named pipe is enough on an idle machine and not enough
+# on one fresh from compiling twelve projects: TetrisSend then blocks on a pipe
+# that does not exist yet, send.log comes back empty, and `send` reports FAIL
+# against a host that works. Waiting for the line each host prints when it is
+# ready costs nothing when the machine is fast and does not lie when it is slow.
+
+winpid() { cat "/proc/$1/winpid" 2>/dev/null || echo "$1"; }
+
+kill_tree() { # kill_tree <bash pid> — //T so a host's children go with it
+  taskkill //PID "$(winpid "$1")" //T //F > /dev/null 2>&1 || true
+}
+
+spawn() { # spawn <logfile> <exe> [args...] — sets LAST_PID
+  local log="$1"; shift
+  "$@" > "$log" 2>&1 &
+  LAST_PID=$!
+}
+
+ready() { # ready <logfile> <signal> <seconds> — 0 if the signal appeared
+  local i=0
+  while [ "$i" -lt "$3" ]; do
+    grep -q "$2" "$1" 2>/dev/null && return 0
+    sleep 1; i=$((i + 1))
+  done
+  return 1
+}
+
+bounded() { # bounded <seconds> <logfile> <exe> [args...] — runs, then kills if still alive
+  local budget="$1"; shift
+  spawn "$@"
+  local pid="$LAST_PID" i=0
+  while [ "$i" -lt "$budget" ] && kill -0 "$pid" 2>/dev/null; do sleep 1; i=$((i + 1)); done
+  kill -0 "$pid" 2>/dev/null && kill_tree "$pid"
+  wait "$pid" 2>/dev/null || true
+}
+
+viewer() { # viewer <name> <signal> <logfile> <exe> [args...] — start, wait for the
+           # signal, let one frame land, stop. Replaces `timeout 8`, which never
+           # stopped these and blocked the whole run.
+  local name="$1" signal="$2" log="$3"; shift 3
+  spawn "$log" "$@"
+  ready "$log" "$signal" 30 || true
+  sleep 2
+  kill_tree "$LAST_PID"
+  wait "$LAST_PID" 2>/dev/null || true
+}
+
 # ── console (keyboard + wall clock, in-memory) ─────────────────────────────
-timeout 30 "$(bin console TetrisConsole)" --auto > "$OUT/console.log" 2>&1
+# These exit on their own, so the budget is only a backstop here too — but a
+# backstop that cannot fire is not one, so they use the same runner as the rest.
+bounded 30 "$OUT/console.log" "$(bin console TetrisConsole)" --auto
 check console "$OUT/console.log" "Lines cleared"
 
 # ── ai (one op per process, persistent journal) ─────────────────────────────
 AI="$(bin ai TetrisAi)"
-timeout 30 "$AI" "$S-ai" new  > "$OUT/ai.log" 2>&1
-timeout 30 "$AI" "$S-ai" drop >> "$OUT/ai.log" 2>&1
-timeout 30 "$AI" "$S-ai" view >> "$OUT/ai.log" 2>&1
+for op in new drop view; do
+  bounded 30 "$OUT/ai-$op.log" "$AI" "$S-ai" "$op"
+done
+cat "$OUT"/ai-new.log "$OUT"/ai-drop.log "$OUT"/ai-view.log > "$OUT/ai.log" 2>/dev/null
 check ai "$OUT/ai.log" "META"
 
 # ── watch + observer (read-only viewers over the ai session) ────────────────
-timeout 8 "$(bin watch TetrisWatch)" "$S-ai" > "$OUT/watch.log" 2>&1
+viewer watch WATCHING "$OUT/watch.log" "$(bin watch TetrisWatch)" "$S-ai"
 check watch "$OUT/watch.log" "WATCHING"
 grep -q "frameExists=True" "$OUT/watch.log" && report watch-frame "PASS" || report watch-frame "FAIL (no pushed frame)"
-timeout 8 "$(bin observer TetrisObserver)" "$S-ai" > "$OUT/observer.log" 2>&1
+viewer observer OBSERVER "$OUT/observer.log" "$(bin observer TetrisObserver)" "$S-ai"
 check observer "$OUT/observer.log" "OBSERVER"
 
 # ── server (warm) + send (thin client) ─────────────────────────────────────
-"$(bin server TetrisServer)" "$S-srv" > "$OUT/server.log" 2>&1 &
-sleep 6
+# Wait for the warm banner rather than for six seconds: it is the same line the
+# `server` check greps for below, so the wait and the assertion agree by
+# construction.
+spawn "$OUT/server.log" "$(bin server TetrisServer)" "$S-srv"
+SRV_PID=$LAST_PID
+ready "$OUT/server.log" "TetrisServer warm" 60 || report server "SLOW — banner never appeared"
 SEND="$(bin send TetrisSend)"
-timeout 20 "$SEND" "$S-srv" drop > "$OUT/send.log" 2>&1
-timeout 20 "$SEND" "$S-srv" view >> "$OUT/send.log" 2>&1
-timeout 20 "$SEND" "$S-srv" quit >> "$OUT/send.log" 2>&1
-sleep 2
+bounded 20 "$OUT/send.log" "$SEND" "$S-srv" drop
+bounded 20 "$OUT/send-view.log" "$SEND" "$S-srv" view
+bounded 20 "$OUT/send-quit.log" "$SEND" "$S-srv" quit
+cat "$OUT/send-view.log" "$OUT/send-quit.log" >> "$OUT/send.log" 2>/dev/null
+ready "$OUT/server.log" "applied: drop" 30 || true
+kill_tree "$SRV_PID"
 check server "$OUT/server.log" "TetrisServer warm"
 check send "$OUT/server.log" "applied: drop"
 
 # ── input (TetrisStage: pipe + clock source merge) ──────────────────────────
-"$(bin input TetrisStage)" "$S-stg" --sources pipe,clock --clock-ms 400 > "$OUT/input.log" 2>&1 &
-sleep 8
-timeout 20 "$SEND" "$S-stg" drop >> "$OUT/input.log" 2>&1
-sleep 2
-timeout 20 "$SEND" "$S-stg" quit >> "$OUT/input.log" 2>&1
-sleep 3
+spawn "$OUT/input.log" "$(bin input TetrisStage)" "$S-stg" --sources pipe,clock --clock-ms 400
+STG_PID=$LAST_PID
+ready "$OUT/input.log" "TetrisStage: session" 60 || report input "SLOW — banner never appeared"
+bounded 20 "$OUT/input-send.log" "$SEND" "$S-stg" drop
+ready "$OUT/input.log" "applied: tick\|applied: drop" 30 || true
+bounded 20 "$OUT/input-quit.log" "$SEND" "$S-stg" quit
+cat "$OUT/input-send.log" "$OUT/input-quit.log" >> "$OUT/input.log" 2>/dev/null
+kill_tree "$STG_PID"
 check input "$OUT/input.log" "applied: tick\|applied: drop"
 
 # ── web (WebSockets) ───────────────────────────────────────────────────────
-"$(bin web TetrisWeb)" > "$OUT/web.log" 2>&1 &
-sleep 8
+spawn "$OUT/web.log" "$(bin web TetrisWeb)"
+WEB_PID=$LAST_PID
+ready "$OUT/web.log" "Tetris web host running at" 60 || report web "SLOW — banner never appeared"
 curl -s -o "$OUT/web-page.html" -w "player=%{http_code} " http://localhost:5080/ > "$OUT/web-http.log" 2>&1
 curl -s -o /dev/null -w "observer=%{http_code}\n" http://localhost:5080/observer >> "$OUT/web-http.log" 2>&1
 cat "$OUT/web-http.log" >> "$OUT/web.log"
 check web "$OUT/web.log" "player=200"
 
 # ── web-rest (REST in, SSE out) ────────────────────────────────────────────
-"$(bin web-rest TetrisWebRest)" > "$OUT/web-rest.log" 2>&1 &
-sleep 8
+spawn "$OUT/web-rest.log" "$(bin web-rest TetrisWebRest)"
+REST_PID=$LAST_PID
+ready "$OUT/web-rest.log" "Tetris REST+SSE host running at" 60 || report web-rest "SLOW — banner never appeared"
 curl -s -o /dev/null -w "player=%{http_code} " http://localhost:5081/ > "$OUT/rest-http.log" 2>&1
 curl -s -X POST -H 'Content-Type: application/json' -d '{"move":"drop"}' \
      "http://localhost:5081/games/$S-rest/moves" -w " post=%{http_code}" >> "$OUT/rest-http.log" 2>&1
@@ -92,11 +165,13 @@ check web-rest "$OUT/web-rest.log" "post=200"
 check rest-frame "$OUT/rest-frame.log" "width"
 
 # ── StageManager hosts ─────────────────────────────────────────────────────
-timeout 90 "$(bin sm-server TetrisStageServer)" "$S-smsrv" > "$OUT/sm-server.log" 2>&1
+# These three do exit on their own, so the budget is only a backstop — but it is a
+# backstop that has to work, which `timeout` did not.
+bounded 90 "$OUT/sm-server.log" "$(bin sm-server TetrisStageServer)" "$S-smsrv"
 check sm-server "$OUT/sm-server.log" "Stage\|director\|TETRIS"
-timeout 120 "$(bin sm-duo TetrisStageDuo)" "$S-duo" > "$OUT/sm-duo.log" 2>&1
+bounded 120 "$OUT/sm-duo.log" "$(bin sm-duo TetrisStageDuo)" "$S-duo"
 check sm-duo "$OUT/sm-duo.log" "cast\|CAST\|replicat"
-timeout 150 "$(bin sm-duo-tls TetrisStageDuoTls)" "$S-tls" > "$OUT/sm-duo-tls.log" 2>&1
+bounded 150 "$OUT/sm-duo-tls.log" "$(bin sm-duo-tls TetrisStageDuoTls)" "$S-tls"
 check sm-duo-tls "$OUT/sm-duo-tls.log" "cast\|CAST\|replicat"
 
 # ── stop anything still listening ──────────────────────────────────────────
