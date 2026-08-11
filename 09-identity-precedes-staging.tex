@@ -2749,16 +2749,23 @@ appendix says so rather than leaving a reader to reconcile dates.
 A word on what is and is not public, since the two are easy to run
 together. The commit pinned above is in that public repository:
 \texttt{2673d57} is its \texttt{main}, so a reader who visits it today
-finds the source the five framework anchors resolve against. Archiving
-that snapshot under a Software Heritage persistent identifier --- as the
-preceding paper in this series does --- belongs to the deposit of this
-version, and this section will carry that identifier then. One cleanup
-was weighed for the same step and deliberately not made: the domain's
-assembly carries an \texttt{InternalsVisibleTo} grant to the console
-host which no host now exercises (Lab E reports it). Withdrawing it
-would rest the fence on the test suite's grant alone --- tidier, and a
-change to what Lab E measured --- so it stays as reported. The example's
-own anchors need no repository visit at all: they are in the
+finds the source the five framework anchors resolve against. That
+snapshot is archived in Software Heritage as well, as the preceding
+paper in this series is, so the anchors outlive the repository that
+hosts them:
+
+\begin{verbatim}
+swh:1:dir:5f0a48469f6e23a6bbdf8cc63938099b632785c5;
+  origin=https://github.com/alvaroNCubo/puppeteer;
+  anchor=swh:1:rev:2673d57445fad8e85cb950b1de62d7c57c14c3fc
+\end{verbatim}
+
+One cleanup was weighed for the deposit and deliberately not made: the
+domain's assembly carries an \texttt{InternalsVisibleTo} grant to the
+console host which no host now exercises (Lab E reports it). Withdrawing
+it would rest the fence on the test suite's grant alone --- tidier, and
+a change to what Lab E measured --- so it stays as reported. The
+example's own anchors need no repository visit at all: they are in the
 accompanying archive, \texttt{paper09-data.zip}, whose contents are
 listed above. The three-machine lab reproduces from a single script,
 \texttt{labs/paper09-labB-three-machines/docker/run-demo.sh}, against a
