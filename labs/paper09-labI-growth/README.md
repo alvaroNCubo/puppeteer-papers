@@ -63,16 +63,22 @@ staging kept working. Nothing in this step touches a host project.
 ```
 
 ```
-{"cleared":1,"score":100,"level":1}
+{"cleared":0,"score":0,"level":1}          ← or {"cleared":1,"score":100,"level":1}
 ```
+
+**Read the shape, not the digits.** The acts are fixed but the pieces are not: the domain's
+piece-selection RNG is transient and is neither persisted nor replayed (`domain/Well.cs`), so the seed
+argument steers the *policy* and not the bag. Three runs of exactly the command above gave `cleared` 0,
+0 and 1. What holds every time is that the domain **answers** `well.Score` and `well.Level` at all —
+the build that recorded this journal had never heard of either, and the query would have failed by name.
+Whether a 600-op game happens to collapse a row is luck, and `flat` only improves the odds by steering
+each piece over the lowest column. For a score that is non-zero *by construction*, step 6 replays fixed
+journals: `deep-w4h40` answers `{"score":2100}` and `{"level":3}` on every run.
 
 No host prints a score, and that is the measurement rather than an omission — none of the twelve *had* to
 change, so none adopted the new concepts, which leaves the growth true and invisible. So ask the domain
 directly. The probe's `query` takes its DSL as a command-line argument, which is what it was built for:
 the same binary, unedited, asking for a fact the domain did not have when the journal was written.
-
-`flat` steers each piece over the lowest column so the game actually completes a row. A score stays at
-zero until one collapses, so a blindly shuffled game would show nothing.
 
 ### 5 — Read the same journal through a host that never adopted it
 
@@ -81,11 +87,13 @@ dotnet run --project ..\paper09-example\ai\TetrisAi.csproj -- labIdemo view
 ```
 
 ```
-META type=- cleared=1 awaiting=False over=True active=[]
+META type=- cleared=0 awaiting=False over=True active=[]
 ```
 
-The board and the cleared count, as always, and no score. Same record as step 4, read by a program that
-was never told the concept exists.
+The board and the cleared count, as always, and **no score** — which is the point of the step. `cleared`
+will echo whatever step 4's game happened to reach, for the reason given there; `over=True` and the
+absent score are what hold. Same record as step 4, read by a program that was never told the concept
+exists.
 
 ### 6 — Replay journals recorded *before* the growth
 
