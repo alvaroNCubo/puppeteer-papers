@@ -20,12 +20,10 @@ using Tetris.Acting;
 //         ONE op per process, the way Tetris/ai does it: rehydrate the journal,
 //         apply a single deterministic op (spawn if awaiting; else shuffle the
 //         piece over the lowest column; else hard-drop), append, exit. Because the
-//         process is fresh each time, the engine's script→Action promotion counter
-//         (DEFAULT_PROMOTION_CANDIDATE_THRESHOLD = 10, in-memory per handler) never
-//         trips, so a LONG game stays journaled as replayable Scripts — which a
-//         single-process `play` game does not (see the notes: a promoted NULLARY
-//         action cannot be rehydrated, before or after this experiment). Exits 3
-//         once the game is over.
+//         process is fresh each time, every op rehydrates the whole journal first,
+//         which is the path this experiment is about: a game recorded by one build
+//         of the domain and read back by another. `play` keeps one process for the
+//         whole game and exercises it once. Exits 3 once the game is over.
 //
 //   query <journalDir> <actor> <dslScript>
 //         Rehydrates that journal (replaying every recorded act) and runs one raw
