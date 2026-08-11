@@ -18,7 +18,9 @@ namespace Lab03Reactions
         {
             _actor = new ActorV2("bdn_l3_verb", typeof(ReactionLab).Assembly);
             _actor.ConfigureStorage(DatabaseType.IN_MEMORY, "InMemory");
-            _actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
+            // CompiledModePolicy is not set here any more: it read AlwaysCompiled, and the
+            // engine's Automatic default already compiles a V2 parametric command, so the line
+            // stated the regime rather than choosing it. Same regime measured; setter now internal.
             _actor.Using("p = ReactionLab();").PerformCommand();
             for (int i = 0; i < 200; i++) Invoke();
             _n = 0;

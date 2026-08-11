@@ -107,7 +107,9 @@ internal static class Program
 
             using var follower = new PerformanceV2(actorName, LibAssembly);
             follower.ConfigureStorage(DatabaseType.FileSystem, $"path={dataDir}");
-            follower.Actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
+            // CompiledModePolicy is not set here or below any more: both read AlwaysCompiled, and
+            // the engine's Automatic default already compiles a V2 parametric command, so the lines
+            // stated the regime rather than choosing it. Same regime measured; setter now internal.
 
             var sw = Stopwatch.StartNew();
             follower.Start(asFollower: true);
@@ -141,7 +143,6 @@ internal static class Program
     {
         using var leader = new PerformanceV2(actorName, LibAssembly);
         leader.ConfigureStorage(DatabaseType.FileSystem, $"path={dataDir}");
-        leader.Actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
         leader.Start();
 
         // Pure-overwrite parametric verb: each call after the first writes ONE compact action-event

@@ -9,7 +9,7 @@
 //   - SQL Edge   : co-located container, default durable-log-flush per commit
 //
 // PUBLIC-SURFACE measurement. Each append is a single public PerformCommand of a
-// compact parametric verb ("_seq = @val;") under CompiledModePolicy.AlwaysCompiled:
+// compact parametric verb ("_seq = @val;"), compiled under CompiledModePolicy.Automatic:
 // the first call journals a Define + Invocation, every later call journals ONE compact
 // Invocation entry (the Paper 2 compact-action régime). Stopwatch.GetTimestamp() (QPC,
 // ~100 ns) brackets each PerformCommand call. The measured latency is therefore the
@@ -122,7 +122,9 @@ internal static class Program
         {
             using var perf = new PerformanceV2(actorName, LibAssembly);
             perf.ConfigureStorage(ToDbType(backend), conn);
-            perf.Actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
+            // CompiledModePolicy is not set here or below any more: both read AlwaysCompiled, and
+            // the engine's Automatic default already compiles a V2 parametric command, so the lines
+            // stated the regime rather than choosing it. Same regime measured; setter now internal.
             perf.Start();
 
             // Warm-up: JIT, page cache, connection pool, schema creation, and the
@@ -205,7 +207,6 @@ internal static class Program
             }
             using var perf = new PerformanceV2(actorName, LibAssembly);
             perf.ConfigureStorage(ToDbType(backend), BuildConn(backend, out _));
-            perf.Actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
             perf.Start();
             perf.Actor.Using("_seq = @val;").WithParameters(p => { p["val", typeof(int)] = 1; }).PerformCommand();
             perf.Actor.GracefulExit();
@@ -246,7 +247,7 @@ internal static class Program
         sb.AppendLine();
         sb.AppendLine($"- Runtime: Pacifico `{runTag}` (built against the public mirror).");
         sb.AppendLine($"- Host: {host}");
-        sb.AppendLine($"- Régime: compact-action journal, `CompiledModePolicy.AlwaysCompiled`, 1 event = 1 durable commit.");
+        sb.AppendLine($"- Régime: compact-action journal, V2 parametric verb compiled under `CompiledModePolicy.Automatic`, 1 event = 1 durable commit.");
         sb.AppendLine($"- N = {n} measured appends per rep, K = {reps} reps, warm-up = {WarmupN} discarded.");
         sb.AppendLine($"- Measurement: public `PerformCommand` bracketed by `Stopwatch.GetTimestamp()` (QPC, ~100 ns).");
         sb.AppendLine($"- Run: {utc}");

@@ -34,7 +34,9 @@ namespace Lab03Reactions
         {
             var actor = new ActorV2("cue_l3_" + Guid.NewGuid().ToString("N"), domainAssembly);
             actor.ConfigureStorage(DatabaseType.IN_MEMORY, "InMemory");
-            actor.CompiledModePolicy = CompilationModePolicy.AlwaysCompiled;
+            // CompiledModePolicy is not set here any more: it read AlwaysCompiled, and the
+            // engine's Automatic default already compiles a V2 parametric command, so the line
+            // stated the regime rather than choosing it. Same regime measured; setter now internal.
 
             var probe = new ReactionProbe();
             actor.Reactions
