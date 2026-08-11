@@ -8,11 +8,11 @@ When software is modeled as if the Puppet were its fundamental modeling unit, th
 
 ## What this is
 
-Eight analytic theory papers (Gregor, 2006, Type I) on journaled-program substrates. Each names a structural property — porosity, separability, partition, continuity, substrate, symptom, accidental category, authority — and traces its consequences.
+Nine analytic theory papers (Gregor, 2006, Type I) on journaled-program substrates. Each names a structural property — porosity, separability, partition, continuity, substrate, symptom, accidental category, authority, identity — and traces its consequences.
 
 ## Single-volume reading
 
-For a continuous reading — preface plus the eight papers as numbered chapters, with table of contents — see the unified monograph:
+For a continuous reading — preface plus the nine papers as numbered chapters, with table of contents — see the unified monograph:
 
 **[Puppeteer: Journaled Programs and the Dissolution of Infrastructure (PDF)](puppeteer-monograph.pdf)**
 
@@ -30,12 +30,13 @@ Individual papers below are the canonical citable artifacts; the monograph is th
 | 6 | [Most infrastructure layers are symptoms of the persistence model: a construct for auditing production stacks](06-infrastructural-symptom.md) | 0.1-draft | [10.5281/zenodo.20317450](https://doi.org/10.5281/zenodo.20317450) | Names the property by which a layer of infrastructure can be discriminated as compensating for a deficiency of the persistence model rather than serving a requirement of the problem domain. Redis is the canonical worked example. |
 | 7 | [After the substrate: building software without a datacenter](07-after-the-substrate.md) | 0.1-draft | [10.5281/zenodo.20398998](https://doi.org/10.5281/zenodo.20398998) | Observes the joint operational consequence of the prior six papers: under a journaled-program substrate, cloud and microservice ecosystems become libraries the program invokes rather than habitats the program inhabits, and the datacenter ceases to be a structural requirement of running production software. The server-role becomes ephemeral as a side observation; the practical consequence is the headline. |
 | 8 | [Inference without Authority: the three authorities that govern an output](08-inference-without-authority.md) | 0.1-draft | [10.5281/zenodo.21499637](https://doi.org/10.5281/zenodo.21499637) | Names the three authorities that govern an output — the domain (what exists), the actor (what becomes observable), and the assembler (where observation occurs) — and the *assertion beyond warrant* their collapse leaves at each end: a producer that stipulates a destination it cannot know, and an observer that infers a history it was never told. |
+| 9 | [Identity Precedes Staging: one play, many stages](09-identity-precedes-staging.md) | 0.1-draft | [10.5281/zenodo.21894206](https://doi.org/10.5281/zenodo.21894206) | Names the property that tells a domain apart from any *staging* of it — where it runs and who observes it — and measures one domain held fixed across five stagings and six clients at zero edits, against an orthodox ports-and-adapters version of the same domain built for the comparison. The baseline *decouples* where this arrangement *closes*; recognition of a routine in the record follows as a consequence rather than a subject. |
 
 ## How they relate
 
 The papers form a chain of preconditions: each construct names a property that becomes available once the prior papers' properties hold.
 
-Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 names *program–value separability* as the structural property that compilation, caching, and dense journaling all depend on. Paper 3 names the *now/deferred partition* exercised through *Reactions*; the partition is exercisable because the journal is dense (Paper 1) and the Reactions are programs (Paper 2). Paper 4 extends semantic continuity across actor boundaries through *tell*, which sits inside the Reactions surface of Paper 3. Paper 5 reframes deployment, replication, backup, and offline operation as instances of a single substrate property. Paper 6 names *infrastructural symptom* as the property by which compensatory layers can be diagnosed in any architecture. Paper 7 observes the joint operational consequence of the prior six: under a journaled-program substrate the datacenter ceases to be a structural requirement of running production software, and software construction passes back into the hands of those who model the domain. Paper 8 turns from execution to output, naming the three authorities that govern what an output is and where it goes — the domain, the actor, and the assembler — and the unwarranted assertion their collapse leaves at either end of the voice.
+Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 names *program–value separability* as the structural property that compilation, caching, and dense journaling all depend on. Paper 3 names the *now/deferred partition* exercised through *Reactions*; the partition is exercisable because the journal is dense (Paper 1) and the Reactions are programs (Paper 2). Paper 4 extends semantic continuity across actor boundaries through *tell*, which sits inside the Reactions surface of Paper 3. Paper 5 reframes deployment, replication, backup, and offline operation as instances of a single substrate property. Paper 6 names *infrastructural symptom* as the property by which compensatory layers can be diagnosed in any architecture. Paper 7 observes the joint operational consequence of the prior six: under a journaled-program substrate the datacenter ceases to be a structural requirement of running production software, and software construction passes back into the hands of those who model the domain. Paper 8 turns from execution to output, naming the three authorities that govern what an output is and where it goes — the domain, the actor, and the assembler — and the unwarranted assertion their collapse leaves at either end of the voice. Paper 9 asks what holds still while both of those change, and answers with a property of the domain that a built system can be measured for: its identity precedes any staging of it, which is why a staging can be varied without touching it.
 
 ## What is Puppeteer, and why it appears here
 
@@ -45,14 +46,15 @@ Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 na
 
 If your question is specific, an entry point may answer it without reading the whole series:
 
+- *"Can a domain be held genuinely fixed while where it runs and who reads it both change — and how would I check that on a system I already have?"* → Paper 9.
 - *"Which of the layers in my production stack are actually structural, and which are compensating for something?"* → Paper 6.
 - *"What becomes operationally possible when production software no longer needs a datacenter?"* → Paper 7. (For the auxiliary question — *"is the server-role in my architecture a necessity, or a contingent artifact?"* — Paper 7 §7 offers a diagnostic lens.)
 - *"How does a journaled program actually run — across actor boundaries, across machines, across failures, across deployments?"* → Papers 4 and 5.
 - *"What are the structural preconditions on which the rest of the series rests — vocabulary, compilation, consistency model?"* → Papers 1 through 3.
 
-For the full argument, read in order from Paper 1 through Paper 8. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point.
+For the full argument, read in order from Paper 1 through Paper 9. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point.
 
-All eight are working drafts (versions 0.1 through 0.4) and are open to feedback. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
+All nine are working drafts (versions 0.1 through 0.4) and are open to feedback. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
 
 ## How to cite
 
@@ -92,11 +94,15 @@ The following papers are archived in Zenodo with citable DOIs:
 
 > Rivera, A. (2026). *Inference without Authority: the three authorities that govern an output* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21499637
 
+**Paper 9** — *Identity Precedes Staging*:
+
+> Rivera, A. (2026). *Identity Precedes Staging: one play, many stages* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21894206
+
 ## License
 
 This repository contains two kinds of content, licensed separately.
 
-**Papers and accompanying assets** — the eight `0X-*.md` files, this README, and the asciinema recordings and GIFs under `paper7-assets/` — are licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-papers). You may copy, redistribute, adapt, and build upon them, including for commercial purposes, provided you give appropriate attribution to the author.
+**Papers and accompanying assets** — the nine `0X-*.md` files, this README, and the asciinema recordings and GIFs under `paper7-assets/` — are licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-papers). You may copy, redistribute, adapt, and build upon them, including for commercial purposes, provided you give appropriate attribution to the author.
 
 **Code** — the C# projects under `labs/`, used as reproducibility artifacts for the papers' empirical sections — is licensed under the [Apache License 2.0](LICENSE-code).
 

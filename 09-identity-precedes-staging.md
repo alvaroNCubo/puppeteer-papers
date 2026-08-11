@@ -2,13 +2,17 @@
 title: "Identity Precedes Staging: one play, many stages"
 author: Alvaro Rivera
 affiliation: Ncubo Ideas, Costa Rica
+orcid: 0009-0003-6174-5559
 date: 2026-08-07
 version: 0.1-draft
-status: v0.1-draft — complete draft, unpublished; not yet deposited. Working revision history in notes/paper09-status-log.md.
+status: v0.1-draft — complete draft; deposited on Zenodo; not yet peer-reviewed. Every line anchor re-resolved at the deposited commit, and the nine labs of Appendix A run at the pinned engine commit 2673d57. Working revision history in notes/paper09-status-log.md.
 keywords:
   - identity
   - staging
   - domain independence
+  - platform independence
+  - location transparency
+  - architectural conformance
   - decoupling
   - ports and adapters
   - projection
@@ -41,6 +45,8 @@ abstract: >
   built rather than a prescription. Two limits bound it: the domain is a pure
   computational core that causes no external effect, and its author commissioned
   the work.
+canonical_url: https://doi.org/10.5281/zenodo.21894206
+doi: 10.5281/zenodo.21894206
 ---
 
 # Identity Precedes Staging: one play, many stages
