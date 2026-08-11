@@ -270,10 +270,19 @@ empty build graph and 44 of its tests run with no double. As stated of the **por
 application service**, it is confirmed decisively — those 20 tests cannot exist without 3 doubles,
 and the entrance type cannot be constructed at all.
 
-One residue runs the other way, in hexagonal's favour, and belongs in plain sight. The journaled
-domain carries a concession the paper already concedes: the empty public `TetrisDomain` anchor type
-that exists so a host can hand over the assembly by reflection. The hexagon needs no such thing — its
-seam is its ports. On that one point the ported arrangement is the cleaner of the two.
+A residue was recorded here as running the other way, in hexagonal's favour: the empty public
+`TetrisDomain` anchor type, for which the hexagon needs no counterpart, its seam being its ports.
+That residue was withdrawn on checking. The framework's seam takes an *assembly*, not a type
+(`Choreography/Theater/PerformanceV2.cs:60`), and reads one with `GetTypes()` under a filter that
+admits internal types (`Puppeteer/EventSourcing/DomainLibraries.cs:136,151`), so no public type is
+required to find, construct or invoke anything in it; the framework's own CLI loads domain libraries
+by full path (`PuppeteerCli/AttachCommand.cs:309`), and in `--txt` mode auto-loads every DLL beside
+the journal without naming a type at all. Verified by building it: with `TetrisDomain.cs` removed the
+domain compiles and exposes zero public types, and a host with no reference to the domain, loading it
+by path, seeds a `Well` and spawns a piece to the same reported state
+(`{"width":10,"height":20,"cleared":0,"awaiting":false,"type":"T"}`). `typeof(TetrisDomain).Assembly`
+is the most ergonomic way to name an assembly in C# and this example uses it; it is not a cost the
+arrangement imposes.
 
 ## 9. Where the same work landed
 
