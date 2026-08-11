@@ -2741,24 +2741,23 @@ deposit, and where a count is sensitive to the example's state the
 appendix says so rather than leaving a reader to reconcile dates.
 
 A word on what is and is not public, since the two are easy to run
-together. The repository named above is public; the two commits cited
-above are not in it yet. They exist in the author's local clone and have
-not been pushed, so a reader who visits that repository today will not
-find them. Publishing them, pinning the resulting public commit here,
-and archiving the snapshot under a Software Heritage persistent
-identifier --- as the preceding paper in this series does --- belong to
-the deposit of this version, and this section will carry the fixed
-identifiers then. One cleanup was weighed for that same step and
-deliberately not made: the domain's assembly carries an
-\texttt{InternalsVisibleTo} grant to the console host which no host now
-exercises (Lab E reports it). Withdrawing it would rest the fence on the
-test suite's grant alone --- tidier, and a change to what Lab E measured
---- so it stays as reported. Until then the anchors are reproducible
-from the accompanying archive, \texttt{paper09-data.zip}, whose contents
-are listed above. The three-machine lab reproduces from a single script,
-\texttt{Tetris/docker/run-demo.sh}, against a local container runtime.
-The labs are count-based, so no large raw sample log is produced or
-omitted.
+together. The commit pinned above is in that public repository:
+\texttt{2673d57} is its \texttt{main}, so a reader who visits it today
+finds the source the five framework anchors resolve against. Archiving
+that snapshot under a Software Heritage persistent identifier --- as the
+preceding paper in this series does --- belongs to the deposit of this
+version, and this section will carry that identifier then. One cleanup
+was weighed for the same step and deliberately not made: the domain's
+assembly carries an \texttt{InternalsVisibleTo} grant to the console
+host which no host now exercises (Lab E reports it). Withdrawing it
+would rest the fence on the test suite's grant alone --- tidier, and a
+change to what Lab E measured --- so it stays as reported. The example's
+own anchors need no repository visit at all: they are in the
+accompanying archive, \texttt{paper09-data.zip}, whose contents are
+listed above. The three-machine lab reproduces from a single script,
+\texttt{labs/paper09-labB-three-machines/docker/run-demo.sh}, against a
+local container runtime. The labs are count-based, so no large raw
+sample log is produced or omitted.
 
 \subsection{Acknowledgments}\label{acknowledgments}
 
