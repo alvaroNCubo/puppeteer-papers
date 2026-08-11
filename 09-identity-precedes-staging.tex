@@ -2378,12 +2378,14 @@ whose comment calls it the seam a state port needs to put a saved pile
 back, added for the fourth staging because ``the only way in was through
 the model'' (\texttt{baseline-hex/domain/model/Pile.cs:51}). It grew a
 restore constructor whose comment names the cost outright --- the point
-at which persistence reached the model (\texttt{Well.cs:75}). That
-constructor re-asserts the invariants on the way in, the complete-row
-check among them (\texttt{Well.cs:305}, \texttt{:314}). Its assembly
-grants \texttt{InternalsVisibleTo} to its test suite and nothing else
-(\texttt{baseline-hex/domain/AssemblyInfo.cs}), and both new members are
-called from inside the domain project (\texttt{Well.cs:86},
+at which persistence reached the model
+(\texttt{baseline-hex/domain/model/Well.cs:75}). That constructor
+re-asserts the invariants on the way in, the complete-row check among
+them (\texttt{baseline-hex/domain/model/Well.cs:305}, \texttt{:314}).
+Its assembly grants \texttt{InternalsVisibleTo} to its test suite and
+nothing else (\texttt{baseline-hex/domain/AssemblyInfo.cs}), and both
+new members are called from inside the domain project
+(\texttt{baseline-hex/domain/model/Well.cs:86},
 \texttt{baseline-hex/domain/application/GameService.cs:197}), so the
 mapper never touches the model. The separate-persistence-model design is
 what this baseline does; it still required the seam.
@@ -2679,8 +2681,10 @@ to reconcile. Example paths are cited relative to that directory ---
 ported baseline of Lab F, being a second and different arrangement,
 keeps its own prefix: \texttt{baseline-hex/…} under
 \texttt{labs/paper09-labF-ported-baseline/}. Line anchors resolve at the
-commit this paper is deposited from; the example last moved at
-\texttt{54a05ab}.
+commit this paper is deposited from, and every one of them was
+re-resolved there before deposit rather than carried forward from the
+draft --- nineteen in the example and the ported baseline, five in the
+framework.
 
 One thing a vendored copy cannot carry is a history, and §8 rests on
 one: the dates that separate the domain's last commit from the stagings
