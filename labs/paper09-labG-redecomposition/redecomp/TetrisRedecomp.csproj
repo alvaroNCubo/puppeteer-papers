@@ -39,7 +39,7 @@
   <ItemGroup>
     <!--
       THE ONE EXTERNAL SEAM, as in the example's own actor project: point
-      PuppeteerEngine at a Puppeteer checkout at or after commit af3b9b0.
+      PuppeteerEngine at a Puppeteer checkout at or after commit 2673d57.
     -->
     <ProjectReference Include="$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj" />
     <ProjectReference Include="$(PuppeteerEngine)\Choreography\Choreography.csproj" />
@@ -47,7 +47,7 @@
 
   <Target Name="RequirePuppeteerEngine" BeforeTargets="CollectPackageReferences;ResolveProjectReferences">
     <Error Condition="'$(PuppeteerEngine)' == ''"
-           Text="PuppeteerEngine is not set. This lab needs a Puppeteer checkout at or after commit af3b9b0. Set $env:PuppeteerEngine, or pass -p:PuppeteerEngine=&lt;path&gt;. See labs/paper09-README.md." />
+           Text="PuppeteerEngine is not set. This lab needs a Puppeteer checkout at or after commit 2673d57. Set $env:PuppeteerEngine, or pass -p:PuppeteerEngine=&lt;path&gt;. See labs/paper09-README.md." />
     <Error Condition="'$(PuppeteerEngine)' != '' And !Exists('$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj')"
            Text="PuppeteerEngine=$(PuppeteerEngine) does not contain Puppeteer\Puppeteer.csproj. Point it at the root of a Puppeteer checkout." />
   </Target>

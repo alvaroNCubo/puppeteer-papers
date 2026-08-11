@@ -19,7 +19,7 @@
       would contradict that provenance model.
 
       So point PuppeteerEngine at a checkout of Puppeteer at or after commit
-      af3b9b0 — three substrate fixes these labs depend on land at or before it.
+      2673d57 — three substrate fixes these labs depend on land at or before it.
       Either set it once for the session:
 
           $env:PuppeteerEngine = "C:\path\to\Puppeteer"
@@ -34,7 +34,7 @@
 
   <Target Name="RequirePuppeteerEngine" BeforeTargets="CollectPackageReferences;ResolveProjectReferences">
     <Error Condition="'$(PuppeteerEngine)' == ''"
-           Text="PuppeteerEngine is not set. This example needs a Puppeteer checkout at or after commit af3b9b0. Set $env:PuppeteerEngine, or pass -p:PuppeteerEngine=&lt;path&gt;. See labs/paper09-README.md." />
+           Text="PuppeteerEngine is not set. This example needs a Puppeteer checkout at or after commit 2673d57. Set $env:PuppeteerEngine, or pass -p:PuppeteerEngine=&lt;path&gt;. See labs/paper09-README.md." />
     <Error Condition="'$(PuppeteerEngine)' != '' And !Exists('$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj')"
            Text="PuppeteerEngine=$(PuppeteerEngine) does not contain Puppeteer\Puppeteer.csproj. Point it at the root of a Puppeteer checkout." />
   </Target>

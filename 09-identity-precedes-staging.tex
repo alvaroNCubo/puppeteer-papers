@@ -2155,8 +2155,9 @@ no longer exercised --- the console drives the actor and names no domain
 type, as its own project comment says --- so the fence is in practice
 tighter than its source admits and the grant could be withdrawn without
 breaking a build. It is reported rather than tidied away to purchase a
-cleaner claim; removing it belongs to the deposit step (Code
-provenance).
+cleaner claim, and it is left standing: withdrawing it would tidy the
+fence at the price of changing what this lab measured, which is a poor
+trade for a count the paper leans on.
 
 It would be wrong to say the domain references \emph{nothing}: it
 targets a language runtime and uses that runtime's collections, as every
@@ -2708,7 +2709,7 @@ cannot settle by itself
 (\texttt{Puppeteer/EventSourcing/DomainLibraries.cs},
 \texttt{PuppeteerCli/AttachCommand.cs}). Those five anchors resolve
 against the \textbf{public} Puppeteer repository
-(\texttt{github.com/alvaroNCubo/puppeteer}) at commit \texttt{af3b9b0},
+(\texttt{github.com/alvaroNCubo/puppeteer}) at commit \texttt{2673d57},
 which is also the minimum the labs' engine requirement names. An earlier
 draft cited them against \texttt{dd67047}, a commit in the private Azure
 repository the runtime is developed in --- a reference no reader could
@@ -2747,13 +2748,14 @@ find them. Publishing them, pinning the resulting public commit here,
 and archiving the snapshot under a Software Heritage persistent
 identifier --- as the preceding paper in this series does --- belong to
 the deposit of this version, and this section will carry the fixed
-identifiers then. One cleanup belongs to that same step: the domain's
-assembly carries an \texttt{InternalsVisibleTo} grant to the console
-host which no host now exercises (Lab E reports it), and it is to be
-removed when these commits are ported, so that the fence rests on the
-test suite's grant alone. Until then the anchors are reproducible from
-the accompanying archive, \texttt{paper09-data.zip}, whose contents are
-listed above. The three-machine lab reproduces from a single script,
+identifiers then. One cleanup was weighed for that same step and
+deliberately not made: the domain's assembly carries an
+\texttt{InternalsVisibleTo} grant to the console host which no host now
+exercises (Lab E reports it). Withdrawing it would rest the fence on the
+test suite's grant alone --- tidier, and a change to what Lab E measured
+--- so it stays as reported. Until then the anchors are reproducible
+from the accompanying archive, \texttt{paper09-data.zip}, whose contents
+are listed above. The three-machine lab reproduces from a single script,
 \texttt{Tetris/docker/run-demo.sh}, against a local container runtime.
 The labs are count-based, so no large raw sample log is produced or
 omitted.
