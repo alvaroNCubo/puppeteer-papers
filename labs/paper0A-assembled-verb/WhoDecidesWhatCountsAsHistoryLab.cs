@@ -7,14 +7,21 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //
     // A domain operation that reads and computes — no state change anywhere — looks like it has
     // its modality built in: it is "a query". This lab measures that the modality is not the
-    // operation's. It is attributed by the assembler, per verb, and the record follows the
-    // attribution rather than the operation's effect.
+    // operation's, and not the verb's either. It is attributed by the assembler, per
+    // performance, and the record follows the attribution rather than the operation's effect.
     //
-    // The same read-only domain operation is exercised twice:
+    // The granularity is the measurement, so the lab holds everything else fixed: ONE body -
+    // one verb, under the handler's reuse seam - performed three times:
     //
     //     as a QUERY      the subject computes and speaks; the journal does not move
     //     as a COMMAND    the same computation - and the act is journaled, replayable
     //                     testimony that it happened
+    //     as a QUERY      again, after the command: the head stays where the command
+    //                     left it - the verb outlived both attributions unchanged
+    //
+    // Had modality been the verb's, the second and third performances could not have differed:
+    // same body, same verb, different modalities is exactly what per-verb attribution forbids
+    // and per-performance attribution predicts.
     //
     // Nothing in the domain distinguishes the two runs. What distinguishes them is a decision
     // that belongs to the party constituting the verb: whether this performance is part of the
@@ -71,31 +78,36 @@ namespace UnitTestAssembledVerbOnPuppeteer
 
                 long afterSetup = hook.CurrentEntryId;
 
-                // ── the same read-only operation, exercised as a QUERY ──────────────────────
-                string asQuery = actor.Using("print o.GetTotal() 'total';").PerformQuery();
+                // ── one body, exercised as a QUERY ──────────────────────────────────────────
+                string asQuery = actor.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformQuery();
                 long afterQuery = hook.CurrentEntryId;
 
-                // ── and exercised as a COMMAND ──────────────────────────────────────────────
-                actor.Using("o.GetTotal();").PerformCommand();
+                // ── the same body, performed as a COMMAND ───────────────────────────────────
+                actor.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformCommand();
                 long afterCommand = hook.CurrentEntryId;
+
+                // ── and queried again: the verb outlives the attribution choice ─────────────
+                string queriedAgain = actor.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformQuery();
+                long afterSecondQuery = hook.CurrentEntryId;
 
                 // a fresh subject over the same journal: the testimony replays, the query is gone
                 var rehydrated = NewActor(actorName, dir);
                 long afterReplay = new StageHook(rehydrated).CurrentEntryId;
-                string totalAfterReplay = rehydrated.Using("print o.GetTotal() 'total';").PerformQuery();
+                string totalAfterReplay = rehydrated.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformQuery();
 
                 Console.WriteLine();
                 Console.WriteLine("=== one read-only operation, two attributions ===");
                 Console.WriteLine();
                 Console.WriteLine($"    journal head after setup                    : {afterSetup}");
-                Console.WriteLine($"    after the operation exercised as a QUERY    : {afterQuery}   (unchanged)");
-                Console.WriteLine($"    after the same operation as a COMMAND       : {afterCommand}   (advanced)");
+                Console.WriteLine($"    after the body exercised as a QUERY         : {afterQuery}   (unchanged)");
+                Console.WriteLine($"    after the same body as a COMMAND            : {afterCommand}   (advanced)");
+                Console.WriteLine($"    after the same body queried again           : {afterSecondQuery}   (unchanged)");
                 Console.WriteLine($"    after replaying the journal from scratch    : {afterReplay}");
                 Console.WriteLine();
                 Console.WriteLine($"    the domain computed the same value each time: {asQuery.Trim()}");
                 Console.WriteLine();
-                Console.WriteLine("    The operation never changed. What changed is a decision the assembler");
-                Console.WriteLine("    took per verb: whether this performance counts as the subject's history.");
+                Console.WriteLine("    Neither the operation nor the verb changed. What changed is a decision the");
+                Console.WriteLine("    assembler took per performance: whether this one counts as the subject's history.");
                 Console.WriteLine();
 
                 Assert.AreEqual(afterSetup, afterQuery,
@@ -103,8 +115,16 @@ namespace UnitTestAssembledVerbOnPuppeteer
                     + "does not move.");
 
                 Assert.IsTrue(afterCommand > afterQuery,
-                    "Exercised as a command, the same read-only computation is journaled: the act "
-                    + "is testimony that it happened, not a state change of the domain.");
+                    "Performed as a command, the same body is journaled: the act is testimony "
+                    + "that it happened, not a state change of the domain.");
+
+                Assert.AreEqual(afterCommand, afterSecondQuery,
+                    "Queried again after the command, the head stays: same body, same verb, "
+                    + "different modalities - which per-verb attribution forbids and "
+                    + "per-performance attribution predicts.");
+
+                Assert.IsTrue(asQuery.Contains("50") && queriedAgain.Contains("50"),
+                    "Both query performances computed and spoke the same value.");
 
                 Assert.AreEqual(afterCommand, afterReplay,
                     "And the testimony is replayable: a fresh subject reaches the same head from "

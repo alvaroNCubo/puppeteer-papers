@@ -31,7 +31,7 @@ suite. Nothing of either corpus repository is redistributed in this archive.
 | lab | paper § | what it measures |
 |---|---|---|
 | `TheCompositionBecomesACapabilityLab` | §2.2–2.3 | the composed verb performed twice with different arguments: **one definition, two invocations**, replay re-performs both from the one record |
-| `WhoDecidesWhatCountsAsHistoryLab` | §2.4 | the same read-only operation: as a query the journal head does not move (2→2); as a command it is journaled and replays (2→3→3) — modality is attributed, not inherited |
+| `WhoDecidesWhatCountsAsHistoryLab` | §2.4 | one body, one verb, three performances: query 2→2, command 2→3 (journaled, replays), query again 3→3 — modality is attributed per performance, not inherited |
 | `TheCriterionForConstitutionLab` (+ `ProcessManagerHarness`) | §3 | the event-sourced coordination arm (the corpus's shape, author-built and labelled as such): names the whole, contains **0** of its statements; description **6**/no (nothing to replay); constitution **6**/re-performs |
 | `TheEventSourcedCoordinatorOnAThirdPartyEngineLab` | §3 | the event-sourced coordinator on Orleans (in-process TestingHost, log-storage provider): **6** transitions and **0** operations in its own journal; reconstruction restores position, **re-performs nothing** |
 | `TheCoordinationArmOnAThirdPartyEngineLab` | §3, §7.2 | the coordination arm on the Durable Task Framework — the engine beneath Azure Durable Functions — over its in-memory emulator, history read via the framework's public dispatch middleware: **6** invocations in the engine's own record; orchestrator code replayed across 6 episodes; **no operation re-performed** |
