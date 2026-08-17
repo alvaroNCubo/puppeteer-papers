@@ -8,7 +8,7 @@ a negative control run at the end. That history is what this folder carries.
 ## Directory structure
 
 ```
-paperA-assets/
+paper0A-assets/
 └── dissection/
     ├── eshop-dissection.bundle      full clone of dotnet/eShop @ 9b4f943, branch `dissection`
     ├── grzybek-dissection.bundle    full clone of kgrzybek/modular-monolith-with-ddd @ 91c8ef2,

@@ -12,7 +12,7 @@ Appendix A is described that cannot be re-run.
 | commerce corpus | `github.com/dotnet/eShop` | `9b4f943` |
 | modular-monolith corpus | `github.com/kgrzybek/modular-monolith-with-ddd` | `91c8ef2` |
 
-The corpus commits are the same commits the dissection bundles of `paperA-assets/` are based
+The corpus commits are the same commits the dissection bundles of `paper0A-assets/` are based
 on: the binaries the paper composes and the sources it dissects are one corpus, pinned once.
 
 ## Run
