@@ -27,11 +27,26 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //     (a) CONTENT   how many of the statements that constitute the whole does it contain?
     //     (b) REPLAY    replaying it ALONE, does the whole's outcome exist again?
     //
-    // Neither question separates the three arrangements by itself, and that is the finding rather
-    // than a weakness of the instrument. (a) separates coordination from the other two, because a
-    // coordinator's record contains its own transitions and not the operations. (b) separates
-    // description from constitution, because a description has no replay at all - nothing reads it
-    // back to do anything. Only together do they classify.
+    // Both questions are TOTAL. (b) quantifies over the arrangement's own replay semantics:
+    // "replaying it alone" asks whether there exists a replay of this record, in the
+    // arrangement's own terms, after which the whole's outcome exists again. An arrangement
+    // that supplies no replay operation answers NO - vacuously, because nothing exists that
+    // could bring the outcome about - not "undefined". Undefined is not a value, and a
+    // criterion that returns one is not total.
+    //
+    // OUTCOME IDENTITY IS TAKEN UP TO FRESH VALUES: two outcomes are the same when they
+    // differ at most by a consistent renaming of identifiers minted during the run rather
+    // than supplied to it. The clause is principled - re-performance re-mints whatever was
+    // minted, so a bit-identity criterion would crown the arrangements that never re-perform -
+    // and it is not free for this arm: the sibling lab (RetrievalIsALookupBench) measures the
+    // domain-minted identity that differs on every replay and FORCES the clause. Without it,
+    // this criterion fails this suite's own constitution arm. The clause rewards nothing that
+    // does not re-perform: it only relates outcomes that exist again.
+    //
+    // Neither question separates the arrangements by itself, and that is the finding rather
+    // than a weakness of the instrument. (a) separates the event-sourced coordinator, whose
+    // record holds its own transitions and not the operations. (b) separates the rest. Only
+    // together do they classify.
     //
     // ══ WHAT THIS DOES NOT CLAIM ══════════════════════════════════════════════════════════════
     //
@@ -69,7 +84,8 @@ namespace UnitTestAssembledVerbOnPuppeteer
             Console.WriteLine("    (a) alone would not separate description from constitution:");
             Console.WriteLine("        both records hold every statement that was performed.");
             Console.WriteLine("    (b) alone would not separate coordination from description:");
-            Console.WriteLine("        neither yields the whole, for different reasons.");
+            Console.WriteLine("        both answer no - one replays without re-performing, the");
+            Console.WriteLine("        other has nothing that could replay.");
             Console.WriteLine();
             foreach (var a in arms)
                 Console.WriteLine($"    {a.Name,-16} {a.Note}");
@@ -96,11 +112,15 @@ namespace UnitTestAssembledVerbOnPuppeteer
             Assert.AreEqual("no", coordination.ReplayYieldsTheWhole,
                 "Replaying the coordinator's stream restores its coordination state - which step it "
                 + "reached, what it awaits. It does not re-perform the operations.");
-            Assert.AreEqual("undefined", description.ReplayYieldsTheWhole,
-                "A description has no replay. Nothing reads a span back in order to do anything.");
+            Assert.AreEqual("no", description.ReplayYieldsTheWhole,
+                "A description supplies no replay operation, so no replay of it exists after which "
+                + "the outcome obtains. The answer is no - vacuously - not undefined: (b) is a "
+                + "total question.");
             Assert.AreEqual("yes", constitution.ReplayYieldsTheWhole,
-                "Replaying this record alone performs the five operations again, and the state they "
-                + "produce exists afterwards.");
+                "Replaying this record alone performs the operations again, and the outcome exists "
+                + "afterwards UP TO FRESH VALUES: the register count and the assembler-keyed lookup "
+                + "reproduce, while the domain-minted identity differs per replay - the measured "
+                + "value that forces the equivalence clause (see RetrievalIsALookupBench).");
 
             // and the classification only exists because both were asked
             Assert.AreEqual(1, arms.Count(a => a.OperationsInRecord == 6 && a.ReplayYieldsTheWhole == "yes"),
@@ -169,9 +189,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 Name = "description",
                 NamesTheWhole = "yes",
                 OperationsInRecord = trace.Children.Count,
-                // Not "no". There is no replay operation to run: a span is written alongside the
-                // execution by an observer, and nothing reads it back in order to act.
-                ReplayYieldsTheWhole = "undefined",
+                // NO, vacuously: the arrangement supplies no replay operation, so no replay of
+                // this record exists after which the outcome obtains. (b) is total.
+                ReplayYieldsTheWhole = "no",
                 Note = $"root span '{trace.Name}' names the whole and lists all "
                        + $"{trace.Children.Count} operations - and is read by no one to do anything"
             };

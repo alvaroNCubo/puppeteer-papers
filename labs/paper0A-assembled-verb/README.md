@@ -20,7 +20,7 @@ on: the binaries the paper composes and the sources it dissects are one corpus, 
 ```
 .\fetch-corpus.ps1      # once: clones both corpus repositories at the pinned commits,
                         # builds the three domain assemblies into corpus-bin/
-dotnet test             # 15 benches, all green
+dotnet test             # 17 benches, all green
 ```
 
 Requires git and the .NET SDKs the corpus targets (net9.0 and net8.0) plus net9.0 for the
@@ -32,7 +32,9 @@ suite. Nothing of either corpus repository is redistributed in this archive.
 |---|---|---|
 | `TheCompositionBecomesACapabilityBench` | §2.2–2.3 | the composed verb performed twice with different arguments: **one definition, two invocations**, replay re-performs both from the one record |
 | `WhoDecidesWhatCountsAsHistoryBench` | §2.4 | the same read-only operation: as a query the journal head does not move (2→2); as a command it is journaled and replays (2→3→3) — modality is attributed, not inherited |
-| `TheCriterionForConstitutionBench` (+ `ProcessManagerHarness`) | §3 | one question, three arrangements: coordination names the whole and contains **0** of its statements; a trace contains all **6** with no replay; the constituted verb contains all **6** and re-performs them |
+| `TheCriterionForConstitutionBench` (+ `ProcessManagerHarness`) | §3 | the event-sourced coordination arm (the corpus's shape, author-built and labelled as such): names the whole, contains **0** of its statements; description **6**/no (nothing to replay); constitution **6**/re-performs |
+| `TheEventSourcedCoordinatorOnAThirdPartyEngineBench` | §3 | the event-sourced coordinator on Orleans (in-process TestingHost, log-storage provider): **6** transitions and **0** operations in its own journal; reconstruction restores position, **re-performs nothing** |
+| `TheCoordinationArmOnAThirdPartyEngineBench` | §3, §7.2 | the coordination arm on the Durable Task Framework — the engine beneath Azure Durable Functions — over its in-memory emulator, history read via the framework's public dispatch middleware: **6** invocations in the engine's own record; orchestrator code replayed across 6 episodes; **no operation re-performed** |
 | `RepertoireBoundaryBench` (+ `RepertoireBoundaryFixture/`) | §4.2 | the host language is refused by the compiler (`CS0122`, obtained by invoking the compiler on a program written to fail) while the assembler reaches the internal piece (`marks:2`) |
 | `RetrievalIsALookupBench` (+ `SubscriptionPaymentBridge`, `PaymentStore`) | §4.3 | across replay the assembler's key is stable and the domain-minted identity is not; the minting call site is marked `R_99` in the bridge |
 | `ALongTrajectoryOverTwoUntouchedRepertoiresBench` | §5.2 | 17 operations, 4 aggregates, 2 shipped assemblies sharing no type, 0 test doubles; 9 events each naming a transition, none naming the trajectory |

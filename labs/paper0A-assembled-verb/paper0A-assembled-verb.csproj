@@ -12,6 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="MSTest" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Azure.DurableTask.Emulator" Version="2.6.0" />
+    <PackageReference Include="Microsoft.Orleans.TestingHost" Version="10.2.2" />
+    <PackageReference Include="Microsoft.Orleans.EventSourcing" Version="10.2.2" />
+    <PackageReference Include="Microsoft.Orleans.Sdk" Version="10.2.2" />
     <PackageReference Include="MediatR" Version="13.0.0" />
     <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
   </ItemGroup>
@@ -42,6 +46,13 @@
       <HintPath>corpus-bin\CompanyName.MyMeetings.BuildingBlocks.Domain.dll</HintPath>
       <Private>true</Private>
     </Reference>
+  </ItemGroup>
+
+  <!-- The fixture is a nested project consumed via ProjectReference; keep its sources and
+       generated files out of this project's default compile glob. -->
+  <ItemGroup>
+    <Compile Remove="RepertoireBoundaryFixture\**\*.cs" />
+    <None Remove="RepertoireBoundaryFixture\**" />
   </ItemGroup>
 
   <ItemGroup>

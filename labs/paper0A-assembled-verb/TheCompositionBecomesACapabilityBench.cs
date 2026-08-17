@@ -24,6 +24,13 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //     assembly    V := A; B; C
     //     after       A  B  C  +  V      (and V can be drawn on again)
     //
+    // THE STATUS OF THE MEASUREMENT, stated exactly: "capability" is operationalized by the
+    // reuse test, and this arrangement implements that operationalization - so the result is
+    // not the confirmation of a hypothesis. It is a REALIZABILITY DEMONSTRATION (a record can
+    // hold the definition/exercise separation as data) plus a CONFORMANCE CHECK that could
+    // have failed: had the second use re-emitted a second definition, the handler's
+    // known-action seam would have been broken and this bench would have counted two.
+    //
     // The distinction matters because it is exactly what separates V from an inline sequence.
     // A(); B(); C(); can of course be executed twice - by writing it twice. What it cannot do
     // is exist between the two executions as a thing the second one refers to.
