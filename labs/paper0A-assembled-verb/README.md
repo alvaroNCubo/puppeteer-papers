@@ -46,8 +46,7 @@ suite. Nothing of either corpus repository is redistributed in this archive.
 
 ## Additional instruments
 
-Retained in the suite, not cited by the paper's body: `AssembledVerbRecordUnitEShopBench`,
-`AssembledVerbOverTwoDomainsBench`, `WhereTheComposedActIsWritableBench`,
+Retained in the suite, not cited by the paper's body: `AssembledVerbOverTwoDomainsBench`, `WhereTheComposedActIsWritableBench`,
 `WhatEachRecordIsMadeOfBench`, `DisjointRepertoiresBench`, `WhatHoldsARepertoireTogetherBench`,
 `FlatRepertoireNamespaceBench`, `CapturingADomainMintedIdentityBench`. They measure adjacent
 properties (type-graph components, journal record contents, Eval's parameter-plane edge) and are
