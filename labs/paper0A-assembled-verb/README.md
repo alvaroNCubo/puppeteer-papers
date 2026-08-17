@@ -1,0 +1,49 @@
+# Paper 0A — the assembled-verb lab suite
+
+The measurements of *The Assembled Verb* (`0A-assembled-verb.md`), as one MSTest suite. Every
+count the paper prints resolves to an assertion or a printed output here; nothing in the paper's
+Appendix A is described that cannot be re-run.
+
+## Pins
+
+| what | where | commit |
+|---|---|---|
+| engine | `github.com/alvaroNCubo/puppeteer`, cloned as the sibling `../../../puppeteer` every lab in this repository uses | *pinned at deposit* |
+| commerce corpus | `github.com/dotnet/eShop` | `9b4f943` |
+| modular-monolith corpus | `github.com/kgrzybek/modular-monolith-with-ddd` | `91c8ef2` |
+
+The corpus commits are the same commits the dissection bundles of `paperA-assets/` are based
+on: the binaries the paper composes and the sources it dissects are one corpus, pinned once.
+
+## Run
+
+```
+.\fetch-corpus.ps1      # once: clones both corpus repositories at the pinned commits,
+                        # builds the three domain assemblies into corpus-bin/
+dotnet test             # 15 benches, all green
+```
+
+Requires git and the .NET SDKs the corpus targets (net9.0 and net8.0) plus net9.0 for the
+suite. Nothing of either corpus repository is redistributed in this archive.
+
+## The benches the paper cites
+
+| bench | paper § | what it measures |
+|---|---|---|
+| `TheCompositionBecomesACapabilityBench` | §2.2–2.3 | the composed verb performed twice with different arguments: **one definition, two invocations**, replay re-performs both from the one record |
+| `WhoDecidesWhatCountsAsHistoryBench` | §2.4 | the same read-only operation: as a query the journal head does not move (2→2); as a command it is journaled and replays (2→3→3) — modality is attributed, not inherited |
+| `TheCriterionForConstitutionBench` (+ `ProcessManagerHarness`) | §3 | one question, three arrangements: coordination names the whole and contains **0** of its statements; a trace contains all **6** with no replay; the constituted verb contains all **6** and re-performs them |
+| `RepertoireBoundaryBench` (+ `RepertoireBoundaryFixture/`) | §4.2 | the host language is refused by the compiler (`CS0122`, obtained by invoking the compiler on a program written to fail) while the assembler reaches the internal piece (`marks:2`) |
+| `RetrievalIsALookupBench` (+ `SubscriptionPaymentBridge`, `PaymentStore`) | §4.3 | across replay the assembler's key is stable and the domain-minted identity is not; the minting call site is marked `R_99` in the bridge |
+| `ALongTrajectoryOverTwoUntouchedRepertoiresBench` | §5.2 | 17 operations, 4 aggregates, 2 shipped assemblies sharing no type, 0 test doubles; 9 events each naming a transition, none naming the trajectory |
+| `WhatTheCarrierCarriesBench` | §6 | the same act carried three ways (direct, queued, kept) delivers identical values; only the identity a repertoire mints for itself differs |
+| `TheTrajectoryBecomesObservableBench` | §8 | the corollary: two reactions over unrelated patterns answer one question identically, correlated by the recorded act itself |
+
+## Additional instruments
+
+Retained in the suite, not cited by the paper's body: `AssembledVerbRecordUnitEShopBench`,
+`AssembledVerbOverTwoDomainsBench`, `WhereTheComposedActIsWritableBench`,
+`WhatEachRecordIsMadeOfBench`, `DisjointRepertoiresBench`, `WhatHoldsARepertoireTogetherBench`,
+`FlatRepertoireNamespaceBench`, `CapturingADomainMintedIdentityBench`. They measure adjacent
+properties (type-graph components, journal record contents, Eval's parameter-plane edge) and are
+kept because their assertions guard the same corpus the cited benches run against.

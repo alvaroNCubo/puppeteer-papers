@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>UnitTestAssembledVerbOnPuppeteer</AssemblyName>
+    <RootNamespace>UnitTestAssembledVerbOnPuppeteer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest" Version="4.0.1" />
+    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The engine, as the sibling clone every lab in this repository uses. Pin it to the
+         commit recorded in this lab's README before running. -->
+    <ProjectReference Include="..\..\..\puppeteer\Puppeteer\Puppeteer.csproj" />
+    <!-- Referenced so it is always built and lands beside the tests. Referencing it grants
+         no access to what it declares internal - that is the point of the boundary lab, and
+         this project is the host that cannot name it. -->
+    <ProjectReference Include="RepertoireBoundaryFixture\RepertoireBoundaryFixture.csproj" />
+  </ItemGroup>
+
+  <!-- Two domain assemblies, authored by different parties, consumed as prebuilt binaries.
+       Neither is redistributed here: run fetch-corpus.ps1 once to clone both repositories at
+       the pinned commits and build these files into corpus-bin/. -->
+  <ItemGroup>
+    <Reference Include="Ordering.Domain">
+      <HintPath>corpus-bin\Ordering.Domain.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="CompanyName.MyMeetings.Modules.Payments.Domain">
+      <HintPath>corpus-bin\CompanyName.MyMeetings.Modules.Payments.Domain.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="CompanyName.MyMeetings.BuildingBlocks.Domain">
+      <HintPath>corpus-bin\CompanyName.MyMeetings.BuildingBlocks.Domain.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+</Project>
