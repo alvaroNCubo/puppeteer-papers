@@ -4,7 +4,7 @@ Estado: Paper 4 v0.1 está publicado; esto es colección de cambios para v0.2 (n
 Origen: el chat de observabilidad mergeó y pusheó `2f7d5e1..becf8e7`. Verificado contra
 `Puppeteer Pacifico` @ `becf8e7`, julio 2026.
 
-Ver también: `notes/paper04-v0.2-c3-assertive-imperative.md` (C3).
+Ver también: `paper04-v0.2-c3-assertive-imperative.md` (C3, en este directorio).
 
 ---
 

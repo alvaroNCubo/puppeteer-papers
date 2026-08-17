@@ -5,7 +5,7 @@ affiliation: Ncubo Ideas, Costa Rica
 orcid: 0009-0003-6174-5559
 date: 2026-08-07
 version: 0.1-draft
-status: v0.1-draft — complete draft; deposited on Zenodo; not yet peer-reviewed. Every line anchor re-resolved at the deposited commit, and the nine labs of Appendix A run at the pinned engine commit 2673d57. Working revision history in notes/paper09-status-log.md.
+status: v0.1-draft — complete draft; deposited on Zenodo; not yet peer-reviewed. Every line anchor re-resolved at the deposited commit, and the nine labs of Appendix A run at the pinned engine commit 2673d57. Working revision history in research-notebook/applied/paper09-status-log.md.
 keywords:
   - identity
   - staging
