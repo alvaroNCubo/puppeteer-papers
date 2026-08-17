@@ -38,7 +38,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // differ at most by a consistent renaming of identifiers minted during the run rather
     // than supplied to it. The clause is principled - re-performance re-mints whatever was
     // minted, so a bit-identity criterion would crown the arrangements that never re-perform -
-    // and it is not free for this arm: the sibling lab (RetrievalIsALookupBench) measures the
+    // and it is not free for this arm: the sibling lab (RetrievalIsALookupLab) measures the
     // domain-minted identity that differs on every replay and FORCES the clause. Without it,
     // this criterion fails this suite's own constitution arm. The clause rewards nothing that
     // does not re-perform: it only relates outcomes that exist again.
@@ -60,9 +60,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //
     // And no timing is measured anywhere.
     [TestClass]
-    public class TheCriterionForConstitutionBench
+    public class TheCriterionForConstitutionLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void ContentAndReplayTogetherSeparateTheThreeArrangements()
         {
             var coordination = MeasureCoordination();
@@ -120,7 +120,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 "Replaying this record alone performs the operations again, and the outcome exists "
                 + "afterwards UP TO FRESH VALUES: the register count and the assembler-keyed lookup "
                 + "reproduce, while the domain-minted identity differs per replay - the measured "
-                + "value that forces the equivalence clause (see RetrievalIsALookupBench).");
+                + "value that forces the equivalence clause (see RetrievalIsALookupLab).");
 
             // and the classification only exists because both were asked
             Assert.AreEqual(1, arms.Count(a => a.OperationsInRecord == 6 && a.ReplayYieldsTheWhole == "yes"),
@@ -146,7 +146,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
             var pm = new PurchaseProcessManager(store, payments, orders);
 
             pm.OnPurchaseRequested("c-1", Guid.NewGuid().ToString(), "PL", "Month", 50m, "EUR",
-                                   "user-1", "Bench User", "welcome kit");
+                                   "user-1", "Lab User", "welcome kit");
 
             var own = store.Stream("purchase-process-c-1");
 
@@ -259,7 +259,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                         p["state", typeof(string)] = "state";
                         p["zip", typeof(string)] = "12345";
                         p["userId", typeof(string)] = "user-1";
-                        p["userName", typeof(string)] = "Bench User";
+                        p["userName", typeof(string)] = "Lab User";
                         p["card", typeof(string)] = "1234-5678-9012-3456";
                         p["cvv", typeof(string)] = "123";
                         p["holder", typeof(string)] = "Card Holder";

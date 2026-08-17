@@ -3,7 +3,7 @@
 The census of the paper's §6 — *every named artifact stays within the vocabulary of a single
 subject; none names a trajectory spanning subjects* — is a coding task, and this file is its
 codebook: the population rule, the lexicon rule, the coding rule, and the full coded table.
-The rules are also implemented, verbatim, in `EveryNameStaysWithinOneSubjectsVocabularyBench.cs`,
+The rules are also implemented, verbatim, in `EveryNameStaysWithinOneSubjectsVocabularyLab.cs`,
 which re-derives everything below from the pinned corpus clones and asserts the counts — so the
 mechanical coder is re-runnable, and whoever runs it is a further coder.
 
@@ -58,7 +58,7 @@ depend on strict coding.
   auditable substitutes are this codebook, the re-runnable coder, and the defeat condition.
 
 **Defeat condition, cheap to run:** exhibit one artifact in either subsystem whose name
-references aggregates of two distinct subjects. The bench will code it T, and the census's
+references aggregates of two distinct subjects. The lab will code it T, and the census's
 zero becomes one.
 
 ## The coded table

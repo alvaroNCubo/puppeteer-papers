@@ -31,9 +31,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // No timing is measured, and no claim is made that either attribution is the right one for
     // any particular system.
     [TestClass]
-    public class WhoDecidesWhatCountsAsHistoryBench
+    public class WhoDecidesWhatCountsAsHistoryLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TheSameReadOnlyOperationLeavesHistoryOnlyWhenTheAssemblerSaysSo()
         {
             string dir = Path.Combine(Path.GetTempPath(), "historicity_" + Guid.NewGuid().ToString("N"));
@@ -58,7 +58,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                         p["country", typeof(string)] = "country";
                         p["zip", typeof(string)] = "12345";
                         p["userId", typeof(string)] = "user-1";
-                        p["userName", typeof(string)] = "Bench User";
+                        p["userName", typeof(string)] = "Lab User";
                         p["card", typeof(string)] = "1234-5678-9012-3456";
                         p["cvv", typeof(string)] = "123";
                         p["holder", typeof(string)] = "Card Holder";

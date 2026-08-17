@@ -10,9 +10,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // This lab asks whether that answer reaches this case, and reports what it finds rather
     // than what would be convenient.
     [TestClass]
-    public class CapturingADomainMintedIdentityBench
+    public class CapturingADomainMintedIdentityLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void AnEvalParameterCarriesAValue_NotAnAggregate()
         {
             string tempDir = Path.Combine(Path.GetTempPath(), $"eval_capture_{Guid.NewGuid():N}");

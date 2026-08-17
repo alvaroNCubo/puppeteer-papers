@@ -17,9 +17,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // instances and never enter the index. Mediation avoids the collision by accident, not by
     // design - which is worth knowing before anyone concludes the flat index is harmless.
     [TestClass]
-    public class FlatRepertoireNamespaceBench
+    public class FlatRepertoireNamespaceLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TwoIndependentlyAuthoredDomainsCollideOnSimpleNames()
         {
             var ordering = typeof(eShop.Ordering.Domain.AggregatesModel.OrderAggregate.Order).Assembly;

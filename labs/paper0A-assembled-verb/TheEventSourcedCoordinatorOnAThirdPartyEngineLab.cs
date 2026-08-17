@@ -33,11 +33,11 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // The row's zero therefore stops being a property of anyone's harness: measured on Orleans,
     // the shape itself puts nothing of the constitution in the coordinator's record.
     [TestClass]
-    public class TheEventSourcedCoordinatorOnAThirdPartyEngineBench
+    public class TheEventSourcedCoordinatorOnAThirdPartyEngineLab
     {
         internal static readonly ConcurrentDictionary<string, int> OperationRuns = new();
 
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public async Task TheCoordinatorsOwnJournalHoldsTransitionsAndItsReplayRePerformsNothing()
         {
             OperationRuns.Clear();
@@ -179,7 +179,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
     {
         public Task Perform(string step)
         {
-            TheEventSourcedCoordinatorOnAThirdPartyEngineBench.OperationRuns
+            TheEventSourcedCoordinatorOnAThirdPartyEngineLab.OperationRuns
                 .AddOrUpdate(step, 1, (_, v) => v + 1);
             return Task.CompletedTask;
         }

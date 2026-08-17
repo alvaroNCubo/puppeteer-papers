@@ -56,9 +56,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // No timing is measured here and none should be. The claim is about what a mechanism is
     // supplying to a composition, not about what it costs.
     [TestClass]
-    public class WhatTheCarrierCarriesBench
+    public class WhatTheCarrierCarriesLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TheArrowCarriedThreeWaysDeliversTheSameActAndTheSameGap()
         {
             // one payment, bought and paid once. Three carriers, one act - anything else would

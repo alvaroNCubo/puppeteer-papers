@@ -20,9 +20,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // aggregate is already in the journal and replaying it reproduces both the aggregate and
     // the index that finds it.
     [TestClass]
-    public class RetrievalIsALookupBench
+    public class RetrievalIsALookupLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void ARetrievingActFindsInRootState_AndStoresNothing()
         {
             string tempDir = Path.Combine(Path.GetTempPath(), $"retrieval_is_a_lookup_{Guid.NewGuid():N}");

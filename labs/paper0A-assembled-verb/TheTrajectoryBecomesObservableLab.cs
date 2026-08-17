@@ -58,7 +58,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //
     // And no timing is measured. The claim is about what can be referred to, not what it costs.
     [TestClass]
-    public class TheTrajectoryBecomesObservableBench
+    public class TheTrajectoryBecomesObservableLab
     {
         private static readonly Assembly Ordering =
             typeof(eShop.Ordering.Domain.AggregatesModel.OrderAggregate.Order).Assembly;
@@ -73,7 +73,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
         private const string CustomerOne = "6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11";
         private const string CustomerTwo = "2b8d4e6f-1a3c-4d5e-9f0b-7c2a4e6d8b33";
 
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void OneQuestionIsAnsweredFromTwoRepertoiresThatShareNoType()
         {
             var fromPurchases = ObservePurchases();

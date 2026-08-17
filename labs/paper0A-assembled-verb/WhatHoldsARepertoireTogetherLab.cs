@@ -51,9 +51,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // list the dissection's rules were written against, met here one layer deeper: not in the
     // call sites of the domain, nor in the ports it declares, but in the shape of its types.
     [TestClass]
-    public class WhatHoldsARepertoireTogetherBench
+    public class WhatHoldsARepertoireTogetherLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void RemovingTheEdgesThatCarryAnAggregateSplitsTheRepertoire()
         {
             Report("eShop Ordering.Domain",
@@ -143,7 +143,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 .ToList();
         }
 
-        // Arcs, not edges: the direction is kept. See DisjointRepertoiresBench for why.
+        // Arcs, not edges: the direction is kept. See DisjointRepertoiresLab for why.
         private static HashSet<(Type, Type)> Edges(List<Type> domain, bool includeAggregateCrossings)
         {
             var inDomain = new HashSet<Type>(domain);

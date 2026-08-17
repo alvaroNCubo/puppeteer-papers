@@ -30,7 +30,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // configuration is printed with the numbers; the two corpus domain assemblies are consumed
     // as prebuilt Debug binaries throughout, identically in both arms.
     [TestClass]
-    public class WhatTheRecordCostsBench
+    public class WhatTheRecordCostsLab
     {
         private const string PayerA = "6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11";
 
@@ -42,7 +42,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
 
         private const string CountQuery = "print held.Count() 'kept';";
 
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TheThreeCostsOfThePlane_GrowthReplayAndThroughput()
         {
             string root = Path.Combine(Path.GetTempPath(), "planecost_" + Guid.NewGuid().ToString("N"));

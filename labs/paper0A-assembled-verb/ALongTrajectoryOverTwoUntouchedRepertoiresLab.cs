@@ -155,9 +155,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // positional too, and nothing here claims it. The carrier lab meets the same gap from the
     // other end of a composition.
     [TestClass]
-    public class ALongTrajectoryOverTwoUntouchedRepertoiresBench
+    public class ALongTrajectoryOverTwoUntouchedRepertoiresLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TwoRepertoiresThatShareNoTypeTellOneStoryEndToEnd()
         {
             // the customer, as each repertoire is able to know them - and no more than that

@@ -67,7 +67,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
             // piece. It is that the piece takes an input without declaring it, and a caller
             // that must reproduce the act cannot supply what it was never asked for.
             //
-            // The consequence is measured in RetrievalIsALookupBench: this identity does not
+            // The consequence is measured in RetrievalIsALookupLab: this identity does not
             // survive replay, while the key the assembler supplies for the same aggregate does.
             return SubscriptionPayment.Buy(new PayerId(Guid.Parse(payerId)), period, countryCode, price, priceList);
         }

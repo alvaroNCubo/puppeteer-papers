@@ -41,9 +41,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // them. That is the mechanical form of standing, and it is why constituting the whole as an
     // act is a right the arrangement grants rather than a privilege the assembler claims.
     [TestClass]
-    public class RepertoireBoundaryBench
+    public class RepertoireBoundaryLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TheHostMayNotNameAnInternalPiece_AndTheAssemblerReachesIt()
         {
             var fixtureAssembly = LocateFixture();

@@ -48,9 +48,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // With both codings all-S, kappa is undefined (no marginal variance); what is reported
     // instead is raw agreement, the defeat condition, and the instrument itself.
     [TestClass]
-    public class EveryNameStaysWithinOneSubjectsVocabularyBench
+    public class EveryNameStaysWithinOneSubjectsVocabularyLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void RecodingTheCensusByPublishedRulesFindsNoNameSpanningTwoSubjects()
         {
             var (eshopRoot, grzybekRoot) = LocateCorpus();

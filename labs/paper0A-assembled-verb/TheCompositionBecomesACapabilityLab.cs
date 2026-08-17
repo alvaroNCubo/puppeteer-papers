@@ -52,9 +52,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // DEFINING A CAPABILITY IS NOT EXERCISING IT, and this journal holds that separation as
     // data: one definition, two exercises, replay reconstructing both from the one.
     [TestClass]
-    public class TheCompositionBecomesACapabilityBench
+    public class TheCompositionBecomesACapabilityLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TheSecondUseInvokesTheVerbWithoutRestatingItsConstitution()
         {
             string dir = Path.Combine(Path.GetTempPath(), "capability_" + Guid.NewGuid().ToString("N"));
@@ -141,7 +141,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                     p["state", typeof(string)] = "state";
                     p["zip", typeof(string)] = "12345";
                     p["userId", typeof(string)] = payer;
-                    p["userName", typeof(string)] = "Bench User";
+                    p["userName", typeof(string)] = "Lab User";
                     p["card", typeof(string)] = "1234-5678-9012-3456";
                     p["cvv", typeof(string)] = "123";
                     p["holder", typeof(string)] = "Card Holder";

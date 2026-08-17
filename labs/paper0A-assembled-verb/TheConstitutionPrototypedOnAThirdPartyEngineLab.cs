@@ -40,9 +40,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //     the outcome exists again up to fresh values: the assembler's key finds the
     //     payment after replay, and the domain-minted identity differs per replay
     [TestClass]
-    public class TheConstitutionPrototypedOnAThirdPartyEngineBench
+    public class TheConstitutionPrototypedOnAThirdPartyEngineLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public async Task TheSameThirdPartyEngineRealizesConstitutionWhenTheJournalHoldsTheDefinition()
         {
             PlaneInterpreter.StatementsExecuted.Clear();

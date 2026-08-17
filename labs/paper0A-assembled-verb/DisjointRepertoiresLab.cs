@@ -23,9 +23,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // dressed as a measurement. This lab computes the connected components of each domain's
     // own type graph and reports what is actually there.
     [TestClass]
-    public class DisjointRepertoiresBench
+    public class DisjointRepertoiresLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void EachDomainAssemblyIsPartitionedIntoItsDisjointRepertoires()
         {
             Report("eShop Ordering.Domain",

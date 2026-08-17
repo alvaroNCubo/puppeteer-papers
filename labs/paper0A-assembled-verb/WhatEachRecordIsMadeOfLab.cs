@@ -103,15 +103,15 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //     the numbers are contingent; the signature is not.
     //
     // The one arrangement where the signature is absent is the other column, and that half is
-    // measured for real elsewhere: in AssembledVerbOverTwoDomainsBench, where operations drawn
+    // measured for real elsewhere: in AssembledVerbOverTwoDomainsLab, where operations drawn
     // from two domains that share no type become the content of one entry, and in
-    // RetrievalIsALookupBench, where replaying that entry re-performs them.
+    // RetrievalIsALookupLab, where replaying that entry re-performs them.
     //
     // Read the harness itself with the distrust list in ProcessManagerHarness.cs beside it.
     [TestClass]
-    public class WhatEachRecordIsMadeOfBench
+    public class WhatEachRecordIsMadeOfLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void OneActTwoArrangements_TheRecordsAreMadeOfDifferentThings()
         {
             Console.WriteLine();
@@ -123,7 +123,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 correlation: "purchase-1",
                 payerId: "6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11",
                 country: "PL", period: "Month", amount: 50m, currency: "EUR",
-                userId: "user-1", userName: "Bench User", sku: "welcome-kit");
+                userId: "user-1", userName: "Lab User", sku: "welcome-kit");
 
             Console.WriteLine();
             Console.Write(store.Render());
@@ -180,7 +180,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                     p["state",     typeof(string)]  = "state";
                     p["zip",       typeof(string)]  = "12345";
                     p["userId",    typeof(string)]  = "user-1";
-                    p["userName",  typeof(string)]  = "Bench User";
+                    p["userName",  typeof(string)]  = "Lab User";
                     p["card",      typeof(string)]  = "1234-5678-9012-3456";
                     p["cvv",       typeof(string)]  = "123";
                     p["holder",    typeof(string)]  = "Card Holder";

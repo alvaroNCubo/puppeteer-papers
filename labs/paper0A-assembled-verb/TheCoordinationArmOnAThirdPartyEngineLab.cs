@@ -43,7 +43,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // constitution arm the definition itself is an entry, and replaying the record alone
     // re-performs the operations.
     [TestClass]
-    public class TheCoordinationArmOnAThirdPartyEngineBench
+    public class TheCoordinationArmOnAThirdPartyEngineLab
     {
         internal static int OrchestratorEpisodes;
         internal static int ReplayedEpisodes;
@@ -51,7 +51,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
         internal static readonly ConcurrentBag<string> Performed = new();
         internal static volatile IReadOnlyList<string> LastCarriedHistory = Array.Empty<string>();
 
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public async Task TheThirdPartyRecordHoldsTheInvocationsAndItsReplayDoesNotRePerformThem()
         {
             OrchestratorEpisodes = 0;

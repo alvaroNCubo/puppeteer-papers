@@ -17,9 +17,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // present at all. What it reports is where the composed act ends up: whether any single
     // artifact holds it, and whether it appears in a record as one unit.
     [TestClass]
-    public class AssembledVerbOverTwoDomainsBench
+    public class AssembledVerbOverTwoDomainsLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void OneVerbComposesTwoIndependentlyAuthoredDomains_AndTheRecordHoldsItAsOneAct()
         {
             string tempDir = Path.Combine(Path.GetTempPath(), $"assembled_verb_two_domains_{Guid.NewGuid():N}");
@@ -62,7 +62,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                     p["state",     typeof(string)]  = "state";
                     p["zip",       typeof(string)]  = "12345";
                     p["userId",    typeof(string)]  = "user-1";
-                    p["userName",  typeof(string)]  = "Bench User";
+                    p["userName",  typeof(string)]  = "Lab User";
                     p["card",      typeof(string)]  = "1234-5678-9012-3456";
                     p["cvv",       typeof(string)]  = "123";
                     p["holder",    typeof(string)]  = "Card Holder";

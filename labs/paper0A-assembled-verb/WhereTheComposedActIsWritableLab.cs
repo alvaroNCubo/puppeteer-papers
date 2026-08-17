@@ -79,9 +79,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // artifact that names this act and contains its operations. The count is currently zero, and
     // one such artifact would take it to one.
     [TestClass]
-    public class WhereTheComposedActIsWritableBench
+    public class WhereTheComposedActIsWritableLab
     {
-        [TestMethod, TestCategory("Bench")]
+        [TestMethod, TestCategory("Lab")]
         public void TheJoinedActRunsAgainstTheShippedDomainWithNothingStandingIn()
         {
             var payerId = new PayerId(Guid.NewGuid());
