@@ -88,7 +88,7 @@ canonical_url: https://[pending]/papers/program-value-separability-v1
 
 4. **Journal density emerges from separability, not from a compression scheme.** A stable F(x₁, …, xₙ) collapses repeated invocations into (actionId, values) tuples, with the script definition persisted once and referenced thereafter. The compactness is structural, not designed. *(Verification: Diary.WriteNewActionEntry (definition + first invocation values) vs Diary.WriteActionEntry (actionId + values only on subsequent invocations).)*
 
-5. **Verb richness: surface vs depth.** A single DSL verb may invoke orchestrations richer than its surface signature suggests. This is not the result of translation between layers; the DSL is the invocation language for domain operations implemented directly in the host language. Journal density is therefore the asymmetry between small persisted tokens and the live-domain operations they represent. *(Verification: §4 develops the construct and §5.5 measures it on two open-source DDD aggregates — eShop's `Order` purchase verb dispatches α = 9 host-language invocations with a 24-method static closure (β/α ≈ 2.7×); Grzybek's `SubscriptionPayment` verb dispatches α = 2 with a 73-method static closure (β/α ≈ 36×). α is exact; β is a crude static lower bound on reachable host surface (§5.5), and at n=2 the 2.7×-vs-36× gap is not attributable to any single cause. The supported claim is the qualitative one — the persisted token is far smaller than the behavior it names — carried by α and by journal density (§5.4), not by the β/α magnitude.)*
+5. **Verb richness: surface vs depth.** A single DSL verb may invoke orchestrations richer than its surface signature suggests. This is not the result of translation between layers; the DSL is the invocation language for domain operations implemented directly in the host language. Journal density is therefore the asymmetry between small persisted tokens and the live-domain operations they represent. *(Verification: §4 develops the construct and §5.5 measures it on two open-source DDD aggregates — eShop's `Order` purchase verb (.NET Foundation 2026) dispatches α = 9 host-language invocations with a 24-method static closure (β/α ≈ 2.7×); Grzybek's `SubscriptionPayment` verb (Grzybek 2024) dispatches α = 2 with a 73-method static closure (β/α ≈ 36×). α is exact; β is a crude static lower bound on reachable host surface (§5.5), and at n=2 the 2.7×-vs-36× gap is not attributable to any single cause. The supported claim is the qualitative one — the persisted token is far smaller than the behavior it names — carried by α and by journal density (§5.4), not by the β/α magnitude.)*
 
 6. **Hot-loaded DSL programs over a stably-loaded domain.** The runtime supports hot-loaded DSL programs against a stably-loaded domain library: the assemblies configured as the actor's domain libraries are reflectively cached at first use; new DSL scripts can combine the types they carry in new ways without assembly reload. This enables ad-hoc procedure invocations against a live, stateful actor — without redeploying endpoints or altering the domain library. *(Verification: DomainLibraries.GetOrLoad(params Assembly[]) caches public types statically per deduplicated assembly set; ActorV2.Using(scriptForChk, scriptForCmd) introduces new scripts per invocation against that cached surface area.)*
 
@@ -399,6 +399,8 @@ Futamura, Y. (1999). Partial evaluation of computation process — an approach t
 
 Gregor, S. (2006). The nature of theory in information systems. *MIS Quarterly*, *30*(3), 611–642.
 
+Grzybek, K. (2024). *Modular monolith with DDD* [Computer software]. GitHub. https://github.com/kgrzybek/modular-monolith-with-ddd (commit `91c8ef2`, accessed 17 August 2026).
+
 Hellerstein, J. M., Stonebraker, M., & Hamilton, J. (2007). Architecture of a database system. *Foundations and Trends in Databases*, *1*(2), 141–259.
 
 Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems research. *MIS Quarterly*, *28*(1), 75–105.
@@ -408,6 +410,8 @@ International Organization for Standardization. (2023). *ISO/IEC 9075:2023 Infor
 Johnsson, T. (1985). Lambda lifting: Transforming programs to recursive equations. In J.-P. Jouannaud (Ed.), *Functional programming languages and computer architecture* (pp. 190–203). Springer-Verlag. (Lecture Notes in Computer Science, Vol. 201)
 
 Jones, N. D., Gomard, C. K., & Sestoft, P. (1993). *Partial evaluation and automatic program generation*. Prentice Hall.
+
+.NET Foundation. (2026). *eShop: A reference .NET application* [Computer software]. GitHub. https://github.com/dotnet/eShop (commit `9b4f943`, accessed 17 August 2026).
 
 Rivera, A. (2026a). Anti-porous architecture: a unified design principle for CQRS + Actor + Event-Sourcing systems. *Puppeteer Papers Series*, Paper 1. Zenodo. https://doi.org/10.5281/zenodo.20404863
 
