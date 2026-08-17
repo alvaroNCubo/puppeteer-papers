@@ -28,7 +28,7 @@ suite. Nothing of either corpus repository is redistributed in this archive.
 
 ## The labs the paper cites
 
-| bench | paper § | what it measures |
+| lab | paper § | what it measures |
 |---|---|---|
 | `TheCompositionBecomesACapabilityLab` | §2.2–2.3 | the composed verb performed twice with different arguments: **one definition, two invocations**, replay re-performs both from the one record |
 | `WhoDecidesWhatCountsAsHistoryLab` | §2.4 | the same read-only operation: as a query the journal head does not move (2→2); as a command it is journaled and replays (2→3→3) — modality is attributed, not inherited |
@@ -50,4 +50,4 @@ Retained in the suite, not cited by the paper's body: `AssembledVerbOverTwoDomai
 `WhatEachRecordIsMadeOfLab`, `DisjointRepertoiresLab`, `WhatHoldsARepertoireTogetherLab`,
 `FlatRepertoireNamespaceLab`, `CapturingADomainMintedIdentityLab`. They measure adjacent
 properties (type-graph components, journal record contents, Eval's parameter-plane edge) and are
-kept because their assertions guard the same corpus the cited benches run against.
+kept because their assertions guard the same corpus the cited labs run against.
