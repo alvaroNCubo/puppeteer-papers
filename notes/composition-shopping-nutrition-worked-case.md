@@ -6,9 +6,9 @@ material for the composition paper (the one that would treat a set of domains as
 
 ## The case
 
-Alvaro's wife — not a developer, not an architect — wants an app that records supermarket
-purchases on a phone and, beyond budget and spend-by-category, tells her things like *more
-macaroni, you're spending too much on beer*. Her own framing was two domains: **Shopping** and
+A prospective user — not a developer, not an architect — wants an app that records supermarket
+purchases on a phone and, beyond budget and spend-by-category, says things like *more
+macaroni, you're spending too much on beer*. Their own framing was two domains: **Shopping** and
 **Nutrition**, with no coupling between them.
 
 ## Applying Paper 9's criteria to it
@@ -39,8 +39,8 @@ Two things it can carry that Tetris cannot.
 1. **Two domains, not one.** Every measurement in Paper 9 is on a single domain across many
    stagings. This is the first candidate for measuring what composition costs — and the
    composer's cost is the quantity the composition paper needs.
-2. **The boundary was drawn by a non-technical person, correctly, on the first try.** She did not
-   say "a shopping app with a nutrition module"; she named two things with vocabularies of their
+2. **The boundary was drawn by a non-technical person, correctly, on the first try.** They did not
+   say "a shopping app with a nutrition module"; they named two things with vocabularies of their
    own. That is evidence about the *naturalness* of the cut — that domain boundaries as this
    series conceives them track how someone thinks about their problem rather than how an
    architect draws layers. Worth stating carefully and not romanticising: it is one observation,

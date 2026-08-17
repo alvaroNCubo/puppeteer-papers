@@ -1,7 +1,7 @@
 # Paper 9 — runbook: where the labs are, and how to run them yourself
 
-Written 2026-07-26 because the labs had been run for you rather than by you, and a deposit needs
-your presence. Every command below is one you run; nothing here needs me.
+Written 2026-07-26 so the labs can be run by the author directly rather than reported to him —
+a deposit needs the author's presence. Every command below is one the author runs.
 
 ## First, a problem you should know before inspecting anything
 
@@ -10,53 +10,35 @@ the domain, the actor, the twelve hosts — but every lab and every note lives o
 never merged. That is a reproducibility defect in its own right, and it has to be fixed before the
 paper is deposited, because Code provenance promises these notes as `paper09-data.zip`.
 
-### Full paths — every lab already has a worktree mounted
+### Where each lab lives
 
-You do not need to create these. They exist. **Warning: the worktree directory names do not match the
-branches they hold** — the directory called `friendly-pare-7ffa3f` holds Lab F's branch, while
-`compassionate-poitras-b77281` holds the branch called `friendly-pare-7ffa3f`. Go by this table, not by
-the folder name.
+Lab G's harness is vendored into this repository at `labs/paper09-labG-redecomposition/` and that
+is the copy to use — read its README first. The other labs (F ported baseline, I domain growth,
+H recognition, C clients write-up and the mirilla's own, plus G's pre-correction first run and the
+Experiment A stagings write-up) each live on their own unmerged branch of `puppeteer-examples`;
+until they are merged or assembled into `paper09-data.zip`, the branch-per-lab mapping is kept
+outside this note. Labs G and B share one tree, on branch `p9/labg-rerun`.
 
-| Lab | Full path to the worktree | Branch it holds |
-|---|---|---|
-| **G** re-decomposition, **B** three machines | `C:\Users\alvar\source\repos\_p9\labg` | `p9/labg-rerun` |
-| **F** ported baseline | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\friendly-pare-7ffa3f` | `claude/confident-satoshi-7ed985` |
-| **I** domain growth | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\trusting-tereshkova-f48ab6` | `claude/trusting-tereshkova-f48ab6` |
-| **H** recognition | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\jovial-goldstine-a03293` | `claude/jovial-goldstine-a03293` |
-| **C** clients write-up, and the mirilla's own | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\upbeat-pare-d0594f` | `claude/upbeat-pare-d0594f` |
-| **G** first run, pre-correction | `C:\Users\alvar\source\repos\puppeteer-examples\Tetris\.claude\worktrees\agitated-brattain-e35650` | `claude/agitated-brattain-e35650` |
-| **A** stagings write-up | *not mounted* — see below | `claude/vibrant-tesla-c7d897` |
-| **A/C/D/E** the example itself, and the mirilla | `C:\Users\alvar\source\repos\puppeteer-examples` | `f7-ensemble-consume` (someone else's; has uncommitted work) |
+Lab G's original tree builds against the engine pinned at `dd67047`, and its csproj reaches for a
+sibling `..\..\..\eng\` checkout — a Puppeteer checkout at that commit must sit beside the lab's
+tree or the build fails.
 
-The engine Lab G builds against, required because its csproj reaches for `..\..\..\eng\`:
+### The files to inspect
 
-    C:\Users\alvar\source\repos\_p9\eng          (Puppeteer, detached at dd67047)
-
-That is why Lab G's worktree lives at `_p9\labg` and not beside the others — it has to be a sibling of
-`eng`. `C:\Users\alvar\source\repos\_p9\run` holds output from the last run I did.
-
-The one that is missing, if you want the Experiment A write-up:
-
-```bash
-git -C C:/Users/alvar/source/repos/puppeteer-examples worktree add C:/Users/alvar/source/repos/_labs/notesA claude/vibrant-tesla-c7d897
-```
-
-### Full paths — the files to inspect
-
-**Lab G** — `C:\Users\alvar\source\repos\_p9\labg\`
+**Lab G** — in its tree:
 
     Tetris\redecomp\                                     the harness (play / redecompose / dump / equivalence)
     Tetris\notes\redecomposition-rerun-on-master.md      the run the paper cites — 135, 219+90, 2.29x
     Tetris\notes\redecomposition-pile-and-piece.md       the original write-up
     Tetris\actor\TetrisActor.csproj                      line 41: the engine reference to ..\..\..\eng\
 
-**Lab B** — same worktree
+**Lab B** — same tree as Lab G:
 
     Tetris\docker\run-demo.sh                            publish, compose up, wait for convergence
     Tetris\notes\experiment-a-crossmachine.md            the write-up
     Tetris\notes\experiment-a-crossmachine.log           the captured run
 
-**Lab F** — `...\Tetris\.claude\worktrees\friendly-pare-7ffa3f\`
+**Lab F** — in its tree:
 
     Tetris\baseline-hex\TetrisHex.sln                    build this
     Tetris\baseline-hex\domain\model\Well.cs           line 75: the restore constructor — Table 3 row II
@@ -67,7 +49,7 @@ git -C C:/Users/alvar/source/repos/puppeteer-examples worktree add C:/Users/alva
     Tetris\baseline-hex\domain.tests\doubles\          the three stand-ins themselves
     Tetris\notes\baseline-hexagonal.md                   the write-up, with the per-staging counts
 
-**Lab I** — `...\Tetris\.claude\worktrees\trusting-tereshkova-f48ab6\`
+**Lab I** — in its tree:
 
     Tetris\domain\Scoring.cs                             39 lines, new
     Tetris\domain\Difficulty.cs                          38 lines, new
@@ -78,12 +60,12 @@ git -C C:/Users/alvar/source/repos/puppeteer-examples worktree add C:/Users/alva
     Tetris\notes\data\journals-pre-growth\             records written before the domain grew
     Tetris\notes\data\replay-pre-change.log             and the two post-experiment logs beside it
 
-**Lab H** — `...\Tetris\.claude\worktrees\jovial-goldstine-a03293\`
+**Lab H** — in its tree:
 
     Tetris\notes\recognition-across-stagings.md          the write-up
     Tetris\notes\recognition-across-stagings.log         the captured run
 
-**Labs A, C, D, E and the mirilla** — `C:\Users\alvar\source\repos\puppeteer-examples\`
+**Labs A, C, D, E and the mirilla** — in `puppeteer-examples`:
 
     Tetris\domain\                                       the domain — Lab E is read off this directory
     Tetris\domain\TetrisDomain.csproj                    four properties, no references
@@ -96,11 +78,11 @@ git -C C:/Users/alvar/source/repos/puppeteer-examples worktree add C:/Users/alva
     Tetris\tools\pile-scan.ps1                           the view the LLM client wrote for itself
     Tetris\console\ web\ web-rest\ sm-duo\ sm-duo-tls\ sm-server\ stage\ send\   the other hosts
 
-The write-ups for Experiment A and B, once that worktree exists:
+The write-ups for Experiments A and B, in their respective trees:
 
-    C:\Users\alvar\source\repos\_labs\notesA\Tetris\notes\experiment-a-topology.md
-    ...\worktrees\upbeat-pare-d0594f\Tetris\notes\experiment-b-audience.md
-    ...\worktrees\upbeat-pare-d0594f\Tetris\notes\mirilla-and-tetris.md
+    Tetris\notes\experiment-a-topology.md        (Experiment A stagings branch)
+    Tetris\notes\experiment-b-audience.md        (Lab C's tree)
+    Tetris\notes\mirilla-and-tetris.md           (Lab C's tree)
 
 ## The mirilla: watch a game while it is played
 
@@ -112,14 +94,14 @@ projection.
 **Console 2 — the viewer.** Start it first and leave it running:
 
 ```bash
-dotnet run --project C:/Users/alvar/source/repos/puppeteer-examples/Tetris/watch/TetrisWatch.csproj -- demo1
+dotnet run --project Tetris/watch/TetrisWatch.csproj -- demo1
 ```
 
 **Console 1 — play.** Each invocation is a separate short-lived process that applies one act and
 exits, which is the point: the domain's state lives in the journal, not in a process.
 
 ```bash
-dotnet run --project C:/Users/alvar/source/repos/puppeteer-examples/Tetris/ai/TetrisAi.csproj -- demo1 new
+dotnet run --project Tetris/ai/TetrisAi.csproj -- demo1 new
 ```
 
 Then `left`, `right`, `rotate`, `tick`, `drop`, `view` in place of `new`. Watch console 2 print a
@@ -134,7 +116,7 @@ clearest single demonstration in the example of §4's distinction between being 
 (§3), which is the paper's sharpest evidence:
 
 ```bash
-pwsh C:/Users/alvar/source/repos/puppeteer-examples/Tetris/tools/pile-scan.ps1 -Session demo1
+pwsh Tetris/tools/pile-scan.ps1 -Session demo1
 ```
 
 ## Logging: get everything to a file you keep
@@ -142,13 +124,13 @@ pwsh C:/Users/alvar/source/repos/puppeteer-examples/Tetris/tools/pile-scan.ps1 -
 PowerShell, showing output *and* writing it:
 
 ```bash
-dotnet run --project Tetris/redecomp/TetrisRedecomp.csproj -- equivalence clears 20 2000 2>&1 | Tee-Object -FilePath C:/Users/alvar/source/repos/_labs/logs/labG-equivalence-clears.log
+dotnet run --project Tetris/redecomp/TetrisRedecomp.csproj -- equivalence clears 20 2000 2>&1 | Tee-Object -FilePath logs/labG-equivalence-clears.log
 ```
 
 For a whole session, start a transcript instead and everything in that console is captured:
 
 ```bash
-Start-Transcript -Path C:/Users/alvar/source/repos/_labs/logs/labG-session.log
+Start-Transcript -Path logs/labG-session.log
 ```
 
 End it with `Stop-Transcript`. Prefer this when you are running several commands and want the order
@@ -156,8 +138,8 @@ and the timing preserved — which is what presence during a lab means.
 
 ## Lab G — re-decomposition (the one with the most numbers in the paper)
 
-Worktree on `p9/labg-rerun`. Note that its engine reference points at `../../eng/`, a worktree of
-Puppeteer pinned to `dd67047`; that has to be present or the build fails.
+On branch `p9/labg-rerun`. Note that its engine reference points at `../../eng/`, a Puppeteer
+checkout pinned to `dd67047`; that has to be present or the build fails.
 
 ```bash
 dotnet build Tetris/redecomp/TetrisRedecomp.csproj
@@ -205,7 +187,7 @@ Expect 2,614 + 5,169 + 40,000 steps and **0 divergences** in all three.
 
 ## Lab F — the ported baseline (the comparison the whole argument rests on)
 
-Worktree on `claude/confident-satoshi-7ed985`, then from `Tetris/baseline-hex/`:
+In Lab F's tree, from `Tetris/baseline-hex/`:
 
 ```bash
 dotnet build TetrisHex.sln
@@ -235,7 +217,7 @@ say why they exist. Table 3's row II is those two.
 
 ## Lab B — three machines
 
-Worktree on `p9/labg-rerun`. Needs Docker Desktop running.
+Same tree as Lab G (`p9/labg-rerun`). Needs Docker Desktop running.
 
 ```bash
 bash Tetris/docker/run-demo.sh
@@ -251,7 +233,7 @@ for f in a b c; do docker compose exec -T tetris-$f cat /data/tetris-$f.frame | 
 
 ## Lab I — domain growth
 
-Worktree on `claude/trusting-tereshkova-f48ab6`. This branch also carries `Tetris/notes/data/` with
+In Lab I's tree. Its branch also carries `Tetris/notes/data/` with
 the pre-growth journals and the replay logs, so you can replay records written *before* the domain
 grew and see that they still rehydrate.
 
