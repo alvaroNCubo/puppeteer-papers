@@ -79,21 +79,21 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 long afterSetup = hook.CurrentEntryId;
 
                 // ── one body, exercised as a QUERY ──────────────────────────────────────────
-                string asQuery = actor.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformQuery();
+                string asQuery = actor.Using("print o.GetTotal() 'total';").PerformQuery();
                 long afterQuery = hook.CurrentEntryId;
 
                 // ── the same body, performed as a COMMAND ───────────────────────────────────
-                actor.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformCommand();
+                actor.Using("print o.GetTotal() 'total';").PerformCommand();
                 long afterCommand = hook.CurrentEntryId;
 
                 // ── and queried again: the verb outlives the attribution choice ─────────────
-                string queriedAgain = actor.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformQuery();
+                string queriedAgain = actor.Using("print o.GetTotal() 'total';").PerformQuery();
                 long afterSecondQuery = hook.CurrentEntryId;
 
                 // a fresh subject over the same journal: the testimony replays, the query is gone
                 var rehydrated = NewActor(actorName, dir);
                 long afterReplay = new StageHook(rehydrated).CurrentEntryId;
-                string totalAfterReplay = rehydrated.Using("o.GetTotal(); print o.GetTotal() 'total';").PerformQuery();
+                string totalAfterReplay = rehydrated.Using("print o.GetTotal() 'total';").PerformQuery();
 
                 Console.WriteLine();
                 Console.WriteLine("=== one read-only operation, two attributions ===");
