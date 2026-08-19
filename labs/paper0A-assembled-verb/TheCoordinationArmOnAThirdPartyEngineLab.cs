@@ -40,8 +40,8 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // them is (b)'s input clause - WHERE THE DEFINITION LIVES: here the composition is compiled
     // code, and the history holds exercises and outcomes that only that code can re-walk;
     // change the code and the same history replays against a different composition. In the
-    // constitution arm the definition itself is an entry, and replaying the record alone
-    // re-performs the operations.
+    // constitution arm the definition itself is an entry, and replaying the record alone -
+    // the repertoires held fixed, as the criterion fixes them - re-performs the operations.
     [TestClass]
     public class TheCoordinationArmOnAThirdPartyEngineLab
     {
