@@ -50,7 +50,8 @@ abstract: >
   analytic in Gregor's (2006, Type I) sense: it prescribes nothing, and its
   distinctions are stated as propositions over a core operational calculus,
   with the labs as conformance checks. Assembly turns the use of capabilities
-  into a capability of a subject.
+  into a capability of a subject — and once the composition has a place of its
+  own, continuity no longer has to be authored into its constituents.
 ---
 
 # The Assembled Verb: repertoire, assembly, and the authorship of a verb
@@ -535,11 +536,11 @@ The run raises nine domain events — the corpus domains' own, emitted by their 
 
 Under the arrangement of §2 that same trajectory is one entry — the entry printed there — and the subject whose verb it is can be asked for it again.
 
-## 6. Returning to the Corpus: Where Is V?
+## 6. Returning to the Corpus: Where Is V, and Where Did the Continuity Go?
 
 The order of the argument matters here, and it is the reverse of the archaeological one. This paper did not infer a missing category from the corpus and then build something to fill it. The category was demonstrated positively first — §2 constituted V, exhibited its one definition, exercised it twice, and replayed both exercises — and the corpus now serves as a **control**: does it contain a capability at V's level?
 
-That inversion changes what the corpus evidence has to carry. It no longer has to prove an absence by exhaustion; it has to answer a yes-or-no question about a category whose existence is already established. The question is one word: **where is V?**
+That inversion changes what the corpus evidence has to carry. It no longer has to prove an absence by exhaustion; it has to answer a yes-or-no question about a category whose existence is already established. The question is one word: **where is V?** And behind it, §1.1's question in the past tense: **where did the continuity go?** The trajectory runs — the corpus works — so if no unit holds its continuity, the continuity went somewhere, and this section finds it.
 
 What is found is A, B and C — and their events, their handlers, their correlations, their coordinators' state. What is not found, anywhere, is V as a capability of a subject.
 
@@ -551,7 +552,7 @@ What is found is A, B and C — and their events, their handlers, their correlat
 
 One reading of the persistence rule follows from §2.4 and is offered as a reading: removing persistence from a domain does not merely make it portable — it returns a decision to a plane that has context for it. A domain with persistence inside it has one author deciding both what the domain means and what survives as history; a domain without it leaves the second decision free to be taken per performance, by the party constituting the verb. Nothing in that is a judgement of either corpus system, whose authors took both decisions deliberately and well.
 
-**The compensations.** Where the plane has no author, the software compensates, and the compensations are measurable. An arrow between two halves of one act is carried by a durable enqueue into the module's own schema, read by a poller in the same process — transport machinery supplying only *and then*, since the same act composed directly, through an in-memory queue, or through a keyed register delivers identical values, differing only in the identity a repertoire mints for itself (Appendix A: `WhatTheCarrierCarriesLab.cs`). Events that carry a whole aggregate are consumed by handlers that read an identity off them and fetch the aggregate again. None of this is offered as criticism; each mechanism buys real guarantees its system needs. They are what movement looks like when the composition has nowhere to live as a unit — **continuity authored into the pieces**, because no other place could hold it. What §2 changes is not that continuity exists but where it can live: once the whole is a verb of a subject, the pieces no longer have to carry it.
+**The compensations — where the continuity went.** Where the plane has no author, the software compensates, and the compensations are measurable. An arrow between two halves of one act is carried by a durable enqueue into the module's own schema, read by a poller in the same process — transport machinery supplying only *and then*, since the same act composed directly, through an in-memory queue, or through a keyed register delivers identical values, differing only in the identity a repertoire mints for itself (Appendix A: `WhatTheCarrierCarriesLab.cs`). Events that carry a whole aggregate are consumed by handlers that read an identity off them and fetch the aggregate again. None of this is offered as criticism; each mechanism buys real guarantees its system needs. They are what movement looks like when the composition has nowhere to live as a unit — **continuity authored into the pieces**, because no other place could hold it. What §2 changes is not that continuity exists but where it can live: once the whole is a verb of a subject, the pieces no longer have to carry it.
 
 ## 7. The Neighbours
 
