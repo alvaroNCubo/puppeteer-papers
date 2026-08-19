@@ -5,8 +5,9 @@ subject; none names a trajectory spanning subjects* — is a coding task, and th
 codebook: the population rule, the lexicon rule, the two coding rules, the manual codings with
 their reasons, and the full coded table. The rules are also implemented, verbatim, in
 `EveryNameStaysWithinOneSubjectsVocabularyLab.cs`, which re-derives everything below from the
-pinned corpus clones and asserts the counts — so the coder is re-runnable, and whoever runs it
-is a further coder.
+pinned corpus clones and asserts the counts — so the coder is re-runnable. Re-running it is
+verification, not a further coding; a further coder is a reader who codes the 72 against the
+construct and compares.
 
 ## Population (rule P)
 
@@ -72,15 +73,19 @@ table.
 | `MeetingAttendeeAddedIntegrationEvent` | S | one transition of another module's aggregate, which the subsystem merely bills |
 | `NewUserRegisteredIntegrationEvent` | S | one transition of the user-access subject |
 
-## Result and agreement
+## Result and agreement — and what the agreement is not
 
 - Rule T1, mechanical: **T: 0 of 72**.
 - Rule T2, manual residual: **3 of 72**, each coded **S** with its reason above.
-- The author's independent reading also coded every artifact S: **raw agreement 72/72**.
-- With both codings placing every artifact in a single category there is no variance for a
-  chance-corrected coefficient to correct (Cohen, 1960) — κ is undefined, not withheld. The
-  auditable substitutes are this codebook, the re-runnable coder, the manual rows, and the
-  defeat condition.
+- The author's reading also coded every artifact S: **raw agreement 72/72**.
+- **No independent coder was employed.** The two codings that agree — the author's reading,
+  and rules the author wrote after that reading — are two instruments of one authorship, so
+  the 72/72 is internal consistency made auditable, not inter-coder reliability. κ is
+  undefined with one occupied category (Cohen, 1960), and would not measure independence here
+  anyway. A deterministic rule is one coder however many times it runs; a further coder is a
+  reader who codes the 72 against the construct and compares — this codebook, the table and
+  the reasons exist to make that cheap, and no such independent recoding has yet been
+  performed.
 
 **Defeat condition, cheap to run:** exhibit one artifact in either subsystem whose name refers
 to a trajectory spanning operations of more than one subject — in either form. Two subjects'

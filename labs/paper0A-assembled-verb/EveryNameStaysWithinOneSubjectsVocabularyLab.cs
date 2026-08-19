@@ -44,11 +44,15 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // lexicon below. Each manual coding is published with its reason, and a residual
     // identifier without a published coding FAILS the run - silence is not a coding.
     //
-    // AGREEMENT. The author's reading coded every artifact S. Rule T1 is independent in the
-    // one axis that matters for auditability - published rules, no discretion - and rule
-    // T2's rows carry their reasons for any reader to dispute. With both codings all-S,
-    // kappa is undefined (no marginal variance); what is reported instead is raw agreement,
-    // the manual rows, the defeat condition, and the instrument itself.
+    // AGREEMENT, and what it is not. No independent coder was employed: the author's reading
+    // and these rules are two instruments of one authorship - the rules were written after
+    // the reading - so the 72/72 they report is internal consistency made auditable, not
+    // inter-coder reliability. Kappa is undefined with one occupied category (no marginal
+    // variance), and would not measure independence here anyway. Re-running this lab
+    // verifies that the rules produce these codings from the pinned corpus; it does not add
+    // a coder - a deterministic rule is one coder however many times it runs. A further
+    // coder is a reader who codes the 72 against the construct and compares; the codebook
+    // and the published reasons exist to make that cheap.
     [TestClass]
     public class EveryNameStaysWithinOneSubjectsVocabularyLab
     {
