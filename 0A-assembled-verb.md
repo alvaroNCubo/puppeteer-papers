@@ -818,9 +818,9 @@ Bauer, A., & Pretnar, M. (2015). Programming with algebraic effects and handlers
 
 Bernhardt, M. (2021). *Tour of Temporal: Welcome to the workflow* [Blog post; practitioner source, no refereed venue]. https://manuel.bernhardt.io/2021/04/12/tour-of-temporal-welcome-to-the-workflow/ (accessed 17 August 2026; archival snapshot to be pinned at deposit).
 
-Bykov, S., & Fateev, M. (2021). *Temporal vs Akka and Lagom* [Forum discussion; practitioner source, no refereed venue]. Temporal Community Forum. https://community.temporal.io/t/temporal-vs-akka-and-lagom/2589 (accessed 17 August 2026; archival snapshot to be pinned at deposit).
-
 Burckhardt, S., Gillum, C., Justo, D., Kallas, K., McMahon, C., & Meiklejohn, C. S. (2021). Durable functions: Semantics for stateful serverless. *Proceedings of the ACM on Programming Languages*, 5(OOPSLA), Article 133. https://doi.org/10.1145/3485510
+
+Bykov, S., & Fateev, M. (2021). *Temporal vs Akka and Lagom* [Forum discussion; practitioner source, no refereed venue]. Temporal Community Forum. https://community.temporal.io/t/temporal-vs-akka-and-lagom/2589 (accessed 17 August 2026; archival snapshot to be pinned at deposit).
 
 Bykov, S., Geller, A., Kliot, G., Larus, J. R., Pandya, R., & Thelin, J. (2011). Orleans: Cloud computing for everyone. *Proceedings of the 2nd ACM Symposium on Cloud Computing (SoCC 2011)*, Article 16.
 
@@ -878,7 +878,7 @@ Peffers, K., Tuunanen, T., Rothenberger, M. A., & Chatterjee, S. (2007). A desig
 
 Plotkin, G. D. (2004). A structural approach to operational semantics. *Journal of Logic and Algebraic Programming*, 60–61, 17–139.
 
-Ressia, J., Gîrba, T., Nierstrasz, O., Perin, F., & Renggli, L. (2014). Talents: An environment for dynamically composing units of reuse. *Software: Practice and Experience*, 44, 413–432.
+Ressia, J., Gîrba, T., Nierstrasz, O., Perin, F., & Renggli, L. (2014). Talents: An environment for dynamically composing units of reuse. *Software: Practice and Experience*, 44(4), 413–432. https://doi.org/10.1002/spe.2160
 
 Rivera, A. (2026c). Reactions and the partition: opt-in eventual consistency in actor-native systems. *Puppeteer Papers Series*, Paper 3 [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.20792156
 
@@ -892,9 +892,9 @@ Searle, J. R. (1969). *Speech acts: An essay in the philosophy of language*. Cam
 
 Searle, J. R. (1995). *The construction of social reality*. Free Press.
 
-Sigelman, B. H., Barroso, L. A., Burrows, M., Stephenson, P., Plakal, M., Beaver, D., Jaspan, S., & Shanbhag, C. (2010). *Dapper, a large-scale distributed systems tracing infrastructure* (Technical Report dapper-2010-1). Google.
-
 Shaw, M. (2003). Writing good software engineering research papers. *Proceedings of the 25th International Conference on Software Engineering (ICSE 2003)*, 726–736.
+
+Sigelman, B. H., Barroso, L. A., Burrows, M., Stephenson, P., Plakal, M., Beaver, D., Jaspan, S., & Shanbhag, C. (2010). *Dapper, a large-scale distributed systems tracing infrastructure* (Technical Report dapper-2010-1). Google.
 
 Smith, B. C. (1984). Reflection and semantics in Lisp. *Proceedings of the 11th ACM Symposium on Principles of Programming Languages (POPL 1984)*, 23–35.
 
