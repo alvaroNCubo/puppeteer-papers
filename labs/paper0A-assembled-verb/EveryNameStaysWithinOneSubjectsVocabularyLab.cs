@@ -30,23 +30,25 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // stripped of the "Aggregate" suffix; classes deriving AggregateRoot in the payments
     // domain. No name is added by hand.
     //
-    // CODING (rule T). Unit of analysis: the artifact's identifier. Tokenize on uppercase
-    // boundaries; strip the layer suffix (IntegrationEvent, DomainEvent, Event, Command);
-    // consume aggregate names longest-first, left to right. The artifact is coded T -
-    // "names a trajectory spanning subjects" - iff it references two or more DISTINCT
-    // aggregates of its own system. Otherwise S: it stays within one subject's vocabulary.
-    // Referencing zero aggregates codes S: the name stays within the vocabulary of its
-    // declaring subject.
+    // CODING (rule T1, mechanical). Unit of analysis: the artifact's identifier. Strip the
+    // layer suffix (IntegrationEvent, DomainEvent, Event, Command); consume aggregate names
+    // longest-first, left to right, at token boundaries (plural 's' included). The artifact
+    // is coded T iff it references two or more DISTINCT aggregates of its own system - no
+    // verb, no ordering, no judgment required.
     //
-    // The rule is deliberately generous to T: it requires no verb, no ordering, no claim
-    // about operations - two subjects' nouns in one name suffice. If the census's zero
-    // survives a rule this permissive, the zero is not an artifact of strict coding.
+    // CODING (rule T2, manual residual). Rule T1 is generous within one syntactic form and
+    // blind outside it: a trajectory can be named without naming any constituent - Checkout,
+    // Onboarding, CompletePurchase - and a rule that counts aggregate references cannot see
+    // that form. So every identifier T1 cannot see is handed to manual coding: those
+    // referencing NO aggregate at all, and those bearing a word from the published process
+    // lexicon below. Each manual coding is published with its reason, and a residual
+    // identifier without a published coding FAILS the run - silence is not a coding.
     //
-    // AGREEMENT. The author's reading coded every artifact S. This coder is independent in
-    // the one axis that matters for auditability - it applies published rules with no
-    // discretion - and its full row-by-row output is printed for any reader to dispute.
-    // With both codings all-S, kappa is undefined (no marginal variance); what is reported
-    // instead is raw agreement, the defeat condition, and the instrument itself.
+    // AGREEMENT. The author's reading coded every artifact S. Rule T1 is independent in the
+    // one axis that matters for auditability - published rules, no discretion - and rule
+    // T2's rows carry their reasons for any reader to dispute. With both codings all-S,
+    // kappa is undefined (no marginal variance); what is reported instead is raw agreement,
+    // the manual rows, the defeat condition, and the instrument itself.
     [TestClass]
     public class EveryNameStaysWithinOneSubjectsVocabularyLab
     {
@@ -110,12 +112,18 @@ namespace UnitTestAssembledVerbOnPuppeteer
 
             artifacts = artifacts.Distinct().OrderBy(a => a.System).ThenBy(a => a.Layer).ThenBy(a => a.Name).ToList();
 
-            // rule T - the coding, and the agreement report
+            // rule T1 - mechanical coding; rule T2 - the residual it cannot see goes to
+            // manual coding, each row with its reason published below
             var coded = artifacts.Select(a =>
             {
                 var lexicon = a.System == "ordering" ? orderingAggregates : paymentsAggregates;
                 var referenced = AggregatesReferenced(a.Name, lexicon);
-                return (a.Name, a.Layer, a.System, Referenced: referenced, Code: referenced.Count >= 2 ? "T" : "S");
+                bool residual = referenced.Count == 0
+                                || AggregatesReferenced(a.Name, ProcessLexicon.ToList()).Count > 0;
+                string code = referenced.Count >= 2 ? "T"
+                            : residual ? "S*"
+                            : "S";
+                return (a.Name, a.Layer, a.System, Referenced: referenced, Code: code);
             }).ToList();
 
             Console.WriteLine();
@@ -133,17 +141,28 @@ namespace UnitTestAssembledVerbOnPuppeteer
             int integrationEvents = coded.Count(c => c.Layer == "integration event");
             int commands = coded.Count(c => c.Layer == "command");
             int trajectories = coded.Count(c => c.Code == "T");
+            var residuals = coded.Where(c => c.Code == "S*").ToList();
             Console.WriteLine($"    population : {domainEvents} domain events, {integrationEvents} integration events, {commands} commands = {coded.Count}");
-            Console.WriteLine($"    coded T    : {trajectories}");
-            Console.WriteLine($"    agreement with the author's reading (all S): {coded.Count(c => c.Code == "S")}/{coded.Count}");
+            Console.WriteLine($"    coded T by rule one (mechanical)             : {trajectories}");
+            Console.WriteLine($"    handed to rule two (manual, S*)              : {residuals.Count}");
+            foreach (var r in residuals)
+            {
+                Console.WriteLine($"        {r.Name,-42} -> {ManualCodes[r.Name].Code}: {ManualCodes[r.Name].Reason}");
+            }
+            Console.WriteLine($"    agreement with the author's reading (all S) : {coded.Count(c => c.Code != "T")}/{coded.Count}");
             Console.WriteLine();
 
             Assert.AreEqual(0, trajectories,
-                "No artifact's name references two subjects' aggregates - under a rule generous "
-                + "to the opposite finding. One such name is the census's cheap defeat.");
+                "No artifact's name references two subjects' aggregates - rule one, mechanical.");
 
-            Assert.AreEqual(coded.Count, coded.Count(c => c.Code == "S"),
-                "The mechanical coder agrees with the author's reading on every artifact.");
+            foreach (var r in residuals)
+            {
+                Assert.IsTrue(ManualCodes.ContainsKey(r.Name),
+                    $"Rule two found an identifier rule one cannot see, and no manual coding is "
+                    + $"published for it: {r.Name}. Code it and state the reason - or it defeats the zero.");
+                Assert.AreEqual("S", ManualCodes[r.Name].Code,
+                    $"The published manual coding for {r.Name} is not S: the census's zero is defeated.");
+            }
 
             Assert.AreEqual(27, domainEvents,
                 "The population rule reproduces the domain-event denominator from the pinned corpus alone.");
@@ -152,6 +171,28 @@ namespace UnitTestAssembledVerbOnPuppeteer
             Assert.AreEqual(29, commands,
                 "The population rule reproduces the command denominator; handlers, generics and queries out.");
         }
+
+        // Rule two's process lexicon: words that name a whole without naming any constituent -
+        // the form rule one is blind to, and the form of the paper's own opening example
+        // (CompletePurchase carries no aggregate noun). Author-supplied, published, and open:
+        // extending it is part of the defeat condition.
+        private static readonly string[] ProcessLexicon =
+        {
+            "Checkout", "Onboarding", "Fulfillment", "Purchase", "Process",
+            "Flow", "Journey", "Pipeline", "Saga", "Workflow", "Trajectory", "Lifecycle",
+        };
+
+        // The manual codings for rule two's residual, each with its reason. A residual
+        // identifier missing from this table fails the run: silence is not a coding.
+        private static readonly Dictionary<string, (string Code, string Reason)> ManualCodes = new()
+        {
+            ["GracePeriodConfirmedIntegrationEvent"] =
+                ("S", "confirms one wait-state of the ordering process; no second subject's operation is named"),
+            ["MeetingAttendeeAddedIntegrationEvent"] =
+                ("S", "one transition of another module's aggregate, which the subsystem merely bills"),
+            ["NewUserRegisteredIntegrationEvent"] =
+                ("S", "one transition of the user-access subject"),
+        };
 
         private static List<string> AggregatesReferenced(string identifier, List<string> lexicon)
         {
@@ -173,7 +214,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 string? hit = byLength.FirstOrDefault(a =>
                     i + a.Length <= name.Length
                     && string.CompareOrdinal(name, i, a, 0, a.Length) == 0
-                    && (i + a.Length == name.Length || char.IsUpper(name[i + a.Length]) || char.IsDigit(name[i + a.Length])));
+                    && HasTokenBoundary(name, i + a.Length));
                 if (hit is not null)
                 {
                     if (!found.Contains(hit))
@@ -188,6 +229,19 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 }
             }
             return found;
+        }
+
+        // A match ends at a token boundary: end of the identifier, an uppercase or digit
+        // start of the next token, or a plural 's' followed by one of those - so that
+        // ExpireSubscriptions references Subscription rather than nothing.
+        private static bool HasTokenBoundary(string name, int at)
+        {
+            if (at == name.Length || char.IsUpper(name[at]) || char.IsDigit(name[at]))
+            {
+                return true;
+            }
+            return name[at] == 's'
+                && (at + 1 == name.Length || char.IsUpper(name[at + 1]) || char.IsDigit(name[at + 1]));
         }
 
         private static IEnumerable<string> CsFiles(string dir)

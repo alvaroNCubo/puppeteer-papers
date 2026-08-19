@@ -2,10 +2,11 @@
 
 The census of the paper's §6 — *every named artifact stays within the vocabulary of a single
 subject; none names a trajectory spanning subjects* — is a coding task, and this file is its
-codebook: the population rule, the lexicon rule, the coding rule, and the full coded table.
-The rules are also implemented, verbatim, in `EveryNameStaysWithinOneSubjectsVocabularyLab.cs`,
-which re-derives everything below from the pinned corpus clones and asserts the counts — so the
-mechanical coder is re-runnable, and whoever runs it is a further coder.
+codebook: the population rule, the lexicon rule, the two coding rules, the manual codings with
+their reasons, and the full coded table. The rules are also implemented, verbatim, in
+`EveryNameStaysWithinOneSubjectsVocabularyLab.cs`, which re-derives everything below from the
+pinned corpus clones and asserts the counts — so the coder is re-runnable, and whoever runs it
+is a further coder.
 
 ## Population (rule P)
 
@@ -34,32 +35,58 @@ Per subsystem, derived mechanically from the corpus itself — no name added by 
   `MeetingFee`, `MeetingFeePayment`, `Payer`, `PriceListItem`, `Subscription`,
   `SubscriptionPayment`, `SubscriptionRenewalPayment`.
 
-## Coding (rule T)
+Matches consume the identifier longest-first at token boundaries, plural `s` included — so
+`ExpireSubscriptions` references `Subscription` rather than nothing.
 
-Unit of analysis: the artifact's identifier. Strip the layer suffix (`IntegrationEvent`,
-`DomainEvent`, `Command`, `Event`); consume aggregate names longest-first, left to right,
-requiring a token boundary after the match.
+## Coding, rule T1 (mechanical)
+
+Strip the layer suffix (`IntegrationEvent`, `DomainEvent`, `Command`, `Event`); consume
+aggregate names as above.
 
 - **T** — *names a trajectory spanning subjects*: the identifier references **two or more
-  distinct aggregates** of its own system.
-- **S** — *stays within one subject's vocabulary*: everything else, including identifiers that
-  reference no aggregate (they stay within the vocabulary of their declaring subject).
+  distinct aggregates** of its own system. No verb, no ordering, no judgment required.
+- **S** — *stays within one subject's vocabulary*: references exactly one aggregate.
 
-The rule is deliberately **generous to T**: no verb, no ordering, no claim about operations is
-required — two subjects' nouns in one name suffice. The census's zero therefore does not
-depend on strict coding.
+Rule T1 is generous **within its form** — two subjects' nouns in one name suffice — and blind
+outside it, which is why it does not code the residual.
+
+## Coding, rule T2 (manual residual)
+
+A trajectory can be named without naming any constituent — *Checkout*, *Onboarding*,
+*CompletePurchase* — and a rule that counts aggregate references cannot see that form. Rule T2
+therefore hands to **manual coding** every identifier T1 cannot see:
+
+- identifiers referencing **no aggregate at all**, and
+- identifiers bearing a word from the published process lexicon:
+  `Checkout`, `Onboarding`, `Fulfillment`, `Purchase`, `Process`, `Flow`, `Journey`,
+  `Pipeline`, `Saga`, `Workflow`, `Trajectory`, `Lifecycle` (author-supplied, open — extending
+  it is part of the defeat condition).
+
+Every manual coding is published below with its reason, and a residual identifier without a
+published coding **fails the run**: silence is not a coding. These rows carry code `S*` in the
+table.
+
+| residual artifact | manual code | reason |
+|---|---|---|
+| `GracePeriodConfirmedIntegrationEvent` | S | confirms one wait-state of the ordering process; no second subject's operation is named |
+| `MeetingAttendeeAddedIntegrationEvent` | S | one transition of another module's aggregate, which the subsystem merely bills |
+| `NewUserRegisteredIntegrationEvent` | S | one transition of the user-access subject |
 
 ## Result and agreement
 
-- Coded **T: 0 of 72**. Coded **S: 72 of 72**.
+- Rule T1, mechanical: **T: 0 of 72**.
+- Rule T2, manual residual: **3 of 72**, each coded **S** with its reason above.
 - The author's independent reading also coded every artifact S: **raw agreement 72/72**.
 - With both codings placing every artifact in a single category there is no variance for a
   chance-corrected coefficient to correct (Cohen, 1960) — κ is undefined, not withheld. The
-  auditable substitutes are this codebook, the re-runnable coder, and the defeat condition.
+  auditable substitutes are this codebook, the re-runnable coder, the manual rows, and the
+  defeat condition.
 
-**Defeat condition, cheap to run:** exhibit one artifact in either subsystem whose name
-references aggregates of two distinct subjects. The lab will code it T, and the census's
-zero becomes one.
+**Defeat condition, cheap to run:** exhibit one artifact in either subsystem whose name refers
+to a trajectory spanning operations of more than one subject — in either form. Two subjects'
+nouns in one name: rule T1 codes it T mechanically. A single word naming the whole — a
+*CompletePurchase*, a *Checkout*: rule T2's manual lane exists to see it, and its lexicon is
+yours to extend.
 
 ## The coded table
 
@@ -80,7 +107,7 @@ zero becomes one.
 | 13 | S | ordering | domain event | `OrderStatusChangedToAwaitingValidationDomainEvent` | Order |
 | 14 | S | ordering | domain event | `OrderStatusChangedToPaidDomainEvent` | Order |
 | 15 | S | ordering | domain event | `OrderStatusChangedToStockConfirmedDomainEvent` | Order |
-| 16 | S | ordering | integration event | `GracePeriodConfirmedIntegrationEvent` | — |
+| 16 | S* | ordering | integration event | `GracePeriodConfirmedIntegrationEvent` | — |
 | 17 | S | ordering | integration event | `OrderPaymentFailedIntegrationEvent` | Order |
 | 18 | S | ordering | integration event | `OrderPaymentSucceededIntegrationEvent` | Order |
 | 19 | S | ordering | integration event | `OrderStartedIntegrationEvent` | Order |
@@ -104,8 +131,8 @@ zero becomes one.
 | 37 | S | payments | command | `DeactivatePriceListItemCommand` | PriceListItem |
 | 38 | S | payments | command | `ExpireSubscriptionCommand` | Subscription |
 | 39 | S | payments | command | `ExpireSubscriptionPaymentCommand` | SubscriptionPayment |
-| 40 | S | payments | command | `ExpireSubscriptionPaymentsCommand` | Subscription |
-| 41 | S | payments | command | `ExpireSubscriptionsCommand` | — |
+| 40 | S | payments | command | `ExpireSubscriptionPaymentsCommand` | SubscriptionPayment |
+| 41 | S | payments | command | `ExpireSubscriptionsCommand` | Subscription |
 | 42 | S | payments | command | `MarkMeetingFeeAsPaidCommand` | MeetingFee |
 | 43 | S | payments | command | `MarkMeetingFeePaymentAsPaidCommand` | MeetingFeePayment |
 | 44 | S | payments | command | `MarkSubscriptionPaymentAsPaidCommand` | SubscriptionPayment |
@@ -133,7 +160,7 @@ zero becomes one.
 | 66 | S | payments | domain event | `SubscriptionRenewalPaymentCreatedDomainEvent` | SubscriptionRenewalPayment |
 | 67 | S | payments | domain event | `SubscriptionRenewalPaymentPaidDomainEvent` | SubscriptionRenewalPayment |
 | 68 | S | payments | domain event | `SubscriptionRenewedDomainEvent` | Subscription |
-| 69 | S | payments | integration event | `MeetingAttendeeAddedIntegrationEvent` | — |
+| 69 | S* | payments | integration event | `MeetingAttendeeAddedIntegrationEvent` | — |
 | 70 | S | payments | integration event | `MeetingFeePaidIntegrationEvent` | MeetingFee |
-| 71 | S | payments | integration event | `NewUserRegisteredIntegrationEvent` | — |
+| 71 | S* | payments | integration event | `NewUserRegisteredIntegrationEvent` | — |
 | 72 | S | payments | integration event | `SubscriptionExpirationDateChangedIntegrationEvent` | Subscription |
