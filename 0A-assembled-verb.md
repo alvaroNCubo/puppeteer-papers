@@ -22,52 +22,54 @@ keywords:
   - design theory
   - puppeteer framework
 abstract: >
-  Domain operations already compute: in two well-regarded reference systems, the
-  authors' own test suites exercise their domains with no store, no bus and no
-  test double. Programs already sequence and coordinate those operations: calls,
-  methods, events, sagas — the corpus does all of it, well. This paper is about
-  what neither fact supplies. Executing a sequence consumes capabilities; it does
-  not thereby produce one. Before the run there are three operations, and after
-  the run there are the same three. The paper reports an arrangement in which
-  assembly constitutes the composition itself as a verb of a subject — one
-  recorded definition whose content is the operations — and measures the
-  difference that makes. The verb is reusable: performed twice with different
-  arguments, the journal holds one definition and two invocations, the second
-  stating nothing about the verb's constitution. And its recorded constitution is
-  distinguishable, by a criterion any record can be asked: how many of the constituting operations does
-  the record contain, and does replaying it alone bring the outcome about again?
-  An event-sourced coordinator's record contains none of them, and the strongest
-  coordination shape — durable execution, measured on a third-party engine —
-  contains all of them yet re-performs none on replay; a trace contains all and
-  has no replay; only the constituted verb both contains and re-performs. Modality is attributed at assembly, per performance, rather than inherited:
-  measured with one body — one verb — held fixed, a performance leaves no
-  history exercised as a query and is journaled, replayable, performed as a
-  command — the domain unchanged either way. Naming decides nothing — the constituted verb is an anonymous integer, and the two
-  arrangements it must be distinguished from are the ones with the business
-  names. The composition may draw its operations from one repertoire or several;
-  two shipped domain assemblies that share no type make the plane visible, and a
-  census of the corpus's 72 named artifacts — zero naming any trajectory
-  spanning subjects, under published population and coding rules that re-run
-  mechanically — shows that in neither system did the plane appear of its own
-  accord; no wider population is claimed. A prototype of a few hundred lines realizes the same
-  conjunction on a third-party engine — the same engine that carries a
-  coordination row, so the substrate is held constant and only the arrangement
-  varies — and the record's growth, replay time and throughput are measured
-  against the direct baseline. The paper is analytic
-  in Gregor's (2006, Type I) sense: it prescribes nothing, and
-  its instrument is a question that can be put to a system already built; the
-  distinctions it rests on are additionally stated as short propositions over a
-  core operational calculus, with the labs as conformance checks. Assembly
-  turns the use of capabilities into a capability of a subject.
+  Domain operations already compute, and programs already sequence and
+  coordinate them: in two well-regarded reference systems, the authors' own
+  test suites exercise their domains with no store, no bus and no test double.
+  This paper is about what neither fact supplies. Executing a sequence consumes
+  capabilities; it does not thereby produce one — before the run there are
+  three operations, and after the run there are the same three. The paper
+  reports an arrangement in which assembly constitutes the composition itself
+  as a verb of a subject — one recorded definition whose content is the
+  operations — and measures the difference that makes: performed twice with
+  different arguments, the journal holds one definition and two invocations,
+  the second stating nothing about the verb's constitution. Its recorded
+  constitution is distinguishable by a criterion any record can be asked — how
+  many of the constituting statements does the record contain, and does
+  replaying the record alone bring the outcome about again? — measured across
+  an event-sourced coordinator, durable execution on a third-party engine, a
+  trace, and the constituted verb: only the last both contains and re-performs,
+  and what separates the strongest rival is how much stays ambient in code.
+  Command/query modality is attributed at assembly, per performance, rather
+  than inherited: one body, held fixed, leaves no history exercised as a query
+  and is journaled, replayable, performed as a command. A census of the
+  corpus's 72 named artifacts, under published population and coding rules,
+  shows that in neither system did the plane appear of its own accord; no
+  wider population is claimed. A prototype of a few hundred lines realizes the
+  same conjunction on a third-party engine, and the record's growth, replay
+  time and throughput are measured against the direct baseline. The paper is
+  analytic in Gregor's (2006, Type I) sense: it prescribes nothing, and its
+  distinctions are stated as propositions over a core operational calculus,
+  with the labs as conformance checks. Assembly turns the use of capabilities
+  into a capability of a subject.
 ---
 
 # The Assembled Verb: repertoire, assembly, and the authorship of a verb
 
 ## TL;DR
 
-Domain operations already compute, and programs already sequence and coordinate them — the corpus's own tests and architecture show both, and both are conceded in full. What execution does not do is produce anything: before the run there are three capabilities, and after it the same three. This paper measures an arrangement in which assembly constitutes the composition as a **verb of a subject**, and the difference is not rhetorical. The verb is a capability, and the test of a capability is reuse: performed twice with different arguments, the journal holds **one definition and two invocations**, the second stating nothing about the verb's constitution, and replay re-performs both from the one. The verb's recorded constitution is distinguishable by a criterion any record can be asked — how many of the constituting statements does the record contain, and does replaying it alone bring the outcome about again? An event-sourced coordinator's record contains **0**; durable execution's — measured on the engine beneath Durable Functions — contains all **6**, yet its replay re-executes the orchestrator's code and re-performs no operation; a trace contains all **6** with no replay; the constituted verb contains all **6** and re-performs them. Command/query modality is **attributed at assembly, per performance, rather than inherited**: with one body — one verb — held fixed, a performance leaves no history exercised as a query and is journaled, replayable, performed as a command — the domain unchanged either way. Naming decides nothing, and runs the wrong way: the method and the trace carry the business names, and the constituted verb is an anonymous integer. Two shipped domain assemblies sharing no type make the plane visible, and a census of the corpus's 72 named artifacts — zero naming any trajectory spanning subjects, under published population and coding rules that re-run mechanically — shows that in neither system did the plane appear of its own accord; §8 keeps the scope at two systems, and no wider population is claimed. The ingredients are old, and §7 concedes them by name, from macro-operators (1972) to talents and workflow cases; what the search reported in Appendix B — built to knock the claim down, and carrying one documented miss — did not find said together among the neighbours examined is the conjunction: a subject-owned record of a definition and its exercises, constituted from repertoires the subject does not own, with modality — including what counts as the subject's history — attributed at the plane of assembly. Nor is the plane a feature of one engine: a prototype of a few hundred lines realizes the same conjunction on a third-party engine — the engine that carries a coordination row, so the substrate is held constant — with the definition and its exercises in that engine's own journal, reconstruction re-performing them, and the domain-minted identity fresh per replay. The record's price is measured rather than waved at — ten runs per timed quantity, medians with their spread, environment declared: ~112 bytes per additional exercise against 554 for the act carrying the definition, ~21 ms to reconstruct a subject from 1,000 exercises, and a 189x throughput cost against the same statements as direct in-memory calls — of which replay shows the durable write, not the plane, to be the dominant term. Whether occupying the plane is an entitlement rather than a capability is declared an open reading.
+Domain operations already compute, and programs already sequence and coordinate them — the corpus's own tests and architecture show both, and both are conceded in full. What execution does not do is produce anything: before the run there are three capabilities, and after it the same three. This paper measures an arrangement in which assembly constitutes the composition as a **verb of a subject**, and the difference is not rhetorical. The verb is a capability, and the test of a capability is reuse: performed twice with different arguments, the journal holds **one definition and two invocations**, the second stating nothing about the verb's constitution, and replay re-performs both from the one.
 
-*Dependencies. This paper is part of the Puppeteer Papers, a series of self-deposited preprints, and rests on four of them: the actor's speech and `tell` (Paper 4), whose two directions supply the assembly plane's own statements in §5.1; the output authority (Paper 8), whose producer-is-not-the-authority geometry §2.4 meets again on the plane of historicity; `Reaction` (Paper 3), whose per-verb consistency contract §2.4's movement parallels and whose mechanism §8's corollary draws on; and identity across stagings (Paper 9), whose corpus-selection and anchor-verification discipline this paper follows. Methodologically it is an analytic theory contribution in the sense of Gregor's (2006) theory for analyzing (Type I): capability, exercise and constitution are constructs by which arrangements may be described and compared, and the paper offers no prescription — its instrument is the question of §3, askable of a system already built. The distinctions themselves are stated operationally in Appendix C, over a core calculus small enough that each separation is a proposition with a constructive proof, and the labs double as its conformance checks. The labs of Appendix A are accordingly an existence proof of realizability — on two engines, one of them third-party — plus a measurement of the record's material cost (§8); no advantage claim is made anywhere, and no design-science evaluation of benefit is attempted. That an artifact is built and measured invites the nearest alternative classification, so the boundary is stated checkably rather than trusted: a design-science contribution (Gregor's Type V; Hevner et al. 2004; Peffers et al. 2007) states a problem, derives objectives of a solution, and evaluates the artifact's utility against them — and this paper does none of the three, on purpose. No problem statement is offered; no objective of a solution is derived; §8 declines every utility claim, pricing the category's occupant without ranking it. What the labs evidence is therefore analytic, not evaluative: that the constructs denote — the category is instantiable, on more than one substrate — and what its instances measurably are. A reader who finds a utility claim anywhere in this paper has found an error. Stated in the vocabulary of software-engineering research method: the contribution is a descriptive model whose validation is by example — a system built and measured — in Shaw's (2003) classification, and in Stol and Fitzgerald's (2018) terms it trades generalizability and realism of context away entirely, being two systems on one substrate, in exchange for precise and reproducible measurement.*
+The verb's recorded constitution is distinguishable by a criterion any record can be asked — how many of the constituting statements does the record contain, and does replaying it alone bring the outcome about again? An event-sourced coordinator's record contains **0**; durable execution's — measured on the engine beneath Durable Functions — contains all **6**, yet its replay re-executes the orchestrator's code and re-performs no operation; a trace contains all **6** with no replay; the constituted verb contains all **6** and re-performs them.
+
+Command/query modality is **attributed at assembly, per performance, rather than inherited**: with one body — one verb — held fixed, a performance leaves no history exercised as a query and is journaled, replayable, performed as a command — the domain unchanged either way. Naming decides nothing, and runs the wrong way: the method and the trace carry the business names, and the constituted verb is an anonymous integer.
+
+Two shipped domain assemblies sharing no type make the plane visible, and a census of the corpus's 72 named artifacts — zero naming any trajectory spanning subjects, under published population and coding rules that re-run mechanically — shows that in neither system did the plane appear of its own accord; §8 keeps the scope at two systems, and no wider population is claimed.
+
+The ingredients are old, and §7 concedes them by name, from macro-operators (1972) to talents and workflow cases; what the search reported in Appendix B — built to knock the claim down, and carrying one documented miss — did not find said together among the neighbours examined is the conjunction: a subject-owned record of a definition and its exercises, constituted from repertoires the subject does not own, with modality — including what counts as the subject's history — attributed at the plane of assembly.
+
+Nor is the plane a feature of one engine: a prototype of a few hundred lines realizes the same conjunction on a third-party engine — the engine that carries a coordination row, so the substrate is held constant — with the definition and its exercises in that engine's own journal, reconstruction re-performing them, and the domain-minted identity fresh per replay. The record's price is measured rather than waved at — ten runs per timed quantity, medians with their spread, environment declared: ~112 bytes per additional exercise against 554 for the act carrying the definition, ~21 ms to reconstruct a subject from 1,000 exercises, and a 189x throughput cost against the same statements as direct in-memory calls — of which replay shows the durable write, not the plane, to be the dominant term. Whether occupying the plane is an entitlement rather than a capability is declared an open reading.
+
+*Dependencies. This paper is part of the Puppeteer Papers, a series of self-deposited preprints, and rests on four of them: the actor's speech and `tell` (Paper 4), whose two directions supply the assembly plane's own statements in §5.1; the output authority (Paper 8), whose producer-is-not-the-authority geometry §2.4 meets again on the plane of historicity; `Reaction` (Paper 3), whose per-verb consistency contract §2.4's movement parallels and whose mechanism §8's corollary draws on; and identity across stagings (Paper 9), whose corpus-selection and anchor-verification discipline this paper follows. The methodological position — what kind of contribution this is, and the boundary against the nearest alternative — is stated in §1.2, beside the evidence it classifies.*
 
 ## 1. The Ordinary Ground
 
@@ -145,7 +147,9 @@ Seven bodies of evidence appear and answer different questions. Two are the corp
 
 The constructed evidence proves realizability and nothing about how either corpus system was designed; no count from it is offered as evidence about their authors' choices. The corpus was selected on stated criteria before it was read, and the census of §6 was run after the selection. No population-level generalisation is claimed anywhere.
 
-The record's cost is measured and nothing is ranked by it: §8 prices growth, replay and throughput against the direct baseline and claims no advantage anywhere. The labs are existence proofs of realizability plus that one measurement, not a design-science evaluation; the methodological classification, and the boundary against one, are in the *Dependencies* note above.
+The record's cost is measured and nothing is ranked by it: §8 prices growth, replay and throughput against the direct baseline and claims no advantage anywhere.
+
+Methodologically the paper is an analytic theory contribution in the sense of Gregor's (2006) theory for analyzing (Type I): capability, exercise and constitution are constructs by which arrangements may be described and compared, and the paper offers no prescription — its instrument is the question of §3, askable of a system already built. The distinctions themselves are stated operationally in Appendix C, over a core calculus small enough that each separation is a proposition with a constructive proof, and the labs double as its conformance checks. The labs of Appendix A are accordingly an existence proof of realizability — on two engines, one of them third-party — plus a measurement of the record's material cost (§8); no advantage claim is made anywhere, and no design-science evaluation of benefit is attempted. That an artifact is built and measured invites the nearest alternative classification, so the boundary is stated checkably rather than trusted: a design-science contribution (Gregor's Type V; Hevner et al. 2004; Peffers et al. 2007) states a problem, derives objectives of a solution, and evaluates the artifact's utility against them — and this paper does none of the three, on purpose. No problem statement is offered; no objective of a solution is derived; §8 declines every utility claim, pricing the category's occupant without ranking it. What the labs evidence is therefore analytic, not evaluative: that the constructs denote — the category is instantiable, on more than one substrate — and what its instances measurably are. A reader who finds a utility claim anywhere in this paper has found an error. Stated in the vocabulary of software-engineering research method: the contribution is a descriptive model whose validation is by example — a system built and measured — in Shaw's (2003) classification, and in Stol and Fitzgerald's (2018) terms it trades generalizability and realism of context away entirely, being two systems on one substrate, in exchange for precise and reproducible measurement.
 
 And one term is used before it is defined, deliberately. *Subject* carries, until §4, only its deflated sense — the thing an operation is attributable to. The strong sense is not in use until it is earned.
 
@@ -339,7 +343,7 @@ And the constitution row is not left as the only row realized solely on this pap
 
 | arrangement | names the whole | (a) statements in the record | (b) the record alone replays into the whole |
 |---|---|---|---|
-| coordination — event-sourced process manager (third-party engine; corpus-mirror harness agrees) | yes | **0** | no |
+| coordination — event-sourced process manager (third-party engine; corpus-mirror harness agrees) | yes | **0** — its own journal holds 6 transitions, none an act's statement | no |
 | coordination — durable execution (third-party engine) | yes | **6** | no |
 | description | yes | **6** | no — nothing to replay |
 | constitution | **no** | **6** | **yes** — up to fresh values (§3.1) |
@@ -521,7 +525,7 @@ And there are things true of the trajectory that no participant in it can state.
 
 > The whole is knowable, but not by any of its parts.
 
-The run raises nine domain events, every one naming a transition of a single aggregate, none naming the trajectory:
+The run raises nine domain events — the corpus domains' own, emitted by their aggregates, in a scenario this paper composed, so the count carries the constructed kind of §1.2's table and no weight about either corpus system's design — every one naming a transition of a single aggregate, none naming the trajectory:
 
 > The repertoires name every transition they are entitled to name. What they do not name is the trajectory that exists only in their composition.
 
@@ -690,6 +694,8 @@ What survives the limits of §8 is therefore not a proposal but a conjunction, f
 
 As this series has done before, the paper closes by handing the reader its instrument rather than its enthusiasm. Of any system, take the record that claims to be the whole and ask: **how many of the statements that constitute the whole does it contain, and does replaying it alone bring the outcome about again?** And then the two questions no neighbour of §7 was found to hold: **who assigns each exercise's command/query modality, and who decides which performances enter the subject's history?** Systems will answer differently, and the answers are informative wherever they land; nothing obliges a system to have V, and §8 said so.
 
+And for the reader who declines this paper's vocabulary, what remains is stated without it. A two-question criterion askable of any record, its cells measured on engines not this paper's. A hierarchy of what must be present besides a record for its replay to mean the same thing — there, the composition and the operations ambient in code; here, the operations only — with the versioning hazard living exactly where the remainder does (§7.2; Appendix C, Proposition 5). A measured demonstration that journal membership is decided by the performer's attribution and not by the operation's effect. And two shipped systems whose 72 named artifacts, under published coding rules, contain no name spanning subjects. The declarations of §8 fence that field; they do not empty it — every item on this list survives the flatter description §4.1 admits.
+
 Two things are deliberately left standing. Whether occupying the assembly plane is an entitlement rather than a capability remains the open reading of §4.2. And once wholes exist as units in a subject's history, what *reading* them amounts to — what recognition is, and what it entitles — is not begun here. A subject that can acquire verbs has a history worth reading, and that is the next question, not this paper's.
 
 The last consequence is the one the title was carrying all along, in the word *authorship*. The repertoire need not know the verbs in which it will participate. The subject need not have authored the operations from which its verbs are made. Between those two freedoms sits one operation:
@@ -715,7 +721,7 @@ Every count in the body resolves to one of two published artifacts, and the spli
 | `TheCoordinationArmOnAThirdPartyEngineLab` | §3, §7.2 | the coordination arm on the Durable Task Framework (in-memory emulator; history via its public dispatch middleware): **6** invocations in the engine's own record; orchestrator code replayed in 6 episodes; **no operation re-performed** |
 | `RepertoireBoundaryLab` (+ `RepertoireBoundaryFixture/`) | §4.2 | the compiler refuses the host (`CS0122`, obtained by compiling a program written to fail); the assembler reaches the internal piece |
 | `RetrievalIsALookupLab` (+ `SubscriptionPaymentBridge`) | §4.3 | the assembler's key stable across replay; the domain-minted identity not; the minting site marked `R_99` |
-| `ALongTrajectoryOverTwoUntouchedRepertoiresLab` | §5.2 | 17 operations, 4 aggregates, 2 shipped assemblies sharing no type, 0 doubles; 9 events, none naming the trajectory |
+| `ALongTrajectoryOverTwoUntouchedRepertoiresLab` | §5.2 | 17 operations, 4 aggregates, 2 shipped assemblies sharing no type, 0 doubles; 9 events (corpus-emitted, author-composed scenario), none naming the trajectory |
 | `WhatTheCarrierCarriesLab` | §6 | one act carried three ways delivers identical values; only the repertoire-minted identity differs |
 | `EveryNameStaysWithinOneSubjectsVocabularyLab` | §6 | the census under two coding rules: population **27 + 16 + 29 = 72** reproduced mechanically; rule one (≥2 aggregates in one name) codes **0** T; rule two hands its blind spot — zero-aggregate names, process words — to manual coding: **3** residuals, each published with its reason, all S; agreement **72/72**, between same-authorship instruments — no independent coder (§6) |
 | `TheTrajectoryBecomesObservableLab` | §8 | two reactions over unrelated patterns answer one question identically, correlated by the recorded act |
