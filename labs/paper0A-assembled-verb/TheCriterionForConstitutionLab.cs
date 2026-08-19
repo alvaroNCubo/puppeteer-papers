@@ -27,12 +27,15 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //     (a) CONTENT   how many of the statements that constitute the whole does it contain?
     //     (b) REPLAY    replaying it ALONE, does the whole's outcome exist again?
     //
-    // Both questions are TOTAL. (b) quantifies over the arrangement's own replay semantics:
-    // "replaying it alone" asks whether there exists a replay of this record, in the
-    // arrangement's own terms, after which the whole's outcome exists again. An arrangement
-    // that supplies no replay operation answers NO - vacuously, because nothing exists that
-    // could bring the outcome about - not "undefined". Undefined is not a value, and a
-    // criterion that returns one is not total.
+    // Both questions are TOTAL, and ALONE is load-bearing. (b) quantifies over the
+    // arrangement's own replay semantics - an arrangement that supplies no replay operation
+    // answers NO, vacuously, because nothing exists that could bring the outcome about; not
+    // "undefined", since undefined is not a value and a criterion that returns one is not
+    // total. And ALONE constrains the replay's INPUT: with the engine and the repertoires
+    // held fixed, a replay that also reads a definition kept outside the record - compiled
+    // code, an ambient program - is not a replay of the record alone, and what it produces
+    // is a function of the pair. An arrangement's own recovery may well bring its result
+    // back; what (b) asks is whether the RECORD ALONE can.
     //
     // OUTCOME IDENTITY IS TAKEN UP TO FRESH VALUES: two outcomes are the same when they
     // differ at most by a consistent renaming of identifiers minted during the run rather

@@ -37,7 +37,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
     //
     // Which refines what the criterion separates. Against this arm, content does not separate
     // constitution from coordination - both records hold all six statements. What separates
-    // them is (b) together with WHERE THE DEFINITION LIVES: here the composition is compiled
+    // them is (b)'s input clause - WHERE THE DEFINITION LIVES: here the composition is compiled
     // code, and the history holds exercises and outcomes that only that code can re-walk;
     // change the code and the same history replays against a different composition. In the
     // constitution arm the definition itself is an entry, and replaying the record alone
