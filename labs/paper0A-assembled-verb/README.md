@@ -42,7 +42,7 @@ suite. Nothing of either corpus repository is redistributed in this archive.
 | `EveryNameStaysWithinOneSubjectsVocabularyLab` (+ `CENSUS-CODEBOOK.md`) | §6 | the census under two coding rules: population **27 + 16 + 29 = 72** reproduced mechanically from the pinned clones; rule one (≥2 aggregates in one name) codes **0** T; rule two hands its blind spot — zero-aggregate names, process words — to manual coding: **3** residuals, each published with its reason, all S; agreement **72/72**, between same-authorship instruments — no independent coder |
 | `TheTrajectoryBecomesObservableLab` | §8 | the corollary: two reactions over unrelated patterns answer one question identically, correlated by the recorded act itself |
 | `TheConstitutionPrototypedOnAThirdPartyEngineLab` | §3.2, §8 | the constitution arrangement prototyped on Orleans, the coordination row's own engine: **1** definition and **2** exercises in the engine's journal; a query performance leaves it unmoved; reconstruction **re-executes every journaled statement**; the domain-minted identity differs per replay |
-| `WhatTheRecordCostsLab` | §8 | the record's price (Release, medians of 3): **554** bytes for definition + first exercise, **~112** per additional exercise; cold replay **5 ms** at 100 and **25 ms** at 1,000 exercises; **~2,100** exercises/s through the plane vs **~153,000** direct loops/s |
+| `WhatTheRecordCostsLab` | §8 | the record's price (Release, n=10, median [min..max], environment printed): **554** bytes for definition + first exercise, **~112** per additional (exact); cold replay **5.3 ms** at 100 and **21.3 ms** at 1,000 exercises; **~2,330**/s through the plane vs **~440,000**/s direct — **189x**, the ratio of the printed medians |
 
 ## Additional instruments
 
