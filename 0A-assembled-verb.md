@@ -131,7 +131,7 @@ The paper's claim, in one sentence, to be earned over the sections that follow:
 
 ### 1.2 What is measured, what is conceded, and what is read
 
-Four bodies of evidence appear and answer four different questions. Two are the corpus authors' artifacts and two are constructed; a reader is owed the difference.
+Seven bodies of evidence appear and answer different questions. Two are the corpus authors' artifacts, four are constructed or measured by this paper, and one is not evidence of fact at all; a reader is owed every one of those differences.
 
 | | shows | kind |
 |---|---|---|
@@ -139,10 +139,13 @@ Four bodies of evidence appear and answer four different questions. Two are the 
 | the corpus's architecture | movement without a produced capability | observational |
 | the substrate labs (§2–§5) | assembly producing one | author-constructed |
 | the long scenario (§5) | the plane made visible across repertoires | author-constructed |
+| the third-party rows and the prototype (§3.2) | the criterion's cells, and the plane itself, on engines not this paper's | author-driven, third-party substrate |
+| the record's prices (§8) | what the arrangement materially costs, against the direct baseline | author-measured |
+| the calculus (Appendix C) | the separations as propositions with proofs | formal — construction, not evidence of fact |
 
 The constructed evidence proves realizability and nothing about how either corpus system was designed; no count from it is offered as evidence about their authors' choices. The corpus was selected on stated criteria before it was read, and the census of §6 was run after the selection. No population-level generalisation is claimed anywhere.
 
-Nothing in this paper measures cost. The labs are existence proofs of realizability, not a design-science evaluation; the methodological classification is in the *Dependencies* note above.
+The record's cost is measured and nothing is ranked by it: §8 prices growth, replay and throughput against the direct baseline and claims no advantage anywhere. The labs are existence proofs of realizability plus that one measurement, not a design-science evaluation; the methodological classification, and the boundary against one, are in the *Dependencies* note above.
 
 And one term is used before it is defined, deliberately. *Subject* carries, until §4, only its deflated sense — the thing an operation is attributable to. The strong sense is not in use until it is earned.
 
