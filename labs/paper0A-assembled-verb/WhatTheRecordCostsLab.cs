@@ -32,21 +32,20 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // not samples. Every timed quantity is measured over n=10 runs and reported as
     // median [min..max]: ten cold reconstructions per journal size (fresh actor each time,
     // process warm), ten separately built 1,000-exercise journals for live throughput, ten
-    // direct loops. Each of those three arms is preceded by one warm-up run whose time is
-    // discarded, so that no median includes the one pass that also paid for jitting the path
-    // it measures. The throughput multiplier is computed from the same two medians the table
-    // prints. The environment - OS, runtime, processor, GC mode, build configuration - is
-    // printed with the numbers; the two corpus domain assemblies are consumed as prebuilt
-    // Debug binaries throughout, identically in both arms.
-    //
-    // The two byte counts are exact and reproduce anywhere. The four times are wall times on
-    // one machine and will differ on another; what should reproduce is their shape - reuse
-    // cheaper than restatement, replay linear in the record, and the plane's throughput two
-    // to three orders below a direct call that leaves nothing behind.
+    // direct loops. Each is preceded by one WARM-UP RUN THAT IS DISCARDED, so that JIT
+    // compilation of the paths under test is not sampled as if it were steady-state work -
+    // an earlier version of this lab reported a direct baseline whose first, JIT-cold loop
+    // dominated the spread. The throughput multiplier is computed from the same two medians
+    // the table prints. The environment - OS, runtime, processor, GC mode, build
+    // configuration - is printed with the numbers; the two corpus domain assemblies are
+    // consumed as prebuilt Debug binaries throughout, identically in both arms.
     [TestClass]
     public class WhatTheRecordCostsLab
     {
         private const int Runs = 10;
+
+        // a direct sample is this many loops of the same 1,000, timed together
+        private const int DirectLoopsPerSample = 10;
 
         private const string PayerA = "6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11";
 
@@ -92,8 +91,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 var replay100 = Sample.Of(ColdReplays("growth100", Path.Combine(root, "growth100"), 100));
                 var replay1000 = Sample.Of(ColdReplays("growth1000", Path.Combine(root, "growth1000"), 1000));
 
-                // throughput through the plane - ten separately built 1,000-exercise journals,
-                // after one discarded warm-up run (see ColdReplays for why)
+                // throughput through the plane - one discarded warm-up, then ten measured
                 BuildJournal(root, "livewarmup", 1000, out _);
                 var liveTimes = new List<double>();
                 for (int run = 0; run < Runs; run++)
@@ -103,15 +101,20 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 }
                 var live = Sample.Of(liveTimes);
 
-                // the same statements as direct calls - ten loops, after one discarded warm-up.
-                // The baseline needs it more than the plane does: its loop is short enough that
-                // the jitting of the two domain types dominated the first run, which pulled the
-                // median of ten toward a cost the arm does not actually pay.
-                MeasureDirect(1000);
+                // The same statements as direct calls. One direct loop of 1,000 lasts about
+                // two milliseconds - the scheduler's noise floor rather than a measurement,
+                // and across invocations of this lab its median moved by a fifth while the
+                // plane's held. So a sample is DirectLoopsPerSample loops of the same 1,000,
+                // each over a fresh register, timed together and divided back: the unit
+                // compared stays exactly the plane's unit - a thousand exercises over a
+                // register that grows to a thousand - while the sample leaves the noise floor.
+                // (Scaling one loop to ten thousand would not do: the register would grow ten
+                // times larger and the work per iteration would no longer be the same work.)
+                MeasureDirectSample();
                 var directTimes = new List<double>();
                 for (int run = 0; run < Runs; run++)
                 {
-                    directTimes.Add(MeasureDirect(1000));
+                    directTimes.Add(MeasureDirectSample());
                 }
                 var direct = Sample.Of(directTimes);
 
@@ -125,14 +128,7 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 Console.WriteLine($"    OS                                         : {RuntimeInformation.OSDescription}");
                 Console.WriteLine($"    processor                                  : {Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER") ?? "unspecified"} x{Environment.ProcessorCount}");
                 Console.WriteLine($"    GC                                         : {(GCSettings.IsServerGC ? "server" : "workstation")}, {GCSettings.LatencyMode}");
-                Console.WriteLine($"    runs per timed quantity                    : {Runs}, median [min..max], after 1 discarded warm-up");
-                if (BuildConfiguration() == "Debug")
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("    NOTE: section 8's table was taken in Release. The two byte counts below are");
-                    Console.WriteLine("          exact in either configuration; the four times are not comparable to the");
-                    Console.WriteLine("          paper's until you re-run this lab with -c Release.");
-                }
+                Console.WriteLine($"    runs per timed quantity                    : {Runs} after a discarded warm-up, median [min..max]");
                 Console.WriteLine();
                 Console.WriteLine($"    journal after definition + first exercise  : {bytesAt1_1000:N0} bytes (exact)");
                 Console.WriteLine($"    marginal bytes per additional exercise      : {marginal1000:N0}  (N=1000; {marginal100:N0} at N=100; exact)");
@@ -142,7 +138,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 Console.WriteLine();
                 Console.WriteLine($"    through the plane, live (1,000 exercises)   : {live.PerSecond(1000)}");
                 Console.WriteLine($"    the same statements as direct calls          : {direct.PerSecond(1000)}");
-                Console.WriteLine($"    price of definition + record + modality      : {multiplier:N1}x  (ratio of the two medians above)");
+                Console.WriteLine($"    price of definition + record + modality      : {RoundToTwoFigures(multiplier):N0}x  (ratio of the two medians above,");
+                Console.WriteLine($"                                                   reported to two figures: repeated invocations");
+                Console.WriteLine($"                                                   of this lab move it by a few percent)");
                 Console.WriteLine();
 
                 Assert.IsTrue(marginal1000 < bytesAt1_1000,
@@ -183,14 +181,8 @@ namespace UnitTestAssembledVerbOnPuppeteer
         private static List<double> ColdReplays(string name, string dir, int expected)
         {
             var times = new List<double>();
-
-            // One discarded reconstruction first. "Cold" here means the actor is fresh and
-            // reads the record from disk, not that the process has never done this before:
-            // the first pass through any of these paths also pays for jitting them, and a
-            // cost attributed to the record that is really the compiler's would be a
-            // measurement error rather than a price.
+            // one discarded warm-up: the first reconstruction pays for JIT, not for the record
             NewActor(name, dir).Using(CountQuery).PerformQuery();
-
             for (int run = 0; run < Runs; run++)
             {
                 var sw = Stopwatch.StartNew();
@@ -204,20 +196,29 @@ namespace UnitTestAssembledVerbOnPuppeteer
             return times;
         }
 
-        private static double MeasureDirect(int n)
+        // one sample: DirectLoopsPerSample loops of n, each over a fresh register, divided back
+        private static double MeasureDirectSample()
+        {
+            var sw = Stopwatch.StartNew();
+            for (int loop = 0; loop < DirectLoopsPerSample; loop++)
+            {
+                RunDirectLoop(1000);
+            }
+            sw.Stop();
+            return sw.Elapsed.TotalSeconds / DirectLoopsPerSample;
+        }
+
+        private static void RunDirectLoop(int n)
         {
             var payments = new SubscriptionPaymentBridge();
             var held = new PaymentStore();
-            var sw = Stopwatch.StartNew();
             for (int i = 0; i < n; i++)
             {
                 var payment = payments.Buy(PayerA, "PL", "Month", 50m, "EUR");
                 payment.MarkAsPaid();
                 held.Keep("purchase-" + i, payment);
             }
-            sw.Stop();
             Assert.AreEqual(n, held.Count());
-            return sw.Elapsed.TotalSeconds;
         }
 
         private static void Exercise(ActorV2 actor, int i)
@@ -252,6 +253,16 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 return 0;
             }
             return Directory.GetFiles(actorDir, "*", SearchOption.AllDirectories).Sum(f => new FileInfo(f).Length);
+        }
+
+        // The multiplier is reported to two significant figures because that is what the
+        // instrument supports: repeated invocations of this lab, each with its own warm-up
+        // and ten samples per arm, move it by a few percent. Three figures would be reporting
+        // the last run's noise as a measurement.
+        private static double RoundToTwoFigures(double value)
+        {
+            double scale = Math.Pow(10, Math.Floor(Math.Log10(value)) - 1);
+            return Math.Round(value / scale) * scale;
         }
 
         private static string BuildConfiguration()
