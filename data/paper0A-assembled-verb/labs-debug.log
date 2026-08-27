@@ -1,0 +1,1227 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Puppeteer -> C:\Users\alvar\source\repos\puppeteer\Puppeteer\bin\Debug\net9.0\Puppeteer.dll
+  RepertoireBoundaryFixture -> C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\RepertoireBoundaryFixture\bin\Debug\net9.0\RepertoireBoundaryFixture.dll
+  paper0A-assembled-verb -> C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\bin\Debug\net9.0\UnitTestAssembledVerbOnPuppeteer.dll
+Test run for C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\bin\Debug\net9.0\UnitTestAssembledVerbOnPuppeteer.dll (.NETCoreApp,Version=v9.0)
+A total of 1 test files matched the specified pattern.
+C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\bin\Debug\net9.0\UnitTestAssembledVerbOnPuppeteer.dll
+  Passed TwoRepertoiresThatShareNoTypeTellOneStoryEndToEnd [33 ms]
+  Standard Output Messages:
+ 
+ === one story, two shipped domain assemblies, neither modified ===
+ 
+     domain operations invoked : 17
+     aggregates taking part    : 4   (SubscriptionPayment, Subscription, Buyer, Order)
+     assemblies involved       : 2   authored by different parties
+     test doubles used         : 0   (no handler, no bus, no store, no mapper)
+ 
+     subscription reached      : granted, from a payment marked paid
+     order reached status      : Shipped
+     order total               : 73
+ 
+     identities supplied from outside both repertoires : 3
+     types the two assemblies share                    : 0
+ 
+     the two repertoires raised 9 events. Each names a TRANSITION:
+         SubscriptionPaymentCreatedDomainEvent
+         SubscriptionPaymentPaidDomainEvent
+         SubscriptionCreatedDomainEvent
+         BuyerAndPaymentMethodVerifiedDomainEvent
+         OrderStartedDomainEvent
+         OrderStatusChangedToAwaitingValidationDomainEvent
+         OrderStatusChangedToStockConfirmedDomainEvent
+         OrderStatusChangedToPaidDomainEvent
+         OrderShippedDomainEvent
+ 
+     and the questions the exhibit exists to ask:
+         what is the whole called?      - neither repertoire names it
+         where is that name recorded?   - nowhere
+         who can see the whole?         - only the assembler
+ 
+
+
+  Passed OneVerbComposesTwoIndependentlyAuthoredDomains_AndTheRecordHoldsItAsOneAct [81 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 
+ === One verb over two independently authored domains ===
+   domain assemblies loaded: Ordering.Domain, CompanyName.MyMeetings.Modules.Payments.Domain
+   action definitions recorded: 1
+ 
+   define action 1:
+     define action 1 (payerId:string, country:string, period:string, amount:decimal, currency:string, street:string, city:string, state:string, zip:string, userId:string, userName:string, card:string, cvv:string, holder:string, sku:int, itemName:string, itemPrice:decimal) aspayment = payments.Buy(payerId, country, period, amount, currency);payment.MarkAsPaid();address = Address(street,city,state,country,zip);welcomeKit = Order(userId,userName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);welcomeKit.AddOrderItem(sku, itemName, itemPrice, 0.0, '', 1);end;
+ 
+
+
+  Passed AnEvalParameterCarriesAValue_NotAnAggregate [11 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 
+ === Can an Eval parameter carry the aggregate itself? ===
+   LanguageException: Parameter 'bought' is declared as 'Object', which is not a valid parameter type. A parameter carries a primitive value: int, long, double, decimal, char, string, bool, datetime, typeof(Enum) for a string that names an enum member, or a one-level collection of the primitives (List<T>, IEnumerable<T>, T[]). A domain type — class, struct or enum — is never a parameter type: naming one here means it was widened to public and the calling project took a reference on the domain assembly, when a domain is meant to reach the framework only as a setting of the puppet, by reflection. Pass a primitive instead (for example the value's name as a string, or value.ToString() in a format of your choosing) and let the script's call site coerce it, so that interpretation happens inside the actor and is journaled with the act.
+ 
+ === Can an Eval parameter carry a freshly minted identity? ===
+   LanguageException: Unknown property or method 'NewGuid' on type 'Object'.
+ 
+   What this decides: whether the repair for a domain that mints its own key
+   is available to the assembler, or has to be asked of the domain's author.
+
+
+  Passed EachDomainAssemblyIsPartitionedIntoItsDisjointRepertoires [4 ms]
+  Standard Output Messages:
+ 
+ === eShop Ordering.Domain ===
+     types considered: 17   (base-type inheritance not counted as a link)
+     reference arcs between them: 13   (directed; components taken undirected)
+     DISJOINT REPERTOIRES (connected components): 5
+ 
+       [13]  Address, Buyer, BuyerAndPaymentMethodVerifiedDomainEvent, CardType, Order, OrderCancelledDomainEvent, OrderItem, OrderShippedDomainEvent, OrderStartedDomainEvent, OrderStatus, OrderStatusChangedToAwaitingValidationDomainEvent, OrderStatusChangedToPaidDomainEvent, … (+1)
+       [ 1]  ValueObject
+       [ 1]  Entity
+       [ 1]  OrderingDomainException
+       [ 1]  OrderStatusChangedToStockConfirmedDomainEvent
+ XEDGE|eShop Ordering.Domain|Events.BuyerAndPaymentMethodVerifiedDomainEvent|BuyerAggregate.Buyer
+ XEDGE|eShop Ordering.Domain|Events.BuyerAndPaymentMethodVerifiedDomainEvent|BuyerAggregate.PaymentMethod
+ XEDGE|eShop Ordering.Domain|Events.OrderCancelledDomainEvent|OrderAggregate.Order
+ XEDGE|eShop Ordering.Domain|Events.OrderShippedDomainEvent|OrderAggregate.Order
+ XEDGE|eShop Ordering.Domain|Events.OrderStartedDomainEvent|OrderAggregate.Order
+ XEDGE|eShop Ordering.Domain|Events.OrderStatusChangedToAwaitingValidationDomainEvent|OrderAggregate.OrderItem
+ XEDGE|eShop Ordering.Domain|Events.OrderStatusChangedToPaidDomainEvent|OrderAggregate.OrderItem
+ XEDGE|eShop Ordering.Domain|OrderAggregate.Order|BuyerAggregate.Buyer
+ 
+ MAP	eShop Ordering.Domain	0	BuyerAndPaymentMethodVerifiedDomainEvent
+ MAP	eShop Ordering.Domain	0	PaymentMethod
+ MAP	eShop Ordering.Domain	0	CardType
+ MAP	eShop Ordering.Domain	0	Buyer
+ MAP	eShop Ordering.Domain	0	Order
+ MAP	eShop Ordering.Domain	0	OrderItem
+ MAP	eShop Ordering.Domain	0	OrderStatusChangedToPaidDomainEvent
+ MAP	eShop Ordering.Domain	0	OrderStatusChangedToAwaitingValidationDomainEvent
+ MAP	eShop Ordering.Domain	0	OrderStatus
+ MAP	eShop Ordering.Domain	0	Address
+ MAP	eShop Ordering.Domain	0	OrderStartedDomainEvent
+ MAP	eShop Ordering.Domain	0	OrderShippedDomainEvent
+ MAP	eShop Ordering.Domain	0	OrderCancelledDomainEvent
+ MAP	eShop Ordering.Domain	1	ValueObject
+ MAP	eShop Ordering.Domain	2	Entity
+ MAP	eShop Ordering.Domain	3	OrderingDomainException
+ MAP	eShop Ordering.Domain	4	OrderStatusChangedToStockConfirmedDomainEvent
+ 
+ === Grzybek Payments.Domain ===
+     types considered: 63   (base-type inheritance not counted as a link)
+     reference arcs between them: 80   (directed; components taken undirected)
+     DISJOINT REPERTOIRES (connected components): 10
+ 
+       [47]  DirectValueFromPriceListPricingStrategy, DirectValuePricingStrategy, DiscountedValueFromPriceListPricingStrategy, MeetingFee, MeetingFeeCanceledDomainEvent, MeetingFeeCreatedDomainEvent, MeetingFeeExpiredDomainEvent, MeetingFeePaidDomainEvent, MeetingFeeSnapshot, MeetingFeeStatus, MeetingId, MoneyMustHaveTheSameCurrencyRule, … (+35)
+       [ 7]  MeetingFeeId, MeetingFeePayment, MeetingFeePaymentCreatedDomainEvent, MeetingFeePaymentExpiredDomainEvent, MeetingFeePaymentPaidDomainEvent, MeetingFeePaymentSnapshot, MeetingFeePaymentStatus
+       [ 2]  Payer, PayerCreatedDomainEvent
+       [ 1]  UserId
+       [ 1]  AggregateId`1
+       [ 1]  AggregateRoot
+       [ 1]  SystemClock
+       [ 1]  ValueOfMoneyMustNotBeNegativeRule
+       [ 1]  PriceListItemId
+       [ 1]  MeetingFeePaymentId
+ XEDGE|Grzybek Payments.Domain|Subscriptions.Subscription|SubscriptionRenewalPayments.SubscriptionRenewalPaymentSnapshot
+ XEDGE|Grzybek Payments.Domain|Subscriptions.Subscription|SubscriptionPayments.SubscriptionPaymentSnapshot
+ XEDGE|Grzybek Payments.Domain|Subscriptions.Subscription|Events.SubscriptionCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|Subscriptions.Subscription|Events.SubscriptionRenewedDomainEvent
+ XEDGE|Grzybek Payments.Domain|Subscriptions.Subscription|Events.SubscriptionExpiredDomainEvent
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|Payers.PayerId
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|Subscriptions.SubscriptionId
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|PriceListItems.PriceList
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|Events.SubscriptionRenewalPaymentCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPayment|Events.SubscriptionRenewalPaymentPaidDomainEvent
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPaymentSnapshot|Payers.PayerId
+ XEDGE|Grzybek Payments.Domain|SubscriptionRenewalPayments.SubscriptionRenewalPaymentSnapshot|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|Rules.PriceOfferMustMatchPriceInPriceListRule|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|Payers.PayerId
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|PriceListItems.PriceList
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|Events.SubscriptionPaymentPaidDomainEvent
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|Events.SubscriptionPaymentCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPayment|Events.SubscriptionPaymentExpiredDomainEvent
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPaymentSnapshot|Payers.PayerId
+ XEDGE|Grzybek Payments.Domain|SubscriptionPayments.SubscriptionPaymentSnapshot|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|Rules.PriceForSubscriptionMustBeDefinedRule|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|Rules.PriceForSubscriptionMustBeDefinedRule|PriceListItems.PriceListItemData
+ XEDGE|Grzybek Payments.Domain|Rules.PriceForSubscriptionMustBeDefinedRule|PriceListItems.PriceListItemCategory
+ XEDGE|Grzybek Payments.Domain|Rules.PriceOfferMustMatchPriceInPriceListRule|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|Rules.MoneyMustHaveTheSameCurrencyRule|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceList|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceList|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItem|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItem|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItem|Events.PriceListItemActivatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItem|Events.PriceListItemCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItem|Events.PriceListItemDeactivatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItem|Events.PriceListItemAttributesChangedDomainEvent
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItemData|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|PriceListItems.PriceListItemData|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValueFromPriceListPricingStrategy|PriceListItems.PriceListItemData
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValueFromPriceListPricingStrategy|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValueFromPriceListPricingStrategy|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValueFromPriceListPricingStrategy|PriceListItems.PriceListItemCategory
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValuePricingStrategy|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValuePricingStrategy|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DirectValuePricingStrategy|PriceListItems.PriceListItemCategory
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DiscountedValueFromPriceListPricingStrategy|PriceListItems.PriceListItemData
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DiscountedValueFromPriceListPricingStrategy|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DiscountedValueFromPriceListPricingStrategy|Subscriptions.SubscriptionPeriod
+ XEDGE|Grzybek Payments.Domain|PricingStrategies.DiscountedValueFromPriceListPricingStrategy|PriceListItems.PriceListItemCategory
+ XEDGE|Grzybek Payments.Domain|Payers.Payer|Events.PayerCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFees.MeetingFee|Payers.PayerId
+ XEDGE|Grzybek Payments.Domain|MeetingFees.MeetingFee|SeedWork.MoneyValue
+ XEDGE|Grzybek Payments.Domain|MeetingFees.MeetingFee|Events.MeetingFeeCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFees.MeetingFee|Events.MeetingFeeCanceledDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFees.MeetingFee|Events.MeetingFeeExpiredDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFees.MeetingFee|Events.MeetingFeePaidDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFeePayments.MeetingFeePayment|MeetingFees.MeetingFeeId
+ XEDGE|Grzybek Payments.Domain|MeetingFeePayments.MeetingFeePayment|Events.MeetingFeePaymentCreatedDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFeePayments.MeetingFeePayment|Events.MeetingFeePaymentExpiredDomainEvent
+ XEDGE|Grzybek Payments.Domain|MeetingFeePayments.MeetingFeePayment|Events.MeetingFeePaymentPaidDomainEvent
+ 
+ MAP	Grzybek Payments.Domain	0	SubscriberId
+ MAP	Grzybek Payments.Domain	0	Subscription
+ MAP	Grzybek Payments.Domain	0	SubscriptionExpiredDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewedDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionPaymentSnapshot
+ MAP	Grzybek Payments.Domain	0	SubscriptionPaymentId
+ MAP	Grzybek Payments.Domain	0	PayerId
+ MAP	Grzybek Payments.Domain	0	MeetingFee
+ MAP	Grzybek Payments.Domain	0	MeetingFeePaidDomainEvent
+ MAP	Grzybek Payments.Domain	0	MeetingFeeExpiredDomainEvent
+ MAP	Grzybek Payments.Domain	0	MeetingFeeCanceledDomainEvent
+ MAP	Grzybek Payments.Domain	0	MeetingFeeCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	MeetingFeeSnapshot
+ MAP	Grzybek Payments.Domain	0	MeetingFeeStatus
+ MAP	Grzybek Payments.Domain	0	MoneyValue
+ MAP	Grzybek Payments.Domain	0	DiscountedValueFromPriceListPricingStrategy
+ MAP	Grzybek Payments.Domain	0	PriceListItemCategory
+ MAP	Grzybek Payments.Domain	0	PriceForSubscriptionMustBeDefinedRule
+ MAP	Grzybek Payments.Domain	0	DirectValuePricingStrategy
+ MAP	Grzybek Payments.Domain	0	DirectValueFromPriceListPricingStrategy
+ MAP	Grzybek Payments.Domain	0	PriceListItemData
+ MAP	Grzybek Payments.Domain	0	PriceListItem
+ MAP	Grzybek Payments.Domain	0	PriceListItemAttributesChangedDomainEvent
+ MAP	Grzybek Payments.Domain	0	PriceListItemDeactivatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	PriceListItemCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	PriceListItemActivatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	PriceList
+ MAP	Grzybek Payments.Domain	0	MoneyMustHaveTheSameCurrencyRule
+ MAP	Grzybek Payments.Domain	0	PriceOfferMustMatchPriceInPriceListRule
+ MAP	Grzybek Payments.Domain	0	PriceOfferMustMatchPriceInPriceListRule
+ MAP	Grzybek Payments.Domain	0	MeetingId
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewalPayment
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewalPaymentPaidDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewalPaymentCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewalPaymentStatus
+ MAP	Grzybek Payments.Domain	0	SubscriptionId
+ MAP	Grzybek Payments.Domain	0	SubscriptionPayment
+ MAP	Grzybek Payments.Domain	0	SubscriptionPaymentExpiredDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionPaymentCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionPaymentPaidDomainEvent
+ MAP	Grzybek Payments.Domain	0	SubscriptionPaymentStatus
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewalPaymentSnapshot
+ MAP	Grzybek Payments.Domain	0	SubscriptionRenewalPaymentId
+ MAP	Grzybek Payments.Domain	0	SubscriptionStatus
+ MAP	Grzybek Payments.Domain	0	SubscriptionPeriod
+ MAP	Grzybek Payments.Domain	0	SubscriptionDateExpirationCalculator
+ MAP	Grzybek Payments.Domain	1	MeetingFeeId
+ MAP	Grzybek Payments.Domain	1	MeetingFeePayment
+ MAP	Grzybek Payments.Domain	1	MeetingFeePaymentPaidDomainEvent
+ MAP	Grzybek Payments.Domain	1	MeetingFeePaymentExpiredDomainEvent
+ MAP	Grzybek Payments.Domain	1	MeetingFeePaymentCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	1	MeetingFeePaymentSnapshot
+ MAP	Grzybek Payments.Domain	1	MeetingFeePaymentStatus
+ MAP	Grzybek Payments.Domain	2	Payer
+ MAP	Grzybek Payments.Domain	2	PayerCreatedDomainEvent
+ MAP	Grzybek Payments.Domain	3	UserId
+ MAP	Grzybek Payments.Domain	4	AggregateId`1
+ MAP	Grzybek Payments.Domain	5	AggregateRoot
+ MAP	Grzybek Payments.Domain	6	SystemClock
+ MAP	Grzybek Payments.Domain	7	ValueOfMoneyMustNotBeNegativeRule
+ MAP	Grzybek Payments.Domain	8	PriceListItemId
+ MAP	Grzybek Payments.Domain	9	MeetingFeePaymentId
+
+
+  Passed RecodingTheCensusByPublishedRulesFindsNoNameSpanningTwoSubjects [137 ms]
+  Standard Output Messages:
+ 
+ === the census, recoded by the published rules ===
+ 
+     corpus, commerce  : C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\corpus-src\eshop
+                         at 9b4f943 (pinned 9b4f943)
+     corpus, monolith  : C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\corpus-src\grzybek
+                         at 91c8ef2 (pinned 91c8ef2)
+ 
+     lexicon, ordering : Buyer, Order
+     lexicon, payments : MeetingFeePayment, MeetingFee, Payer, PriceListItem, SubscriptionPayment, SubscriptionRenewalPayment, Subscription
+ 
+     S  ordering  command            CancelOrderCommand  [Order]
+     S  ordering  command            CreateOrderCommand  [Order]
+     S  ordering  command            CreateOrderDraftCommand  [Order]
+     S  ordering  command            SetAwaitingValidationOrderStatusCommand  [Order]
+     S  ordering  command            SetPaidOrderStatusCommand  [Order]
+     S  ordering  command            SetStockConfirmedOrderStatusCommand  [Order]
+     S  ordering  command            SetStockRejectedOrderStatusCommand  [Order]
+     S  ordering  command            ShipOrderCommand  [Order]
+     S  ordering  domain event       BuyerAndPaymentMethodVerifiedDomainEvent  [Buyer]
+     S  ordering  domain event       OrderCancelledDomainEvent  [Order]
+     S  ordering  domain event       OrderShippedDomainEvent  [Order]
+     S  ordering  domain event       OrderStartedDomainEvent  [Order]
+     S  ordering  domain event       OrderStatusChangedToAwaitingValidationDomainEvent  [Order]
+     S  ordering  domain event       OrderStatusChangedToPaidDomainEvent  [Order]
+     S  ordering  domain event       OrderStatusChangedToStockConfirmedDomainEvent  [Order]
+     S*  ordering  integration event  GracePeriodConfirmedIntegrationEvent  []
+     S  ordering  integration event  OrderPaymentFailedIntegrationEvent  [Order]
+     S  ordering  integration event  OrderPaymentSucceededIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStartedIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStatusChangedToAwaitingValidationIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStatusChangedToCancelledIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStatusChangedToPaidIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStatusChangedToShippedIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStatusChangedToStockConfirmedIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStatusChangedToSubmittedIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStockConfirmedIntegrationEvent  [Order]
+     S  ordering  integration event  OrderStockRejectedIntegrationEvent  [Order]
+     S  payments  command            ActivatePriceListItemCommand  [PriceListItem]
+     S  payments  command            BuySubscriptionCommand  [Subscription]
+     S  payments  command            BuySubscriptionRenewalCommand  [Subscription]
+     S  payments  command            ChangePriceListItemAttributesCommand  [PriceListItem]
+     S  payments  command            CreateMeetingFeeCommand  [MeetingFee]
+     S  payments  command            CreateMeetingFeePaymentCommand  [MeetingFeePayment]
+     S  payments  command            CreatePayerCommand  [Payer]
+     S  payments  command            CreatePriceListItemCommand  [PriceListItem]
+     S  payments  command            CreateSubscriptionCommand  [Subscription]
+     S  payments  command            DeactivatePriceListItemCommand  [PriceListItem]
+     S  payments  command            ExpireSubscriptionCommand  [Subscription]
+     S  payments  command            ExpireSubscriptionPaymentCommand  [SubscriptionPayment]
+     S  payments  command            ExpireSubscriptionPaymentsCommand  [SubscriptionPayment]
+     S  payments  command            ExpireSubscriptionsCommand  [Subscription]
+     S  payments  command            MarkMeetingFeeAsPaidCommand  [MeetingFee]
+     S  payments  command            MarkMeetingFeePaymentAsPaidCommand  [MeetingFeePayment]
+     S  payments  command            MarkSubscriptionPaymentAsPaidCommand  [SubscriptionPayment]
+     S  payments  command            MarkSubscriptionRenewalPaymentAsPaidCommand  [SubscriptionRenewalPayment]
+     S  payments  command            RenewSubscriptionCommand  [Subscription]
+     S  payments  command            SendSubscriptionCreationConfirmationEmailCommand  [Subscription]
+     S  payments  command            SendSubscriptionRenewalConfirmationEmailCommand  [Subscription]
+     S  payments  domain event       MeetingFeeCanceledDomainEvent  [MeetingFee]
+     S  payments  domain event       MeetingFeeCreatedDomainEvent  [MeetingFee]
+     S  payments  domain event       MeetingFeeExpiredDomainEvent  [MeetingFee]
+     S  payments  domain event       MeetingFeePaidDomainEvent  [MeetingFee]
+     S  payments  domain event       MeetingFeePaymentCreatedDomainEvent  [MeetingFeePayment]
+     S  payments  domain event       MeetingFeePaymentExpiredDomainEvent  [MeetingFeePayment]
+     S  payments  domain event       MeetingFeePaymentPaidDomainEvent  [MeetingFeePayment]
+     S  payments  domain event       PayerCreatedDomainEvent  [Payer]
+     S  payments  domain event       PriceListItemActivatedDomainEvent  [PriceListItem]
+     S  payments  domain event       PriceListItemAttributesChangedDomainEvent  [PriceListItem]
+     S  payments  domain event       PriceListItemCreatedDomainEvent  [PriceListItem]
+     S  payments  domain event       PriceListItemDeactivatedDomainEvent  [PriceListItem]
+     S  payments  domain event       SubscriptionCreatedDomainEvent  [Subscription]
+     S  payments  domain event       SubscriptionExpiredDomainEvent  [Subscription]
+     S  payments  domain event       SubscriptionPaymentCreatedDomainEvent  [SubscriptionPayment]
+     S  payments  domain event       SubscriptionPaymentExpiredDomainEvent  [SubscriptionPayment]
+     S  payments  domain event       SubscriptionPaymentPaidDomainEvent  [SubscriptionPayment]
+     S  payments  domain event       SubscriptionRenewalPaymentCreatedDomainEvent  [SubscriptionRenewalPayment]
+     S  payments  domain event       SubscriptionRenewalPaymentPaidDomainEvent  [SubscriptionRenewalPayment]
+     S  payments  domain event       SubscriptionRenewedDomainEvent  [Subscription]
+     S*  payments  integration event  MeetingAttendeeAddedIntegrationEvent  []
+     S  payments  integration event  MeetingFeePaidIntegrationEvent  [MeetingFee]
+     S*  payments  integration event  NewUserRegisteredIntegrationEvent  []
+     S  payments  integration event  SubscriptionExpirationDateChangedIntegrationEvent  [Subscription]
+ 
+     population : 27 domain events, 16 integration events, 29 commands = 72
+     coded T by rule one (mechanical)             : 0
+     handed to rule two (manual, S*)              : 3
+         GracePeriodConfirmedIntegrationEvent       -> S: confirms one wait-state of the ordering process; no second subject's operation is named
+         MeetingAttendeeAddedIntegrationEvent       -> S: one transition of another module's aggregate, which the subsystem merely bills
+         NewUserRegisteredIntegrationEvent          -> S: one transition of the user-access subject
+     agreement with the author's reading (all S) : 72/72
+ 
+
+
+  Passed TwoIndependentlyAuthoredDomainsCollideOnSimpleNames [3 ms]
+  Standard Output Messages:
+ 
+ === The repertoire is one flat index, keyed by simple name ===
+     17 admitted types   Ordering.Domain
+     62 admitted types   CompanyName.MyMeetings.Modules.Payments.Domain
+      6 admitted types   CompanyName.MyMeetings.BuildingBlocks.Domain
+ 
+   names claimed by more than one assembly: 2
+ 
+     Entity                             Ordering.Domain | CompanyName.MyMeetings.BuildingBlocks.Domain
+     ValueObject                        Ordering.Domain | CompanyName.MyMeetings.BuildingBlocks.Domain
+ 
+   Each of these resolves to whichever assembly was registered first. The other
+   is unreachable by name from the DSL, and no diagnostic is raised: the index
+   keeps both under FindClassesByName and returns the first from the lookup the
+   script uses.
+
+
+  Passed TheHostMayNotNameAnInternalPiece_AndTheAssemblerReachesIt [841 ms]
+  Standard Output Messages:
+ 
+ === Two parties, two entitlements, two mechanisms ===
+   repertoire assembly: RepertoireBoundaryFixture.dll
+   the assembler   reaches it        {"marks":2}
+   the host        cannot name it    exit 1
+                                     C:\Users\alvar\AppData\Local\Temp\repertoire_boundary_host_98606b41668943bebf34b8c1d788049a\Host.cs(6,51): error CS0122: 'Piece' is inaccessible due t
+ 
+   Neither half is a convention. The fence is erected against the host language
+   and the assembler is the one party entitled to pass it - which is why the
+   domain never has to be widened to public to be composed.
+
+
+  Passed ARetrievingActFindsInRootState_AndStoresNothing [32 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 
+ === A retrieving act, after the rules ===
+   live:   {"kept":3,"found":"06240f53-9e59-4b63-a842-46aa39560dd3"}
+ 
+   retrieval  -> paymentsHeld.Find(key)   a keyed lookup over root state
+   store      -> (nothing)                the journal already holds the act
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%  replay: {"kept":3,"found":"c43adfd4-8323-4502-8ed9-fc1937dad6ff"}
+ 
+ 
+   Two identities travelled with the same aggregate, and only one survived:
+ 
+                         live                                    replay                                  
+     assembler's key     subscription-2                          subscription-2                          stable
+     domain's identity   06240f53-9e59-4b63-a842-46aa39560dd3    c43adfd4-8323-4502-8ed9-fc1937dad6ff    not stable
+ 
+   The lookup by the assembler's key succeeded on both sides - that is what
+   'kept:3, found:...' reports twice. So the index the assembler authored is
+   reproduced by replay, and the key the domain minted for itself is not.
+   The call site that mints it is marked R_99 in SubscriptionPaymentBridge.
+ 
+   The count survived replay. The identity did not, and the reason is
+   inside the domain: SubscriptionPayment.Buy mints its own key with
+   Guid.NewGuid() as it builds the aggregate.
+ 
+   Replay re-runs the acts, so an act carrying a decision that cannot be
+   repeated is not repeatable in that respect. Non-determinism is captured
+   at the parameter plane - @Now is journaled and re-injected, an Eval is
+   captured rather than re-executed - and a Guid drawn inside a domain
+   factory is past that edge. Nothing here is a defect of either party:
+   the domain was written to be called once, by a caller that would store
+   what came back.
+ 
+   What it costs the assembler is worth stating plainly: it inherits a
+   constraint it did not author. A repertoire can be complete, executable
+   and testable - and still not be replayable. Those are three properties,
+   not one.
+
+
+  Passed TheSecondUseInvokesTheVerbWithoutRestatingItsConstitution [28 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%
+ === one verb, two uses ===
+ 
+     times the composed verb was performed : 2   (different payers, amounts, items)
+     definitions of it in the journal      : 1
+     state after the live run              : {"kept":2}
+     state after replaying the journal     : {"kept":2}
+ 
+     The second use did not restate the composition. It invoked it - what
+     travelled was the verb's identity and the new arguments, which is the
+     signature of drawing on a capability rather than performing a copy.
+ 
+
+
+  Passed TheSameThirdPartyEngineRealizesConstitutionWhenTheJournalHoldsTheDefinition [656 ms]
+  Standard Output Messages:
+ 
+ === the constitution arrangement, on the coordination row's own engine ===
+ 
+     journal entries after two exercises        : 5
+         def(1)
+         act(1)
+         def(2)
+         act(2)
+         act(2)
+     definitions of the composed verb           : 1
+     journal before / after a QUERY performance : 6 / 6   unmoved
+     kept, live                                 : 2
+     statements executed, live                  : 9
+     statements re-executed by reconstruction   : 9
+     kept, after deactivate + reconstruct       : 2
+     the assembler's key, across replay         : finds a payment both times
+     the domain-minted identity, across replay  : a different value
+ 
+
+
+  Passed TheThirdPartyRecordHoldsTheInvocationsAndItsReplayDoesNotRePerformThem [6 s]
+  Standard Output Messages:
+ 
+ === the coordination arm, on the engine underneath Durable Functions ===
+ 
+     (a) invocations in the history the engine carried   : 6
+         TaskScheduled:UnitTestAssembledVerbOnPuppeteer.TheCoordinationArmOnAThirdPartyEngineLab+BuySubscriptionPaymentActivity
+         TaskScheduled:UnitTestAssembledVerbOnPuppeteer.TheCoordinationArmOnAThirdPartyEngineLab+MarkPaymentPaidActivity
+         TaskScheduled:UnitTestAssembledVerbOnPuppeteer.TheCoordinationArmOnAThirdPartyEngineLab+MakeAddressActivity
+         TaskScheduled:UnitTestAssembledVerbOnPuppeteer.TheCoordinationArmOnAThirdPartyEngineLab+OpenOrderActivity
+         TaskScheduled:UnitTestAssembledVerbOnPuppeteer.TheCoordinationArmOnAThirdPartyEngineLab+AddOrderItemActivity
+         TaskScheduled:UnitTestAssembledVerbOnPuppeteer.TheCoordinationArmOnAThirdPartyEngineLab+KeepInRegisterActivity
+         operations performed, by the activities        : 6
+     (b) orchestrator episodes (its code, re-executed)  : 7
+         of those, replay episodes                      : 6
+         AddOrderItem                 executed 1 time(s)
+         BuySubscriptionPayment       executed 1 time(s)
+         KeepInRegister               executed 1 time(s)
+         MakeAddress                  executed 1 time(s)
+         MarkPaymentPaid              executed 1 time(s)
+         OpenOrder                    executed 1 time(s)
+ 
+     The record holds all six invocations - content does not separate this
+     arm from constitution. Its replay re-executed the orchestrator's CODE
+     in every episode and re-performed no operation: the definition lives in
+     the program, and the history can only be re-walked by it.
+ 
+
+
+  Passed ContentAndReplayTogetherSeparateTheThreeArrangements [27 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%
+ === one question, three arrangements ===
+ 
+     arrangement      names the whole  (a) operations   (b) replay yields
+                                       in the record    the whole again
+ 
+     coordination     yes              0                no
+     description      yes              6                no
+     constitution     no               6                yes
+ 
+     (a) alone would not separate description from constitution:
+         both records hold every statement that was performed.
+     (b) alone would not separate coordination from description:
+         both answer no - one replays without re-performing, the
+         other has nothing that could replay.
+ 
+     coordination     its own stream holds 4 transitions; the act's operations are spread over 3 streams tied by a correlation value
+     description      root span 'CompletePurchase' names the whole and lists all 6 operations - and is read by no one to do anything
+     constitution     one entry, `action 1`, holding 6 operations; replaying it alone rebuilds the state they produce (1)
+ 
+
+
+  Passed TheCoordinatorsOwnJournalHoldsTransitionsAndItsReplayRePerformsNothing [154 ms]
+  Standard Output Messages:
+ 
+ === the event-sourced coordinator, on a third-party engine (Orleans) ===
+ 
+     transitions in the coordinator's own journal : 6
+         step:BuySubscriptionPayment:done
+         step:MarkPaymentPaid:done
+         step:MakeAddress:done
+         step:OpenOrder:done
+         step:AddOrderItem:done
+         step:KeepInRegister:done
+     (a) operations of the act in that journal    : 0
+     operations performed, total                  : 6
+     (b) position after deactivate + reconstruct  : completed:6
+         operations re-performed by that replay   : 0
+ 
+
+
+  Passed OneQuestionIsAnsweredFromTwoRepertoiresThatShareNoType [45 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ [Puppeteer DEBUG] [Reaction 'SpendPerCustomer'] skipped a literal ScriptEvent (EntryId=1): domain reactions observe ActorV2 Actions (Define+Invocation), not V1-style literal Script commands. Migrate the producing endpoint to a parametrized V2 command (actor.Using(script).WithParameters(...)) so the reaction observes an Action.
+ 
+ === one question, two repertoires with no type in common ===
+ 
+     what did each customer spend?  - a notion neither domain declares
+ 
+     from the purchase repertoire      from the subscription repertoire
+       customer: "6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11"
+spent: 50.0
+  customer: "6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11"
+spent: 50.0
+
+       customer: "2b8d4e6f-1a3c-4d5e-9f0b-7c2a4e6d8b33"
+spent: 30.0
+  customer: "2b8d4e6f-1a3c-4d5e-9f0b-7c2a4e6d8b33"
+spent: 30.0
+
+ 
+ 
+ 
+ Debug Trace:
+ [Reaction.ValidateFinalSeek] Validation passed: FinalSeekCount=0, LastSeekIndex=0, IsSingleSeek=True
+ [ActorReactions] Execution mode set to: Batch
+ [ActorReactions] Begin replay for 'SpendPerCustomer' - 3 events
+ [Reaction.ExtractScript] ActionEventData found: ActionId=1, returning script from cache (with @parameters): 'address = Address(street,city,state,country,zip);o = Order(customer,customerName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);o.AddOrderItem(sku, itemName, unitPrice, 0.0, '', units);'
+ [SolveActionReferences] Parameters registered for ActionId=1:
+   - street : String [IN] = street
+   - city : String [IN] = city
+   - state : String [IN] = state
+   - country : String [IN] = country
+   - zip : String [IN] = 12345
+   - customer : String [IN] = 6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11
+   - customerName : String [IN] = the customer
+   - card : String [IN] = 1234-5678-9012-3456
+   - cvv : String [IN] = 123
+   - holder : String [IN] = Card Holder
+   - sku : Int32 [IN] = 41
+   - itemName : String [IN] = an item
+   - unitPrice : Decimal [IN] = 25
+   - units : Int32 [IN] = 2
+   - Now : DateTime [IN] = (null)
+ [SolveActionReferences] Cached ActionId=1 with 15 parameters (cache size: 1/100, miss #1)
+ [SolveActionReferences] Cached Program for ActionId=1
+ [MatchTree.GetEffectiveModeForLevel] level=0, untilSeekIndex=-1, primaryMode=Shared, effectiveMode=Shared
+ [Pattern.Match] Trying pattern: _ = Order($customer, _, _, _, _, _, _, _, _, _);
+ [Pattern.Match] Against script: address = Address(street,city,state,country,zip);o = Order(customer,customerName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);o.AddOrderItem(sku, itemName, unitPrice, 0.0, '', units);
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: Now.AddYears
+ [DottedId.PreparePatternMatching]   receiver type resolved: DateTime
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddYears (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: Now.AddYears
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: DateTime.AddYears
+ [DottedId.PreparePatternMatching] Processing: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   receiver type resolved: Order
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddOrderItem (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: Order.AddOrderItem
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: DateTime.AddYears, Target: Now
+ [PatternMatcher]   Method: Order.AddOrderItem, Target: o
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: AssignmentNode
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 1
+ [Pattern.Match] Trying pattern: [_:Order].AddOrderItem(_, _, $unitPrice, _, _, $units)
+ [Pattern.Match] Against script: address = Address(street,city,state,country,zip);o = Order(customer,customerName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);o.AddOrderItem(sku, itemName, unitPrice, 0.0, '', units);
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: Now.AddYears
+ [DottedId.PreparePatternMatching]   receiver type resolved: DateTime
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddYears (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: Now.AddYears
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: DateTime.AddYears
+ [DottedId.PreparePatternMatching] Processing: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   receiver type resolved: Order
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddOrderItem (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: Order.AddOrderItem
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: DateTime.AddYears, Target: Now
+ [PatternMatcher]   Method: Order.AddOrderItem, Target: o
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: InstanceAccessNode
+ [MatchInstanceAccess] Looking for [_:Order].AddOrderItem
+ [MatchInstanceAccess] Script has 2 method calls
+ [MatchInstanceAccess]   Checking method call #0: DateTime.AddYears on target 'Now'
+ [MatchInstanceAccess]     SKIP: type mismatch DateTime != Order
+ [MatchInstanceAccess]   Checking method call #1: Order.AddOrderItem on target 'o'
+ [MatchInstanceAccess]     Type matches! Checking instance name and method...
+ [MatchMethodCall] Pattern method: AddOrderItem, Script method: AddOrderItem
+ [MatchMethodCall] Pattern params: 6, Script args: 6
+ [MatchMethodCall] Checking param 0: Pattern=WildcardParameterNode, Script=Int32
+ [MatchMethodCall]   OK: Parameter 0 matched
+ [MatchMethodCall] Checking param 1: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 1 matched
+ [MatchMethodCall] Checking param 2: Pattern=VariableParameterNode, Script=Decimal
+ [MatchMethodCall]   OK: Parameter 2 matched
+ [MatchMethodCall] Checking param 3: Pattern=WildcardParameterNode, Script=Double
+ [MatchMethodCall]   OK: Parameter 3 matched
+ [MatchMethodCall] Checking param 4: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 4 matched
+ [MatchMethodCall] Checking param 5: Pattern=VariableParameterNode, Script=Int32
+ [MatchMethodCall]   OK: Parameter 5 matched
+ [MatchMethodCall] SUCCESS: All checks passed
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 3
+ [MatchTree] ROOT MATCH at EntryId=2, EngineCount=1
+ [MatchTree] COMPLETE MATCH (single engine) at EntryId=2, IsFinalSeek=False
+ [MatchTree] ExecuteCompleteMatch for leafNode EntryId=2
+ [SaveCheckpointNonTransactional] Saved checkpoint: reactionId=1, seekLevel=0, entryId=2
+ [Reaction.ExtractScript] ActionEventData found: ActionId=1, returning script from cache (with @parameters): 'address = Address(street,city,state,country,zip);o = Order(customer,customerName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);o.AddOrderItem(sku, itemName, unitPrice, 0.0, '', units);'
+ [SolveActionParameters] Reloaded parameter values for ActionId=1:
+   - street : String [IN] = street
+   - city : String [IN] = city
+   - state : String [IN] = state
+   - country : String [IN] = country
+   - zip : String [IN] = 12345
+   - customer : String [IN] = 2b8d4e6f-1a3c-4d5e-9f0b-7c2a4e6d8b33
+   - customerName : String [IN] = the customer
+   - card : String [IN] = 1234-5678-9012-3456
+   - cvv : String [IN] = 123
+   - holder : String [IN] = Card Holder
+   - sku : Int32 [IN] = 41
+   - itemName : String [IN] = an item
+   - unitPrice : Decimal [IN] = 30
+   - units : Int32 [IN] = 1
+   - Now : DateTime [IN] = 8/27/2026 5:39:57 PM
+ [MatchTree.GetEffectiveModeForLevel] level=0, untilSeekIndex=-1, primaryMode=Shared, effectiveMode=Shared
+ [Pattern.Match] Trying pattern: _ = Order($customer, _, _, _, _, _, _, _, _, _);
+ [Pattern.Match] Against script: address = Address(street,city,state,country,zip);o = Order(customer,customerName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);o.AddOrderItem(sku, itemName, unitPrice, 0.0, '', units);
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: Now.AddYears
+ [DottedId.PreparePatternMatching]   receiver type resolved: DateTime
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddYears (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: Now.AddYears
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: DateTime.AddYears
+ [DottedId.PreparePatternMatching] Processing: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   receiver type resolved: Order
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddOrderItem (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: Order.AddOrderItem
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: DateTime.AddYears, Target: Now
+ [PatternMatcher]   Method: Order.AddOrderItem, Target: o
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: AssignmentNode
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 1
+ [Pattern.Match] Trying pattern: [_:Order].AddOrderItem(_, _, $unitPrice, _, _, $units)
+ [Pattern.Match] Against script: address = Address(street,city,state,country,zip);o = Order(customer,customerName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);o.AddOrderItem(sku, itemName, unitPrice, 0.0, '', units);
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: Now.AddYears
+ [DottedId.PreparePatternMatching]   receiver type resolved: DateTime
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddYears (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: Now.AddYears
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: DateTime.AddYears
+ [DottedId.PreparePatternMatching] Processing: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   receiver type resolved: Order
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: AddOrderItem (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: o.AddOrderItem
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: Order.AddOrderItem
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: DateTime.AddYears, Target: Now
+ [PatternMatcher]   Method: Order.AddOrderItem, Target: o
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: InstanceAccessNode
+ [MatchInstanceAccess] Looking for [_:Order].AddOrderItem
+ [MatchInstanceAccess] Script has 2 method calls
+ [MatchInstanceAccess]   Checking method call #0: DateTime.AddYears on target 'Now'
+ [MatchInstanceAccess]     SKIP: type mismatch DateTime != Order
+ [MatchInstanceAccess]   Checking method call #1: Order.AddOrderItem on target 'o'
+ [MatchInstanceAccess]     Type matches! Checking instance name and method...
+ [MatchMethodCall] Pattern method: AddOrderItem, Script method: AddOrderItem
+ [MatchMethodCall] Pattern params: 6, Script args: 6
+ [MatchMethodCall] Checking param 0: Pattern=WildcardParameterNode, Script=Int32
+ [MatchMethodCall]   OK: Parameter 0 matched
+ [MatchMethodCall] Checking param 1: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 1 matched
+ [MatchMethodCall] Checking param 2: Pattern=VariableParameterNode, Script=Decimal
+ [MatchMethodCall]   OK: Parameter 2 matched
+ [MatchMethodCall] Checking param 3: Pattern=WildcardParameterNode, Script=Double
+ [MatchMethodCall]   OK: Parameter 3 matched
+ [MatchMethodCall] Checking param 4: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 4 matched
+ [MatchMethodCall] Checking param 5: Pattern=VariableParameterNode, Script=Int32
+ [MatchMethodCall]   OK: Parameter 5 matched
+ [MatchMethodCall] SUCCESS: All checks passed
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 3
+ [MatchTree] ROOT MATCH at EntryId=3, EngineCount=1
+ [MatchTree] COMPLETE MATCH (single engine) at EntryId=3, IsFinalSeek=False
+ [MatchTree] ExecuteCompleteMatch for leafNode EntryId=3
+ [SaveCheckpointNonTransactional] Saved checkpoint: reactionId=1, seekLevel=0, entryId=3
+ [ActorReactions] Begin replay for 'SpendPerCustomer' - 0 events
+ [ActorReactions] End replay for 'SpendPerCustomer' (forcedToEnd=False)
+ 
+ === Cache Performance Metrics ===
+   Cache hits:              1
+   Cache misses:            1
+   Hit ratio:               50.00%
+   Final cache size:        1/100
+   Parameters registered:   15
+   Registration time:       0ms
+ ==================================
+ 
+ === Diagnostic Metrics (Commit G) ===
+   ActionEvents processed:  1
+   ActionId not found:      0
+   Arguments deser errors:  0
+   Parse errors:            0
+ ======================================
+ 
+ [Reaction.ValidateFinalSeek] Validation passed: FinalSeekCount=0, LastSeekIndex=0, IsSingleSeek=True
+ [ActorReactions] Execution mode set to: Batch
+ [ActorReactions] Begin replay for 'SpendPerCustomer' - 4 events
+ [Reaction.ExtractScript] ActionEventData found: ActionId=1, returning script from cache (with @parameters): 'payment = payments.Buy(customer, country, period, amount, currency);payment.MarkAsPaid();'
+ [SolveActionReferences] Parameters registered for ActionId=1:
+   - customer : String [IN] = 6f1c2f7a-9b3e-4f0a-8a2d-1c5b7e9d4a11
+   - country : String [IN] = PL
+   - period : String [IN] = Month
+   - amount : Decimal [IN] = 50
+   - currency : String [IN] = EUR
+ [SolveActionReferences] Cached ActionId=1 with 5 parameters (cache size: 1/100, miss #1)
+ [SolveActionReferences] Cached Program for ActionId=1
+ [MatchTree.GetEffectiveModeForLevel] level=0, untilSeekIndex=-1, primaryMode=Shared, effectiveMode=Shared
+ [Pattern.Match] Trying pattern: [_:SubscriptionPaymentBridge].Buy($customer, _, _, $amount, _)
+ [Pattern.Match] Against script: payment = payments.Buy(customer, country, period, amount, currency);payment.MarkAsPaid();
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: payments.Buy
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPaymentBridge
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: Buy (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payments.Buy
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPaymentBridge.Buy
+ [DottedId.PreparePatternMatching] Processing: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPayment
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: MarkAsPaid (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPayment.MarkAsPaid
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: SubscriptionPaymentBridge.Buy, Target: payments
+ [PatternMatcher]   Method: SubscriptionPayment.MarkAsPaid, Target: payment
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: InstanceAccessNode
+ [MatchInstanceAccess] Looking for [_:SubscriptionPaymentBridge].Buy
+ [MatchInstanceAccess] Script has 2 method calls
+ [MatchInstanceAccess]   Checking method call #0: SubscriptionPaymentBridge.Buy on target 'payments'
+ [MatchInstanceAccess]     Type matches! Checking instance name and method...
+ [MatchMethodCall] Pattern method: Buy, Script method: Buy
+ [MatchMethodCall] Pattern params: 5, Script args: 5
+ [MatchMethodCall] Checking param 0: Pattern=VariableParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 0 matched
+ [MatchMethodCall] Checking param 1: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 1 matched
+ [MatchMethodCall] Checking param 2: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 2 matched
+ [MatchMethodCall] Checking param 3: Pattern=VariableParameterNode, Script=Decimal
+ [MatchMethodCall]   OK: Parameter 3 matched
+ [MatchMethodCall] Checking param 4: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 4 matched
+ [MatchMethodCall] SUCCESS: All checks passed
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 2
+ [Pattern.Match] Trying pattern: [_:SubscriptionPayment].MarkAsPaid()
+ [Pattern.Match] Against script: payment = payments.Buy(customer, country, period, amount, currency);payment.MarkAsPaid();
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: payments.Buy
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPaymentBridge
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: Buy (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payments.Buy
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPaymentBridge.Buy
+ [DottedId.PreparePatternMatching] Processing: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPayment
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: MarkAsPaid (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPayment.MarkAsPaid
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: SubscriptionPaymentBridge.Buy, Target: payments
+ [PatternMatcher]   Method: SubscriptionPayment.MarkAsPaid, Target: payment
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: InstanceAccessNode
+ [MatchInstanceAccess] Looking for [_:SubscriptionPayment].MarkAsPaid
+ [MatchInstanceAccess] Script has 2 method calls
+ [MatchInstanceAccess]   Checking method call #0: SubscriptionPaymentBridge.Buy on target 'payments'
+ [MatchInstanceAccess]     SKIP: type mismatch SubscriptionPaymentBridge != SubscriptionPayment
+ [MatchInstanceAccess]   Checking method call #1: SubscriptionPayment.MarkAsPaid on target 'payment'
+ [MatchInstanceAccess]     Type matches! Checking instance name and method...
+ [MatchMethodCall] Pattern method: MarkAsPaid, Script method: MarkAsPaid
+ [MatchMethodCall] Pattern params: 0, Script args: 0
+ [MatchMethodCall] SUCCESS: All checks passed
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 2
+ [MatchTree] ROOT MATCH at EntryId=3, EngineCount=1
+ [MatchTree] COMPLETE MATCH (single engine) at EntryId=3, IsFinalSeek=False
+ [MatchTree] ExecuteCompleteMatch for leafNode EntryId=3
+ [SaveCheckpointNonTransactional] Saved checkpoint: reactionId=1, seekLevel=0, entryId=3
+ [Reaction.ExtractScript] ActionEventData found: ActionId=1, returning script from cache (with @parameters): 'payment = payments.Buy(customer, country, period, amount, currency);payment.MarkAsPaid();'
+ [SolveActionParameters] Reloaded parameter values for ActionId=1:
+   - customer : String [IN] = 2b8d4e6f-1a3c-4d5e-9f0b-7c2a4e6d8b33
+   - country : String [IN] = PL
+   - period : String [IN] = Month
+   - amount : Decimal [IN] = 30
+   - currency : String [IN] = EUR
+   - Now : DateTime [IN] = 8/27/2026 5:39:57 PM
+ [MatchTree.GetEffectiveModeForLevel] level=0, untilSeekIndex=-1, primaryMode=Shared, effectiveMode=Shared
+ [Pattern.Match] Trying pattern: [_:SubscriptionPaymentBridge].Buy($customer, _, _, $amount, _)
+ [Pattern.Match] Against script: payment = payments.Buy(customer, country, period, amount, currency);payment.MarkAsPaid();
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: payments.Buy
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPaymentBridge
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: Buy (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payments.Buy
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPaymentBridge.Buy
+ [DottedId.PreparePatternMatching] Processing: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPayment
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: MarkAsPaid (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPayment.MarkAsPaid
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: SubscriptionPaymentBridge.Buy, Target: payments
+ [PatternMatcher]   Method: SubscriptionPayment.MarkAsPaid, Target: payment
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: InstanceAccessNode
+ [MatchInstanceAccess] Looking for [_:SubscriptionPaymentBridge].Buy
+ [MatchInstanceAccess] Script has 2 method calls
+ [MatchInstanceAccess]   Checking method call #0: SubscriptionPaymentBridge.Buy on target 'payments'
+ [MatchInstanceAccess]     Type matches! Checking instance name and method...
+ [MatchMethodCall] Pattern method: Buy, Script method: Buy
+ [MatchMethodCall] Pattern params: 5, Script args: 5
+ [MatchMethodCall] Checking param 0: Pattern=VariableParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 0 matched
+ [MatchMethodCall] Checking param 1: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 1 matched
+ [MatchMethodCall] Checking param 2: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 2 matched
+ [MatchMethodCall] Checking param 3: Pattern=VariableParameterNode, Script=Decimal
+ [MatchMethodCall]   OK: Parameter 3 matched
+ [MatchMethodCall] Checking param 4: Pattern=WildcardParameterNode, Script=String
+ [MatchMethodCall]   OK: Parameter 4 matched
+ [MatchMethodCall] SUCCESS: All checks passed
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 2
+ [Pattern.Match] Trying pattern: [_:SubscriptionPayment].MarkAsPaid()
+ [Pattern.Match] Against script: payment = payments.Buy(customer, country, period, amount, currency);payment.MarkAsPaid();
+ [Pattern.Match] Quick test PASSED
+ [Pattern.Match] Using cached Program with parameters already loaded
+ [DottedId.PreparePatternMatching] Processing: payments.Buy
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPaymentBridge
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: Buy (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payments.Buy
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPaymentBridge.Buy
+ [DottedId.PreparePatternMatching] Processing: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   receiver type resolved: SubscriptionPayment
+ [DottedId.PreparePatternMatching]   GetResolvedMemberInfo returned: MarkAsPaid (type: RuntimeMethodInfo)
+ [DottedId.PreparePatternMatching]   RegisterMemberAccess called: payment.MarkAsPaid
+ [DottedId.PreparePatternMatching]   RegisterMethodCall called: SubscriptionPayment.MarkAsPaid
+ [PatternMatcher] Script has 2 method calls, 2 member accesses
+ [PatternMatcher]   Method: SubscriptionPaymentBridge.Buy, Target: payments
+ [PatternMatcher]   Method: SubscriptionPayment.MarkAsPaid, Target: payment
+ [PatternMatcher] Pattern has 1 expressions to match
+ [PatternMatcher] Trying to match expression: InstanceAccessNode
+ [MatchInstanceAccess] Looking for [_:SubscriptionPayment].MarkAsPaid
+ [MatchInstanceAccess] Script has 2 method calls
+ [MatchInstanceAccess]   Checking method call #0: SubscriptionPaymentBridge.Buy on target 'payments'
+ [MatchInstanceAccess]     SKIP: type mismatch SubscriptionPaymentBridge != SubscriptionPayment
+ [MatchInstanceAccess]   Checking method call #1: SubscriptionPayment.MarkAsPaid on target 'payment'
+ [MatchInstanceAccess]     Type matches! Checking instance name and method...
+ [MatchMethodCall] Pattern method: MarkAsPaid, Script method: MarkAsPaid
+ [MatchMethodCall] Pattern params: 0, Script args: 0
+ [MatchMethodCall] SUCCESS: All checks passed
+ [PatternMatcher] Expression matched!
+ [Pattern.Match] PatternMatcher MATCHED! Captured params: 2
+ [MatchTree] ROOT MATCH at EntryId=4, EngineCount=1
+ [MatchTree] COMPLETE MATCH (single engine) at EntryId=4, IsFinalSeek=False
+ [MatchTree] ExecuteCompleteMatch for leafNode EntryId=4
+ [SaveCheckpointNonTransactional] Saved checkpoint: reactionId=1, seekLevel=0, entryId=4
+ [ActorReactions] Begin replay for 'SpendPerCustomer' - 0 events
+ [ActorReactions] End replay for 'SpendPerCustomer' (forcedToEnd=False)
+ 
+ === Cache Performance Metrics ===
+   Cache hits:              1
+   Cache misses:            1
+   Hit ratio:               50.00%
+   Final cache size:        1/100
+   Parameters registered:   5
+   Registration time:       0ms
+ ==================================
+ 
+ === Diagnostic Metrics (Commit G) ===
+   ActionEvents processed:  1
+   ActionId not found:      0
+   Arguments deser errors:  0
+   Parse errors:            0
+ ======================================
+ 
+
+
+  Passed OneActTwoArrangements_TheRecordsAreMadeOfDifferentThings [17 ms]
+  Standard Output Messages:
+ 
+ ================ arrangement 1: event-sourced process manager ================
+ 
+     stream 'purchase-process-purchase-1'  (4 entries)
+         ProcessManagerTransition           on=PurchaseRequested paymentCreated=False paymentPaid=False orderPlaced=False finished=False
+         ProcessManagerTransition           on=SubscriptionPaymentCreated paymentCreated=True paymentPaid=False orderPlaced=False finished=False
+         ProcessManagerTransition           on=SubscriptionPaymentPaid paymentCreated=True paymentPaid=True orderPlaced=False finished=False
+         ProcessManagerTransition           on=OrderPlaced paymentCreated=True paymentPaid=True orderPlaced=True finished=True
+     stream 'payment-purchase-1'  (2 entries)
+         SubscriptionPaymentCreated         correlation=purchase-1
+         SubscriptionPaymentPaid            correlation=purchase-1
+     stream 'order-purchase-1'  (2 entries)
+         OrderStarted                       correlation=purchase-1
+         OrderItemAdded                     sku=welcome-kit
+     subjects holding part of the act: 3  (purchase-process-purchase-1, payment-purchase-1, order-purchase-1)
+     entries in the coordinator's own stream: 4
+     of those, entries whose content is a domain operation: 0
+ 
+     Replaying the coordinator's stream reconstitutes its coordination state:
+     which step it reached, what it is waiting for. It does not re-perform the
+     domain operations - those were commands to other subjects, and they live in
+     those subjects' streams, tied to this one by a correlation value.
+ 
+ ================ arrangement 2: one subject, one act =========================
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 
+     subjects holding part of the act: 1  (one_act)
+     entries whose content IS the act: 1
+ 
+         define action 1 (payerId:string, country:string, period:string, amount:decimal, currency:string, street:string, city:string, state:string, zip:string, userId:string, userName:string, card:string, cvv:string, holder:string, sku:int, itemName:string, itemPrice:decimal) aspayment = bridge.Buy(payerId, country, period, amount, currency);
+         payment.MarkAsPaid();
+         address = Address(street,city,state,country,zip);
+         welcomeKit = Order(userId,userName,address,1,card,cvv,holder,Now.AddYears(1),Null,Null);
+         welcomeKit.AddOrderItem(sku, itemName, itemPrice, 0.0, '', 1);
+         end;
+ 
+     Replaying this subject's record re-performs the act, operation by
+     operation - which is how a domain-minted identity was caught changing
+     between the live run and the replay in the sibling lab.
+ 
+ ================ what separates them =========================================
+ 
+                                     process manager      one subject
+     subjects holding part of the act 3                    1
+     the composer's own entries       4                    1
+     those entries are made of        its own field        the operations
+                                      snapshots            themselves
+     replaying that record gives      coordination state   the act
+ 
+     Both arrangements perform the act, and NEITHER COLUMN IS A VERDICT.
+ 
+     What the left column exhibits is the signature the dissection kept finding
+     wherever a composed act is realised without being said:
+ 
+         the act runs                                            yes
+         its operations are spread across subjects               3
+         no single record contains its constituent operations     confirmed
+         the parts are tied by something extrinsic               correlation value
+         the name of the whole sits on the coordinator           purchase-process
+ 
+     Fourth partition in which that signature has been observed - after a method
+     composing three domains, a conversation between services, and a chain of
+     scheduled commands in one process - and the FIRST in which the composer is
+     a subject in its own right, with identity, lifecycle and its own stream.
+     So the signature is not a symptom of poor separation, of distribution, or
+     of a missing subject.
+ 
+     The numbers are contingent - a coordinator could emit semantic entries and
+     move every one of them. The signature is not: its operations would still be
+     raised by other subjects into other streams, because that is what the
+     pattern's own definition says a process manager does.
+ 
+         Coordination relates acts.  Assembly constitutes an act.
+         the signature is structural;  the distinction is semantic.
+
+
+  Passed RemovingTheEdgesThatCarryAnAggregateSplitsTheRepertoire [9 ms]
+  Standard Output Messages:
+ 
+ === eShop Ordering.Domain ===
+     aggregate roots: 2  (Buyer, Order)
+     edges in total: 13
+     of those, edges that carry an aggregate root: 5
+ 
+     repertoires WITH those edges:    5
+     repertoires WITHOUT them:        9
+ 
+     the dominant mass held 13 types. Without the crossing edges it
+     falls into:
+         [ 6]  Address, Order, OrderItem, OrderStatus, OrderStatusChangedToAwaitingValidationDomainEvent, OrderStatusChangedToPaidDomainEvent
+         [ 4]  Buyer, BuyerAndPaymentMethodVerifiedDomainEvent, CardType, PaymentMethod
+         [ 1]  OrderCancelledDomainEvent
+         [ 1]  OrderShippedDomainEvent
+         [ 1]  OrderStartedDomainEvent
+ 
+     The edges removed, one line each - each is a place where a type receives or
+     holds another aggregate whole, and DDD's own rule says it should have been an
+     identity:
+         BuyerAndPaymentMethodVerifiedDomainEvent —— Buyer
+         OrderCancelledDomainEvent —— Order
+         OrderShippedDomainEvent —— Order
+         OrderStartedDomainEvent —— Order
+         Order —— Buyer
+ 
+     minimality: is every one of them needed to separate the clusters?
+         put back BuyerAndPaymentMethodVerifiedDomainEvent → Buyer                    components 9   redundant
+         put back OrderCancelledDomainEvent → Order                    components 8   NEEDED
+         put back OrderShippedDomainEvent → Order                    components 8   NEEDED
+         put back OrderStartedDomainEvent → Order                    components 8   NEEDED
+         put back Order → Buyer                    components 8   NEEDED
+         4 of 5 are individually necessary
+ 
+ === Grzybek Payments.Domain ===
+     aggregate roots: 7  (MeetingFee, MeetingFeePayment, Payer, PriceListItem, Subscription, SubscriptionPayment, SubscriptionRenewalPayment)
+     edges in total: 80
+     of those, edges that carry an aggregate root: 0
+ 
+     repertoires WITH those edges:    10
+     repertoires WITHOUT them:        10
+ 
+     the dominant mass held 47 types. Without the crossing edges it
+     falls into:
+         [47]  DirectValueFromPriceListPricingStrategy, DirectValuePricingStrategy, DiscountedValueFromPriceListPricingStrategy, MeetingFee, MeetingFeeCanceledDomainEvent, MeetingFeeCreatedDomainEvent, MeetingFeeExpiredDomainEvent, MeetingFeePaidDomainEvent, MeetingFeeSnapshot, … (+38)
+ 
+     The edges removed, one line each - each is a place where a type receives or
+     holds another aggregate whole, and DDD's own rule says it should have been an
+     identity:
+
+
+  Passed TheArrowCarriedThreeWaysDeliversTheSameActAndTheSameGap [3 ms]
+  Standard Output Messages:
+ 
+ === the same act, the arrow carried three ways ===
+ 
+     carrier    paymentId                              payerId                                period country  status   mintedId
+     direct     66a2eac8-b446-4658-b09c-aa01d76e746f   11111111-1111-1111-1111-111111111111   Month  PL       Active   8a0b5f0f-f425-40c0-bdad-4bd577b1f8b0
+     queued     66a2eac8-b446-4658-b09c-aa01d76e746f   11111111-1111-1111-1111-111111111111   Month  PL       Active   611de1a0-23b6-4fb4-a91a-5ac061f8f1d5
+     kept       66a2eac8-b446-4658-b09c-aa01d76e746f   11111111-1111-1111-1111-111111111111   Month  PL       Active   27caab41-c3f5-4f6c-b42f-fab719239d07
+ 
+     FROM THE ACT   - identical under every carrier:
+         paymentId  same
+         payerId    same
+         period     same
+         country    same
+         status     same
+ 
+     MINTED INSIDE  - carried by none of them:
+         subscriptionId  3 distinct values across 3 runs
+ 
+
+
+  Passed TheThreeCostsOfThePlane_GrowthReplayAndThroughput [5 s]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 
+ === what the record costs ===
+ 
+     build configuration (engine + harness)     : Debug
+     runtime                                    : .NET 9.0.14
+     OS                                         : Microsoft Windows 10.0.26200
+     processor                                  : Intel64 Family 6 Model 183 Stepping 1, GenuineIntel x32
+     GC                                         : workstation, Interactive
+     runs per timed quantity                    : 10 after a discarded warm-up, median [min..max]
+ 
+     journal after definition + first exercise  : 554 bytes (exact)
+     marginal bytes per additional exercise      : 112  (N=1000; 111 at N=100; exact)
+ 
+     replay, record of 100 exercises             : 3.8 ms  [3.6..4.5]
+     replay, record of 1,000 exercises           : 14.3 ms  [12.4..21.1]
+ 
+     through the plane, live (1,000 exercises)   : 2,421/s  [2,145..2,472]
+     the same statements as direct calls          : 525,656/s  [516,492..551,828]
+     price of definition + record + modality      : 220x  (ratio of the two medians above,
+                                                    reported to two figures: repeated invocations
+                                                    of this lab move it by a few percent)
+ 
+
+
+  Passed ACapturedMintBreaksReplayEquivalenceAndASuppliedKeyDoesNot [50 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%
+ === where replay equivalence breaks ===
+ 
+     CAPTURED arm - the minted identity travels as a later act's argument
+         identity minted, live                  : 19e2d339...
+         identity minted, replay                : dd5bf7fa...   (fresh, as the axiom licenses)
+         the later act's journaled argument     : 19e2d339...   (the live literal, re-injected)
+         invariant live   (key == its payment's id) : True
+         invariant replay (key == its payment's id) : False
+ 
+     SUPPLIED arm - a key the assembler chose travels instead
+         identity minted, live                  : c4ed5bbe...
+         identity minted, replay                : 0dee2123...   (fresh too)
+         the later act's journaled argument     : 'purchase-1'   (crossed the plane)
+         invariant live   (found under its key) : True
+         invariant replay (found under its key) : True
+ 
+     The mint is fresh in both arms and neither is a failure of itself:
+     what separates the arms is whether a name minted during the trace was
+     recorded as an argument. Where it was, no renaming can align the two runs.
+ 
+
+
+  Passed TheJoinedActRunsAgainstTheShippedDomainWithNothingStandingIn [< 1 ms]
+  Standard Output Messages:
+ 
+ === the joined act over a prebuilt domain assembly ===
+     test doubles used: 0        (no store, no bus, no inbox, no clock)
+     domain operations invoked: 3
+ 
+     seam PRODUCED by the first half:
+         payment id  : 432b5c9d-7de6-4bb4-9c68-f18f2e331aeb
+         payer id    : b72532c6-070e-4d04-a3cc-43576364e314
+     seam FABRICATED where the suite joins nothing:
+         payment id  : d10437ca-36b9-4337-9f77-f20d1b90c359
+         payer id    : e3422ce6-593b-4b0a-abb3-a8e4e63fb913
+ 
+
+
+  Passed TheSameReadOnlyOperationLeavesHistoryOnlyWhenTheAssemblerSaysSo [22 ms]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%
+ === one read-only operation, two attributions ===
+ 
+     journal head after setup                    : 2
+     after the body exercised as a QUERY         : 2   (unchanged)
+     after the same body as a COMMAND            : 3   (advanced)
+     after the same body queried again           : 3   (unchanged)
+     after replaying the journal from scratch    : 3
+ 
+     the domain computed the same value each time: {"total":50.0}
+ 
+     Neither the operation nor the verb changed. What changed is a decision the
+     assembler took per performance: whether this one counts as the subject's history.
+ 
+
+
+
+Test Run Successful.
+Total tests: 21
+     Passed: 21
+ Total time: 14.8694 Seconds

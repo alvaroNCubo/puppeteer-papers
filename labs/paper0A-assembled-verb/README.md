@@ -5,7 +5,7 @@ count the paper prints resolves to an assertion or a printed output here; nothin
 Appendix A is described that cannot be re-run.
 
 **Read `labs/paper0A-README.md` first** if you have not run these before. It states the three
-prerequisites, what counts as reproduced, and the one trap — `dotnet test` passes twenty and prints
+prerequisites, what counts as reproduced, and the one trap — `dotnet test` passes twenty-one and prints
 none of the paper's numbers.
 
 ## Pins
@@ -61,7 +61,7 @@ Two notes the paper's own method makes load-bearing:
 | `TheTrajectoryBecomesObservableLab` | §8 | the corollary: two reactions over unrelated patterns answer one question identically, correlated by the recorded act itself |
 | `TheConstitutionPrototypedOnAThirdPartyEngineLab` | §3.2, §8 | the constitution arrangement prototyped on Orleans, the coordination row's own engine: **1** definition and **2** exercises in the engine's journal; a query performance leaves it unmoved; reconstruction **re-executes every journaled statement**; the domain-minted identity differs per replay |
 | `WhereReplayEquivalenceBreaksLab` | §4.3, §8, App. C | the calculus's prediction put to the engine: a minted identity captured into a later act's recorded arguments breaks the composition's invariant on replay (true→**false**); the same composition referring to it by a supplied key holds (true→true), the mint fresh in both arms |
-| `WhatTheRecordCostsLab` | §8 | the record's price (Release, n=10 after one discarded warm-up, median [min..max], environment printed): **554** bytes for definition + first exercise, **~112** per additional (exact); replay **5.0 ms** at 100 and **15.9 ms** at 1,000 exercises; **~2,430**/s through the plane vs **~533,000**/s direct — **220x**, the ratio of the printed medians, and the one figure that does not reproduce as a figure: six runs here gave 196x–220x, and an independent reproduction printed 137x and 362x on two other environments |
+| `WhatTheRecordCostsLab` | §8 | the record's price (Release, n=10 after one discarded warm-up, median [min..max], environment printed): **554** bytes for definition + first exercise, **~112** per additional (exact); replay **4.6 ms** at 100 and **15.0 ms** at 1,000 exercises; **~2,490**/s through the plane vs **~529,000**/s direct — **220x**, the ratio of the printed medians, and the one figure that does not reproduce as a figure: six runs here gave 196x–220x, and an independent reproduction printed 137x and 362x on two other environments |
 
 ## Additional instruments
 
@@ -73,7 +73,7 @@ kept because their assertions guard the same corpus the cited labs run against.
 
 ## A reference run
 
-One captured run of the twenty in Debug, and one of the price lab in Release, are published at
+One captured run of the twenty-one in Debug, and one of the price lab in Release, are published at
 `data/paper0A-assembled-verb/` **in the papers repository**, from the author's machine at the pins
 above — there to compare against, not to stand in for a run of your own. If you received this
 suite as an archive rather than as a clone, check that those two logs came with it; a package that

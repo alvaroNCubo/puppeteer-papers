@@ -1,0 +1,74 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Puppeteer -> C:\Users\alvar\source\repos\puppeteer\Puppeteer\bin\Release\net9.0\Puppeteer.dll
+  RepertoireBoundaryFixture -> C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\RepertoireBoundaryFixture\bin\Release\net9.0\RepertoireBoundaryFixture.dll
+  paper0A-assembled-verb -> C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\bin\Release\net9.0\UnitTestAssembledVerbOnPuppeteer.dll
+Test run for C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\bin\Release\net9.0\UnitTestAssembledVerbOnPuppeteer.dll (.NETCoreApp,Version=v9.0)
+A total of 1 test files matched the specified pattern.
+C:\Users\alvar\source\repos\puppeteer-papers\labs\paper0A-assembled-verb\bin\Release\net9.0\UnitTestAssembledVerbOnPuppeteer.dll
+  Passed TheThreeCostsOfThePlane_GrowthReplayAndThroughput [5 s]
+  Standard Output Messages:
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ Starting Puppeteer.EventSourcing.ActorHandler's Actor
+ 
+ === what the record costs ===
+ 
+     build configuration (engine + harness)     : Release
+     runtime                                    : .NET 9.0.14
+     OS                                         : Microsoft Windows 10.0.26200
+     processor                                  : Intel64 Family 6 Model 183 Stepping 1, GenuineIntel x32
+     GC                                         : workstation, Interactive
+     runs per timed quantity                    : 10 after a discarded warm-up, median [min..max]
+ 
+     journal after definition + first exercise  : 554 bytes (exact)
+     marginal bytes per additional exercise      : 112  (N=1000; 111 at N=100; exact)
+ 
+     replay, record of 100 exercises             : 4.6 ms  [4.4..5.6]
+     replay, record of 1,000 exercises           : 15.0 ms  [13.9..20.2]
+ 
+     through the plane, live (1,000 exercises)   : 2,487/s  [2,310..2,562]
+     the same statements as direct calls          : 528,907/s  [476,338..542,076]
+     price of definition + record + modality      : 210x  (ratio of the two medians above,
+                                                    reported to two figures: repeated invocations
+                                                    of this lab move it by a few percent)
+ 
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 6.4323 Seconds
