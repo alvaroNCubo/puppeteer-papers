@@ -5,7 +5,7 @@
 # which the default console logger hides. So every command below adds the detailed
 # logger, and the numbers appear.
 #
-#   .\run-labs.ps1                                     all 20, with their output
+#   .\run-labs.ps1                                     all 21, with their output
 #   .\run-labs.ps1 -List                               the lab names, read off the sources
 #   .\run-labs.ps1 -Lab WhoDecidesWhatCountsAsHistory  one lab (any part of its name)
 #   .\run-labs.ps1 -Lab WhatTheRecordCosts -Release    the price table of section 8
