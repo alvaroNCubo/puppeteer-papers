@@ -4,11 +4,55 @@
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <!-- annotations, not disable: the Orleans state and grain types below are written with
+         the '?' annotations that library's own samples use, and under 'disable' each one is
+         a CS8632. Annotations are read and nullable warnings stay off, so no lab changes. -->
+    <Nullable>annotations</Nullable>
     <IsPackable>false</IsPackable>
     <AssemblyName>UnitTestAssembledVerbOnPuppeteer</AssemblyName>
     <RootNamespace>UnitTestAssembledVerbOnPuppeteer</RootNamespace>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- The engine. It defaults to the sibling clone every lab in this repository uses,
+         so a reviewer who cloned the two repositories side by side sets nothing. Point
+         PuppeteerEngine elsewhere if the checkout lives somewhere else:
+
+             $env:PuppeteerEngine = "C:\path\to\Puppeteer"
+             dotnet test -p:PuppeteerEngine=C:\path\to\Puppeteer
+
+         The paper's counts were taken at commit 3160e39. -->
+    <PuppeteerEngine Condition="'$(PuppeteerEngine)' == ''">$(MSBuildThisFileDirectory)..\..\..\puppeteer</PuppeteerEngine>
+    <CorpusBinDir>$(MSBuildThisFileDirectory)corpus-bin</CorpusBinDir>
+    <!-- fetch-corpus.ps1 clones the two corpus repositories into corpus-src/ beside this
+         file by default, and the SDK's default glob would then compile both repositories'
+         entire source as part of this project - hundreds of CS0246 from files that are not
+         this lab's. .gitignore lists corpus-src/, which is why it never appeared in a
+         commit, but MSBuild does not read .gitignore. Excluded from every default item
+         glob, not only Compile, so the same cannot happen through another item type.
+         Check it with: dotnet msbuild paper0A-assembled-verb.csproj -getItem:Compile -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);corpus-src\**;corpus-bin\**</DefaultItemExcludes>
+    <!-- Two analyzer opinions this suite declines, each for a stated reason.
+         MSTEST0037 asks for the typed assertion in place of Assert.IsTrue; these labs keep
+         Assert.IsTrue because its second argument carries the sentence that says what the
+         assertion means, and that sentence is what a reviewer reads when one fails.
+         VSTHRD200 asks for an "Async" suffix on methods returning an awaitable; the methods
+         it names are Orleans grain-interface members whose names are the vocabulary of the
+         arrangement being measured, and renaming them would rename the measurement.
+         This silences this project's own warnings, not the build's: the engine is consumed
+         as a ProjectReference and compiles with a handful of its own, which nothing here
+         can suppress. Expect those to remain. -->
+    <NoWarn>$(NoWarn);MSTEST0037;VSTHRD200</NoWarn>
+  </PropertyGroup>
+
+  <!-- Both externals this suite needs are checked here rather than left to fail as a
+       missing path or as several hundred CS0246s. -->
+  <Target Name="RequireEngineAndCorpus" BeforeTargets="CollectPackageReferences;ResolveProjectReferences">
+    <Error Condition="!Exists('$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj')"
+           Text="The engine was not found at $(PuppeteerEngine). Clone github.com/alvaroNCubo/puppeteer as a sibling of this repository, at commit 3160e39, or set -p:PuppeteerEngine=&lt;path&gt;. See labs/paper0A-README.md." />
+    <Error Condition="!Exists('$(CorpusBinDir)\Ordering.Domain.dll') Or !Exists('$(CorpusBinDir)\CompanyName.MyMeetings.Modules.Payments.Domain.dll') Or !Exists('$(CorpusBinDir)\CompanyName.MyMeetings.BuildingBlocks.Domain.dll')"
+           Text="corpus-bin is missing at least one of the three corpus assemblies. Run .\fetch-corpus.ps1 once: it clones both corpus repositories at their pinned commits and builds them. Nothing of either repository is redistributed here. See labs/paper0A-README.md." />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="MSTest" Version="4.0.1" />
@@ -21,9 +65,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The engine, as the sibling clone every lab in this repository uses. Pin it to the
-         commit recorded in this lab's README before running. -->
-    <ProjectReference Include="..\..\..\puppeteer\Puppeteer\Puppeteer.csproj" />
+    <!-- The engine, at the path resolved above: the sibling clone by default. -->
+    <ProjectReference Include="$(PuppeteerEngine)\Puppeteer\Puppeteer.csproj" />
     <!-- Referenced so it is always built and lands beside the tests. Referencing it grants
          no access to what it declares internal - that is the point of the boundary lab, and
          this project is the host that cannot name it. -->

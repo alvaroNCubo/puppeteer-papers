@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace UnitTestAssembledVerbOnPuppeteer
@@ -132,6 +133,11 @@ namespace UnitTestAssembledVerbOnPuppeteer
 
             Console.WriteLine();
             Console.WriteLine("=== the census, recoded by the published rules ===");
+            Console.WriteLine();
+            Console.WriteLine($"    corpus, commerce  : {eshopRoot}");
+            Console.WriteLine($"                        at {HeadOf(eshopRoot)} (pinned {EshopPin})");
+            Console.WriteLine($"    corpus, monolith  : {grzybekRoot}");
+            Console.WriteLine($"                        at {HeadOf(grzybekRoot)} (pinned {GrzybekPin})");
             Console.WriteLine();
             Console.WriteLine($"    lexicon, ordering : {string.Join(", ", orderingAggregates)}");
             Console.WriteLine($"    lexicon, payments : {string.Join(", ", paymentsAggregates)}");
@@ -271,8 +277,42 @@ namespace UnitTestAssembledVerbOnPuppeteer
             }
         }
 
+        // The commits this census was taken at. A population of 72 is a fact about a corpus
+        // at a commit, so the lab checks that it is reading that commit rather than whatever
+        // clone happened to be nearby: without this, a reviewer with the repositories already
+        // on disk at some other revision gets a different census and no warning that it is a
+        // different census.
+        private const string EshopPin = "9b4f943";
+        private const string GrzybekPin = "91c8ef2";
+
+        private static string HeadOf(string repoRoot)
+        {
+            var psi = new ProcessStartInfo("git", $"-C \"{repoRoot}\" rev-parse --short=7 HEAD")
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var process = Process.Start(psi);
+            string head = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit(30_000);
+            return process.ExitCode == 0 && head.Length > 0 ? head : "unknown";
+        }
+
+        private static void RequirePin(string repoRoot, string pin, string what)
+        {
+            string head = HeadOf(repoRoot);
+            Assert.AreEqual(pin, head,
+                $"The {what} corpus at {repoRoot} is at {head}, not the pinned {pin}. The census's "
+                + "population is a count over a corpus at a commit, so a different commit is a "
+                + "different census. Run fetch-corpus.ps1, which clones both repositories at their "
+                + "pinned commits, and let this lab read those clones.");
+        }
+
         // The corpus roots: the clones fetch-corpus.ps1 makes (corpus-src/eshop, corpus-src/grzybek),
         // or the same repositories as siblings anywhere up the tree. No absolute path is assumed.
+        // Whichever pair is found must be at the pinned commits.
         private static (string eshop, string grzybek) LocateCorpus()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -286,6 +326,8 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 {
                     if (Directory.Exists(Path.Combine(e, "src")) && Directory.Exists(Path.Combine(g, "src")))
                     {
+                        RequirePin(e, EshopPin, "commerce");
+                        RequirePin(g, GrzybekPin, "modular-monolith");
                         return (e, g);
                     }
                 }

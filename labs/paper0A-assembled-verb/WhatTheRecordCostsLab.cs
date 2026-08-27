@@ -32,10 +32,17 @@ namespace UnitTestAssembledVerbOnPuppeteer
     // not samples. Every timed quantity is measured over n=10 runs and reported as
     // median [min..max]: ten cold reconstructions per journal size (fresh actor each time,
     // process warm), ten separately built 1,000-exercise journals for live throughput, ten
-    // direct loops. The throughput multiplier is computed from the same two medians the
-    // table prints. The environment - OS, runtime, processor, GC mode, build configuration -
-    // is printed with the numbers; the two corpus domain assemblies are consumed as prebuilt
+    // direct loops. Each of those three arms is preceded by one warm-up run whose time is
+    // discarded, so that no median includes the one pass that also paid for jitting the path
+    // it measures. The throughput multiplier is computed from the same two medians the table
+    // prints. The environment - OS, runtime, processor, GC mode, build configuration - is
+    // printed with the numbers; the two corpus domain assemblies are consumed as prebuilt
     // Debug binaries throughout, identically in both arms.
+    //
+    // The two byte counts are exact and reproduce anywhere. The four times are wall times on
+    // one machine and will differ on another; what should reproduce is their shape - reuse
+    // cheaper than restatement, replay linear in the record, and the plane's throughput two
+    // to three orders below a direct call that leaves nothing behind.
     [TestClass]
     public class WhatTheRecordCostsLab
     {
@@ -85,7 +92,9 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 var replay100 = Sample.Of(ColdReplays("growth100", Path.Combine(root, "growth100"), 100));
                 var replay1000 = Sample.Of(ColdReplays("growth1000", Path.Combine(root, "growth1000"), 1000));
 
-                // throughput through the plane - ten separately built 1,000-exercise journals
+                // throughput through the plane - ten separately built 1,000-exercise journals,
+                // after one discarded warm-up run (see ColdReplays for why)
+                BuildJournal(root, "livewarmup", 1000, out _);
                 var liveTimes = new List<double>();
                 for (int run = 0; run < Runs; run++)
                 {
@@ -94,7 +103,11 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 }
                 var live = Sample.Of(liveTimes);
 
-                // the same statements as direct calls - ten loops
+                // the same statements as direct calls - ten loops, after one discarded warm-up.
+                // The baseline needs it more than the plane does: its loop is short enough that
+                // the jitting of the two domain types dominated the first run, which pulled the
+                // median of ten toward a cost the arm does not actually pay.
+                MeasureDirect(1000);
                 var directTimes = new List<double>();
                 for (int run = 0; run < Runs; run++)
                 {
@@ -112,7 +125,14 @@ namespace UnitTestAssembledVerbOnPuppeteer
                 Console.WriteLine($"    OS                                         : {RuntimeInformation.OSDescription}");
                 Console.WriteLine($"    processor                                  : {Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER") ?? "unspecified"} x{Environment.ProcessorCount}");
                 Console.WriteLine($"    GC                                         : {(GCSettings.IsServerGC ? "server" : "workstation")}, {GCSettings.LatencyMode}");
-                Console.WriteLine($"    runs per timed quantity                    : {Runs}, median [min..max]");
+                Console.WriteLine($"    runs per timed quantity                    : {Runs}, median [min..max], after 1 discarded warm-up");
+                if (BuildConfiguration() == "Debug")
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("    NOTE: section 8's table was taken in Release. The two byte counts below are");
+                    Console.WriteLine("          exact in either configuration; the four times are not comparable to the");
+                    Console.WriteLine("          paper's until you re-run this lab with -c Release.");
+                }
                 Console.WriteLine();
                 Console.WriteLine($"    journal after definition + first exercise  : {bytesAt1_1000:N0} bytes (exact)");
                 Console.WriteLine($"    marginal bytes per additional exercise      : {marginal1000:N0}  (N=1000; {marginal100:N0} at N=100; exact)");
@@ -163,6 +183,14 @@ namespace UnitTestAssembledVerbOnPuppeteer
         private static List<double> ColdReplays(string name, string dir, int expected)
         {
             var times = new List<double>();
+
+            // One discarded reconstruction first. "Cold" here means the actor is fresh and
+            // reads the record from disk, not that the process has never done this before:
+            // the first pass through any of these paths also pays for jitting them, and a
+            // cost attributed to the record that is really the compiler's would be a
+            // measurement error rather than a price.
+            NewActor(name, dir).Using(CountQuery).PerformQuery();
+
             for (int run = 0; run < Runs; run++)
             {
                 var sw = Stopwatch.StartNew();

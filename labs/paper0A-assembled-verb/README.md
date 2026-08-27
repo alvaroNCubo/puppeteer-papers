@@ -4,27 +4,45 @@ The measurements of *The Assembled Verb* (`0A-assembled-verb.md`), as one MSTest
 count the paper prints resolves to an assertion or a printed output here; nothing in the paper's
 Appendix A is described that cannot be re-run.
 
+**Read `labs/paper0A-README.md` first** if you have not run these before. It states the three
+prerequisites, what counts as reproduced, and the one trap — `dotnet test` passes twenty and prints
+none of the paper's numbers.
+
 ## Pins
 
 | what | where | commit |
 |---|---|---|
-| engine | `github.com/alvaroNCubo/puppeteer`, cloned as the sibling `../../../puppeteer` every lab in this repository uses | *pinned at deposit* |
+| engine | `github.com/alvaroNCubo/puppeteer`, cloned as a sibling of this repository — `../../../puppeteer` counted from this directory, which is the path every lab here uses and the one the `.csproj` resolves | `3160e39` |
 | commerce corpus | `github.com/dotnet/eShop` | `9b4f943` |
 | modular-monolith corpus | `github.com/kgrzybek/modular-monolith-with-ddd` | `91c8ef2` |
 
 The corpus commits are the same commits the dissection bundles of `paper0A-assets/` are based
 on: the binaries the paper composes and the sources it dissects are one corpus, pinned once.
 
+Set `-p:PuppeteerEngine=<path>` (or `$env:PuppeteerEngine`) if the engine checkout is not the
+sibling. Both externals are checked before the build: a missing engine and a missing `corpus-bin`
+each stop with a sentence naming what to do, rather than with a path error or several hundred
+`CS0246`s.
+
 ## Run
 
-```
-.\fetch-corpus.ps1      # once: clones both corpus repositories at the pinned commits,
-                        # builds the three domain assemblies into corpus-bin/
-dotnet test             # 20 labs, all green
+```powershell
+.\fetch-corpus.ps1      # once: clones both corpus repositories at the pinned commits, builds
+                        # the three domain assemblies into corpus-bin/, records provenance
+.\run-labs.ps1          # the 20 labs, with the numbers they print
 ```
 
-Requires git and the .NET SDKs the corpus targets (net9.0 and net8.0) plus net9.0 for the
-suite. Nothing of either corpus repository is redistributed in this archive.
+Requires git and one .NET SDK able to target net9.0 — a 9.0.x SDK is enough. Nothing of either
+corpus repository is redistributed in this archive.
+
+Two notes the paper's own method makes load-bearing:
+
+- **`WhatTheRecordCostsLab` needs Release.** §8's table was taken there. Its two byte counts are
+  exact in either configuration; its four times are not comparable to the paper's until you run
+  `.\run-labs.ps1 -Lab WhatTheRecordCosts -Release`. The lab says so itself when run in Debug.
+- **The corpus commit is verified, not assumed.** `EveryNameStaysWithinOneSubjectsVocabularyLab`
+  prints which two clones it read and at which commit, and fails if either is not at the pin: a
+  population of 72 is a count over a corpus at a commit.
 
 ## The labs the paper cites
 
@@ -42,7 +60,8 @@ suite. Nothing of either corpus repository is redistributed in this archive.
 | `EveryNameStaysWithinOneSubjectsVocabularyLab` (+ `CENSUS-CODEBOOK.md`) | §6 | the census under two coding rules: population **27 + 16 + 29 = 72** reproduced mechanically from the pinned clones; rule one (≥2 aggregates in one name) codes **0** T; rule two hands its blind spot — zero-aggregate names, process words — to manual coding: **3** residuals, each published with its reason, all S; agreement **72/72**, between same-authorship instruments — no independent coder |
 | `TheTrajectoryBecomesObservableLab` | §8 | the corollary: two reactions over unrelated patterns answer one question identically, correlated by the recorded act itself |
 | `TheConstitutionPrototypedOnAThirdPartyEngineLab` | §3.2, §8 | the constitution arrangement prototyped on Orleans, the coordination row's own engine: **1** definition and **2** exercises in the engine's journal; a query performance leaves it unmoved; reconstruction **re-executes every journaled statement**; the domain-minted identity differs per replay |
-| `WhatTheRecordCostsLab` | §8 | the record's price (Release, n=10, median [min..max], environment printed): **554** bytes for definition + first exercise, **~112** per additional (exact); cold replay **5.3 ms** at 100 and **21.3 ms** at 1,000 exercises; **~2,330**/s through the plane vs **~440,000**/s direct — **189x**, the ratio of the printed medians |
+| `WhereReplayEquivalenceBreaksLab` | §4.3, §8, App. C | the calculus's prediction put to the engine: a minted identity captured into a later act's recorded arguments breaks the composition's invariant on replay (true→**false**); the same composition referring to it by a supplied key holds (true→true), the mint fresh in both arms |
+| `WhatTheRecordCostsLab` | §8 | the record's price (Release, n=10 after one discarded warm-up, median [min..max], environment printed): **554** bytes for definition + first exercise, **~112** per additional (exact); replay **4.9 ms** at 100 and **16.3 ms** at 1,000 exercises; **~2,400**/s through the plane vs **~528,000**/s direct — **220x**, the ratio of the printed medians, and the one figure that does not reproduce as a figure: six runs here gave 196x–220x, and an independent reproduction printed 137x and 362x on two other environments |
 
 ## Additional instruments
 
@@ -51,3 +70,11 @@ Retained in the suite, not cited by the paper's body: `AssembledVerbOverTwoDomai
 `FlatRepertoireNamespaceLab`, `CapturingADomainMintedIdentityLab`. They measure adjacent
 properties (type-graph components, journal record contents, Eval's parameter-plane edge) and are
 kept because their assertions guard the same corpus the cited labs run against.
+
+## A reference run
+
+One captured run of the twenty in Debug, and one of the price lab in Release, are published at
+`data/paper0A-assembled-verb/` **in the papers repository**, from the author's machine at the pins
+above — there to compare against, not to stand in for a run of your own. If you received this
+suite as an archive rather than as a clone, check that those two logs came with it; a package that
+carries only the labs will not have them, and the comparison is worth asking for.
