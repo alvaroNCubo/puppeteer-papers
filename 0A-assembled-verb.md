@@ -5,7 +5,7 @@ affiliation: Ncubo Ideas, Costa Rica
 orcid: 0009-0003-6174-5559
 date: 2026-08-27
 version: 0.1-draft
-status: v0.1-draft (pre-deposit) — complete draft under private review; not yet deposited on Zenodo, and the version counter advances only on deposits. The twenty-one labs of Appendix A run at the pinned engine commit 3160e39, and every file:line anchor is re-resolved at that commit before deposit. Every count resolves against the labs of Appendix A or the dissection bundles of paper0A-assets.
+status: v0.1-draft — complete draft; deposited on Zenodo; not yet peer-reviewed. Every file:line anchor is resolved at the deposited engine commit 3160e39, where the twenty-one labs of Appendix A run. Every count resolves against those labs or against the dissection bundles of paper0A-assets.
 keywords:
   - capability
   - composition
