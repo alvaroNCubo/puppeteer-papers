@@ -31,7 +31,7 @@ Individual papers below are the canonical citable artifacts; the monograph is th
 | 7 | [After the substrate: building software without a datacenter](07-after-the-substrate.md) | 0.1-draft | [10.5281/zenodo.20398998](https://doi.org/10.5281/zenodo.20398998) | Observes the joint operational consequence of the prior six papers: under a journaled-program substrate, cloud and microservice ecosystems become libraries the program invokes rather than habitats the program inhabits, and the datacenter ceases to be a structural requirement of running production software. The server-role becomes ephemeral as a side observation; the practical consequence is the headline. |
 | 8 | [Inference without Authority: the three authorities that govern an output](08-inference-without-authority.md) | 0.1-draft | [10.5281/zenodo.21499637](https://doi.org/10.5281/zenodo.21499637) | Names the three authorities that govern an output — the domain (what exists), the actor (what becomes observable), and the assembler (where observation occurs) — and the *assertion beyond warrant* their collapse leaves at each end: a producer that stipulates a destination it cannot know, and an observer that infers a history it was never told. |
 | 9 | [Identity Precedes Staging: one play, many stages](09-identity-precedes-staging.md) | 0.1-draft | [10.5281/zenodo.21894206](https://doi.org/10.5281/zenodo.21894206) | Names the property that tells a domain apart from any *staging* of it — where it runs and who observes it — and measures one domain held fixed across five stagings and six clients at zero edits, against an orthodox ports-and-adapters version of the same domain built for the comparison. The baseline *decouples* where this arrangement *closes*; recognition of a routine in the record follows as a consequence rather than a subject. |
-| 0A | [The Assembled Verb: repertoire, assembly, and the authorship of a verb](0A-assembled-verb.md) | 0.1-draft (pre-deposit) | — | Names *assembly* as the plane at which the use of capabilities becomes a capability of a subject: one recorded definition whose content is the operations, exercised by reference, with command/query modality — and thereby what enters the subject's history — attributed per performance at that plane rather than inherited. A criterion any record can be asked separates recorded constitution from coordination and description, measured on third-party engines and priced against the direct baseline. |
+| 0A | [The Assembled Verb: repertoire, assembly, and the authorship of a verb](0A-assembled-verb.md) | 0.1-draft | [10.5281/zenodo.22135421](https://doi.org/10.5281/zenodo.22135421) | Names *assembly* as the plane at which the use of capabilities becomes a capability of a subject: one recorded definition whose content is the operations, exercised by reference, with command/query modality — and thereby what enters the subject's history — attributed per performance at that plane rather than inherited. A criterion any record can be asked separates recorded constitution from coordination and description, measured on third-party engines and priced against the direct baseline. |
 
 ## How they relate
 
@@ -98,6 +98,10 @@ The following papers are archived in Zenodo with citable DOIs:
 **Paper 9** — *Identity Precedes Staging*:
 
 > Rivera, A. (2026). *Identity Precedes Staging: one play, many stages* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.21894206
+
+**Paper 0A** — *The Assembled Verb*:
+
+> Rivera, A. (2026). *The Assembled Verb: repertoire, assembly, and the authorship of a verb* (v0.1) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.22135421
 
 ## License
 
