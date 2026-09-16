@@ -96,6 +96,12 @@ further be enclosed on its own: its journal and its repertoire form a self-conta
 body of knowledge that can be carried, read without the runtime that produced it,
 and, where appropriate, kept up to date.
 
+The user interface belongs to the staging, not to the domain: it is part of the stage
+on which a third party observes, not of what the subject knows how to do. Several
+faces may be mounted over one Puppet — web, console, desktop, mobile — each
+specialized for its medium, none holding authority over the repertoire. Changing the
+face, or running several at once, leaves the repertoire untouched.
+
 ## What this is
 
 Ten analytic theory papers (Gregor, 2006, Type I) on journaled-program substrates. Each names a structural property — porosity, separability, partition, continuity, substrate, symptom, accidental category, authority, identity, assembly — and traces its consequences.
