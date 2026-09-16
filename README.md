@@ -55,12 +55,12 @@ OUTSIDE --> parameters -->|         PUPPET          |--> print --> OUTSIDE
                                        |
                                     rests on
                                        v
-                 +-------------------------------------------+
-                 |             INFRASTRUCTURE                |
-                 |                                           |
-                 |  memory, persistence, time                |
-                 |  communications, P2P, multiple machines    |
-                 +-------------------------------------------+
+                  +-----------------------------------------+
+                  |             INFRASTRUCTURE              |
+                  |                                         |
+                  |  memory, persistence, time              |
+                  |  communications, P2P, many machines     |
+                  +-----------------------------------------+
 
                       Infrastructure runs the mechanisms.
                       The Puppet keeps the meaning.
