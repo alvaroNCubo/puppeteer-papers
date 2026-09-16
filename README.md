@@ -19,52 +19,54 @@ Infrastructure is what makes those capacities possible — memory, persistence, 
 communications, multiple machines — without being part of the program the Puppet
 performs.
 
-CONVENTIONAL PROGRAMMING
+```text
+    CONVENTIONAL PROGRAMMING
 
-                    +-------------+
-                    |   PROGRAM   |
-                    +------+------+
-                           |
-                      is executed
-                           |
-        +------------------+------------------+
-        |                  |                  |
-        v                  v                  v
-   persistence            I/O           communication
-        |                  |                  |
-        +------------------+------------------+
-                           |
-                the program's own burden
+                        +-------------+
+                        |   PROGRAM   |
+                        +------+------+
+                               |
+                          is executed
+                               |
+            +------------------+------------------+
+            |                  |                  |
+            v                  v                  v
+       persistence            I/O           communication
+            |                  |                  |
+            +------------------+------------------+
+                               |
+                    the program's own burden
 
 
-PUPPET-ORIENTED PROGRAMMING
+    PUPPET-ORIENTED PROGRAMMING
 
-                                 PROGRAM / SCORE
-                                       |
-                                  is handed to
-                                       v
-                          +-------------------------+
-OUTSIDE --> parameters -->|         PUPPET          |--> print --> OUTSIDE
-                          |                         |
-                          |   performs it           |
-                          |   acts                  |
-                          |   keeps its history     |
-                          |   says                  |--> tell --> other Puppets
-                          |   remembers             |
-                          +------------+------------+
-                                       |
-                                    rests on
-                                       v
-                  +-----------------------------------------+
-                  |             INFRASTRUCTURE              |
-                  |                                         |
-                  |  memory, persistence, time              |
-                  |  communications, P2P, many machines     |
-                  +-----------------------------------------+
+                                     PROGRAM / SCORE
+                                           |
+                                      is handed to
+                                           v
+                              +-------------------------+
+    OUTSIDE --> parameters -->|         PUPPET          |--> print --> OUTSIDE
+                              |                         |
+                              |   performs it           |
+                              |   acts                  |
+                              |   keeps its history     |
+                              |   says                  |--> tell --> other Puppets
+                              |   remembers             |
+                              +------------+------------+
+                                           |
+                                        rests on
+                                           v
+                      +-----------------------------------------+
+                      |             INFRASTRUCTURE              |
+                      |                                         |
+                      |  memory, persistence, time              |
+                      |  communications, P2P, many machines     |
+                      +-----------------------------------------+
 
-                      Infrastructure runs the mechanisms.
-                      The Puppet keeps the meaning.
-                      
+                          Infrastructure runs the mechanisms.
+                          The Puppet keeps the meaning.
+```
+
 ### The score and the performer
 
 In conventional programming we write a program in order to run it. Under
