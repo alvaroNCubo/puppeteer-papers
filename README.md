@@ -82,6 +82,20 @@ can inhabit any of those stages without rewriting the score.
 **A Puppet is not another way of writing the program's infrastructure; it is a way of
 separating what the subject does from the machinery that makes doing it possible.**
 
+### Repertoires and the boundary
+
+Puppet-Oriented Programming makes it possible to build domains that carry no I/O, no
+persistence, and no couplings introduced to keep execution going. Reduced to what the
+subject knows how to do, such a domain is a **repertoire**: it can be reused, and it
+can also be composed with other repertoires into larger ones.
+
+I/O moves to the Puppet's boundary. The infrastructure that performs persistence,
+communication, and output can therefore be swapped — and even optimized per message
+or per output — without touching the Puppet or its repertoire. Each Puppet can
+further be enclosed on its own: its journal and its repertoire form a self-contained
+body of knowledge that can be carried, read without the runtime that produced it,
+and, where appropriate, kept up to date.
+
 ## What this is
 
 Ten analytic theory papers (Gregor, 2006, Type I) on journaled-program substrates. Each names a structural property — porosity, separability, partition, continuity, substrate, symptom, accidental category, authority, identity, assembly — and traces its consequences.
