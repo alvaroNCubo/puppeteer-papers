@@ -21,49 +21,50 @@ performs.
 
 CONVENTIONAL PROGRAMMING
 
-                    ┌─────────────┐
-                    │   PROGRAM   │
-                    └──────┬──────┘
-                           │
+                    +-------------+
+                    |   PROGRAM   |
+                    +------+------+
+                           |
                       is executed
-                           │
-        ┌──────────────────┼──────────────────┐
-        ▼                  ▼                  ▼
+                           |
+        +------------------+------------------+
+        |                  |                  |
+        v                  v                  v
    persistence            I/O           communication
-        │                  │                  │
-        └──────────────────┴──────────────────┘
-                           │
+        |                  |                  |
+        +------------------+------------------+
+                           |
                 the program's own burden
 
 
 PUPPET-ORIENTED PROGRAMMING
 
-                             PROGRAM / SCORE
-                                   │
-                              is handed to
-                                   ▼
-                          ┌─────────────────────────┐
-OUTSIDE ──► parameters ──►│         PUPPET          │──► print ──► OUTSIDE
-                          │                         │
-                          │   performs it           │
-                          │   acts                  │
-                          │   keeps its history     │
-                          │   says                  │──► tell ──► other Puppets
-                          │   remembers             │
-                          └────────────┬────────────┘
-                                       │
+                                 PROGRAM / SCORE
+                                       |
+                                  is handed to
+                                       v
+                          +-------------------------+
+OUTSIDE --> parameters -->|         PUPPET          |--> print --> OUTSIDE
+                          |                         |
+                          |   performs it           |
+                          |   acts                  |
+                          |   keeps its history     |
+                          |   says                  |--> tell --> other Puppets
+                          |   remembers             |
+                          +------------+------------+
+                                       |
                                     rests on
-                                       ▼
-                 ┌───────────────────────────────────────────┐
-                 │              INFRASTRUCTURE               │
-                 │                                           │
-                 │  memory · persistence · time              │
-                 │  communications · P2P · multiple machines │
-                 └───────────────────────────────────────────┘
+                                       v
+                 +-------------------------------------------+
+                 |             INFRASTRUCTURE                |
+                 |                                           |
+                 |  memory, persistence, time                |
+                 |  communications, P2P, multiple machines    |
+                 +-------------------------------------------+
 
                       Infrastructure runs the mechanisms.
                       The Puppet keeps the meaning.
-
+                      
 ### The score and the performer
 
 In conventional programming we write a program in order to run it. Under
