@@ -75,7 +75,7 @@ itself, it is handed to a performer. The Puppet is that performer. The score sta
 what may be done; the Puppet performs it, keeps the history of its performance, and
 holds the relation to the outside.
 
-The stage may change radically — CLI, desktop, web, WASM, an embedded system or a
+The stage may change radically — CLI, desktop, web, an embedded system or a
 robot; a monolith, client/server, P2P, or a multi-machine cloud topology. The Puppet
 can inhabit any of those stages without rewriting the score.
 
