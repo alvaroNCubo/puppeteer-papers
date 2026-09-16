@@ -1,8 +1,8 @@
 # Characterizing the Puppet
 
-### A Unifying Explanation for the Architectural Observations Developed Throughout the Puppeteer Papers
+## A Unifying Explanation for the Architectural Observations Developed Throughout the Puppeteer Papers
 
-Across these papers, independent architectural observations gradually accumulate: performative verbs, durable history, reactions, authority, staging, and repertoire. This series proposes that treating them as the faculties of a single computational entity provides a coherent explanation for those observations. Whether viewed as a design abstraction or as a computational characterization, the resulting software speaks more directly about its domain.
+Across these papers, independent architectural observations gradually accumulate: performative verbs, durable history, reactions, authority, staging, and repertoire. This series proposes that treating them as the faculties of a single computational entity provides a coherent explanation for those observations. The proposal holds whether the Puppet is viewed as a design abstraction or as a computational characterization.
 
 When software is modeled as if the Puppet were its fundamental modeling unit, the software speaks more directly about its domain.
 
@@ -113,7 +113,7 @@ Individual papers below are the canonical citable artifacts; the monograph is th
 
 The papers form a chain of preconditions: each construct names a property that becomes available once the prior papers' properties hold.
 
-Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 names *program–value separability* as the structural property that compilation, caching, and dense journaling all depend on. Paper 3 names the *now/deferred partition* exercised through *Reactions*; the partition is exercisable because the journal is dense (Paper 1) and the Reactions are programs (Paper 2). Paper 4 extends semantic continuity across actor boundaries through *tell*, which sits inside the Reactions surface of Paper 3. Paper 5 reframes deployment, replication, backup, and offline operation as instances of a single substrate property. Paper 6 names *infrastructural symptom* as the property by which compensatory layers can be diagnosed in any architecture. Paper 7 observes the joint operational consequence of the prior six: under a journaled-program substrate the datacenter ceases to be a structural requirement of running production software, and software construction passes back into the hands of those who model the domain. Paper 8 turns from execution to output, naming the three authorities that govern what an output is and where it goes — the domain, the actor, and the assembler — and the unwarranted assertion their collapse leaves at either end of the voice. Paper 9 asks what holds still while both of those change, and answers with a property of the domain that a built system can be measured for: its identity precedes any staging of it, which is why a staging can be varied without touching it.
+Paper 1 establishes the vocabulary of *porosity* and *anti-porosity*. Paper 2 names *program–value separability* as the structural property that compilation, caching, and dense journaling all depend on. Paper 3 names the *now/deferred partition* exercised through *Reactions*; the partition is exercisable because the journal is dense (Paper 1) and the Reactions are programs (Paper 2). Paper 4 extends semantic continuity across actor boundaries through *tell*, which sits inside the Reactions surface of Paper 3. Paper 5 reframes deployment, replication, backup, and offline operation as instances of a single substrate property. Paper 6 names *infrastructural symptom* as the property by which compensatory layers can be diagnosed in any architecture. Paper 7 observes the joint operational consequence of the prior six: under a journaled-program substrate the datacenter ceases to be a structural requirement of running production software, and software construction passes back into the hands of those who model the domain. Paper 8 turns from execution to output, naming the three authorities that govern what an output is and where it goes — the domain, the actor, and the assembler — and the unwarranted assertion their collapse leaves at either end of the voice. Paper 9 asks what holds still while both of those change, and answers with a property of the domain that a built system can be measured for: its identity precedes any staging of it, which is why a staging can be varied without touching it. Paper 0A names *assembly* as the plane at which the use of capabilities becomes a capability of a subject, closing the series where it began: with what the subject itself can be said to do.
 
 ## What is Puppeteer, and why it appears here
 
@@ -129,9 +129,9 @@ If your question is specific, an entry point may answer it without reading the w
 - *"How does a journaled program actually run — across actor boundaries, across machines, across failures, across deployments?"* → Papers 4 and 5.
 - *"What are the structural preconditions on which the rest of the series rests — vocabulary, compilation, consistency model?"* → Papers 1 through 3.
 
-For the full argument, read in order from Paper 1 through Paper 9. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point.
+For the full argument, read in order from Paper 01 through Paper 0A. The papers are cumulative — each relies on vocabulary and conditions established by its predecessors. Paper 1 is the entry point.
 
-All nine are working drafts (versions 0.1 through 0.4) and are open to feedback. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
+All ten are working drafts (v0.1) and are open to feedback. Papers 0B, 0C and 0D, together with the synthesizing paper, are in preparation. Issues are welcome at https://github.com/alvaroNCubo/puppeteer-papers/issues.
 
 ## How to cite
 
@@ -183,7 +183,7 @@ The following papers are archived in Zenodo with citable DOIs:
 
 This repository contains two kinds of content, licensed separately.
 
-**Papers and accompanying assets** — the nine `0X-*.md` files, this README, and the asciinema recordings and GIFs under `paper7-assets/` — are licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-papers). You may copy, redistribute, adapt, and build upon them, including for commercial purposes, provided you give appropriate attribution to the author.
+**Papers and accompanying assets** — the ten `0X-*.md` files, this README, and the asciinema recordings and GIFs under `paper7-assets/` — are licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-papers). You may copy, redistribute, adapt, and build upon them, including for commercial purposes, provided you give appropriate attribution to the author.
 
 **Code** — the C# projects under `labs/`, used as reproducibility artifacts for the papers' empirical sections — is licensed under the [Apache License 2.0](LICENSE-code).
 
