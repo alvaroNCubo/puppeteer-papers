@@ -6,6 +6,34 @@ Across these papers, independent architectural observations gradually accumulate
 
 When software is modeled as if the Puppet were its fundamental modeling unit, the software speaks more directly about its domain.
 
+## Puppet-Oriented Programming
+
+**Puppet-Oriented Programming** is a style of programming in which the program is
+not executed directly: it is handed to a **Puppet** to be performed.
+
+Through its own language, the Puppet assumes both the execution and its relation to
+the outside: it keeps the history of what it does, receives values from the outside,
+exposes results, can communicate with other Puppets, and can claim future attention.
+
+Infrastructure is what makes those capacities possible — memory, persistence, time,
+communications, multiple machines — without being part of the program the Puppet
+performs.
+
+### The score and the performer
+
+In conventional programming we write a program in order to run it. Under
+Puppet-Oriented Programming the program is closer to a **score**: it does not run by
+itself, it is handed to a performer. The Puppet is that performer. The score states
+what may be done; the Puppet performs it, keeps the history of its performance, and
+holds the relation to the outside.
+
+The stage may change radically — CLI, desktop, web, WASM, an embedded system or a
+robot; a monolith, client/server, P2P, or a multi-machine cloud topology. The Puppet
+can inhabit any of those stages without rewriting the score.
+
+**A Puppet is not another way of writing the program's infrastructure; it is a way of
+separating what the subject does from the machinery that makes doing it possible.**
+
 ## What this is
 
 Ten analytic theory papers (Gregor, 2006, Type I) on journaled-program substrates. Each names a structural property — porosity, separability, partition, continuity, substrate, symptom, accidental category, authority, identity, assembly — and traces its consequences.
