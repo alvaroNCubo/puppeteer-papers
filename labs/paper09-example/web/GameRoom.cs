@@ -15,14 +15,21 @@ namespace Tetris.Web;
 /// one move at a time — the deterministic serial flow, same as the InputSource
 /// stage's merge channel.
 /// </para>
+/// <para>
+/// The room also owns the clock, the one input no socket sends: gravity ticks
+/// merge into that same serial flow while a player is connected.
+/// </para>
 /// </summary>
 public sealed class GameRoom : IDisposable
 {
     private const int Width = 10;
     private const int Height = 20;
+    private const int GravityMs = 500;
 
     private readonly object gate = new();
     private readonly TetrisActor game;
+    private readonly Timer clock;
+    private bool disposed;
 
     public WebSocketSink Sink { get; }
     public string Session { get; }
@@ -43,6 +50,12 @@ public sealed class GameRoom : IDisposable
             if (game.Snapshot().IsAwaitingPiece) game.SpawnNext();
             game.RunReactions();
         }
+
+        // The clock is one more input source, as in input/ClockSource.cs: every
+        // 500 ms it submits "tick" through Apply, under the same lock as the
+        // sockets' moves. It ticks only while a player socket is attached, so an
+        // unwatched room waits instead of playing itself to game over.
+        clock = new Timer(_ => { if (Sink.HasSockets) Apply("tick"); }, null, GravityMs, GravityMs);
     }
 
     /// <summary>
@@ -54,6 +67,8 @@ public sealed class GameRoom : IDisposable
     {
         lock (gate)
         {
+            if (disposed) return; // a clock tick racing shutdown
+
             var s = game.Snapshot();
             var active = !s.IsAwaitingPiece && !s.IsGameOver;
 
@@ -80,6 +95,8 @@ public sealed class GameRoom : IDisposable
     {
         lock (gate)
         {
+            disposed = true;
+            clock.Dispose();
             game.Dispose();
         }
 

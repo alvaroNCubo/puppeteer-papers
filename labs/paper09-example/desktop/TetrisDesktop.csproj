@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <RootNamespace>Tetris.Desktop</RootNamespace>
+    <AssemblyName>TetrisDesktop</AssemblyName>
+    <!-- A native window runs only on Windows, but the solution still builds
+         elsewhere: this lets `dotnet build Tetris.sln` compile the project on
+         Linux or macOS instead of stopping at NETSDK1100. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The desktop window drives the TetrisActor only — no direct Well, no DSL,
+         no reference to the domain. The actor transitively brings the domain and
+         the engine; the domain's types stay internal to it. -->
+    <ProjectReference Include="..\actor\TetrisActor.csproj" />
+  </ItemGroup>
+
+</Project>

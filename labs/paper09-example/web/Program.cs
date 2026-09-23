@@ -10,7 +10,8 @@ using Tetris.Web;
 // WebSockets: ASP.NET WebSocket middleware here, the browser's native WebSocket
 // client-side, pages served inline (no CDN/library) so it works offline.
 //
-//   /          player page (arrow keys / space -> moves; renders the board)
+//   /          player page (arrow keys / space, or on-screen buttons on a touch
+//              screen -> moves; renders the board)
 //   /observer  observer page (watches ALL active sessions at once, read-only)
 //   /ws?session=<id>&role=player|observer   the WebSocket endpoint
 
@@ -143,29 +144,51 @@ static string? ParseMove(string text)
 // grid of filled "[]" vs blank cells.
 
 static string PlayerPage() => """
-<!doctype html><html><head><meta charset="utf-8"><title>Tetris — player</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tetris — player</title>
 <style>
- body{background:#111;color:#ddd;font-family:monospace;text-align:center}
- #board{font-size:18px;line-height:18px;white-space:pre;display:inline-block;margin-top:1em;letter-spacing:0}
+ html,body{height:100%}
+ body{background:#111;color:#ddd;font-family:monospace;text-align:center;margin:0;display:flex;flex-direction:column}
+ #board{font-size:18px;line-height:1;white-space:pre;margin:0;letter-spacing:0}
+ #room{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
  .hud{margin:.5em}
  .cell{display:inline-block;width:1.1em}
+ #pad{display:none;grid-template-areas:". rot ." "lft dwn rgt" "drp drp drp";grid-template-columns:repeat(3,1fr);gap:.5em;width:min(24em,92vw);margin:.5em auto 1em;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+ #pad button{font:inherit;font-size:1.5em;padding:.5em 0;border:1px solid #444;border-radius:.4em;background:#222;color:#ddd}
+ #pad button:active{background:#444}
+ @media (pointer:coarse){h2,#keys{display:none} #pad{display:grid}}
 </style></head><body>
 <h2>Tetris (web) — same Well, web shell</h2>
 <div class="hud">session: <b id="sess"></b> &nbsp; type: <b id="type">-</b> &nbsp; cleared: <b id="cleared">0</b> <span id="over"></span></div>
-<div class="hud">← → move &nbsp; ↑ rotate &nbsp; ↓ soft drop &nbsp; space hard drop</div>
-<pre id="board">connecting…</pre>
+<div class="hud" id="keys">← → move &nbsp; ↑ rotate &nbsp; ↓ soft drop &nbsp; space hard drop</div>
+<div id="room"><pre id="board">connecting…</pre></div>
+<div id="pad">
+ <button data-move="rotate" style="grid-area:rot">↻</button>
+ <button data-move="left" style="grid-area:lft">◀&#xFE0E;</button>
+ <button data-move="tick" style="grid-area:dwn">▼</button>
+ <button data-move="right" style="grid-area:rgt">▶&#xFE0E;</button>
+ <button data-move="drop" style="grid-area:drp">drop</button>
+</div>
 <script>
  const params = new URLSearchParams(location.search);
  const session = params.get('session') || 'web1';
  document.getElementById('sess').textContent = session;
  const ws = new WebSocket(`ws://${location.host}/ws?session=${encodeURIComponent(session)}&role=player`);
+ const send = mv => ws.send(JSON.stringify({move:mv}));
  const keymap = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'rotate',ArrowDown:'tick',' ':'drop'};
  addEventListener('keydown', e => {
    const mv = keymap[e.key];
-   if (mv && ws.readyState === 1) { ws.send(JSON.stringify({move:mv})); e.preventDefault(); }
+   if (mv && ws.readyState === 1) { send(mv); e.preventDefault(); }
  });
+ // Touch: the same five moves from on-screen buttons (shown only on a touch
+ // screen), one per press — a second input adapter onto the same socket.
+ // pointerdown rather than click, so a tap acts at once.
+ document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointerdown', e => {
+   e.preventDefault();
+   if (ws.readyState === 1) send(b.dataset.move);
+ }));
  ws.onmessage = ev => render(JSON.parse(ev.data));
  ws.onclose = () => { document.getElementById('board').textContent = '[disconnected]'; };
+ addEventListener('resize', fit);
  function render(f){
    document.getElementById('type').textContent = f.type || '-';
    document.getElementById('cleared').textContent = f.cleared;
@@ -175,6 +198,14 @@ static string PlayerPage() => """
    for (let r=0;r<f.height;r++){ let row='|'; for(let c=0;c<f.width;c++){ row += filled.has(r+','+c)?'[]':'  ';} s += row+'|\n'; }
    s += '+'+'='.repeat(f.width*2)+'+';
    document.getElementById('board').textContent = s;
+   fit();
+ }
+ // Scale the grid's font so it fills the room left between the HUD and the
+ // pad, on a phone as on a monitor.
+ function fit(){
+   const room = document.getElementById('room'), b = document.getElementById('board');
+   const k = Math.min(room.clientWidth / b.offsetWidth, room.clientHeight / b.offsetHeight) * 0.96;
+   b.style.fontSize = parseFloat(getComputedStyle(b).fontSize) * k + 'px';
  }
 </script></body></html>
 """;
